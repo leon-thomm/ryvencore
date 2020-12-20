@@ -1,6 +1,3 @@
-from PySide2.QtGui import QColor
-
-
 class Node:
     def __init__(
             self,
@@ -27,22 +24,7 @@ class Node:
         self.main_widget_class = widget
         self.main_widget_pos = widget_pos
         self.type_ = type_
-        self.custom_input_widgets = input_widgets  # {iw.__name__: iw for iw in input_widgets}  # {name: class}
-        # print(self.custom_input_widgets)
-        # self.type_ = type_  # just for clarity - grouping nodes (f.ex. 'http')
-        # self.description = description
-
-        # self.package = None  # everything else than 'built in' means that the node came from outside (important)
-
-        # # self.has_main_widget = False
-        # self.main_widget_class = widget
-        # self.main_widget_pos = widget_pos
-        # self.design_style = 'extended'  # default value just for testing
-        # self.color = QColor(198, 154, 21)  # default value just for testing
-        #
-        # #   dynamic: (get copied and can be individually edited in NIs)
-        # self.inputs = []
-        # self.outputs = []
+        self.custom_input_widgets = input_widgets
 
 
 class NodePort:
