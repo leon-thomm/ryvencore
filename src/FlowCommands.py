@@ -1,7 +1,7 @@
 from PySide2.QtWidgets import QUndoCommand
 
-from ryvencore.global_tools.class_inspection import find_type_in_object
-from ryvencore.NodeInstance import NodeInstance
+from src.global_tools.class_inspection import find_type_in_object
+from src.NodeInstance import NodeInstance
 
 
 class MoveComponents_Command(QUndoCommand):

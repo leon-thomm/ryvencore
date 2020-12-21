@@ -1,8 +1,8 @@
 from PySide2.QtCore import QObject, Signal
 
-from ryvencore.Flow import Flow
-from ryvencore.logging.Logger import Logger
-from ryvencore.script_variables.VarsManager import VarsManager
+from src.Flow import Flow
+from src.logging.Logger import Logger
+from src.script_variables.VarsManager import VarsManager
 
 
 class Script(QObject):

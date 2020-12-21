@@ -1,9 +1,9 @@
 from PySide2.QtCore import QPointF, QRectF, Qt
 from PySide2.QtWidgets import QGraphicsWidget, QGraphicsLinearLayout
 
-from ryvencore.FlowProxyWidget import FlowProxyWidget
-from ryvencore.NodeInstance_TitleLabel import TitleLabel
-from ryvencore.PortInstance import InputPortInstance, OutputPortInstance
+from src.FlowProxyWidget import FlowProxyWidget
+from src.NodeInstance_TitleLabel import TitleLabel
+from src.PortInstance import InputPortInstance, OutputPortInstance
 
 
 class NodeInstanceWidget(QGraphicsWidget):

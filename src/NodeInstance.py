@@ -3,14 +3,14 @@ from PySide2.QtCore import Qt, QRectF
 from PySide2.QtGui import QColor
 
 # import custom_src.Console.MainConsole as MainConsole
-from ryvencore.NodeInstanceAction import NodeInstanceAction
-from ryvencore.NodeInstanceAnimator import NodeInstanceAnimator
-from ryvencore.NodeInstanceWidget import NodeInstanceWidget
-from ryvencore.global_tools.Debugger import Debugger
-from ryvencore.global_tools.MovementEnum import MovementEnum
+from src.NodeInstanceAction import NodeInstanceAction
+from src.NodeInstanceAnimator import NodeInstanceAnimator
+from src.NodeInstanceWidget import NodeInstanceWidget
+from src.global_tools.Debugger import Debugger
+from src.global_tools.MovementEnum import MovementEnum
 
-from ryvencore.PortInstance import InputPortInstance, OutputPortInstance
-from ryvencore.retain import M
+from src.PortInstance import InputPortInstance, OutputPortInstance
+from src.retain import M
 
 
 class NodeInstance(QGraphicsItem):

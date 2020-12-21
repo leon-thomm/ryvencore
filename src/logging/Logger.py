@@ -1,6 +1,6 @@
 from PySide2.QtCore import QObject, Signal
 
-from ryvencore.logging.Log import Log
+from src.logging.Log import Log
 
 
 class Logger(QObject):

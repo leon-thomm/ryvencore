@@ -3,12 +3,12 @@ from PySide2.QtWidgets import QGraphicsItem, QLineEdit, QSpinBox, QGraphicsGridL
 from PySide2.QtCore import Qt, QRectF, QPointF, QSizeF
 from PySide2.QtGui import QFontMetricsF, QFont, QFontMetrics
 
-from ryvencore.global_tools.Debugger import Debugger
-from ryvencore.global_tools.strings import get_longest_line, shorten
-from ryvencore.WidgetBaseClasses import MWB, IWB
-from ryvencore.retain import M
+from src.global_tools.Debugger import Debugger
+from src.global_tools.strings import get_longest_line, shorten
+from src.WidgetBaseClasses import MWB, IWB
+from src.retain import M
 
-from ryvencore.FlowProxyWidget import FlowProxyWidget
+from src.FlowProxyWidget import FlowProxyWidget
 
 
 class PortInstance(QGraphicsGridLayout):

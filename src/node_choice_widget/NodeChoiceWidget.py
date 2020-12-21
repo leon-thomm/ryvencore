@@ -2,9 +2,9 @@ from PySide2.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QLabel, QScrollAr
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QFont
 
-from ryvencore.global_tools.Debugger import Debugger
-from ryvencore.global_tools.stuff import sort_nodes
-from ryvencore.node_choice_widget.NodeWidget import NodeWidget
+from src.global_tools.Debugger import Debugger
+from src.global_tools.stuff import sort_nodes
+from src.node_choice_widget.NodeWidget import NodeWidget
 
 
 class NodeChoiceWidget(QWidget):

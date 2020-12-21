@@ -1,15 +1,17 @@
 from PySide2.QtCore import QObject, Signal
 from PySide2.QtGui import QFontDatabase
 
-from ryvencore.Node import Node
-from ryvencore.Script import Script
-from ryvencore.global_tools.Debugger import Debugger
-from ryvencore.Design import Design
+from src.Node import Node
+from src.Script import Script
+from src.global_tools.Debugger import Debugger
+from src.Design import Design
 
 
 class Session(QObject):
     """The Session class represents a project and holds all project-level
     data such as nodes."""
+
+    package_path: str = None    # set in __init__.py
 
     new_script_created = Signal(Script)
     script_renamed = Signal(Script)
@@ -39,9 +41,9 @@ class Session(QObject):
 
 
     def __register_fonts(self):
-        QFontDatabase.addApplicationFont('ryvencore/fonts/poppins/Poppins-Medium.ttf')
-        QFontDatabase.addApplicationFont('ryvencore/fonts/source code pro/SourceCodePro-Regular.ttf')
-        QFontDatabase.addApplicationFont('ryvencore/fonts/asap/Asap-Regular.ttf')
+        QFontDatabase.addApplicationFont('ryvencore/resources/fonts/poppins/Poppins-Medium.ttf')
+        QFontDatabase.addApplicationFont('ryvencore/resources/fonts/source code pro/SourceCodePro-Regular.ttf')
+        QFontDatabase.addApplicationFont('ryvencore/resources/fonts/asap/Asap-Regular.ttf')
 
 
     def register_nodes(self, nodes: [Node]) -> [Node]:

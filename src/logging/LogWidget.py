@@ -1,7 +1,7 @@
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, QPlainTextEdit
 
-from ryvencore.logging.Log import Log
+from src.logging.Log import Log
 
 
 class LogWidget(QWidget):

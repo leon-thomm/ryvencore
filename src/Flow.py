@@ -6,19 +6,19 @@ from PySide2.QtWidgets import QGraphicsView, QGraphicsScene, QShortcut, QMenu, Q
 
 import json
 
-from ryvencore.Connection import Connection, DataConnection, ExecConnection
-from ryvencore.DrawingObject import DrawingObject
-from ryvencore.FlowCommands import MoveComponents_Command, PlaceNodeInstanceInScene_Command, \
+from src.Connection import Connection, DataConnection, ExecConnection
+from src.DrawingObject import DrawingObject
+from src.FlowCommands import MoveComponents_Command, PlaceNodeInstanceInScene_Command, \
     PlaceDrawingObject_Command, RemoveComponents_Command, ConnectGates_Command, Paste_Command
-from ryvencore.FlowProxyWidget import FlowProxyWidget
-from ryvencore.FlowStylusModesWidget import FlowStylusModesWidget
-from ryvencore.FlowZoomWidget import FlowZoomWidget
-from ryvencore.Node import Node
-from ryvencore.node_choice_widget.NodeChoiceWidget import NodeChoiceWidget
-from ryvencore.NodeInstance import NodeInstance
-from ryvencore.PortInstance import PortInstance, PortInstPin
-from ryvencore.global_tools.Debugger import Debugger
-from ryvencore.global_tools.class_inspection import find_type_in_object, find_type_in_objects
+from src.FlowProxyWidget import FlowProxyWidget
+from src.FlowStylusModesWidget import FlowStylusModesWidget
+from src.FlowZoomWidget import FlowZoomWidget
+from src.Node import Node
+from src.node_choice_widget.NodeChoiceWidget import NodeChoiceWidget
+from src.NodeInstance import NodeInstance
+from src.PortInstance import PortInstance, PortInstPin
+from src.global_tools.Debugger import Debugger
+from src.global_tools.class_inspection import find_type_in_object, find_type_in_objects
 
 
 class Flow(QGraphicsView):

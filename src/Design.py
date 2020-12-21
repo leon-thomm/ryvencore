@@ -1,7 +1,7 @@
 from PySide2.QtCore import QObject, Signal, Qt
 from PySide2.QtGui import QPen, QColor
 
-from ryvencore.NodeInstancePainter import NIPainter_DarkStd, NIPainter_DarkTron, NIPainter_Ghostly, NIPainter_Blender, \
+from src.NodeInstancePainter import NIPainter_DarkStd, NIPainter_DarkTron, NIPainter_Ghostly, NIPainter_Blender, \
     NIPainter_Easy, NIPainter_Peasy, NIPainter_Ueli
 
 
