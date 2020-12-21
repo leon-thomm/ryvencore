@@ -129,7 +129,7 @@ class DrawingObject(QGraphicsItem):
     def mouseReleaseEvent(self, event):
         """Used for Moving-Commands in Flow - may be replaced later with a nicer determination of a move action."""
         if self.movement_state == MovementEnum.position_changed:
-            self.flow.selected_components_moved(self.pos()-self.movement_pos_from)
+            self.flow.__selected_components_moved(self.pos() - self.movement_pos_from)
         self.movement_state = None
         return QGraphicsItem.mouseReleaseEvent(self, event)
 

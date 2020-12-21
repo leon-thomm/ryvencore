@@ -130,7 +130,7 @@ class Session(QObject):
 
         node_insts = []
         for s in self.scripts:
-            for ni in s.flow.all_node_instances:
+            for ni in s.flow.node_instances:
                 node_insts.append(ni)
         return node_insts
 
@@ -143,4 +143,4 @@ class Session(QObject):
     def set_stylesheet(self, s: str):
         """Sets the session's stylesheet"""
 
-        self.design.global_stylesheet = s
+        self.design.__global_stylesheet = s

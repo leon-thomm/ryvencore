@@ -7,7 +7,7 @@ from src.script_variables.VarsManager import VarsManager
 
 class Script(QObject):
 
-    # name_changed = Signal(str)
+    # name_changed = Signal(str)  ->  Script()
     flow_algorithm_mode_changed = Signal(str)
     flow_viewport_update_mode_changed = Signal(str)
 
@@ -15,15 +15,11 @@ class Script(QObject):
         super(Script, self).__init__()
 
         self.session = session
-
-        # GENERAL ATTRIBUTES
         self.logger = Logger(self)
-
-        # self.variables = []
         self.vars_manager = None
         self.title = title
         self.flow = None
-        self.thumbnail_source = ''  # URL to the Script's thumbnail picture
+        self.__thumbnail_source = ''  # URL to the Script's thumbnail picture
 
         if config:
             self.title = config['name']
@@ -33,13 +29,7 @@ class Script(QObject):
             self.flow = Flow(session, self, flow_size)
             self.vars_manager = VarsManager(self)
 
-
-    # def show_NI_code(self, ni):
-    #     """Called from flow when the selection changed."""
-    #     self.code_preview_widget.set_new_NI(ni)
-
-
-    def flow_algorithm_mode(self):
+    def flow_algorithm_mode(self) -> str:
         """Returns the current algorithm mode of the flow"""
         return self.flow.algorithm_mode
 
@@ -55,21 +45,8 @@ class Script(QObject):
         """Sets the viewport update mode of the flow"""
         self.flow.viewport_update_mode = mode
 
-    def generate_code(self):
-        """In production, no working prototype"""
-        return  # migrate to main window later
-        cg = CodeGenerator(self.session,
-                           self.flow.all_node_instances,
-                           self.vars_manager.config_data(),
-                           self.flow.algorithm_mode)
-        code = cg.generate()
-        if code is None:
-            print('couldn\'t generate code')
-        else:
-            print(code)
-
-
-    def config_data(self):
+    def config_data(self) -> dict:
+        """Returns the config data of the script, including variables and flow content"""
         script_dict = {'name': self.title,
                        'variables': self.vars_manager.config_data(),
                        'flow': self.flow.config_data()}

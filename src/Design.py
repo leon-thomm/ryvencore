@@ -6,7 +6,9 @@ from src.NodeInstancePainter import NIPainter_DarkStd, NIPainter_DarkTron, NIPai
 
 
 class FlowTheme:
-    """A FlowTheme holds all design information for the flow. And it defines what
+    """ **This FlowTheme system will be changed**
+
+    A FlowTheme holds all design information for the flow. And it defines what
     themes exist. Notice, that all drawing of NodeInstances and PortInstances
     is done by NIPainter classes, while for each FlowTheme there exists exactly
     one NIPainter class.
@@ -46,7 +48,7 @@ class FlowTheme:
 
 class Design(QObject):
 
-    global_stylesheet = None
+    __global_stylesheet = None
 
     flow_theme_changed = Signal(str)
 
@@ -115,17 +117,17 @@ class Design(QObject):
                       QColor('#3f4044'))
         ]
 
-        self.default_flow_theme = self.flow_themes[-1]
+        self.__default_flow_theme = self.flow_themes[-1]
         self.flow_theme = None  # initialized by MainWindow
 
         self.performance_mode = ''
-        self.node_instance_shadows_shown = False
+        self.__node_inst_shadows_enabled = False
         self.set_performance_mode('pretty')
 
-        self.animations_enabled = True
-        self.node_choice_stylesheet = default_node_choice_stylesheet
+        self.__animations_enabled = True
+        self.__node_choice_stylesheet = default_node_choice_stylesheet
 
-    def set_flow_theme(self, new_theme=None):
+    def set_flow_theme(self, new_theme: FlowTheme = None):
         if type(new_theme) == str:
             for theme in self.flow_themes:
                 if theme.name == new_theme:
@@ -133,22 +135,27 @@ class Design(QObject):
                     self.flow_theme_changed.emit(new_theme)
                     return
 
-        self.flow_theme = new_theme if new_theme is not None else self.default_flow_theme
+        self.flow_theme = new_theme if new_theme is not None else self.__default_flow_theme
         self.flow_theme_changed.emit(self.flow_theme.name)
 
-    def set_performance_mode(self, new_mode):
+    def set_performance_mode(self, new_mode: str):
         self.performance_mode = new_mode
         if new_mode == 'fast':
-            self.node_instance_shadows_shown = False
+            self.__node_inst_shadows_enabled = False
         else:
-            self.node_instance_shadows_shown = True
+            self.__node_inst_shadows_enabled = True
 
         # the performance mode affects the flow's foreground theme
         self.flow_theme_changed.emit(self.flow_theme)
 
+    def set_animations_enabled(self, b: bool):
+        self.__animations_enabled = b
+
+    def set_node_inst_shadows(self, b: bool):
+        self.__node_inst_shadows_enabled = b
 
     def set_node_choice_stylesheet(self, s: str):
-        self.node_choice_stylesheet = s
+        self.__node_choice_stylesheet = s
 
 
 

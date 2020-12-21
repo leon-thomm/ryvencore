@@ -17,22 +17,16 @@ class VarsManager(QObject):
         self.script = script
 
         self.variables = []
-        # self.list_widget = VariablesListWidget(self)
         self.var_receivers = {}
 
         if config is not None:
             for name in config.keys():  # variables
-                # self.variables.append(Variable(name, config_vars[name]))
                 self.create_new_var(name, val=config[name])
-            # self.list_widget.recreate_list()
-
-    # def create_new_var_and_update(self, name):
-    #     """Also updates the GUI"""
-    #
-    #     self.create_new_var(name)
-    #     self.list_widget.recreate_ui()
 
     def check_new_var_name_validity(self, name: str) -> bool:
+        """Checks if a var name candidate is empty or already used.
+        This is currently not done automatically when creating new vars."""
+
         if len(name) == 0:
             return False
 
@@ -44,12 +38,18 @@ class VarsManager(QObject):
         return True
 
 
-    def create_new_var(self, name: str, val=None):
+    def create_new_var(self, name: str, val=None) -> Variable:
+        """Creates and returns a new script variable.
+        Notice that this triggers the new_var_created signal."""
+
         v = Variable(name, val)
         self.variables.append(v)
         self.new_var_created.emit(v)
+        return v
 
-    def get_var(self, name):
+    def get_var(self, name) -> Variable:
+        """Returns script variable with given name or None if it couldn't be found."""
+
         Debugger.write('getting variable with name:', name)
 
         for v in self.variables:
@@ -58,11 +58,16 @@ class VarsManager(QObject):
         return None
 
     def get_var_val(self, name):
+        """Returns the value of a script variable with given name or None if it couldn't be found"""
+
         var = self.get_var(name)
         return var.val if var is not None else None
 
-    def set_var(self, name, val):
-        var_index = self.get_var_index_from_name(name)
+    def set_var(self, name, val) -> bool:
+        """Sets the value of an existing script variable.
+        Returns true in case of success, false if the var couldn't be found and set."""
+
+        var_index = self.__get_var_index_from_name(name)
         if var_index is None:
             return False
 
@@ -75,7 +80,7 @@ class VarsManager(QObject):
 
         return True
 
-    def get_var_index_from_name(self, name):
+    def __get_var_index_from_name(self, name):
         var_names_list = [v.name for v in self.variables]
         for i in range(len(var_names_list)):
             if var_names_list[i] == name:
@@ -84,22 +89,29 @@ class VarsManager(QObject):
         return None
 
     def delete_variable(self, var: Variable):
+        """Deletes a variable and triggers the var_deleted signal."""
+
         self.variables.remove(var)
         self.var_deleted.emit(var)
 
     def register_receiver(self, receiver, var_name, method):
         """A registered receiver (method) gets triggered every time the
-        value of a variable changes"""
+        value of a variable with the given name changes (also when it gets created)."""
 
         self.var_receivers[(receiver, var_name)] = method
 
-    def unregister_receiver(self, receiver, var_name):
+    def unregister_receiver(self, receiver, var_name) -> bool:
+        """Unregisters a method and returns true in case of success. See also register_receiver()."""
+
         try:
             del self.var_receivers[(receiver, var_name)]
+            return True
         except Exception:
-            return
+            return False
 
     def config_data(self):
+        """Returns the config data of the script variables."""
+
         vars_dict = {}
         for v in self.variables:
             vars_dict[v.name] = {'serialized': v.serialize()}
