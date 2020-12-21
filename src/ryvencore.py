@@ -1,3 +1,4 @@
+from src.Node import Node, NodePort
 from src.NodeInstance import NodeInstance
 from src.Session import Session
 from src.WidgetBaseClasses import MWB, IWB

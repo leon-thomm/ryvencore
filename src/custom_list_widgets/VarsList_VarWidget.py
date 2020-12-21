@@ -4,6 +4,7 @@ from PySide2.QtCore import QMimeData, Qt, QEvent, QByteArray
 
 import json
 
+from src.GlobalAttributes import package_path
 from src.custom_list_widgets.ListWidget_NameLineEdit import ListWidget_NameLineEdit
 from src.global_tools.strings import shorten
 from src.EditVal_Dialog import EditVal_Dialog
@@ -30,7 +31,7 @@ class VarsList_VarWidget(QWidget):
         main_layout = QHBoxLayout()
 
         # create icon via label
-        variable_icon = QIcon('ryvencore/resources/pics/variable_picture.png')
+        variable_icon = QIcon(package_path+'/resources/pics/variable_picture.png')
         icon_label = QLabel()
         icon_label.setFixedSize(15, 15)
         icon_label.setStyleSheet('border:none;')
