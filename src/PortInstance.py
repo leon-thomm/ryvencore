@@ -1,37 +1,28 @@
-from PySide2.QtWidgets import QGraphicsItem, QLineEdit, QSpinBox, QGraphicsGridLayout, QGraphicsWidget, \
+from PySide2.QtWidgets import QGraphicsItem, QGraphicsGridLayout, QGraphicsWidget, \
     QGraphicsLayoutItem
 from PySide2.QtCore import Qt, QRectF, QPointF, QSizeF
-from PySide2.QtGui import QFontMetricsF, QFont, QFontMetrics
+from PySide2.QtGui import QFontMetricsF, QFont
 
-from .global_tools.Debugger import Debugger
+from .PortInstanceInputWidgets import StdSpinBoxInputWidget, StdLineEditInputWidget_NoBorder, \
+    StdLineEditInputWidget
 from .global_tools.strings import get_longest_line, shorten
-from .WidgetBaseClasses import MWB, IWB
-from .retain import M
-from .CONSTANTS import PortPos
+from .RC import PortPos, FlowAlg
 
 from .FlowProxyWidget import FlowProxyWidget
 
 
 class PortInstance(QGraphicsGridLayout):
 
-    def __init__(self, parent_node_instance, direction, type_='', label_str='',
-                 widget_name=None, widget_pos=''):
+    def __init__(self, parent_node_instance, io_pos, type_='', label_str=''):
         super(PortInstance, self).__init__()
 
         # GENERAL ATTRIBUTES
         self.val = None
         self.parent_node_instance = parent_node_instance
-        self.io_pos = direction
+        self.io_pos = io_pos
         self.type_ = type_
         self.label_str = label_str
         self.connections = []  # connections stored here
-
-        # CONTENTS
-        # widget
-        self.widget = None
-        self.proxy: FlowProxyWidget = None
-        self.widget_name = widget_name
-        self.widget_pos = widget_pos
 
         # gate/pin
         self.pin = PortInstPin(self, parent_node_instance)
@@ -63,9 +54,14 @@ class PortInstance(QGraphicsGridLayout):
 
 class InputPortInstance(PortInstance):
     def __init__(self, parent_node_instance, type_='', label_str='',
-                 config_data=None, widget_name=None, widget_pos=''):
-        super(InputPortInstance, self).__init__(parent_node_instance, PortPos.INPUT, type_, label_str,
-                                                widget_name, widget_pos)
+                 config_data=None, widget_name=None, widget_pos='besides'):
+
+        super(InputPortInstance, self).__init__(parent_node_instance, PortPos.INPUT, type_, label_str)
+
+        self.widget_name = widget_name
+        self.widget_pos = widget_pos
+        self.widget = None
+        self.proxy: FlowProxyWidget = None
 
         if config_data is not None:
             self.create_widget()
@@ -85,42 +81,47 @@ class InputPortInstance(PortInstance):
         self.setAlignment(self.pin, Qt.AlignVCenter | Qt.AlignLeft)
         self.addItem(self.label, 0, 1)
         self.setAlignment(self.label, Qt.AlignVCenter | Qt.AlignLeft)
+
         if self.widget is not None:
             if self.widget_pos == 'besides':
                 self.addItem(self.proxy, 0, 2)
-            elif self.widget_pos == 'under':
+            elif self.widget_pos == 'below':
                 self.addItem(self.proxy, 1, 0, 1, 2)
             self.setAlignment(self.proxy, Qt.AlignCenter)
 
     def create_widget(self, configuration=None):
-        if self.type_ and self.type_ == 'data' or configuration and configuration['type'] == 'data':
+        if (self.type_ and self.type_ == 'data') or (configuration and configuration['type'] == 'data'):
+
+            params = (self, self.parent_node_instance)
+
             if self.widget_name is None:  # no input widget
                 return
             elif self.widget_name == 'std line edit s':
-                self.widget = StdLineEdit_PortInstWidget(self, self.parent_node_instance, size='small')
+                self.widget = StdLineEditInputWidget(params, size='small')
             elif self.widget_name == 'std line edit m' or self.widget_name == 'std line edit':
-                self.widget = StdLineEdit_PortInstWidget(self, self.parent_node_instance)
+                self.widget = StdLineEditInputWidget(params)
             elif self.widget_name == 'std line edit l':
-                self.widget = StdLineEdit_PortInstWidget(self, self.parent_node_instance, size='large')
+                self.widget = StdLineEditInputWidget(params, size='large')
             elif self.widget_name == 'std line edit s r':
-                self.widget = StdLineEdit_PortInstWidget(self, self.parent_node_instance, size='small', resize=True)
+                self.widget = StdLineEditInputWidget(params, size='small', resize=True)
             elif self.widget_name == 'std line edit m r':
-                self.widget = StdLineEdit_PortInstWidget(self, self.parent_node_instance, resize=True)
+                self.widget = StdLineEditInputWidget(params, resize=True)
             elif self.widget_name == 'std line edit l r':
-                self.widget = StdLineEdit_PortInstWidget(self, self.parent_node_instance, size='large', resize=True)
+                self.widget = StdLineEditInputWidget(params, size='large', resize=True)
             elif self.widget_name == 'std line edit s r nb':
-                self.widget = StdLineEdit_NoBorder_PortInstWidget(self, self.parent_node_instance, size='small',
-                                                                  resize=True)
+                self.widget = StdLineEditInputWidget_NoBorder(params, size='small',
+                                                              resize=True)
             elif self.widget_name == 'std line edit m r nb':
-                self.widget = StdLineEdit_NoBorder_PortInstWidget(self, self.parent_node_instance,
-                                                                  resize=True)
+                self.widget = StdLineEditInputWidget_NoBorder(params,
+                                                              resize=True)
             elif self.widget_name == 'std line edit l r nb':
-                self.widget = StdLineEdit_NoBorder_PortInstWidget(self, self.parent_node_instance, size='large',
-                                                                  resize=True)
+                self.widget = StdLineEditInputWidget_NoBorder(params, size='large',
+                                                              resize=True)
             elif self.widget_name == 'std spin box':
-                self.widget = StdSpinBox_PortInstWidget(self, self.parent_node_instance)
+                self.widget = StdSpinBoxInputWidget(params)
             else:  # custom input widget
                 self.widget = self.get_input_widget_class(self.widget_name)((self, self.parent_node_instance))
+
             self.proxy = FlowProxyWidget(self.parent_node_instance.flow, self.parent_node_instance)
             self.proxy.setWidget(self.widget)
 
@@ -194,7 +195,7 @@ class OutputPortInstance(PortInstance):
 
     def get_val(self):
         # Debugger.debug('returning val directly')
-        if self.parent_node_instance.flow.algorithm_mode == 'exec flow':
+        if self.parent_node_instance.flow.algorithm_mode == FlowAlg.EXEC:
             self.parent_node_instance.update()
         return self.val
 
@@ -207,7 +208,7 @@ class OutputPortInstance(PortInstance):
         self.val = val
 
         # if algorithm mode would be exec flow, all data will be required instead of actively forward propagated
-        if self.parent_node_instance.flow.algorithm_mode == 'data flow' and \
+        if self.parent_node_instance.flow.algorithm_mode == FlowAlg.DATA and \
                 not self.parent_node_instance.initializing:
             self.updated_val()
 
@@ -328,136 +329,3 @@ class PortInstLabel(QGraphicsWidget):
         )
 
 
-class StdLineEdit_PortInstWidget(QLineEdit, IWB):
-    def __init__(self, parent_port_instance, parent_node_instance, size='medium', resize=False):
-        # PortInstanceWidget.__init__(self)
-        # QLineEdit.__init__(self)
-        super(StdLineEdit_PortInstWidget, self).__init__()
-
-        self.parent_port_instance = parent_port_instance
-        self.parent_node_instance = parent_node_instance
-        self.port_local_pos = None
-        self.resizing = resize
-
-        if size == 'small':
-            self.base_width = 30
-        elif size == 'medium':
-            self.base_width = 70
-        elif size == 'large':
-            self.base_width = 150
-
-        self.setFixedWidth(self.base_width)
-
-        self.setFixedHeight(25)
-        self.setPlaceholderText('')
-        self.setStyleSheet("""
-            QLineEdit{
-                border-radius: 10px;
-                background-color: transparent;
-                border: 1px solid #404040;
-                color: #aaaaaa;
-                padding: 3px;
-            }
-            QLineEdit:hover {
-                background-color: rgba(59, 156, 217, 150);
-            }
-            QLineEdit:disabled{
-                color: #777777;
-            }
-        """)
-        f = self.font()
-        f.setPointSize(10)
-        self.setFont(f)
-        self.textChanged.connect(M(self.text_changed))
-        self.editingFinished.connect(M(self.editing_finished))
-
-    def text_changed(self, new_text):
-        if self.resizing:
-            fm = QFontMetrics(self.font())
-            text_width = fm.width(new_text)
-            new_width = text_width+15
-            self.setFixedWidth(new_width if new_width > self.base_width else self.base_width)
-
-            self.parent_node_instance.update_shape()
-            # self.parent_node_instance.rebuild_ui()  # see rebuild_ui() for explanation
-
-    def editing_finished(self):
-        self.parent_node_instance.update(self.parent_node_instance.inputs.index(self.parent_port_instance))
-
-    def remove_event(self):
-        pass
-
-    def get_val(self):
-        val = None
-        try:
-            val = eval(self.text())
-        except Exception as e:
-            # type(eval(json.dumps(self.text()))) could be 'dict' <- need that for typing in dicts later if I want to
-            val = self.text()
-        return val
-
-    def get_data(self):
-        return self.text()
-
-    def set_data(self, data):
-        if type(data) == str:
-            self.setText(data)
-
-
-class StdLineEdit_NoBorder_PortInstWidget(StdLineEdit_PortInstWidget, IWB):
-    def __init__(self, parent_port_instance, parent_node_instance, size='medium', resize=False):
-        super(StdLineEdit_NoBorder_PortInstWidget, self).__init__(parent_port_instance, parent_node_instance, size,
-                                                                  resize)
-
-        self.setStyleSheet("""
-            QLineEdit{
-                border: none;
-                border-radius: 5px;
-                background-color: transparent;
-                color: #aaaaaa;
-                padding: 3px;
-            }
-            QLineEdit:hover {
-                background-color: rgba(59, 156, 217, 150);
-            }
-            QLineEdit:disabled{
-                color: #777777;
-            }
-        """)
-
-
-class StdSpinBox_PortInstWidget(QSpinBox, IWB):
-    def __init__(self, parent_port_instance, parent_node_instance):
-        # PortInstanceWidget.__init__(self)
-        # QLineEdit.__init__(self)
-        super(StdSpinBox_PortInstWidget, self).__init__()
-
-        self.parent_port_instance = parent_port_instance
-        self.parent_node_instance = parent_node_instance
-        self.port_local_pos = None
-
-        self.setFixedWidth(50)
-        self.setFixedHeight(25)
-        self.setStyleSheet("""
-            QSpinBox {
-                color: white;
-                background: transparent;
-            }
-        """)
-        self.setMaximum(1000000)
-        self.editingFinished.connect(self.editing_finished)
-
-    def editing_finished(self):
-        self.parent_node_instance.update(self.parent_node_instance.inputs.index(self.parent_port_instance))
-
-    def remove_event(self):
-        pass
-
-    def get_val(self):
-        return self.value()
-
-    def get_data(self):
-        return self.value()
-
-    def set_data(self, data):
-        self.setValue(data)

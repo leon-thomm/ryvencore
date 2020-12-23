@@ -17,7 +17,14 @@ class Session(QObject):
     script_deleted = Signal(Script)
 
 
-    def __init__(self):
+    def __init__(
+            self,
+            flow_performance_mode: str = 'pretty',
+            animations_enabled: bool = True,
+            flow_theme_name: str = 'ueli',
+            # debug_messages_enabled: bool = False,
+            project: dict = None
+    ):
         super().__init__()
 
         self.__register_fonts()
@@ -25,10 +32,13 @@ class Session(QObject):
         self.scripts: [Script] = []
         self.nodes: [Node] = []
 
-        self.design = Design()
+        self.design = Design(
+            performance_mode=flow_performance_mode,
+            animations_enabled=animations_enabled
+        )
 
-        self.design.set_flow_theme()
-        self.design.set_flow_theme()  # temporary
+        self.design.set_flow_theme(name=flow_theme_name)
+        self.design.set_flow_theme(name=flow_theme_name)  # temporary
         #   the double call is just a temporary fix for an issue I will address in a future release.
         #   Problem: because the signal emitted when setting a flow theme is directly connected to the according slots
         #   in NodeInstance as well as NodeInstance_TitleLabel, the NodeInstance's slot (which starts an animation which
@@ -37,6 +47,9 @@ class Session(QObject):
         #   title label when activating animations.
         #   This is pretty nasty since I cannot think of a nice fix for this issue other that not letting the slot
         #   methods be called directly from the emitted signal but instead through a defined procedure like before.
+
+        if project:
+            self.load(project)
 
 
     def __register_fonts(self):
@@ -61,10 +74,10 @@ class Session(QObject):
         return node
 
 
-    def create_script(self, title: str, flow_size: list = None) -> Script:
+    def create_script(self, title: str, flow_size: list = None, flow_parent=None) -> Script:
         """Creates and returns a new script"""
 
-        script = Script(session=self, title=title, flow_size=flow_size)
+        script = Script(session=self, title=title, flow_size=flow_size, flow_parent=flow_parent)
         self.scripts.append(script)
         self.new_script_created.emit(script)
         return script
@@ -102,7 +115,7 @@ class Session(QObject):
 
 
     def debugger(self) -> Debugger:
-        """Returns the session's debugger"""
+        """(WIP) Returns the session's debugger"""
         pass
 
 
@@ -141,6 +154,7 @@ class Session(QObject):
 
 
     def set_stylesheet(self, s: str):
-        """Sets the session's stylesheet"""
+        """Sets the session's stylesheet which can be accessed by NodeInstances.
+        You usually want this to be the same as your window's stylesheet."""
 
         self.design.global_stylesheet = s

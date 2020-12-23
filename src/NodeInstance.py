@@ -6,6 +6,7 @@ from PySide2.QtGui import QColor
 from .NodeInstanceAction import NodeInstanceAction
 from .NodeInstanceAnimator import NodeInstanceAnimator
 from .NodeInstanceWidget import NodeInstanceWidget
+from .RC import FlowVPUpdateMode
 from .global_tools.Debugger import Debugger
 from .global_tools.MovementEnum import MovementEnum
 
@@ -153,7 +154,7 @@ class NodeInstance(QGraphicsItem):
         """Sets the value of a data output.
         self.data_outputs_updated() has to be called manually after all values are set."""
 
-        if self.flow.viewport_update_mode == 'async':  # asynchronous viewport updates
+        if self.flow.viewport_update_mode == FlowVPUpdateMode.ASYNC:  # asynchronous viewport updates
             vp = self.flow.viewport()
             vp.repaint(self.flow.mapFromScene(self.sceneBoundingRect()))
 
@@ -202,11 +203,18 @@ class NodeInstance(QGraphicsItem):
         self.widget.update_shape()
         self.flow.viewport().update()
 
-
     # PORTS
-    def create_new_input(self, type_, label, widget_name=None, widget_pos='under', pos=-1, config=None):
-        """Creates and adds a new input. Handy for subclasses."""
+    def create_new_input(self, type_: str, label: str, widget_name=None,
+                         widget_pos='besides', pos=-1, config=None):
+        """
+        Creates and adds a new input.
+        :widget_pos: 'besides' or 'below'
+        """
         Debugger.write('create_new_input called')
+
+        # backwards compatibility
+        widget_pos = widget_pos if widget_pos != 'under' else 'below'
+
         pi = InputPortInstance(self, type_, label,
                                config_data=config,
                                widget_name=widget_name,

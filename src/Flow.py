@@ -15,7 +15,8 @@ from .Connection import Connection, DataConnection, ExecConnection
 from .DrawingObject import DrawingObject
 from .global_tools.Debugger import Debugger
 from .global_tools.class_inspection import find_type_in_object, find_type_in_objects
-from .CONSTANTS import PortPos
+from .RC import PortPos, FlowAlg
+from .RC import FlowVPUpdateMode as VPUpdateMode
 
 import json
 
@@ -23,8 +24,8 @@ import json
 class Flow(QGraphicsView):
     """Manages all GUI of flows"""
 
-    def __init__(self, session, script, flow_size: list = None, config=None):
-        super(Flow, self).__init__()
+    def __init__(self, session, script, flow_size: list = None, config=None, parent=None):
+        super(Flow, self).__init__(parent=parent)
 
 
         # UNDO/REDO
@@ -57,8 +58,8 @@ class Flow(QGraphicsView):
         self.__total_scale_div = 1
 
         # SETTINGS
-        self.algorithm_mode = 'data flow'    # Flow_AlgorithmMode()
-        self.viewport_update_mode = 'sync'  # Flow_ViewportUpdateMode()
+        self.algorithm_mode = FlowAlg.DATA    # Flow_AlgorithmMode()
+        self.viewport_update_mode: VPUpdateMode = VPUpdateMode.SYNC  # Flow_ViewportUpdateMode()
 
         # CREATE UI
         scene = QGraphicsScene(self)
@@ -120,16 +121,22 @@ class Flow(QGraphicsView):
 
         if config is not None:
             # algorithm mode
-            if config['algorithm mode'] == 'data flow':
-                self.algorithm_mode = 'data flow'
-            elif config['algorithm mode'] == 'exec flow':
-                self.algorithm_mode = 'exec flow'
+            mode = config['algorithm mode']
+            if mode == FlowAlg.DATA or \
+                    mode == 'data flow':  # backwards compatibility
+                self.algorithm_mode = FlowAlg.DATA
+            elif mode == FlowAlg.EXEC or \
+                    mode == 'exec flow':  # backwards compatibility
+                self.algorithm_mode = FlowAlg.EXEC
 
             # viewport update mode
-            if config['viewport update mode'] == 'sync':
-                self.viewport_update_mode = 'sync'
-            elif config['viewport update mode'] == 'async':
-                self.viewport_update_mode = 'async'
+            vpum = config['viewport update mode']
+            if vpum == VPUpdateMode.SYNC or \
+                    vpum == 'sync':  # backwards compatibility
+                self.viewport_update_mode = VPUpdateMode.SYNC
+            elif vpum == VPUpdateMode.ASYNC or \
+                    vpum == 'async':  # backwards compatibility
+                self.viewport_update_mode = VPUpdateMode.ASYNC
 
             node_instances = self.place_nodes_from_config(config['nodes'])
             self.connect_nodes_from_config(node_instances, config['connections'])
@@ -1021,8 +1028,8 @@ class Flow(QGraphicsView):
                     return
 
     def config_data(self):
-        flow_dict = {'algorithm mode': self.algorithm_mode,
-                     'viewport update mode': self.viewport_update_mode,
+        flow_dict = {'algorithm mode': FlowAlg.stringify(self.algorithm_mode),
+                     'viewport update mode': VPUpdateMode.stringify(self.viewport_update_mode),
                      'nodes': self.__get_node_instances_config_data(self.node_instances),
                      'connections': self.__get_connections_config_data(self.node_instances),
                      'drawings': self.__get_drawings_config_data(self.drawings)}

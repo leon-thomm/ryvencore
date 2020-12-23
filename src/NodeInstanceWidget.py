@@ -59,7 +59,7 @@ class NodeInstanceWidget(QGraphicsWidget):
                 self.body_layout.insertStretch(2)
                 layout.addItem(self.body_layout)
 
-            elif self.node_inst.parent_node.main_widget_pos == 'under ports':
+            elif self.node_inst.parent_node.main_widget_pos == 'below ports':
                 layout.addItem(self.body_layout)
                 layout.addItem(self.main_widget_proxy)
                 layout.setAlignment(self.main_widget_proxy, Qt.AlignHCenter)

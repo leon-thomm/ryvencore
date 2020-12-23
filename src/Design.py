@@ -52,7 +52,7 @@ class Design(QObject):
 
     flow_theme_changed = Signal(str)
 
-    def __init__(self):
+    def __init__(self, performance_mode: str = 'pretty', animations_enabled: bool = True):
         super().__init__()
 
         self.flow_themes = [
@@ -118,25 +118,35 @@ class Design(QObject):
         ]
 
         self.__default_flow_theme = self.flow_themes[-1]
-        self.flow_theme = None  # initialized by MainWindow
+        self.flow_theme = None
 
         self.performance_mode = ''
         self.node_inst_shadows_enabled = False
-        self.set_performance_mode('pretty')
+        self.set_performance_mode(performance_mode)
 
-        self.animations_enabled = True
+        self.animations_enabled = animations_enabled
         self.node_choice_stylesheet = default_node_choice_stylesheet
 
-    def set_flow_theme(self, new_theme: FlowTheme = None):
-        if type(new_theme) == str:
-            for theme in self.flow_themes:
-                if theme.name == new_theme:
-                    self.flow_theme = theme
-                    self.flow_theme_changed.emit(new_theme)
-                    return
+    def available_flow_themes(self) -> dict:
+        return {theme.name: theme for theme in self.flow_themes}
 
-        self.flow_theme = new_theme if new_theme is not None else self.__default_flow_theme
+    def flow_theme_by_name(self, name: str) -> FlowTheme:
+        for theme in self.flow_themes:
+            if theme.name == name:
+                return theme
+        return None
+
+    def set_flow_theme(self, theme: FlowTheme = None, name: str = ''):
+        """You can either specify the theme by name, or directly provide a FlowTheme object."""
+        if theme:
+            self.flow_theme = theme
+        elif name != '':
+            self.flow_theme = self.flow_theme_by_name(name)
+        else:
+            self.flow_theme = self.__default_flow_theme
+
         self.flow_theme_changed.emit(self.flow_theme.name)
+
 
     def set_performance_mode(self, new_mode: str):
         self.performance_mode = new_mode
