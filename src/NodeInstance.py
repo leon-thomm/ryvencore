@@ -3,14 +3,14 @@ from PySide2.QtCore import Qt, QRectF
 from PySide2.QtGui import QColor
 
 # import custom_src.Console.MainConsole as MainConsole
-from src.NodeInstanceAction import NodeInstanceAction
-from src.NodeInstanceAnimator import NodeInstanceAnimator
-from src.NodeInstanceWidget import NodeInstanceWidget
-from src.global_tools.Debugger import Debugger
-from src.global_tools.MovementEnum import MovementEnum
+from .NodeInstanceAction import NodeInstanceAction
+from .NodeInstanceAnimator import NodeInstanceAnimator
+from .NodeInstanceWidget import NodeInstanceWidget
+from .global_tools.Debugger import Debugger
+from .global_tools.MovementEnum import MovementEnum
 
-from src.PortInstance import InputPortInstance, OutputPortInstance
-from src.retain import M
+from .PortInstance import InputPortInstance, OutputPortInstance
+from .retain import M
 
 
 class NodeInstance(QGraphicsItem):
@@ -122,7 +122,7 @@ class NodeInstance(QGraphicsItem):
         QGraphicsItem used to graphically update a QGraphicsItem which can be accessed via
         QGraphicsItem.update(self)."""
 
-        if self.session_design.__animations_enabled:
+        if self.session_design.animations_enabled:
             self.animator.start()
 
         Debugger.write('update in', self.parent_node.title, 'on input', input_called)
@@ -310,7 +310,7 @@ class NodeInstance(QGraphicsItem):
         pass
 
     def session_stylesheet(self):
-        return self.session_design.__global_stylesheet
+        return self.session_design.global_stylesheet
 
     # VARIABLES
 
@@ -341,7 +341,7 @@ class NodeInstance(QGraphicsItem):
     def update_design(self):
         """Loads the shadow effect option and causes redraw with active theme."""
 
-        if self.session_design.__node_inst_shadows_enabled:
+        if self.session_design.node_inst_shadows_enabled:
             self.shadow_effect = QGraphicsDropShadowEffect()
             self.shadow_effect.setXOffset(12)
             self.shadow_effect.setYOffset(12)
@@ -455,7 +455,7 @@ class NodeInstance(QGraphicsItem):
     def mouseReleaseEvent(self, event):
         """Used for Moving-Commands in Flow - may be replaced later with a nicer determination of a moving action."""
         if self.movement_state == MovementEnum.position_changed:
-            self.flow.__selected_components_moved(self.pos() - self.movement_pos_from)
+            self.flow.selected_components_moved(self.pos() - self.movement_pos_from)
         self.movement_state = None
         return QGraphicsItem.mouseReleaseEvent(self, event)
 
@@ -498,7 +498,7 @@ class NodeInstance(QGraphicsItem):
         return actions
 
     def action_remove(self):
-        self.flow.__remove_node_instance_triggered(self)
+        self.flow.remove_node_instance_triggered(self)
 
     def get_special_actions_data(self, actions):
         cleaned_actions = actions.copy()

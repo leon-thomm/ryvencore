@@ -1,24 +1,23 @@
 from PySide2.QtCore import Qt, QPointF, QPoint, QRectF, QSizeF
-from PySide2.QtGui import QPainter, QPen, QColor, QKeySequence, QTabletEvent, \
-    QImage, QGuiApplication
-from PySide2.QtWidgets import QGraphicsView, QGraphicsScene, QShortcut, QMenu, QGraphicsItem, \
-    QUndoStack
+from PySide2.QtGui import QPainter, QPen, QColor, QKeySequence, QTabletEvent, QImage, QGuiApplication
+from PySide2.QtWidgets import QGraphicsView, QGraphicsScene, QShortcut, QMenu, QGraphicsItem, QUndoStack
+
+from .FlowCommands import MoveComponents_Command, PlaceNodeInstanceInScene_Command, \
+    PlaceDrawingObject_Command, RemoveComponents_Command, ConnectGates_Command, Paste_Command
+from .FlowProxyWidget import FlowProxyWidget
+from .FlowStylusModesWidget import FlowStylusModesWidget
+from .FlowZoomWidget import FlowZoomWidget
+from .node_choice_widget.NodeChoiceWidget import NodeChoiceWidget
+from .Node import Node
+from .NodeInstance import NodeInstance
+from .PortInstance import PortInstance, PortInstPin
+from .Connection import Connection, DataConnection, ExecConnection
+from .DrawingObject import DrawingObject
+from .global_tools.Debugger import Debugger
+from .global_tools.class_inspection import find_type_in_object, find_type_in_objects
+from .CONSTANTS import PortPos
 
 import json
-
-from src.Connection import Connection, DataConnection, ExecConnection
-from src.DrawingObject import DrawingObject
-from src.FlowCommands import MoveComponents_Command, PlaceNodeInstanceInScene_Command, \
-    PlaceDrawingObject_Command, RemoveComponents_Command, ConnectGates_Command, Paste_Command
-from src.FlowProxyWidget import FlowProxyWidget
-from src.FlowStylusModesWidget import FlowStylusModesWidget
-from src.FlowZoomWidget import FlowZoomWidget
-from src.Node import Node
-from src.node_choice_widget.NodeChoiceWidget import NodeChoiceWidget
-from src.NodeInstance import NodeInstance
-from src.PortInstance import PortInstance, PortInstPin
-from src.global_tools.Debugger import Debugger
-from src.global_tools.class_inspection import find_type_in_object, find_type_in_objects
 
 
 class Flow(QGraphicsView):
@@ -45,7 +44,7 @@ class Flow(QGraphicsView):
         self.connections: [Connection] = []
         self.selected_pin: PortInstPin = None
         self.dragging_connection = False
-        self.__ignore_mouse_event = False  # for stylus - see tablet event
+        self.ignore_mouse_event = False  # for stylus - see tablet event
         self.__last_mouse_move_pos: QPointF = None
         self.__node_place_pos = QPointF()
         self.__left_mouse_pressed_in_flow = False
@@ -75,7 +74,7 @@ class Flow(QGraphicsView):
         self.setRenderHint(QPainter.Antialiasing)
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
         self.setDragMode(QGraphicsView.RubberBandDrag)
-        scene.selectionChanged.connect(self.selection_changed)
+        # scene.selectionChanged.connect(self.__selection_changed)
         self.setAcceptDrops(True)
 
         self.centerOn(QPointF(self.viewport().width() / 2, self.viewport().height() / 2))
@@ -98,7 +97,7 @@ class Flow(QGraphicsView):
         self.set_zoom_proxy_pos()
 
         # STYLUS
-        self.__stylus_mode = ''
+        self.stylus_mode = ''
         self.__current_drawing = None
         self.__drawing = False
         self.drawings = []
@@ -154,7 +153,7 @@ class Flow(QGraphicsView):
         copy_shortcut = QShortcut(QKeySequence.Copy, self)
         copy_shortcut.activated.connect(self.__copy)
         cut_shortcut = QShortcut(QKeySequence.Cut, self)
-        cut_shortcut.activated.connect(self.cut)
+        cut_shortcut.activated.connect(self.__cut)
         paste_shortcut = QShortcut(QKeySequence.Paste, self)
         paste_shortcut.activated.connect(self.__paste)
 
@@ -211,8 +210,8 @@ class Flow(QGraphicsView):
         Debugger.write('mouse press event received, point:', event.pos())
 
         # to catch tablet events (for some reason, it results in a mousePrEv too)
-        if self.__ignore_mouse_event:
-            self.__ignore_mouse_event = False
+        if self.ignore_mouse_event:
+            self.ignore_mouse_event = False
             return
 
         # there might be a proxy widget meant to receive the event instead of the flow
@@ -220,8 +219,8 @@ class Flow(QGraphicsView):
 
         # to catch any Proxy that received the event. Checking for event.isAccepted() or what is returned by
         # QGraphicsView.mousePressEvent(...) both didn't work so far, so I do it manually
-        if self.__ignore_mouse_event:
-            self.__ignore_mouse_event = False
+        if self.ignore_mouse_event:
+            self.ignore_mouse_event = False
             return
 
         if event.button() == Qt.LeftButton:
@@ -264,9 +263,9 @@ class Flow(QGraphicsView):
         # there might be a proxy widget meant to receive the event instead of the flow
         QGraphicsView.mouseReleaseEvent(self, event)
 
-        if self.__ignore_mouse_event or \
+        if self.ignore_mouse_event or \
                 (event.button() == Qt.LeftButton and not self.__left_mouse_pressed_in_flow):
-            self.__ignore_mouse_event = False
+            self.ignore_mouse_event = False
             return
 
         elif event.button() == Qt.MidButton:
@@ -276,8 +275,8 @@ class Flow(QGraphicsView):
         # connection dropped over specific gate
         if self.dragging_connection and self.itemAt(event.pos()) and \
                 find_type_in_object(self.itemAt(event.pos()), PortInstPin):
-            self.__connect_port_insts__cmd(self.selected_pin.parent_port_instance,
-                                           self.itemAt(event.pos()).parent_port_instance)
+            self.connect_port_insts__cmd(self.selected_pin.parent_port_instance,
+                                         self.itemAt(event.pos()).parent_port_instance)
 
         # connection dropped over NodeInstance - auto connect
         elif self.dragging_connection and find_type_in_objects(self.items(event.pos()), NodeInstance):
@@ -329,17 +328,17 @@ class Flow(QGraphicsView):
         RightButton: upper button pressed"""
 
         # if in edit mode and not panning or starting a pan, pass on to std mouseEvent handlers above
-        if self.__stylus_mode == 'edit' and not self.__panning and not \
+        if self.stylus_mode == 'edit' and not self.__panning and not \
                 (event.type() == QTabletEvent.TabletPress and event.button() == Qt.RightButton):
             return  # let the mousePress/Move/Release-Events handle it
 
         scaled_event_pos: QPointF = event.posF()/self.__current_scale
 
         if event.type() == QTabletEvent.TabletPress:
-            self.__ignore_mouse_event = True
+            self.ignore_mouse_event = True
 
             if event.button() == Qt.LeftButton:
-                if self.__stylus_mode == 'comment':
+                if self.stylus_mode == 'comment':
                     view_pos = self.mapToScene(self.viewport().pos())
                     new_drawing = self.__create_and_place_drawing__cmd(
                         view_pos + scaled_event_pos,
@@ -353,17 +352,17 @@ class Flow(QGraphicsView):
                 self.__pan_last_y = event.y()
 
         elif event.type() == QTabletEvent.TabletMove:
-            self.__ignore_mouse_event = True
+            self.ignore_mouse_event = True
             if self.__panning:
                 self.pan(event.pos())
 
             elif event.pointerType() == QTabletEvent.Eraser:
-                if self.__stylus_mode == 'comment':
+                if self.stylus_mode == 'comment':
                     for i in self.items(event.pos()):
                         if find_type_in_object(i, DrawingObject):
-                            self.__remove_drawing(i)
+                            self.remove_drawing(i)
                             break
-            elif self.__stylus_mode == 'comment' and self.__drawing:
+            elif self.stylus_mode == 'comment' and self.__drawing:
                 if self.__current_drawing.append_point(scaled_event_pos):
                     self.__current_drawing.stroke_weights.append(event.pressure())
                 self.__current_drawing.update()
@@ -372,7 +371,7 @@ class Flow(QGraphicsView):
         elif event.type() == QTabletEvent.TabletRelease:
             if self.__panning:
                 self.__panning = False
-            if self.__stylus_mode == 'comment' and self.__drawing:
+            if self.stylus_mode == 'comment' and self.__drawing:
                 Debugger.write('drawing obj finished')
                 self.__current_drawing.finished()
                 self.__current_drawing = None
@@ -445,8 +444,8 @@ class Flow(QGraphicsView):
             sppi = self.selected_pin.parent_port_instance
             cursor_pos = self.__last_mouse_move_pos
 
-            pos1 = pin_pos if sppi.direction == 'output' else cursor_pos
-            pos2 = pin_pos if sppi.direction == 'input' else cursor_pos
+            pos1 = pin_pos if sppi.io_pos == PortPos.OUTPUT else cursor_pos
+            pos2 = pin_pos if sppi.io_pos == PortPos.INPUT else cursor_pos
 
             if sppi.type_ == 'data':
                 painter.drawPath(
@@ -643,7 +642,7 @@ class Flow(QGraphicsView):
         new_NI.initialized()
         return new_NI
 
-    def __add_node_instance(self, ni, pos=None):
+    def add_node_instance(self, ni, pos=None):
         """Adds a NodeInstance to the scene."""
 
         self.scene().addItem(ni)
@@ -657,13 +656,13 @@ class Flow(QGraphicsView):
 
         self.node_instances.append(ni)
 
-    def __add_node_instances(self, node_instances):
+    def add_node_instances(self, node_instances):
         """Adds a list of NodeInstances to the scene."""
 
         for ni in node_instances:
-            self.__add_node_instance(ni)
+            self.add_node_instance(ni)
 
-    def __remove_node_instance(self, ni):
+    def remove_node_instance(self, ni):
         """Removes a NodeInstance from the scene."""
 
         ni.about_to_remove_from_scene()  # to stop running threads
@@ -709,12 +708,12 @@ class Flow(QGraphicsView):
                     break
 
             new_NI = self.create_node_instance(parent_node, n_c)
-            self.__add_node_instance(new_NI, QPoint(n_c['position x'], n_c['position y']) + offset_pos)
+            self.add_node_instance(new_NI, QPoint(n_c['position x'], n_c['position y']) + offset_pos)
             new_node_instances.append(new_NI)
 
         return new_node_instances
 
-    def __place_node__cmd(self, node: Node, config=None):
+    def place_node__cmd(self, node: Node, config=None):
 
         new_NI = self.create_node_instance(node, config)
 
@@ -728,7 +727,7 @@ class Flow(QGraphicsView):
 
         return place_command.node_instance
 
-    def __remove_node_instance_triggered(self, node_instance):  # called from context menu of NodeInstance
+    def remove_node_instance_triggered(self, node_instance):  # called from context menu of NodeInstance
         if node_instance in self.selected_node_instances():
             self.__undo_stack.push(
                 RemoveComponents_Command(self, self.scene().selectedItems()))
@@ -759,13 +758,13 @@ class Flow(QGraphicsView):
                                   connected_node_instance.inputs[c_connected_input_port_index])
 
     # DRAWINGS
-    def __create_drawing(self, config=None) -> DrawingObject:
+    def create_drawing(self, config=None) -> DrawingObject:
         """Creates and returns a new DrawingObject."""
 
         new_drawing = DrawingObject(self, config)
         return new_drawing
 
-    def __add_drawing(self, drawing_obj, posF=None):
+    def add_drawing(self, drawing_obj, posF=None):
         """Adds a DrawingObject to the scene."""
 
         self.scene().addItem(drawing_obj)
@@ -773,13 +772,13 @@ class Flow(QGraphicsView):
             drawing_obj.setPos(posF)
         self.drawings.append(drawing_obj)
 
-    def __add_drawings(self, drawings):
+    def add_drawings(self, drawings):
         """Adds a list of DrawingObjects to the scene."""
 
         for d in drawings:
-            self.__add_drawing(d)
+            self.add_drawing(d)
 
-    def __remove_drawing(self, drawing):
+    def remove_drawing(self, drawing):
         """Removes a drawing from the scene."""
 
         self.scene().removeItem(drawing)
@@ -793,14 +792,14 @@ class Flow(QGraphicsView):
         for d_config in drawings_config:
             x = d_config['pos x']+offset_pos.x()
             y = d_config['pos y']+offset_pos.y()
-            new_drawing = self.__create_drawing(config=d_config)
-            self.__add_drawing(new_drawing, QPointF(x, y))
+            new_drawing = self.create_drawing(config=d_config)
+            self.add_drawing(new_drawing, QPointF(x, y))
             new_drawings.append(new_drawing)
 
         return new_drawings
 
     def __create_and_place_drawing__cmd(self, posF, config=None):
-        new_drawing_obj = self.__create_drawing(config)
+        new_drawing_obj = self.create_drawing(config)
         place_command = PlaceDrawingObject_Command(self, posF, new_drawing_obj)
         self.__undo_stack.push(place_command)
         return new_drawing_obj
@@ -812,10 +811,12 @@ class Flow(QGraphicsView):
         left = False
         for i in self.scene().selectedItems():
             new_pos = i.pos() + new_rel_pos
-            if new_pos.x() - i.width / 2 < 0 or \
-                    new_pos.x() + i.width / 2 > self.scene().width() or \
-                    new_pos.y() - i.height / 2 < 0 or \
-                    new_pos.y() + i.height / 2 > self.scene().height():
+            w = i.boundingRect().width()
+            h = i.boundingRect().height()
+            if new_pos.x() - w / 2 < 0 or \
+                    new_pos.x() + w / 2 > self.scene().width() or \
+                    new_pos.y() - h / 2 < 0 or \
+                    new_pos.y() + h / 2 > self.scene().height():
                 left = True
                 break
 
@@ -844,7 +845,7 @@ class Flow(QGraphicsView):
     def __move_selected_nodes_down(self):
         self.__move_selected_copmonents__cmd(0, +40)
 
-    def __selected_components_moved(self, pos_diff):
+    def selected_components_moved(self, pos_diff):
         items_list = self.scene().selectedItems()
 
         self.__undo_stack.push(MoveComponents_Command(self, items_list, p_from=-pos_diff, p_to=QPointF(0, 0)))
@@ -884,7 +885,7 @@ class Flow(QGraphicsView):
                 'drawings': self.__get_drawings_config_data(self.selected_drawings())}
         QGuiApplication.clipboard().setText(json.dumps(data))
 
-    def cut(self):  # called from shortcut ctrl+x
+    def __cut(self):  # called from shortcut ctrl+x
         data = {'nodes': self.__get_node_instances_config_data(self.selected_node_instances()),
                 'connections': self.__get_connections_config_data(self.selected_node_instances()),
                 'drawings': self.__get_drawings_config_data(self.selected_drawings())}
@@ -928,17 +929,17 @@ class Flow(QGraphicsView):
 
         self.__undo_stack.push(Paste_Command(self, data, offset_for_middle_pos))
 
-    def __add_component(self, e):
+    def add_component(self, e):
         if find_type_in_object(e, NodeInstance):
-            self.__add_node_instance(e)
+            self.add_node_instance(e)
         elif find_type_in_object(e, DrawingObject):
-            self.__add_drawing(e)
+            self.add_drawing(e)
 
-    def __remove_component(self, e):
+    def remove_component(self, e):
         if find_type_in_object(e, NodeInstance):
-            self.__remove_node_instance(e)
+            self.remove_node_instance(e)
         elif find_type_in_object(e, DrawingObject):
-            self.__remove_drawing(e)
+            self.remove_drawing(e)
 
     def remove_selected_components(self):
         self.__undo_stack.push(
@@ -951,16 +952,14 @@ class Flow(QGraphicsView):
         self.scene().clearSelection()
 
     # CONNECTIONS: ----
-    def __connect_port_insts__cmd(self, p1: PortInstance, p2: PortInstance):
+    def connect_port_insts__cmd(self, p1: PortInstance, p2: PortInstance):
 
         out = None
         inp = None
-        if p1.direction == 'output' and \
-                p2.direction == 'input':
+        if p1.io_pos == PortPos.OUTPUT and p2.io_pos == PortPos.INPUT:
             out = p1
             inp = p2
-        elif p1.direction == 'input' and \
-                p2.direction == 'output':
+        elif p1.io_pos == PortPos.INPUT and p2.io_pos == PortPos.OUTPUT:
             out = p2
             inp = p1
         else:
@@ -970,9 +969,7 @@ class Flow(QGraphicsView):
         if out.type_ != inp.type_:
             return
 
-        self.__undo_stack.push(ConnectGates_Command(self,
-                                                    out=out,
-                                                    inp=inp))
+        self.__undo_stack.push(ConnectGates_Command(self, out=out, inp=inp))
 
     def connect_pins(self, out: PortInstance, inp: PortInstance):
 
@@ -991,7 +988,7 @@ class Flow(QGraphicsView):
         # remove all connections from input port instance if it's a data input
         if inp.type_ == 'data':
             for c in inp.connections:
-                self.__connect_port_insts__cmd(c.out, inp)
+                self.connect_port_insts__cmd(c.out, inp)
 
         c = None
         if inp.type_ == 'data':
@@ -1009,17 +1006,19 @@ class Flow(QGraphicsView):
 
         self.viewport().repaint()
 
-    def auto_connect(self, p1: PortInstance, ni: NodeInstance):
-        if p1.direction == 'output':
+    def auto_connect(self, pi: PortInstance, ni: NodeInstance):
+        if pi.io_pos == PortPos.OUTPUT:
             for inp in ni.inputs:
-                if p1.type_ != inp.type_:
+                if pi.type_ == inp.type_:
+                    # connect exactly once
+                    self.connect_port_insts__cmd(pi, inp)
                     return
-                self.__connect_port_insts__cmd(p1, inp)
-        elif p1.direction == 'input':
+        elif pi.io_pos == PortPos.INPUT:
             for out in ni.outputs:
-                if p1.type_ != out.type_:
+                if pi.type_ == out.type_:
+                    # connect exactly once
+                    self.connect_port_insts__cmd(pi, out)
                     return
-                self.__connect_port_insts__cmd(p1, out)
 
     def config_data(self):
         flow_dict = {'algorithm mode': self.algorithm_mode,

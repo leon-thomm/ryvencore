@@ -1,4 +1,6 @@
-import src.GlobalAttributes
-import os
+# from .GlobalAttributes import package_path
+# import os
+#
+# GlobalAttributes.package_path = os.path.normpath(os.path.dirname(os.path.abspath(__file__))+'/../')
 
-GlobalAttributes.package_path = os.path.normpath(os.path.dirname(os.path.abspath(__file__))+'/../')
+from . import ryvencore

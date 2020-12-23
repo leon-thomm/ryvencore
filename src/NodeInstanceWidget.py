@@ -1,9 +1,9 @@
 from PySide2.QtCore import QPointF, QRectF, Qt
 from PySide2.QtWidgets import QGraphicsWidget, QGraphicsLinearLayout
 
-from src.FlowProxyWidget import FlowProxyWidget
-from src.NodeInstance_TitleLabel import TitleLabel
-from src.PortInstance import InputPortInstance, OutputPortInstance
+from .FlowProxyWidget import FlowProxyWidget
+from .NodeInstance_TitleLabel import TitleLabel
+from .PortInstance import InputPortInstance, OutputPortInstance
 
 
 class NodeInstanceWidget(QGraphicsWidget):
@@ -133,7 +133,7 @@ class NodeInstanceWidget(QGraphicsWidget):
     def insert_input_into_layout(self, index: int, inp: InputPortInstance):
         self.inputs_layout.insertItem(index*2+1, inp)   # *2 bcs of the stretches
         self.inputs_layout.setAlignment(inp, Qt.AlignLeft)
-        if len(self.node_inst.inputs > 1):
+        if len(self.node_inst.inputs) > 1:
             self.inputs_layout.insertStretch(index*2+1)  # *2+1 because of the stretches, too
 
     def remove_input_from_layout(self, inp: InputPortInstance):

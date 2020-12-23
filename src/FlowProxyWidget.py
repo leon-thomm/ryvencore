@@ -11,10 +11,10 @@ class FlowProxyWidget(QGraphicsProxyWidget):
     def mousePressEvent(self, arg__1):
         QGraphicsProxyWidget.mousePressEvent(self, arg__1)
         if arg__1.isAccepted():
-            self.flow.__ignore_mouse_event = True
+            self.flow.ignore_mouse_event = True
 
     def mouseReleaseEvent(self, arg__1):
-        self.flow.__ignore_mouse_event = True
+        self.flow.ignore_mouse_event = True
         QGraphicsProxyWidget.mouseReleaseEvent(self, arg__1)
 
     def wheelEvent(self, event):

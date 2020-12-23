@@ -2,7 +2,7 @@ from PySide2.QtWidgets import QGraphicsItem
 from PySide2.QtGui import QPen, QPainter, QColor
 from PySide2.QtCore import Qt, QRectF, QPointF, QLineF
 
-from src.global_tools.MovementEnum import MovementEnum
+from .global_tools.MovementEnum import MovementEnum
 
 
 class DrawingObject(QGraphicsItem):
@@ -129,7 +129,7 @@ class DrawingObject(QGraphicsItem):
     def mouseReleaseEvent(self, event):
         """Used for Moving-Commands in Flow - may be replaced later with a nicer determination of a move action."""
         if self.movement_state == MovementEnum.position_changed:
-            self.flow.__selected_components_moved(self.pos() - self.movement_pos_from)
+            self.flow.selected_components_moved(self.pos() - self.movement_pos_from)
         self.movement_state = None
         return QGraphicsItem.mouseReleaseEvent(self, event)
 

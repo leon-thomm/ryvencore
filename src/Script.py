@@ -1,8 +1,8 @@
 from PySide2.QtCore import QObject, Signal
 
-from src.Flow import Flow
-from src.logging.Logger import Logger
-from src.script_variables.VarsManager import VarsManager
+from .Flow import Flow
+from .logging.Logger import Logger
+from .script_variables.VarsManager import VarsManager
 
 
 class Script(QObject):

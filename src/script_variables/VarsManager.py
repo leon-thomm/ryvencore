@@ -1,8 +1,8 @@
 from PySide2.QtCore import Signal, QObject
 
-from src.script_variables.Variable import Variable
+from ..script_variables.Variable import Variable
 
-from src.global_tools.Debugger import Debugger
+from ..global_tools.Debugger import Debugger
 
 
 class VarsManager(QObject):

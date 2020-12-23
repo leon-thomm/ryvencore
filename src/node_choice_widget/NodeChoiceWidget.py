@@ -2,9 +2,9 @@ from PySide2.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QLabel, QScrollAr
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QFont
 
-from src.global_tools.Debugger import Debugger
-from src.global_tools.stuff import sort_nodes
-from src.node_choice_widget.NodeWidget import NodeWidget
+from ..global_tools.Debugger import Debugger
+from ..global_tools.stuff import sort_nodes
+from ..node_choice_widget.NodeWidget import NodeWidget
 
 
 class NodeChoiceWidget(QWidget):
@@ -60,7 +60,7 @@ class NodeChoiceWidget(QWidget):
 
         self.update_view('')
 
-        self.setStyleSheet(self.flow.session.design.__node_choice_stylesheet)
+        self.setStyleSheet(self.flow.session.design.node_choice_stylesheet)
 
         self.search_line_edit.setFocus()
 
@@ -183,7 +183,7 @@ class NodeChoiceWidget(QWidget):
 
 
     def node_widget_chosen(self):  # gets called when the user clicks on a node widget with the mouse
-        self.flow.__ignore_mouse_event = True  # otherwise, it will receive a mouse press event
+        self.flow.ignore_mouse_event = True  # otherwise, it will receive a mouse press event
 
         index = int(self.sender().objectName()[self.sender().objectName().rindex('_')+1:])
         self.place_node(index)
@@ -192,6 +192,6 @@ class NodeChoiceWidget(QWidget):
     def place_node(self, index):
         node_index = index
         node = self.current_nodes[node_index]
-        self.flow.__place_node__cmd(node)
+        self.flow.place_node__cmd(node)
 
         self.flow.hide_node_choice_widget()

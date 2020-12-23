@@ -1,7 +1,7 @@
 from PySide2.QtWidgets import QUndoCommand
 
-from src.global_tools.class_inspection import find_type_in_object
-from src.NodeInstance import NodeInstance
+from .global_tools.class_inspection import find_type_in_object
+from .NodeInstance import NodeInstance
 
 
 class MoveComponents_Command(QUndoCommand):
@@ -42,10 +42,10 @@ class PlaceNodeInstanceInScene_Command(QUndoCommand):
         self.NI_pos = pos
 
     def undo(self):
-        self.flow.__remove_node_instance(self.node_instance)
+        self.flow.remove_node_instance(self.node_instance)
 
     def redo(self):
-        self.flow.__add_node_instance(self.node_instance, self.NI_pos)
+        self.flow.add_node_instance(self.node_instance, self.NI_pos)
 
 
 class PlaceDrawingObject_Command(QUndoCommand):
@@ -65,10 +65,10 @@ class PlaceDrawingObject_Command(QUndoCommand):
 
         self.drawing_obj_pos = self.drawing_obj.pos()
 
-        self.flow.__remove_component(self.drawing_obj)
+        self.flow.remove_component(self.drawing_obj)
 
     def redo(self):
-        self.flow.__add_drawing(self.drawing_obj, self.drawing_obj_pos)
+        self.flow.add_drawing(self.drawing_obj, self.drawing_obj_pos)
 
 
 class RemoveComponents_Command(QUndoCommand):
@@ -105,14 +105,14 @@ class RemoveComponents_Command(QUndoCommand):
 
     def undo(self):
         for i in self.items:
-            self.flow.__add_component(i)
+            self.flow.add_component(i)
         self.connect_gates()
         self.flow.select_components(self.items)
 
     def redo(self):
         self.connect_gates()
         for i in self.items:
-            self.flow.__remove_component(i)
+            self.flow.remove_component(i)
 
     def connect_gates(self):
         for b_c in self.broken_connections:
@@ -147,7 +147,7 @@ class Paste_Command(QUndoCommand):
 
     def undo(self):
         for i in self.pasted_items:
-            self.flow.__remove_component(i)
+            self.flow.remove_component(i)
 
     def redo(self):
         if self.pasted_items is None:
@@ -163,7 +163,7 @@ class Paste_Command(QUndoCommand):
             self.pasted_node_instances = new_node_instances
             self.pasted_drawing_objects = new_drawing_objects
         else:
-            self.flow.__add_node_instances(self.pasted_node_instances)
-            self.flow.__add_drawings(self.pasted_drawing_objects)
+            self.flow.add_node_instances(self.pasted_node_instances)
+            self.flow.add_drawings(self.pasted_drawing_objects)
 
         self.flow.select_components(self.pasted_items)

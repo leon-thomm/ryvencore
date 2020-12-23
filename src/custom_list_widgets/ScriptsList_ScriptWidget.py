@@ -4,8 +4,8 @@ from PySide2.QtCore import Qt, QEvent
 
 import json
 
-from src.GlobalAttributes import package_path
-from src.custom_list_widgets.ListWidget_NameLineEdit import ListWidget_NameLineEdit
+from ..GlobalAttributes import Location
+from .ListWidget_NameLineEdit import ListWidget_NameLineEdit
 
 
 class ScriptsList_ScriptWidget(QWidget):
@@ -29,7 +29,7 @@ class ScriptsList_ScriptWidget(QWidget):
         main_layout = QHBoxLayout()
 
         # create icon via label
-        script_icon = QIcon(package_path+'/resources/pics/script_picture.png')
+        script_icon = QIcon(Location.PACKAGE_PATH+'/resources/pics/script_picture.png')
         icon_label = QLabel()
         icon_label.setFixedSize(20, 20)
         icon_label.setStyleSheet('border:none;')

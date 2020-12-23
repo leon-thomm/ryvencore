@@ -3,12 +3,13 @@ from PySide2.QtWidgets import QGraphicsItem, QLineEdit, QSpinBox, QGraphicsGridL
 from PySide2.QtCore import Qt, QRectF, QPointF, QSizeF
 from PySide2.QtGui import QFontMetricsF, QFont, QFontMetrics
 
-from src.global_tools.Debugger import Debugger
-from src.global_tools.strings import get_longest_line, shorten
-from src.WidgetBaseClasses import MWB, IWB
-from src.retain import M
+from .global_tools.Debugger import Debugger
+from .global_tools.strings import get_longest_line, shorten
+from .WidgetBaseClasses import MWB, IWB
+from .retain import M
+from .CONSTANTS import PortPos
 
-from src.FlowProxyWidget import FlowProxyWidget
+from .FlowProxyWidget import FlowProxyWidget
 
 
 class PortInstance(QGraphicsGridLayout):
@@ -20,7 +21,7 @@ class PortInstance(QGraphicsGridLayout):
         # GENERAL ATTRIBUTES
         self.val = None
         self.parent_node_instance = parent_node_instance
-        self.direction = direction
+        self.io_pos = direction
         self.type_ = type_
         self.label_str = label_str
         self.connections = []  # connections stored here
@@ -43,39 +44,18 @@ class PortInstance(QGraphicsGridLayout):
         pass  # reimplemented in subclasses
 
     def get_val(self):
-        """applies on DATA; called NI internally AND externally"""
-        Debugger.write('get value in', self.direction, 'port instance',
-                       self.parent_node_instance.inputs.index(
-                                self) if self.direction == 'input' else self.parent_node_instance.outputs.index(self),
-                            'of', self.parent_node_instance.parent_node.title)
-        Debugger.write('val is', self.val)
-
-        if self.direction == 'input':
-            if len(self.connections) == 0:
-                if self.widget:
-                    return self.widget.get_val()
-                else:
-                    return None
-            else:
-                Debugger.write('calling connected port for val')
-                return self.connections[0].get_val()
-        elif self.direction == 'output':
-            # Debugger.debug('returning val directly')
-            if self.parent_node_instance.flow.algorithm_mode == 'exec flow':
-                self.parent_node_instance.update()
-            return self.val
+        # Debugger.write('get value in', self.direction, 'port instance',
+        #                self.parent_node_instance.inputs.index(
+        #                         self) if self.direction == 'input' else self.parent_node_instance.outputs.index(self),
+        #                     'of', self.parent_node_instance.parent_node.title)
+        # Debugger.write('val is', self.val)
+        pass
 
     def connected(self):
-        """Disables the widget and causes update"""
-        if self.widget:
-            self.widget.setEnabled(False)
-        if self.direction == 'input' and self.type_ == 'data':
-            self.update()
+        pass
 
     def disconnected(self):
-        """Enables the widget again"""
-        if self.widget:
-            self.widget.setEnabled(True)
+        pass
 
     def config_data(self):
         pass  # reimplemented
@@ -84,7 +64,7 @@ class PortInstance(QGraphicsGridLayout):
 class InputPortInstance(PortInstance):
     def __init__(self, parent_node_instance, type_='', label_str='',
                  config_data=None, widget_name=None, widget_pos=''):
-        super(InputPortInstance, self).__init__(parent_node_instance, 'input', type_, label_str,
+        super(InputPortInstance, self).__init__(parent_node_instance, PortPos.INPUT, type_, label_str,
                                                 widget_name, widget_pos)
 
         if config_data is not None:
@@ -152,6 +132,28 @@ class InputPortInstance(PortInstance):
         # return widget_class
         return self.parent_node_instance.parent_node.custom_input_widgets[widget_name]
 
+    def connected(self):
+        """Disables the widget and causes update"""
+        if self.widget:
+            self.widget.setEnabled(False)
+        if self.type_ == 'data':
+            self.update()
+
+    def disconnected(self):
+        """Enables the widget again"""
+        if self.widget:
+            self.widget.setEnabled(True)
+
+    def get_val(self):
+        if len(self.connections) == 0:
+            if self.widget:
+                return self.widget.get_val()
+            else:
+                return None
+        else:
+            # Debugger.write('calling connected port for val')
+            return self.connections[0].get_val()
+
     def update(self):
         """applies on INPUT; called NI externally (from another NI)"""
         if (self.parent_node_instance.is_active() and self.type_ == 'exec') or \
@@ -171,9 +173,10 @@ class InputPortInstance(PortInstance):
 
         return data_dict
 
+
 class OutputPortInstance(PortInstance):
     def __init__(self, parent_node_instance, type_='', label_str=''):
-        super(OutputPortInstance, self).__init__(parent_node_instance, 'output', type_, label_str)
+        super(OutputPortInstance, self).__init__(parent_node_instance, PortPos.OUTPUT, type_, label_str)
 
         self.setup_ui()
 
@@ -186,14 +189,19 @@ class OutputPortInstance(PortInstance):
         self.setAlignment(self.pin, Qt.AlignVCenter | Qt.AlignRight)
 
     def exec(self):
-        """applies on OUTPUT; called NI internally (from parentNI)"""
         for c in self.connections:
             c.activate()
 
+    def get_val(self):
+        # Debugger.debug('returning val directly')
+        if self.parent_node_instance.flow.algorithm_mode == 'exec flow':
+            self.parent_node_instance.update()
+        return self.val
+
     def set_val(self, val):
         """applies on OUTPUT; called NI internally"""
-        Debugger.write('setting value of', self.direction, 'port of', self.parent_node_instance.parent_node.title,
-                            'NodeInstance to', val)
+        # Debugger.write('setting value of output port of', self.parent_node_instance.parent_node.title,
+        #                     'NodeInstance to', val)
 
         # note that val COULD be of object type and therefore already changed (because the original object did)
         self.val = val
@@ -214,7 +222,9 @@ class OutputPortInstance(PortInstance):
 
         return data_dict
 
+
 # CONTENTS -------------------------------------------------------------------------------------------------------------
+
 
 class PortInstPin(QGraphicsWidget):
     def __init__(self, parent_port_instance, parent_node_instance):
@@ -258,7 +268,7 @@ class PortInstPin(QGraphicsWidget):
         event.accept()
 
     def hoverEnterEvent(self, event):
-        if self.parent_port_instance.type_ == 'data' and self.parent_port_instance.direction == 'output':
+        if self.parent_port_instance.type_ == 'data' and self.parent_port_instance.io_pos == PortPos.OUTPUT:
             self.setToolTip(shorten(str(self.parent_port_instance.val), 1000, line_break=True))
 
         # hover all connections

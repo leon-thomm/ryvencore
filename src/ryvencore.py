@@ -1,16 +1,17 @@
-from src.Node import Node, NodePort
-from src.NodeInstance import NodeInstance
-from src.Session import Session
-from src.WidgetBaseClasses import MWB, IWB
-from src.global_tools.Debugger import Debugger
+from .Node import Node, NodePort
+from .NodeInstance import NodeInstance
+from .Session import Session
+from .WidgetBaseClasses import MWB, IWB
+from .global_tools.Debugger import Debugger
+from .CONSTANTS import FlowAlg, MainWidgetPos, InpWidgetPos
 
 
 # CONVENIENCE CLASSES
 
 class ConvUI:
-    from src.custom_list_widgets.ScriptsListWidget import ScriptsListWidget
-    from src.custom_list_widgets.VariablesListWidget import VariablesListWidget
-    from src.logging.LogWidget import LogWidget
+    from .custom_list_widgets.ScriptsListWidget import ScriptsListWidget
+    from .custom_list_widgets.VariablesListWidget import VariablesListWidget
+    from .logging.LogWidget import LogWidget
 
     ScriptsList = ScriptsListWidget
     VarsList = VariablesListWidget
@@ -18,5 +19,12 @@ class ConvUI:
 
 
 class Retain:
-    from src.retain import M
+    from .retain import M
     M = M
+
+
+# set package path
+import os
+from .GlobalAttributes import Location
+Location.PACKAGE_PATH = os.path.normpath(os.path.dirname(__file__)+'/../')
+print(Location.PACKAGE_PATH)

@@ -97,7 +97,7 @@ class FlowStylusModesWidget(QWidget):
         self.flow.set_stylus_proxy_pos()
 
     def on_edit_button_clicked(self):
-        self.flow.__stylus_mode = 'edit'
+        self.flow.stylus_mode = 'edit'
         self.pen_style_widget.hide()
 
         # if I don't hide and show the settings_widget manually here, the stylus mode buttons take up the additional
@@ -110,7 +110,7 @@ class FlowStylusModesWidget(QWidget):
         # self.flow.setDragMode(QGraphicsView.RubberBandDrag)
 
     def on_comment_button_clicked(self):
-        self.flow.__stylus_mode = 'comment'
+        self.flow.stylus_mode = 'comment'
         self.pen_style_widget.show()
         self.adjustSize()
         self.flow.set_stylus_proxy_pos()

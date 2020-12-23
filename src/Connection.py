@@ -4,8 +4,8 @@ from PySide2.QtCore import QRectF, QPointF
 from PySide2.QtGui import QPainter, QColor, QRadialGradient, QPainterPath
 from PySide2.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem
 
-from src.PortInstance import OutputPortInstance, InputPortInstance
-from src.global_tools.math import pythagoras
+from .PortInstance import OutputPortInstance, InputPortInstance
+from .global_tools.math import pythagoras
 
 
 class Connection(QGraphicsItem):
