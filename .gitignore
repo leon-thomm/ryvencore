@@ -5,3 +5,5 @@ notizen.md
 __pycache__/
 venv/
 temp/
+__init__.py
+setup.py
