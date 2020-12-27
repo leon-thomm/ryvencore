@@ -3,7 +3,6 @@ from PySide2.QtCore import Qt
 from PySide2.QtGui import QFont
 
 from ..global_tools.Debugger import Debugger
-from ..global_tools.stuff import sort_nodes
 from ..node_choice_widget.NodeWidget import NodeWidget
 
 
@@ -195,3 +194,7 @@ class NodeChoiceWidget(QWidget):
         self.flow.place_node__cmd(node)
 
         self.flow.hide_node_choice_widget()
+
+
+def sort_nodes(nodes):
+    return sorted(nodes, key=lambda x: x.title.lower())

@@ -1,5 +1,5 @@
 from PySide2.QtWidgets import QGraphicsItem
-from PySide2.QtGui import QPen, QPainter, QColor
+from PySide2.QtGui import QPen, QPainter, QColor, QPainterPath
 from PySide2.QtCore import Qt, QRectF, QPointF, QLineF
 
 from .global_tools.MovementEnum import MovementEnum
@@ -19,9 +19,12 @@ class DrawingObject(QGraphicsItem):
         self.type = 'pen'  # so far the only available, but I already save it so I could add more types in the future
         self.points = []
         self.stroke_weights = []
+        self.pen_stroke_weight = 0  # approx. avg of self.stroke_weights
         self.rect = None
+        self.path: QPainterPath = None
         self.width = -1
         self.height = -1
+        self.finished = False
 
         # viewport_pos enables global floating points for precise pen positions
         self.viewport_pos: QPointF = config['viewport pos'] if 'viewport pos' in config else None
@@ -45,22 +48,47 @@ class DrawingObject(QGraphicsItem):
                     w = p['w']
                     self.points.append(QPointF(x, y))
                     self.stroke_weights.append(w)
+            self.finished = True
+
         self.color = QColor(config['color'])
         self.base_stroke_weight = config['base stroke weight']
 
 
     def paint(self, painter, option, widget=None):
-        for i in range(1, len(self.points)):
-            pen = QPen()
-            pen.setColor(self.color)
-            pen_width = (self.stroke_weights[i]+0.2)*self.base_stroke_weight
-            pen.setWidthF(pen_width)
-            if i == 1 or i == len(self.points)-1:
-                pen.setCapStyle(Qt.RoundCap)
-            painter.setPen(pen)
-            painter.setRenderHint(QPainter.Antialiasing)
-            painter.setRenderHint(QPainter.HighQualityAntialiasing)
-            painter.drawLine(self.points[i-1], self.points[i])
+
+        if not self.finished:
+            for i in range(1, len(self.points)):
+                pen = QPen()
+                pen.setColor(self.color)
+                pen_width = (self.stroke_weights[i] + 0.2) * self.base_stroke_weight
+                pen.setWidthF(pen_width)
+                if i == 1 or i == len(self.points) - 1:
+                    pen.setCapStyle(Qt.RoundCap)
+                painter.setPen(pen)
+                painter.setRenderHint(QPainter.Antialiasing)
+                painter.setRenderHint(QPainter.HighQualityAntialiasing)
+                painter.drawLine(self.points[i - 1], self.points[i])
+            return
+
+        if not self.path and self.finished:
+            if len(self.points) == 0:
+                return
+
+            self.path = QPainterPath()
+            self.path.moveTo(self.points[0])
+            avg_weight = self.stroke_weights[0]
+            for i in range(1, len(self.points)):
+                self.path.lineTo(self.points[i])
+                avg_weight += self.stroke_weights[i]
+            self.pen_stroke_weight = (avg_weight/len(self.points) + 0.2)*self.base_stroke_weight
+
+        pen = QPen()
+        pen.setColor(self.color)
+        pen.setWidthF(self.pen_stroke_weight)
+        painter.setPen(pen)
+        painter.setRenderHint(QPainter.Antialiasing)
+        # painter.setRenderHint(QPainter.HighQualityAntialiasing)
+        painter.drawPath(self.path)
 
     def append_point(self, posF_in_view: QPointF) -> bool:
         """Only used for active drawing.
@@ -77,7 +105,7 @@ class DrawingObject(QGraphicsItem):
         self.points.append(p)
         return True
 
-    def finished(self):
+    def finish(self):
         """correct bounding rect (so far (0,0) is at the start of the line, but it should be in the middle)"""
         rect_center = self.get_points_rect_center()
         for p in self.points:
@@ -86,6 +114,8 @@ class DrawingObject(QGraphicsItem):
         self.setPos(self.pos()+rect_center)
 
         self.rect = self.get_points_rect()
+
+        self.finished = True
 
     def get_points_rect(self):
         if len(self.points) == 0:

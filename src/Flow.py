@@ -1,9 +1,9 @@
-from PySide2.QtCore import Qt, QPointF, QPoint, QRectF, QSizeF
-from PySide2.QtGui import QPainter, QPen, QColor, QKeySequence, QTabletEvent, QImage, QGuiApplication
+from PySide2.QtCore import Qt, QPointF, QPoint, QRectF, QSizeF, Signal, QTimer
+from PySide2.QtGui import QPainter, QPen, QColor, QKeySequence, QTabletEvent, QImage, QGuiApplication, QFont
 from PySide2.QtWidgets import QGraphicsView, QGraphicsScene, QShortcut, QMenu, QGraphicsItem, QUndoStack
 
 from .FlowCommands import MoveComponents_Command, PlaceNodeInstanceInScene_Command, \
-    PlaceDrawingObject_Command, RemoveComponents_Command, ConnectGates_Command, Paste_Command
+    PlaceDrawingObject_Command, RemoveComponents_Command, ConnectPorts_Command, Paste_Command
 from .FlowProxyWidget import FlowProxyWidget
 from .FlowStylusModesWidget import FlowStylusModesWidget
 from .FlowZoomWidget import FlowZoomWidget
@@ -11,10 +11,9 @@ from .node_choice_widget.NodeChoiceWidget import NodeChoiceWidget
 from .Node import Node
 from .NodeInstance import NodeInstance
 from .PortInstance import PortInstance, PortInstPin
-from .Connection import Connection, DataConnection, ExecConnection
+from .Connection import Connection, default_cubic_connection_path
 from .DrawingObject import DrawingObject
 from .global_tools.Debugger import Debugger
-from .global_tools.class_inspection import find_type_in_object, find_type_in_objects
 from .RC import PortPos, FlowAlg
 from .RC import FlowVPUpdateMode as VPUpdateMode
 
@@ -23,6 +22,8 @@ import json
 
 class Flow(QGraphicsView):
     """Manages all GUI of flows"""
+
+    node_inst_selection_changed = Signal(list)
 
     def __init__(self, session, script, flow_size: list = None, config=None, parent=None):
         super(Flow, self).__init__(parent=parent)
@@ -46,6 +47,7 @@ class Flow(QGraphicsView):
         self.selected_pin: PortInstPin = None
         self.dragging_connection = False
         self.ignore_mouse_event = False  # for stylus - see tablet event
+        self.__showing_framerate = False
         self.__last_mouse_move_pos: QPointF = None
         self.__node_place_pos = QPointF()
         self.__left_mouse_pressed_in_flow = False
@@ -75,7 +77,7 @@ class Flow(QGraphicsView):
         self.setRenderHint(QPainter.Antialiasing)
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
         self.setDragMode(QGraphicsView.RubberBandDrag)
-        # scene.selectionChanged.connect(self.__selection_changed)
+        scene.selectionChanged.connect(self.__scene_selection_changed)
         self.setAcceptDrops(True)
 
         self.centerOn(QPointF(self.viewport().width() / 2, self.viewport().height() / 2))
@@ -144,6 +146,25 @@ class Flow(QGraphicsView):
                 self.place_drawings_from_config(config['drawings'])
             self.__undo_stack.clear()
 
+
+        # FRAMERATE TRACKING
+        self.num_frames = 0
+        self.framerate = 0
+        self.framerate_timer = QTimer(self)
+        self.framerate_timer.timeout.connect(self.on_framerate_timer_timeout)
+
+        self.show_framerate(m_sec_interval=100)  # for testing
+
+
+    def show_framerate(self, show: bool = True, m_sec_interval: int = 1000):
+        self.__showing_framerate = show
+        self.framerate_timer.setInterval(m_sec_interval)
+        self.framerate_timer.start()
+
+    def on_framerate_timer_timeout(self):
+        self.framerate = self.num_frames
+        self.num_frames = 0
+
     def __init_shortcuts(self):
         place_new_node_shortcut = QShortcut(QKeySequence('Shift+P'), self)
         place_new_node_shortcut.activated.connect(self.__place_new_node_by_shortcut)
@@ -173,22 +194,10 @@ class Flow(QGraphicsView):
         # TODO: repaint background. how?
         self.viewport().update()
 
-    # def algorithm_mode_data_flow_toggled(self, checked):
-    #     self.algorithm_mode.mode_data_flow = checked
-    #
-    # def viewport_update_mode_sync_toggled(self, checked):
-    #     self.viewport_update_mode = 'synch' checked
-
-    # TODO: rebuild code preview in Ryven using a selection_changed signal or something like it
-    # def selection_changed(self):
-    #     selected_items = self.scene().selectedItems()
-    #     selected_node_instances = list(filter(find_NI_in_object, selected_items))
-    #
-    #     return  # code preview disabled for now
-    #     if len(selected_node_instances) == 1:
-    #         self.script.show_NI_code(selected_node_instances[0])
-    #     elif len(selected_node_instances) == 0:
-    #         self.script.show_NI_code(None)
+    def __scene_selection_changed(self):
+        self.node_inst_selection_changed.emit(
+            [ni for ni in self.scene().selectedItems() if isinstance(ni, NodeInstance)]
+        )
 
     def contextMenuEvent(self, event):
         QGraphicsView.contextMenuEvent(self, event)
@@ -197,7 +206,7 @@ class Flow(QGraphicsView):
             return
 
         for i in self.items(event.pos()):
-            if find_type_in_object(i, NodeInstance):
+            if isinstance(i, NodeInstance):
                 ni: NodeInstance = i
                 menu: QMenu = ni.get_context_menu()
                 menu.exec_(event.globalPos())
@@ -234,7 +243,7 @@ class Flow(QGraphicsView):
             if self.__node_choice_proxy.isVisible():
                 self.hide_node_choice_widget()
             else:
-                if find_type_in_object(self.itemAt(event.pos()), PortInstPin):
+                if isinstance(self.itemAt(event.pos()), PortInstPin):
                     self.selected_pin = self.itemAt(event.pos())
                     self.dragging_connection = True
 
@@ -279,18 +288,18 @@ class Flow(QGraphicsView):
             self.__panning = False
 
 
-        # connection dropped over specific gate
+        # connection dropped over specific pin
         if self.dragging_connection and self.itemAt(event.pos()) and \
-                find_type_in_object(self.itemAt(event.pos()), PortInstPin):
+                isinstance(self.itemAt(event.pos()), PortInstPin):
             self.connect_port_insts__cmd(self.selected_pin.parent_port_instance,
                                          self.itemAt(event.pos()).parent_port_instance)
 
-        # connection dropped over NodeInstance - auto connect
-        elif self.dragging_connection and find_type_in_objects(self.items(event.pos()), NodeInstance):
+        # connection dropped above NodeInstance - auto connect
+        elif self.dragging_connection and any(isinstance(item, NodeInstance) for item in self.items(event.pos())):
             # find node instance
             ni_under_drop = None
             for item in self.items(event.pos()):
-                if find_type_in_object(item, NodeInstance):
+                if isinstance(item, NodeInstance):
                     ni_under_drop = item
                     break
             # connect
@@ -366,7 +375,7 @@ class Flow(QGraphicsView):
             elif event.pointerType() == QTabletEvent.Eraser:
                 if self.stylus_mode == 'comment':
                     for i in self.items(event.pos()):
-                        if find_type_in_object(i, DrawingObject):
+                        if isinstance(i, DrawingObject):
                             self.remove_drawing(i)
                             break
             elif self.stylus_mode == 'comment' and self.__drawing:
@@ -380,7 +389,7 @@ class Flow(QGraphicsView):
                 self.__panning = False
             if self.stylus_mode == 'comment' and self.__drawing:
                 Debugger.write('drawing obj finished')
-                self.__current_drawing.finished()
+                self.__current_drawing.finish()
                 self.__current_drawing = None
                 self.__drawing = False
 
@@ -434,10 +443,15 @@ class Flow(QGraphicsView):
 
     def drawForeground(self, painter, rect):
 
-        # repaint all connections
-        # otherwise they get overdrawn by node instances
-        for c in self.connections:
-            c.update()
+        if self.__showing_framerate:
+            self.num_frames += 1
+            pen = QPen(QColor('#A9D5EF'))
+            pen.setWidthF(2)
+            painter.setPen(pen)
+
+            pos = self.mapToScene(10, 23)
+            painter.setFont(QFont('Poppins', round(11*self.__total_scale_div)))
+            painter.drawText(pos, "{:.2f}".format(self.framerate))
 
 
         # DRAW CURRENTLY DRAGGED CONNECTION
@@ -456,11 +470,11 @@ class Flow(QGraphicsView):
 
             if sppi.type_ == 'data':
                 painter.drawPath(
-                    DataConnection.connection_path(pos1, pos2)
+                    default_cubic_connection_path(pos1, pos2)
                 )
             elif sppi.type_ == 'exec':
                 painter.drawPath(
-                    ExecConnection.connection_path(pos1, pos2)
+                    default_cubic_connection_path(pos1, pos2)
                 )
 
 
@@ -862,7 +876,7 @@ class Flow(QGraphicsView):
 
         selected_NIs = []
         for i in self.scene().selectedItems():
-            if find_type_in_object(i, NodeInstance):
+            if isinstance(i, NodeInstance):
                 selected_NIs.append(i)
         return selected_NIs
 
@@ -871,7 +885,7 @@ class Flow(QGraphicsView):
 
         selected_drawings = []
         for i in self.scene().selectedItems():
-            if find_type_in_object(i, DrawingObject):
+            if isinstance(i, DrawingObject):
                 selected_drawings.append(i)
         return selected_drawings
 
@@ -937,15 +951,19 @@ class Flow(QGraphicsView):
         self.__undo_stack.push(Paste_Command(self, data, offset_for_middle_pos))
 
     def add_component(self, e):
-        if find_type_in_object(e, NodeInstance):
+        if isinstance(e, NodeInstance):
             self.add_node_instance(e)
-        elif find_type_in_object(e, DrawingObject):
+        elif isinstance(e, DrawingObject):
             self.add_drawing(e)
 
+    def remove_components(self, comps):
+        for c in comps:
+            self.remove_component(c)
+
     def remove_component(self, e):
-        if find_type_in_object(e, NodeInstance):
+        if isinstance(e, NodeInstance):
             self.remove_node_instance(e)
-        elif find_type_in_object(e, DrawingObject):
+        elif isinstance(e, DrawingObject):
             self.remove_drawing(e)
 
     def remove_selected_components(self):
@@ -960,6 +978,7 @@ class Flow(QGraphicsView):
 
     # CONNECTIONS: ----
     def connect_port_insts__cmd(self, p1: PortInstance, p2: PortInstance):
+        """Connects if possible, disconnects if ports are already connected"""
 
         out = None
         inp = None
@@ -976,18 +995,29 @@ class Flow(QGraphicsView):
         if out.type_ != inp.type_:
             return
 
-        self.__undo_stack.push(ConnectGates_Command(self, out=out, inp=inp))
+        self.__undo_stack.push(ConnectPorts_Command(self, out=out, inp=inp))
 
-    def connect_pins(self, out: PortInstance, inp: PortInstance):
+    def connect_pins(self, out: PortInstance = None, inp: PortInstance = None, connection: Connection = None):
+        """
+        DEFAULT: connects out and inp if they are not connected, otherwise they get disconnected
+        connected() or disconnected() is triggered afterwards of the ports
+        IF CONNECTION PROVIDED: the connection gets added to the scene and connected() is triggered on the ports.
+        """
+
+        inp = inp if not connection else connection.inp
+        out = out if not connection else connection.out
+
 
         for c in out.connections:
             if c.inp == inp:
                 # disconnect
-                out.connections.remove(c)
-                inp.connections.remove(c)
-                self.connections.remove(c)
-                self.scene().removeItem(c)
+                self.remove_connection(c)
+                out.disconnected()
+                inp.disconnected()
                 return
+
+        if inp.parent_node_instance == out.parent_node_instance:
+            return
 
 
         # CONNECT
@@ -997,20 +1027,48 @@ class Flow(QGraphicsView):
             for c in inp.connections:
                 self.connect_port_insts__cmd(c.out, inp)
 
-        c = None
-        if inp.type_ == 'data':
-            c = DataConnection(out, inp, self.session.design)
-        elif inp.type_ == 'exec':
-            c = ExecConnection(out, inp, self.session.design)
-        c.setZValue(10)
-        self.scene().addItem(c)
-        out.connections.append(c)
-        inp.connections.append(c)
-        self.connections.append(c)
+
+        if connection:
+            self.add_connection(connection)
+            connection.out.connected()
+            connection.inp.connected()
+            return
+
+
+        c = self.new_connection(out, inp)
+        self.add_connection(c)
 
         out.connected()
         inp.connected()
 
+    def new_connection(self, out: PortInstance, inp: PortInstance) -> Connection:
+        """Creates the connection object"""
+        c = None
+        if inp.type_ == 'data':
+            c = self.session.flow_data_conn_class((out, inp, self.session.design))
+        elif inp.type_ == 'exec':
+            c = self.session.flow_exec_conn_class((out, inp, self.session.design))
+        c.setZValue(10)
+        return c
+
+    def add_connection(self, c: Connection):
+        """Adds the connection object to the scene"""
+        c.out.connections.append(c)
+        c.inp.connections.append(c)
+
+        self.connections.append(c)
+
+        self.scene().addItem(c)
+        self.viewport().repaint()
+
+    def remove_connection(self, c: Connection):
+        """Removes the connection object from the scene"""
+        c.out.connections.remove(c)
+        c.inp.connections.remove(c)
+
+        self.connections.remove(c)
+
+        self.scene().removeItem(c)
         self.viewport().repaint()
 
     def auto_connect(self, pi: PortInstance, ni: NodeInstance):
@@ -1086,7 +1144,3 @@ class Flow(QGraphicsView):
             drawings_list.append(drawing_dict)
 
         return drawings_list
-
-
-def find_NI_in_object(obj):
-    return find_type_in_object(obj, NodeInstance)

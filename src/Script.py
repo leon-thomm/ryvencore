@@ -12,11 +12,12 @@ class Script(QObject):
     flow_algorithm_mode_changed = Signal(str)
     flow_viewport_update_mode_changed = Signal(str)
 
-    def __init__(self, session, title: str = None, config: dict = None, flow_size: list = None, flow_parent=None):
+    def __init__(self, session, title: str = None, config: dict = None, flow_size: list = None, flow_parent=None,
+                 create_default_logs=True):
         super(Script, self).__init__()
 
         self.session = session
-        self.logger = Logger(self)
+        self.logger = Logger(self, create_default_logs)
         self.vars_manager = None
         self.title = title
         self.flow = None

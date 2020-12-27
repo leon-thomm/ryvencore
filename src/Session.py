@@ -1,6 +1,7 @@
 from PySide2.QtCore import QObject, Signal
 from PySide2.QtGui import QFontDatabase
 
+from .Connection import DataConnection, ExecConnection
 from .GlobalAttributes import Location
 from .Node import Node
 from .Script import Script
@@ -23,6 +24,8 @@ class Session(QObject):
             animations_enabled: bool = True,
             flow_theme_name: str = 'ueli',
             # debug_messages_enabled: bool = False,
+            flow_data_conn_class=DataConnection,
+            flow_exec_conn_class=ExecConnection,
             project: dict = None
     ):
         super().__init__()
@@ -31,6 +34,10 @@ class Session(QObject):
 
         self.scripts: [Script] = []
         self.nodes: [Node] = []
+
+        # connections
+        self.flow_data_conn_class = flow_data_conn_class
+        self.flow_exec_conn_class = flow_exec_conn_class
 
         self.design = Design(
             performance_mode=flow_performance_mode,
@@ -74,10 +81,11 @@ class Session(QObject):
         return node
 
 
-    def create_script(self, title: str, flow_size: list = None, flow_parent=None) -> Script:
+    def create_script(self, title: str, flow_size: list = None, flow_parent=None, create_default_logs=True) -> Script:
         """Creates and returns a new script"""
 
-        script = Script(session=self, title=title, flow_size=flow_size, flow_parent=flow_parent)
+        script = Script(session=self, title=title, flow_size=flow_size, flow_parent=flow_parent,
+                        create_default_logs=create_default_logs)
         self.scripts.append(script)
         self.new_script_created.emit(script)
         return script

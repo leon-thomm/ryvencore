@@ -1,6 +1,6 @@
 from PySide2.QtCore import QObject, Signal
 
-from ..logging.Log import Log
+from .Log import Log
 
 
 class Logger(QObject):
@@ -8,13 +8,14 @@ class Logger(QObject):
 
     new_log_created = Signal(Log)
 
-    def __init__(self, script):
+    def __init__(self, script, create_default_logs=True):
         super(Logger, self).__init__()
 
         self.script = script
         self.logs: [Log] = []
 
-        self.create_default_logs()
+        if create_default_logs:
+            self.create_default_logs()
 
     def create_default_logs(self):
         self.new_log(title='Global')

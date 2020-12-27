@@ -3,6 +3,7 @@ from .NodeInstance import NodeInstance
 from .Session import Session
 from .WidgetBaseClasses import MWB, IWB
 from .global_tools.Debugger import Debugger
+from .Connection import DataConnBase, ExecConnBase
 
 
 # CONVENIENCE CLASSES

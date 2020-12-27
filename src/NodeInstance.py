@@ -2,7 +2,6 @@ from PySide2.QtWidgets import QGraphicsItem, QMenu, QGraphicsDropShadowEffect
 from PySide2.QtCore import Qt, QRectF
 from PySide2.QtGui import QColor
 
-# import custom_src.Console.MainConsole as MainConsole
 from .NodeInstanceAction import NodeInstanceAction
 from .NodeInstanceAnimator import NodeInstanceAnimator
 from .NodeInstanceWidget import NodeInstanceWidget
@@ -52,6 +51,7 @@ class NodeInstance(QGraphicsItem):
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable |
                       QGraphicsItem.ItemSendsScenePositionChanges)
         self.setAcceptHoverEvents(True)
+        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
 
 
 
@@ -444,7 +444,10 @@ class NodeInstance(QGraphicsItem):
         """Updates the global positions of connections at outputs"""
         for o in self.outputs:
             for c in o.connections:
-                c.update_pos()
+                c.recompute()
+        for i in self.inputs:
+            for c in i.connections:
+                c.recompute()
 
     def hoverEnterEvent(self, event):
         self.widget.title_label.set_NI_hover_state(hovering=True)
@@ -561,43 +564,15 @@ class NodeInstance(QGraphicsItem):
             for out in outputs_config:
                 self.create_new_output(out['type'], out['label'])
 
-    # def get_input_widget_class(self, widget_name):
-    #     """Returns a reference to the widget class of a given name for instantiation."""
-    #     custom_node_input_widget_classes = self.script.main_window.custom_node_input_widget_classes
-    #     widget_class = custom_node_input_widget_classes[self.parent_node][widget_name]
-    #     return widget_class
-
     def add_input_to_scene(self, i):
         self.flow.scene().addItem(i.pin)
         self.flow.scene().addItem(i.label)
         if i.widget:
             self.flow.scene().addItem(i.proxy)
 
-    def del_and_remove_input_from_scene(self, i_index):
-        inp = self.inputs[i_index]
-        for c in self.inputs[i_index].connections:
-            self.flow.connect_pins(c.out, inp)
-
-        self.flow.scene().removeItem(inp.pin)
-        self.flow.scene().removeItem(inp.label)
-        if inp.widget:
-            self.flow.scene().removeItem(inp.proxy)
-            inp.widget.remove_event()
-        self.inputs.remove(inp)
-
-
     def add_output_to_scene(self, o):
         self.flow.scene().addItem(o.pin)
         self.flow.scene().addItem(o.label)
-
-    def del_and_remove_output_from_scene(self, o_index):
-        out = self.outputs[o_index]
-        for c in self.outputs[o_index].connections:
-            self.flow.connect_pins(out, c.inp)
-
-        self.flow.scene().removeItem(out.pin)
-        self.flow.scene().removeItem(out.label)
-        self.outputs.remove(out)
 
     # GENERAL
     def about_to_remove_from_scene(self):

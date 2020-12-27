@@ -1,6 +1,5 @@
 from PySide2.QtWidgets import QUndoCommand
 
-from .global_tools.class_inspection import find_type_in_object
 from .NodeInstance import NodeInstance
 
 
@@ -78,10 +77,12 @@ class RemoveComponents_Command(QUndoCommand):
         self.flow = flow
         self.items = items
         self.broken_connections = []  # the connections that go beyond the removed ports and need to be restored in undo
+        self.internal_connections = set()
+        # self.connections = set()
 
         self.node_instances = []
         for i in self.items:
-            if find_type_in_object(i, NodeInstance):
+            if isinstance(i, NodeInstance):
                 self.node_instances.append(i)
 
         self.connected_node_instances_indices_not_in_del_selection = []
@@ -91,47 +92,82 @@ class RemoveComponents_Command(QUndoCommand):
                     cpi = c.out
                     cni = cpi.parent_node_instance
                     if cni not in self.node_instances:
-                        self.broken_connections.append({
-                            cpi: i
-                        })
+                        self.broken_connections.append(c)
+                    else:
+                        self.internal_connections.add(c)
             for o in n.outputs:
                 for c in o.connections:
                     cpi = c.inp
                     cni = cpi.parent_node_instance
                     if cni not in self.node_instances:
-                        self.broken_connections.append({
-                            o: cpi
-                        })
+                        self.broken_connections.append(c)
+                    else:
+                        self.internal_connections.add(c)
 
     def undo(self):
         for i in self.items:
             self.flow.add_component(i)
-        self.connect_gates()
+        # reconnect
+        self.restore_broken_connections()
+        for c in self.internal_connections:
+            self.flow.add_connection(c)
+
         self.flow.select_components(self.items)
 
     def redo(self):
-        self.connect_gates()
+        # disconnect
+        self.remove_broken_connections()
+        for c in self.internal_connections:
+            self.flow.remove_connection(c)
+
         for i in self.items:
             self.flow.remove_component(i)
 
-    def connect_gates(self):
+    def restore_broken_connections(self):
         for b_c in self.broken_connections:
-            self.flow.connect_pins(list(b_c.keys())[0], list(b_c.values())[0])
+            self.flow.connect_pins(connection=b_c)
+
+    def remove_broken_connections(self):
+        for b_c in self.broken_connections:
+            self.flow.connect_pins(b_c.out, b_c.inp)
 
 
-class ConnectGates_Command(QUndoCommand):
+class ConnectPorts_Command(QUndoCommand):
     def __init__(self, flow, out, inp):
-        super(ConnectGates_Command, self).__init__()
+        super(ConnectPorts_Command, self).__init__()
 
         self.flow = flow
         self.out = out
         self.inp = inp
+        self.connection = None
+        self.connecting = True
+
+        for c in self.out.connections:
+            if c.inp == self.inp:
+                self.connection = c
+                self.connecting = False
 
     def undo(self):
-        self.flow.connect_pins(self.out, self.inp)
+        if self.connecting:
+            # disconnect
+            self.flow.connect_pins(self.out, self.inp)
+        else:
+            # connect
+            self.flow.connect_pins(connection=self.connection)
 
     def redo(self):
-        self.flow.connect_pins(self.out, self.inp)
+        if self.connecting:
+
+            if not self.connection:
+                self.connection = self.flow.new_connection(self.out, self.inp)
+
+            # connect using the new or cached connection
+            self.flow.connect_pins(connection=self.connection)
+
+        else:
+            # disconnect
+            self.flow.connect_pins(self.out, self.inp)
+
 
 
 class Paste_Command(QUndoCommand):
@@ -145,9 +181,20 @@ class Paste_Command(QUndoCommand):
         self.pasted_node_instances = None
         self.pasted_drawing_objects = None
 
+        # TODO: also cache pasted_connections; replace self.flow.connect_pins in undo with self.flow.remove_connection
+        #  and replace self.flow.connect_nodes_from_config with self.flow.add_connection(s) in redo
+        #  problem: Flow.connect_nodes_from_config has to return the new connections which might get messy...
+
     def undo(self):
-        for i in self.pasted_items:
-            self.flow.remove_component(i)
+        self.flow.remove_components(self.pasted_items)
+
+        # remove connections
+        for ni in self.pasted_node_instances:
+            for o in ni.outputs:
+                for c in o.connections:
+
+                    # disconnect pins here so they can be connected in connect_nodes_from_config in redo below again
+                    self.flow.connect_pins(c.out, c.inp)
 
     def redo(self):
         if self.pasted_items is None:
@@ -165,5 +212,8 @@ class Paste_Command(QUndoCommand):
         else:
             self.flow.add_node_instances(self.pasted_node_instances)
             self.flow.add_drawings(self.pasted_drawing_objects)
+
+            # not keeping them cached for now...
+            self.flow.connect_nodes_from_config(self.pasted_node_instances, self.data['connections'])
 
         self.flow.select_components(self.pasted_items)
