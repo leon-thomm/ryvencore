@@ -1,0 +1,25 @@
+site_name: ryvencore
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.expand
+
+nav:
+  - Welcome: index.md
+  - Getting Started: getting_started.md
+  - Features: features.md
+  - Convenience GUI: conv_gui.md
+  - API Reference: api.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      linenums: true
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
