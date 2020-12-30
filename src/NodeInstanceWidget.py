@@ -105,7 +105,7 @@ class NodeInstanceWidget(QGraphicsWidget):
         self.layout().activate()
         # very essential; repositions everything in case content has changed (inputs/outputs/widget)
 
-        if self.node_inst.parent_node.design_style == 'minimalistic':
+        if self.node_inst.parent_node.design_style == 'small':
 
             # making it recompute its true minimumWidth here
             self.adjustSize()

@@ -1,14 +1,16 @@
-# Installation
+# Getting Started
 
-## Requirements
+## Installation
+
+### Requirements
 
 You need a recent Python version, preferably 3.9+. The only internal dependency of ryvencore right now is `PySide2` which will be installed automatically.
 
-## Installing
+### Installing
 
 `pip install ryvencore` will install the package.
 
-# First Editor
+## First Editor
 
 !!! info
     You can copy the full example code at the end of this page.
@@ -19,7 +21,7 @@ First, import ryvencore
 import ryvencore.ryvencore as rc
 ```
 
-## Overall Structure
+### Overall Structure
 
 The main interface to the package is the **Session** class, which you usually want to create one instance of per application. The constructor already gives plenty of options for configurations, but we can leave everything as default for now.
 
@@ -35,7 +37,7 @@ script = my_session.create_new_script('fancy title', flow_size=[800, 500])
 
 With the `flow_size` you can set the pixel size of the flow that will be created. To access the actual flow, just reference the field `script.flow` directly. The flow itself is a `QGraphicsView` subclass, which is a GUI class of Qt, so you can directly embed it into your window.
 
-## Setting Up a Window
+### Setting Up a Window
 
 This is not a complete tutorial on getting started with Qt for Python, but setting up a basic GUI structure is quite simple.
 
@@ -66,7 +68,7 @@ if __name__ == "__main__":
 
 And there we go, this is everything you need to create and show a window containing a fully functional flow. You can left click into the scene to see a node selection widget pop up. Well, there isn't any content yet to use, so let's add that.
 
-## Nodes
+### Nodes
 
 In ryvencore the nodes system works like this:
 
@@ -89,9 +91,9 @@ session.register_nodes( list_of_nodes )
 !!! hint
     You can register nodes at any time! This enables dynamic import mechanisms as in Ryven.
 
-### NodeInstance
+#### NodeInstance
 
-The first thing you want to think about is your node's NodeInstance class, where you define the whole functionality. For a detailed description of the members, take a look into the [API reference](/api/). We'll just create a very simple print node, which prints the data at the input every time it updates.
+The first thing you want to think about is your node's NodeInstance class, where you define the whole functionality. For a detailed description of the members, take a look into the [API reference](../api/#class-nodeinstance). We'll just create a very simple print node, which prints the data at the input every time it updates.
 
 ``` python
 class PrintNI(rc.NodeInstance):
@@ -111,7 +113,7 @@ Make your class derive from `rc.NodeInstance` and then enhance it the way you li
 !!! note
     While most flow-based visual scripting software out there implements either the approach of *execution-flows* or *data-flows*, ryvencore implements them both. That's what the `input_called`-parameter is for, you use it when creating nodes for execution-flows. But I don't want to dive into the differences here, for now I assume we just want dataflows.
 
-### Node
+#### Node
 
 As described, last thing to do is registering the node, which is quite straight forward
 
@@ -138,7 +140,7 @@ session.register_node(
 
 There we go, this is everything you need. Now, I will just add another node which generates a random number in a given range, so we have something to print.
 
-### Another Node
+#### Another Node
 
 ``` python
 from random import random
@@ -170,15 +172,15 @@ session.register_node(
 
 Note the `widget`-and `widget_pos`-parameters in the NodePort which I explain in the following section.
 
-### Input Widgets
+#### Input Widgets
 
-Data inputs can have widgets (like input fields aka LineEdits). The only restriction for defining an InputWidget is that it has to be a `QWidget`. Custom such input widgets can be registered by listing them in the `NodePort`'s `input_widgets`-parameter (see [API](reference)). Usually, however, the builtin classes provided by ryvencore are sufficient. For example the following line of code creates an input field of the builtin type *std line edit* of size m.
+Data inputs can have widgets (like input fields aka LineEdits). The only restriction for defining an InputWidget is that it has to be a `QWidget`. Custom such input widgets can be registered by listing them in the `NodePort`'s `input_widgets`-parameter (see [API](../api/#class-node)). Usually, however, the builtin classes provided by ryvencore are sufficient. For example the following line of code creates an input field of the builtin type *std line edit* of size m.
 
 ``` python
 rc.NodePort('data', widget='std line edit m', widget_pos='besides')
 ```
 
-## Finishing
+### Finishing
 
 Now you already have a small editor with all major features. You can place the two nodes, connect them by mouse, type somethin into the randome-NodeInstance's input field and hit enter to trigger the update. It will then update and the `self.set_output_val()` call will trigger the connected print-NodeInstance to update.
 
@@ -200,8 +202,10 @@ session = rc.Session(
 )
 ```
 
-!!! success "Congrats!"
-    Congrats, you are good to go to create much more advanced editors and optimize them. ryvencore has much more features than I showed here. For that, see the [Features](/features/) section where you will find more detailed descriptions of all the internal systems, from save&load over stylus-and touch-support to execution flows. The world is yours, have fun :)
+!!! success ""
+    Congrats, you are good to go to create much more advanced editors and optimize them. ryvencore has much more features than I showed here. For that, see the [Features](../features/) section where you will find more detailed descriptions of all the internal systems, from save&load over stylus-and touch-support to execution flows. The world is yours, have fun!
+
+[//]: # ([Star this project on GitHub](https://github.com/leon-thomm/Ryven){: .md-button })
 
 ??? note "CODE"
     ``` python

@@ -24,6 +24,8 @@ class Flow(QGraphicsView):
     """Manages all GUI of flows"""
 
     node_inst_selection_changed = Signal(list)
+    algorithm_mode_changed = Signal(str)
+    viewport_update_mode_changed = Signal(str)
 
     def __init__(self, session, script, flow_size: list = None, config=None, parent=None):
         super(Flow, self).__init__(parent=parent)
@@ -60,8 +62,8 @@ class Flow(QGraphicsView):
         self.__total_scale_div = 1
 
         # SETTINGS
-        self.algorithm_mode = FlowAlg.DATA    # Flow_AlgorithmMode()
-        self.viewport_update_mode: VPUpdateMode = VPUpdateMode.SYNC  # Flow_ViewportUpdateMode()
+        self.alg_mode = FlowAlg.DATA    # Flow_AlgorithmMode()
+        self.vp_update_mode: VPUpdateMode = VPUpdateMode.SYNC  # Flow_ViewportUpdateMode()
 
         # CREATE UI
         scene = QGraphicsScene(self)
@@ -124,21 +126,21 @@ class Flow(QGraphicsView):
         if config is not None:
             # algorithm mode
             mode = config['algorithm mode']
-            if mode == FlowAlg.DATA or \
-                    mode == 'data flow':  # backwards compatibility
-                self.algorithm_mode = FlowAlg.DATA
-            elif mode == FlowAlg.EXEC or \
-                    mode == 'exec flow':  # backwards compatibility
-                self.algorithm_mode = FlowAlg.EXEC
+            if mode == 'data' or mode == 'data flow':  # mode == FlowAlg.DATA
+                # self.alg_mode = FlowAlg.DATA
+                self.set_algorithm_mode('data')
+            elif mode == 'exec' or mode == 'exec flow':  # mode == FlowAlg.EXEC
+                # self.alg_mode = FlowAlg.EXEC
+                self.set_algorithm_mode('exec')
 
             # viewport update mode
             vpum = config['viewport update mode']
-            if vpum == VPUpdateMode.SYNC or \
-                    vpum == 'sync':  # backwards compatibility
-                self.viewport_update_mode = VPUpdateMode.SYNC
-            elif vpum == VPUpdateMode.ASYNC or \
-                    vpum == 'async':  # backwards compatibility
-                self.viewport_update_mode = VPUpdateMode.ASYNC
+            if vpum == 'sync':  # vpum == VPUpdateMode.SYNC
+                # self.vp_update_mode = VPUpdateMode.SYNC
+                self.set_viewport_update_mode('sync')
+            elif vpum == 'async':  # vpum == VPUpdateMode.ASYNC
+                self.vp_update_mode = VPUpdateMode.ASYNC
+                self.set_viewport_update_mode('async')
 
             node_instances = self.place_nodes_from_config(config['nodes'])
             self.connect_nodes_from_config(node_instances, config['connections'])
@@ -1085,9 +1087,43 @@ class Flow(QGraphicsView):
                     self.connect_port_insts__cmd(pi, out)
                     return
 
+    # MODES API
+
+    def algorithm_mode(self) -> str:
+        """Returns the current algorithm mode of the flow as string"""
+        return FlowAlg.stringify(self.alg_mode)
+
+    def set_algorithm_mode(self, mode: str):
+        """
+        Sets the algorithm mode of the flow
+        :mode: 'data' or 'exec'
+        """
+        if mode == 'data':
+            self.alg_mode = FlowAlg.DATA
+        elif mode == 'exec':
+            self.alg_mode = FlowAlg.EXEC
+
+        self.algorithm_mode_changed.emit(self.algorithm_mode())
+
+    def viewport_update_mode(self) -> str:
+        """Returns the current viewport update mode as string (sync or async) of the flow"""
+        return VPUpdateMode.stringify(self.vp_update_mode)
+
+    def set_viewport_update_mode(self, mode: str):
+        """
+        Sets the viewport update mode of the flow
+        :mode: 'sync' or 'async'
+        """
+        if mode == 'sync':
+            self.vp_update_mode = VPUpdateMode.SYNC
+        elif mode == 'async':
+            self.vp_update_mode = VPUpdateMode.ASYNC
+
+        self.viewport_update_mode_changed.emit(self.viewport_update_mode())
+
     def config_data(self):
-        flow_dict = {'algorithm mode': FlowAlg.stringify(self.algorithm_mode),
-                     'viewport update mode': VPUpdateMode.stringify(self.viewport_update_mode),
+        flow_dict = {'algorithm mode': FlowAlg.stringify(self.alg_mode),
+                     'viewport update mode': VPUpdateMode.stringify(self.vp_update_mode),
                      'nodes': self.__get_node_instances_config_data(self.node_instances),
                      'connections': self.__get_connections_config_data(self.node_instances),
                      'drawings': self.__get_drawings_config_data(self.drawings)}

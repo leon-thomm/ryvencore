@@ -8,6 +8,7 @@ from .NodeInstanceWidget import NodeInstanceWidget
 from .RC import FlowVPUpdateMode
 from .global_tools.Debugger import Debugger
 from .global_tools.MovementEnum import MovementEnum
+from .logging.Log import Log
 
 from .PortInstance import InputPortInstance, OutputPortInstance
 from .retain import M
@@ -137,7 +138,7 @@ class NodeInstance(QGraphicsItem):
 
         pass
 
-    def input(self, index):
+    def input(self, index: int):
         """Returns the value of a data input.
         If the input is connected, the value of the connected output is used:
         If not, the value of the widget is used."""
@@ -145,7 +146,7 @@ class NodeInstance(QGraphicsItem):
         Debugger.write('input called in', self.parent_node.title, 'NI:', index)
         return self.inputs[index].get_val()
 
-    def exec_output(self, index):
+    def exec_output(self, index: int):
         """Executes an execution output, sending a signal to all connected execution inputs causing the connected
         NIs to update."""
         self.outputs[index].exec()
@@ -154,7 +155,7 @@ class NodeInstance(QGraphicsItem):
         """Sets the value of a data output.
         self.data_outputs_updated() has to be called manually after all values are set."""
 
-        if self.flow.viewport_update_mode == FlowVPUpdateMode.ASYNC:  # asynchronous viewport updates
+        if self.flow.vp_update_mode == FlowVPUpdateMode.ASYNC:  # asynchronous viewport updates
             vp = self.flow.viewport()
             vp.repaint(self.flow.mapFromScene(self.sceneBoundingRect()))
 
@@ -175,8 +176,8 @@ class NodeInstance(QGraphicsItem):
     # all algorithm-unrelated api methods:
 
     #   LOGGING
-    def new_log(self, title):
-        """Requesting a new personal Log. Handy method for subclasses."""
+    def new_log(self, title) -> Log:
+        """Requesting a new personal Log."""
         # new_log = self.script.logger.new_log(self, title)
         new_log = self.script.logger.new_log(title)
         self.personal_logs.append(new_log)
@@ -192,10 +193,10 @@ class NodeInstance(QGraphicsItem):
         for log in self.personal_logs:
             log.enable()
 
-    def log_message(self, message: str, target: str):
+    def log_message(self, msg: str, target: str):
         """Writes a string to a default log with title target"""
 
-        self.script.logger.log_message(message, target)
+        self.script.logger.log_message(msg, target)
 
     # SHAPE
     def update_shape(self):
@@ -204,7 +205,7 @@ class NodeInstance(QGraphicsItem):
         self.flow.viewport().update()
 
     # PORTS
-    def create_new_input(self, type_: str, label: str, widget_name=None,
+    def create_new_input(self, type_: str = 'data', label: str = '', widget_name=None,
                          widget_pos='besides', pos=-1, config=None):
         """
         Creates and adds a new input.
@@ -233,7 +234,7 @@ class NodeInstance(QGraphicsItem):
             self.update()
 
     def delete_input(self, i):
-        """Disconnects and removes input. Handy for subclasses."""
+        """Disconnects and removes input."""
         inp: InputPortInstance = None
         if type(i) == int:
             inp = self.inputs[i]
@@ -258,8 +259,8 @@ class NodeInstance(QGraphicsItem):
             self.update()
 
 
-    def create_new_output(self, type_, label, pos=-1):
-        """Creates and adds a new output. Handy for subclasses."""
+    def create_new_output(self, type_: str = 'data', label: str = '', pos=-1):
+        """Creates and adds a new output."""
 
         pi = OutputPortInstance(self, type_, label)
         if pos < -1:
@@ -317,7 +318,7 @@ class NodeInstance(QGraphicsItem):
         """
         pass
 
-    def session_stylesheet(self):
+    def session_stylesheet(self) -> str:
         return self.session_design.global_stylesheet
 
     # VARIABLES
@@ -325,16 +326,16 @@ class NodeInstance(QGraphicsItem):
     def get_vars_manager(self):
         return self.script.vars_manager
 
-    def get_var_val(self, name):
+    def get_var_val(self, name: str):
         return self.get_vars_manager().get_var_val(name)
 
-    def set_var_val(self, name, val):
+    def set_var_val(self, name: str, val):
         return self.get_vars_manager().set_var(name, val)
 
-    def register_var_receiver(self, name, method):
+    def register_var_receiver(self, name: str, method):
         self.get_vars_manager().register_receiver(self, name, method)
 
-    def unregister_var_receiver(self, name):
+    def unregister_var_receiver(self, name: str):
         self.get_vars_manager().unregister_receiver(self, name)
 
     # --------------------------------------------------------------------------------------

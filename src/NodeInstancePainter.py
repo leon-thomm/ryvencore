@@ -22,7 +22,7 @@ class NIPainter:
 
         if design_style == 'extended':
             painter.drawText(text_rect, Qt.AlignLeft | Qt.AlignVCenter, title_str)
-        elif design_style == 'minimalistic':
+        elif design_style == 'small':
             painter.drawText(text_rect, Qt.AlignTop | Qt.AlignHCenter, title_str)
 
     def paint_PI_label(painter, option, exec_type, connected, label_str, node_color, bounding_rect):
@@ -119,7 +119,7 @@ class NIPainter_DarkStd(NIPainter):
 
         if design_style == 'extended':
             NIPainter_DarkStd.draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect)
-        elif design_style == 'minimalistic':
+        elif design_style == 'small':
             NIPainter_DarkStd.draw_NI_minimalistic(painter, c, w, h, bounding_rect)
 
     def draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect):
@@ -237,7 +237,7 @@ class NIPainter_DarkTron(NIPainter):
 
         if design_style == 'extended':
             NIPainter_DarkTron.draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect)
-        elif design_style == 'minimalistic':
+        elif design_style == 'small':
             if option.state & QStyle.State_MouseOver:  # use special dark background color when mouse hovers
                 NIPainter_DarkTron.draw_NI_minimalistic(painter, c, w, h, background_color=c.darker())
             else:
@@ -405,7 +405,7 @@ class NIPainter_Ghostly(NIPainter):
 
         if design_style == 'extended':
             NIPainter_Ghostly.draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect)
-        elif design_style == 'minimalistic':
+        elif design_style == 'small':
             if option.state & QStyle.State_MouseOver:  # use special dark background color when mouse hovers
                 NIPainter_Ghostly.draw_NI_minimalistic(painter, c, w, h, background_color=c.darker())
             else:
@@ -539,7 +539,7 @@ class NIPainter_Blender(NIPainter):
 
         if design_style == 'extended':
             NIPainter_Blender.draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect)
-        elif design_style == 'minimalistic':
+        elif design_style == 'small':
             NIPainter_Blender.draw_NI_minimalistic(painter, c, w, h, bounding_rect)
 
     def draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect):
@@ -652,7 +652,7 @@ class NIPainter_Easy(NIPainter):
 
         if design_style == 'extended':
             NIPainter_Easy.draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect)
-        elif design_style == 'minimalistic':
+        elif design_style == 'small':
             NIPainter_Easy.draw_NI_minimalistic(painter, c, w, h, bounding_rect)
 
     def draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect):
@@ -765,7 +765,7 @@ class NIPainter_Peasy(NIPainter):
 
         if design_style == 'extended':
             NIPainter_Peasy.draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect)
-        elif design_style == 'minimalistic':
+        elif design_style == 'small':
             NIPainter_Peasy.draw_NI_minimalistic(painter, c, w, h, bounding_rect)
 
     def draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect):
@@ -875,7 +875,7 @@ class NIPainter_Ueli(NIPainter):
 
         if design_style == 'extended':
             NIPainter_Ueli.draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect)
-        elif design_style == 'minimalistic':
+        elif design_style == 'small':
             NIPainter_Ueli.draw_NI_minimalistic(painter, c, w, h, bounding_rect)
 
     def draw_NI_extended_background(painter, c, w, h, bounding_rect: QRectF, title_rect):

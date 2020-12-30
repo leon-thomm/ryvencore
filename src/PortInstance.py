@@ -195,7 +195,7 @@ class OutputPortInstance(PortInstance):
 
     def get_val(self):
         # Debugger.debug('returning val directly')
-        if self.parent_node_instance.flow.algorithm_mode == FlowAlg.EXEC:
+        if self.parent_node_instance.flow.alg_mode == FlowAlg.EXEC:
             self.parent_node_instance.update()
         return self.val
 
@@ -208,7 +208,7 @@ class OutputPortInstance(PortInstance):
         self.val = val
 
         # if algorithm mode would be exec flow, all data will be required instead of actively forward propagated
-        if self.parent_node_instance.flow.algorithm_mode == FlowAlg.DATA and \
+        if self.parent_node_instance.flow.alg_mode == FlowAlg.DATA and \
                 not self.parent_node_instance.initializing:
             self.updated_val()
 

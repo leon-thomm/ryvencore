@@ -94,13 +94,13 @@ class VarsManager(QObject):
         self.variables.remove(var)
         self.var_deleted.emit(var)
 
-    def register_receiver(self, receiver, var_name, method):
+    def register_receiver(self, receiver, var_name: str, method):
         """A registered receiver (method) gets triggered every time the
         value of a variable with the given name changes (also when it gets created)."""
 
         self.var_receivers[(receiver, var_name)] = method
 
-    def unregister_receiver(self, receiver, var_name) -> bool:
+    def unregister_receiver(self, receiver, var_name: str) -> bool:
         """Unregisters a method and returns true in case of success. See also register_receiver()."""
 
         try:

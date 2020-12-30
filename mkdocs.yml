@@ -23,3 +23,9 @@ markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences
+  - attr_list
+  - toc:
+      toc_depth: 10
+
+extra_css:
+  - extra_style_sheet.css

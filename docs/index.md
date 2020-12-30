@@ -1,4 +1,4 @@
-# Welcome to the ryvencore documentation!
+# Welcome to the `ryvencore` documentation!
 
 Looking for a quick start? Visit the [Getting Started](/getting_started/) section.
 
