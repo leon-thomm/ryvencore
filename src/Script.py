@@ -1,6 +1,7 @@
 from PySide2.QtCore import QObject, Signal
 
 from .Flow import Flow
+from .FlowWorkerThread import FlowWorkerThread
 from .RC import FlowVPUpdateMode, FlowAlg
 from .logging.Logger import Logger
 from .script_variables.VarsManager import VarsManager

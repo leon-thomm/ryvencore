@@ -28,6 +28,7 @@ class Node(QObject):
 
         self.flow, design, config = params
         self.script = self.flow.script
+        self.session = self.script.session
         self.inputs: [NodeInput] = []
         self.outputs: [NodeOutput] = []
         self.default_actions = default_node_actions
@@ -38,7 +39,7 @@ class Node(QObject):
 
         self.item = NodeItem(self, params)
 
-    def initialized(self):
+    def finish_initialization(self):
 
         if self.init_config:
             self.setup_ports(self.init_config['inputs'], self.init_config['outputs'])
@@ -54,6 +55,8 @@ class Node(QObject):
             self.setup_ports()
 
         self.item.initialized()
+
+        self.initialized()
 
         self.update()
 
@@ -122,6 +125,9 @@ class Node(QObject):
         Debugger.write('input called in', self.title, 'NI:', index)
         return self.inputs[index].get_val()
 
+    def input_widget(self, index: int):
+        return self.inputs[index].item.widget
+
     def exec_output(self, index: int):
         """Executes an execution output, sending a signal to all connected execution inputs causing the connected
         NIs to update."""
@@ -150,6 +156,9 @@ class Node(QObject):
     #                   /_/
     #
     # all algorithm-unrelated api methods:
+
+    def initialized(self):
+        pass
 
     #   LOGGING
     def new_log(self, title) -> Log:
@@ -211,6 +220,9 @@ class Node(QObject):
 
         self.item.add_new_input(inp, pos)
 
+        if self.session.threading_enabled:
+            inp.moveToThread(self.flow.worker_thread)
+
 
     def delete_input(self, i):
         """Disconnects and removes input."""
@@ -246,6 +258,9 @@ class Node(QObject):
             self.outputs.insert(pos, out)
 
         self.item.add_new_output(out, pos)
+
+        if self.session.threading_enabled:
+            out.moveToThread(self.flow.worker_thread)
 
     def delete_output(self, o):
         """Disconnects and removes output. Handy for subclasses."""

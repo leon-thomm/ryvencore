@@ -23,6 +23,7 @@ class Session(QObject):
             animations_enabled: bool = True,
             flow_theme_name: str = 'ueli',
             # debug_messages_enabled: bool = False,
+            threading_enabled: bool = True,
             flow_data_conn_class=DataConnection,
             flow_exec_conn_class=ExecConnection,
             project: dict = None
@@ -33,6 +34,7 @@ class Session(QObject):
 
         self.scripts: [Script] = []
         self.nodes = []  # list of node CLASSES
+        self.threading_enabled = threading_enabled
 
         # connections
         self.flow_data_conn_class = flow_data_conn_class

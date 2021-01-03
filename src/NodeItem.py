@@ -1,5 +1,5 @@
 from PySide2.QtWidgets import QGraphicsItem, QMenu, QGraphicsDropShadowEffect
-from PySide2.QtCore import Qt, QRectF
+from PySide2.QtCore import Qt, QRectF, QObject
 from PySide2.QtGui import QColor
 
 from .NodeObjPort import NodeObjInput, NodeObjOutput
@@ -15,7 +15,7 @@ from .PortItem import InputPortItem, OutputPortItem
 from .retain import M
 
 
-class NodeItem(QGraphicsItem):
+class NodeItem(QGraphicsItem, QObject):
 
     # # FIELDS
     # init_inputs = []
@@ -30,7 +30,9 @@ class NodeItem(QGraphicsItem):
     # color = '#c69a15'
 
     def __init__(self, node, params):
-        super(NodeItem, self).__init__()
+        # super(NodeItem, self).__init__()
+        QGraphicsItem.__init__(self)
+        QObject.__init__(self)
 
         self.node = node
         flow, design, config = params

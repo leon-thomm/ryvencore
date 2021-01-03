@@ -1,4 +1,4 @@
-from PySide2.QtCore import Qt, QPointF, QPoint, QRectF, QSizeF, Signal, QTimer
+from PySide2.QtCore import Qt, QPointF, QPoint, QRectF, QSizeF, Signal, QTimer, QObject
 from PySide2.QtGui import QPainter, QPen, QColor, QKeySequence, QTabletEvent, QImage, QGuiApplication, QFont
 from PySide2.QtWidgets import QGraphicsView, QGraphicsScene, QShortcut, QMenu, QGraphicsItem, QUndoStack
 
@@ -6,6 +6,7 @@ from .FlowCommands import MoveComponents_Command, PlaceNodeItemInScene_Command, 
     PlaceDrawingObject_Command, RemoveComponents_Command, ConnectPorts_Command, Paste_Command
 from .FlowProxyWidget import FlowProxyWidget
 from .FlowStylusModesWidget import FlowStylusModesWidget
+from .FlowWorkerThread import FlowWorkerThread
 from .FlowZoomWidget import FlowZoomWidget
 from .Node import Node
 from .NodeObjPort import NodeObjPort, NodeObjOutput, NodeObjInput
@@ -28,6 +29,9 @@ class Flow(QGraphicsView):
     nodes_selection_changed = Signal(list)
     algorithm_mode_changed = Signal(str)
     viewport_update_mode_changed = Signal(str)
+    trigger_port_connected = Signal(NodeObjPort)
+    trigger_port_disconnected = Signal(NodeObjPort)
+
 
     def __init__(self, session, script, flow_size: list = None, config=None, parent=None):
         super(Flow, self).__init__(parent=parent)
@@ -64,6 +68,12 @@ class Flow(QGraphicsView):
         self._pan_last_y = None
         self._current_scale = 1
         self._total_scale_div = 1
+
+        self.worker_thread = FlowWorkerThread(self.thread())
+        FWT = self.worker_thread
+        self.trigger_port_connected.connect(FWT.interface.trigger_port_connected)
+        self.trigger_port_disconnected.connect(FWT.interface.trigger_port_disconnected)
+        self.worker_thread.start()
 
         # SETTINGS
         self.alg_mode = FlowAlg.DATA    # Flow_AlgorithmMode()
@@ -662,7 +672,11 @@ class Flow(QGraphicsView):
         """Creates and returns a new Node object."""
 
         node = node_class(params=(self, self.session.design, config))
-        node.initialized()
+        node.finish_initialization()
+
+        if self.session.threading_enabled:
+            node.moveToThread(self.worker_thread)
+            # from here, node lives in the worker thread but it's doesn't
 
         return node
 
@@ -1057,16 +1071,24 @@ class Flow(QGraphicsView):
 
         if connection:
             self.add_connection(connection)
-            connection.out.connected()
-            connection.inp.connected()
+            if self.session.threading_enabled:
+                self.trigger_port_connected.emit(out)
+                self.trigger_port_connected.emit(inp)
+            else:
+                connection.out.connected()
+                connection.inp.connected()
             return
 
 
         c = self.new_connection(out, inp)
         self.add_connection(c)
 
-        out.connected()
-        inp.connected()
+        if self.session.threading_enabled:
+            self.trigger_port_connected.emit(out)
+            self.trigger_port_connected.emit(inp)
+        else:
+            connection.out.connected()
+            connection.inp.connected()
 
     def new_connection(self, out: NodeObjOutput, inp: NodeObjInput) -> Connection:
         """Creates the connection object"""
@@ -1076,6 +1098,8 @@ class Flow(QGraphicsView):
         elif inp.type_ == 'exec':
             c = self.session.flow_exec_conn_class((out, inp, self.session.design))
         c.item.setZValue(10)
+        if self.session.threading_enabled:
+            c.moveToThread(self.worker_thread)
         return c
 
     def add_connection(self, c: Connection):
@@ -1147,6 +1171,7 @@ class Flow(QGraphicsView):
         self.viewport_update_mode_changed.emit(self.viewport_update_mode())
 
     def config_data(self) -> dict:
+        print(self.nodes)
         flow_dict = {'algorithm mode': FlowAlg.stringify(self.alg_mode),
                      'viewport update mode': VPUpdateMode.stringify(self.vp_update_mode),
                      'nodes': self._get_nodes_config_data(self.nodes),

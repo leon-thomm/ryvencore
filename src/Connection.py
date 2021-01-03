@@ -1,11 +1,12 @@
-from PySide2.QtCore import QPointF
+from PySide2.QtCore import QPointF, QObject
 from PySide2.QtGui import QPainterPath
 
 from .ConnectionItem import ExecConnectionItem, DataConnectionItem
 
 
-class Connection:
+class Connection(QObject):
     def __init__(self, params):
+        super().__init__()
 
         self.out, self.inp, _ = params
         self.item = None

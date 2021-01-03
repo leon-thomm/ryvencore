@@ -193,8 +193,8 @@ class Paste_Command(QUndoCommand):
         # remove connections
         for ni in self.pasted_nodes:
             for o in ni.outputs:
-                for c in o.connections:
-
+                for i in range(len(o.connections)):
+                    c = o.connections[0]
                     # disconnect pins here so they can be connected in connect_nodes_from_config in redo below again
                     self.flow.connect_ports(c.out, c.inp)
 

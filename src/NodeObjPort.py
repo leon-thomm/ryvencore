@@ -48,7 +48,7 @@ class NodeObjInput(NodeObjPort):
     def connected(self):
         super().connected()
         if self.type_ == 'data':
-            self.update()
+            self.node.update(self.node.inputs.index(self))
 
     def get_val(self):
         if len(self.connections) == 0:
