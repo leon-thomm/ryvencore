@@ -58,6 +58,15 @@ class NodeItem(QGraphicsItem, QObject):
         self.init_config = config
 
 
+        # CONNECT TO NODE
+        self.node.updated.connect(self.update)
+        self.node.update_shape_triggered.connect(self.update_shape)
+        self.node.input_added.connect(self.add_new_input)
+        self.node.output_added.connect(self.add_new_output)
+        self.node.input_removed.connect(self.remove_input)
+        self.node.output_removed.connect(self.remove_output)
+
+
         # FLAGS
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable |
                       QGraphicsItem.ItemSendsScenePositionChanges)
@@ -328,9 +337,14 @@ class NodeItem(QGraphicsItem, QObject):
                     data = v_dict['data']
                 except KeyError:
                     pass
-                action = NodeItemAction(k, menu, data)
-                action.triggered_with_data.connect(method)  # see NodeItemAction for explanation
-                action.triggered_without_data.connect(method)  # see NodeItemAction for explanation
+                action = NodeItemAction(text=k, method=method, menu=menu, data=data)
+                if self.flow.session.threading_enabled:
+                    action.triggered_with_data__thread.connect(self.flow.worker_thread.interface.trigger_node_action)
+                    action.triggered_without_data__thread.connect(self.flow.worker_thread.interface.trigger_node_action)
+                else:
+                    action.triggered_with_data.connect(method)  # see NodeItemAction for explanation
+                    action.triggered_without_data.connect(method)  # see NodeItemAction for explanation
+
                 actions.append(action)
             except KeyError:
                 action_menu = QMenu(k, menu)
@@ -340,6 +354,9 @@ class NodeItem(QGraphicsItem, QObject):
                 actions.append(action_menu)
 
         return actions
+
+    def config_data(self):
+        return {'pos x': self.pos().x(), 'pos y': self.pos().x()}
 
     # def get_special_actions_data(self, actions):
     #     cleaned_actions = actions.copy()

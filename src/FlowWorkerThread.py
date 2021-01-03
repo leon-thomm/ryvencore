@@ -19,3 +19,9 @@ class FlowWorkerThreadInterface(QObject):
 
     def trigger_node_update(self, node, input_called=-1):
         node.update(input_called)
+
+    def trigger_node_action(self, method, data=None):
+        if data:
+            method(data)
+        else:
+            method()

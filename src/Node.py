@@ -1,4 +1,4 @@
-from PySide2.QtCore import QObject
+from PySide2.QtCore import QObject, Signal
 
 from .NodeItem import NodeItem
 from .NodeObjPort import NodeObjInput, NodeObjOutput
@@ -10,6 +10,14 @@ from .global_tools.Debugger import Debugger
 
 
 class Node(QObject):
+
+    # SIGNALS
+    updated = Signal()
+    update_shape_triggered = Signal()
+    input_added = Signal(NodeObjInput, int)
+    output_added = Signal(NodeObjOutput, int)
+    input_removed = Signal(NodeObjInput)
+    output_removed = Signal(NodeObjOutput)
 
     # FIELDS
     init_inputs: [NodeInput] = []
@@ -37,6 +45,8 @@ class Node(QObject):
 
         self.init_config = config
 
+        # CAUTION !!!
+        # The item will live in a different thread! No direct method calls after initialization!
         self.item = NodeItem(self, params)
 
     def finish_initialization(self):
@@ -104,7 +114,8 @@ class Node(QObject):
 
         # if self.session_design.animations_enabled:
         #     self.animator.start()
-        self.item.node_updated()
+        # self.item.node_updated()
+        self.updated.emit()
 
         Debugger.write('update in', self.title, 'on input', input_called)
         try:
@@ -137,9 +148,10 @@ class Node(QObject):
         """Sets the value of a data output.
         self.data_outputs_updated() has to be called manually after all values are set."""
 
-        if self.flow.vp_update_mode == FlowVPUpdateMode.ASYNC and not self.item.initializing:  # asynchronous viewport updates
-            vp = self.flow.viewport()
-            vp.repaint(self.flow.mapFromScene(self.item.sceneBoundingRect()))
+        if not self.session.threading_enabled:
+            if self.flow.vp_update_mode == FlowVPUpdateMode.ASYNC and not self.item.initializing:  # asynchronous viewport updates
+                vp = self.flow.viewport()
+                vp.repaint(self.flow.mapFromScene(self.item.sceneBoundingRect()))
 
         self.outputs[index].set_val(val)
 
@@ -186,7 +198,8 @@ class Node(QObject):
     # SHAPE
     def update_shape(self):
         """Causes recompilation of the whole shape."""
-        self.item.update_shape()
+        # self.item.update_shape()
+        self.update_shape_triggered.emit()
 
     # PORTS
     def create_input(self, type_: str = 'data', label: str = '', widget_name=None,
@@ -218,7 +231,8 @@ class Node(QObject):
         else:
             self.inputs.insert(pos, inp)
 
-        self.item.add_new_input(inp, pos)
+        # self.item.add_new_input(inp, pos)
+        self.input_added.emit(inp, pos)
 
         if self.session.threading_enabled:
             inp.moveToThread(self.flow.worker_thread)
@@ -237,7 +251,8 @@ class Node(QObject):
             self.flow.connect_ports(c.out, inp)
 
         self.inputs.remove(inp)
-        self.item.remove_input(inp)
+        # self.item.remove_input(inp)
+        self.input_removed.emit(inp)
 
 
     def create_output(self, type_: str = 'data', label: str = '', pos=-1):
@@ -257,7 +272,8 @@ class Node(QObject):
         else:
             self.outputs.insert(pos, out)
 
-        self.item.add_new_output(out, pos)
+        # self.item.add_new_output(out, pos)
+        self.output_added.emit(out, pos)
 
         if self.session.threading_enabled:
             out.moveToThread(self.flow.worker_thread)
@@ -275,7 +291,8 @@ class Node(QObject):
             self.flow.connect_ports(out, c.inp)
 
         self.outputs.remove(out)
-        self.item.remove_output(out)
+        # self.item.remove_output(out)
+        self.output_removed.emit(out)
 
 
     # GET, SET DATA
@@ -366,8 +383,8 @@ class Node(QObject):
     def action_exec_input(self, data):
         self.update(data['input index'])
 
-    def action_remove(self):
-        self.item.flow.remove_node_item(self.item)
+    # def action_remove(self):
+    #     self.flow.remove_node_item(self.item)
 
     def about_to_remove_from_scene(self):
         """Called from Flow when the NI gets removed from the scene
@@ -394,14 +411,14 @@ class Node(QObject):
         return self.main_widget() is not None
 
 
-    def config_data(self):
+    def config_data(self, item_config):
         """Returns all metadata of the NI including position, package etc. in a JSON-able dict format.
         Used to rebuild the Flow when loading a project."""
 
         # general attributes
         node_dict = {'identifier': self.__class__.__name__,
-                     'position x': self.item.pos().x(),
-                     'position y': self.item.pos().y()}
+                     'position x': item_config['pos x'],
+                     'position y': item_config['pos y']}
         if self.main_widget():
             node_dict['main widget data'] = self.main_widget().get_data()
 
@@ -429,5 +446,5 @@ class Node(QObject):
 
 
 
-default_node_actions = {'remove': {'method': Node.action_remove},
+default_node_actions = {  # 'remove': {'method': Node.action_remove},
                    'update shape': {'method': Node.update_shape}}

@@ -69,11 +69,12 @@ class Flow(QGraphicsView):
         self._current_scale = 1
         self._total_scale_div = 1
 
-        self.worker_thread = FlowWorkerThread(self.thread())
-        FWT = self.worker_thread
-        self.trigger_port_connected.connect(FWT.interface.trigger_port_connected)
-        self.trigger_port_disconnected.connect(FWT.interface.trigger_port_disconnected)
-        self.worker_thread.start()
+        if self.session.threading_enabled:
+            self.worker_thread = FlowWorkerThread(self.thread())
+            FWT = self.worker_thread
+            self.trigger_port_connected.connect(FWT.interface.trigger_port_connected)
+            self.trigger_port_disconnected.connect(FWT.interface.trigger_port_disconnected)
+            self.worker_thread.start()
 
         # SETTINGS
         self.alg_mode = FlowAlg.DATA    # Flow_AlgorithmMode()
@@ -1087,8 +1088,8 @@ class Flow(QGraphicsView):
             self.trigger_port_connected.emit(out)
             self.trigger_port_connected.emit(inp)
         else:
-            connection.out.connected()
-            connection.inp.connected()
+            c.out.connected()
+            c.inp.connected()
 
     def new_connection(self, out: NodeObjOutput, inp: NodeObjInput) -> Connection:
         """Creates the connection object"""
@@ -1182,7 +1183,7 @@ class Flow(QGraphicsView):
     def _get_nodes_config_data(self, nodes):
         nodes_data = []
         for n in nodes:
-            nodes_data.append(n.config_data())
+            nodes_data.append(n.config_data(n.item.config_data()))
 
         return nodes_data
 
