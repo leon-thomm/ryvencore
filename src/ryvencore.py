@@ -1,9 +1,10 @@
-from .Node import Node, NodePort
-from .NodeInstance import NodeInstance
+from .Node import Node
+from .NodePort import NodeInput, NodeOutput
+from .NodeItem import NodeItem
 from .Session import Session
 from .WidgetBaseClasses import MWB, IWB
 from .global_tools.Debugger import Debugger
-from .Connection import DataConnBase, ExecConnBase
+from .Connection import DataConnection, ExecConnection
 
 
 # CONVENIENCE CLASSES
@@ -37,9 +38,9 @@ class GUI:
         #             from .PortInstance import LineEdit_PortInstWidget_NoBorder_Resizing_M as Medium
         #             from .PortInstance import LineEdit_PortInstWidget_NoBorder_Resizing_L as Large
 
-        from .PortInstanceInputWidgets import StdLineEditInputWidget as StdLineEdit
-        from .PortInstanceInputWidgets import StdLineEditInputWidget_NoBorder as StdLineEdit_NoBorder
-        from .PortInstanceInputWidgets import StdSpinBoxInputWidget as StdSpinBox
+        from .PortItemInputWidgets import StdLineEditInputWidget as StdLineEdit
+        from .PortItemInputWidgets import StdLineEditInputWidget_NoBorder as StdLineEdit_NoBorder
+        from .PortItemInputWidgets import StdSpinBoxInputWidget as StdSpinBox
 
     # ScriptsList = ScriptsListWidget
     # VarsList = VariablesListWidget

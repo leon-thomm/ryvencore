@@ -3,7 +3,6 @@ from PySide2.QtGui import QFontDatabase
 
 from .Connection import DataConnection, ExecConnection
 from .GlobalAttributes import Location
-from .Node import Node
 from .Script import Script
 from .global_tools.Debugger import Debugger
 from .Design import Design
@@ -33,7 +32,7 @@ class Session(QObject):
         self.__register_fonts()
 
         self.scripts: [Script] = []
-        self.nodes: [Node] = []
+        self.nodes = []  # list of node CLASSES
 
         # connections
         self.flow_data_conn_class = flow_data_conn_class
@@ -48,7 +47,7 @@ class Session(QObject):
         self.design.set_flow_theme(name=flow_theme_name)  # temporary
         #   the double call is just a temporary fix for an issue I will address in a future release.
         #   Problem: because the signal emitted when setting a flow theme is directly connected to the according slots
-        #   in NodeInstance as well as NodeInstance_TitleLabel, the NodeInstance's slot (which starts an animation which
+        #   in NodeItem as well as NodeItem_TitleLabel, the NodeItem's slot (which starts an animation which
         #   uses the title label's current and theme dependent color) could get called before the title
         #   label's slot has been called to reinitialize this color. This results in wrong color end points for the
         #   title label when activating animations.
@@ -65,20 +64,17 @@ class Session(QObject):
         QFontDatabase.addApplicationFont(Location.PACKAGE_PATH+'/resources/fonts/asap/Asap-Regular.ttf')
 
 
-    def register_nodes(self, nodes: [Node]) -> [Node]:
+    def register_nodes(self, node_classes):
         """Registers a list of Nodes which you then can access in all scripts"""
 
-        for n in nodes:
+        for n in node_classes:
             self.register_node(n)
 
-        return nodes
 
-
-    def register_node(self, node: Node) -> Node:
+    def register_node(self, node_class):
         """Registers a Node which then can be accessed in all scripts"""
 
-        self.nodes.append(node)
-        return node
+        self.nodes.append(node_class)
 
 
     def create_script(self, title: str, flow_size: list = None, flow_parent=None, create_default_logs=True) -> Script:
@@ -145,15 +141,14 @@ class Session(QObject):
         return scripts_data
 
 
-    def all_node_instances(self):
-        """Returns a list containing all NodeInstance objects used in any flow which is useful for
-        advanced project analysis"""
+    def all_nodes(self):
+        """Returns a list containing all Node objects used in any flow which is useful for advanced project analysis"""
 
-        node_insts = []
+        nodes = []
         for s in self.scripts:
-            for ni in s.flow.node_instances:
-                node_insts.append(ni)
-        return node_insts
+            for n in s.flow.nodes:
+                nodes.append(n)
+        return nodes
 
 
     def save_as_project(self, fpath: str):
@@ -162,7 +157,7 @@ class Session(QObject):
 
 
     def set_stylesheet(self, s: str):
-        """Sets the session's stylesheet which can be accessed by NodeInstances.
+        """Sets the session's stylesheet which can be accessed by NodeItems.
         You usually want this to be the same as your window's stylesheet."""
 
         self.design.global_stylesheet = s

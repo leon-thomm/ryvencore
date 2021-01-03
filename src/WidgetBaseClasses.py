@@ -1,7 +1,7 @@
 class MWB:
     """MainWidgetBase"""
     def __init__(self, params):
-        self.parent_node_instance = params
+        self.node = params
 
     def get_data(self):
         data = {}
@@ -17,7 +17,7 @@ class MWB:
 class IWB:
     """InputWidgetBase"""
     def __init__(self, params):
-        self.parent_port_instance, self.parent_node_instance = params
+        self.input, self.node = params
 
     def get_data(self):
         data = {}

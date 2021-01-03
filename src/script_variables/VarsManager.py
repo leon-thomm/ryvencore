@@ -109,7 +109,7 @@ class VarsManager(QObject):
         except Exception:
             return False
 
-    def config_data(self):
+    def config_data(self) -> dict:
         """Returns the config data of the script variables."""
 
         vars_dict = {}

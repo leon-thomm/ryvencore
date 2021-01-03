@@ -6,17 +6,17 @@ A session is the top-most interface to your contents. Usually you will want to c
 
 ### Signals
 
-The following signals are yousful if you use custom widgets for listing the scripts. You can connect these signals to the corresponding GUI classes to make your GUI adapt.
+The following signals are useful if you use custom widgets for listing the scripts. You can connect these signals to the corresponding GUI classes to make your GUI adapt.
 
-| Parameter                         | Type                                      | Description                               |
+| Name                              | Type                                      | Description                               |
 | --------------------------------- | ----------------------------------------- | ----------------------------------------- |
-| `new_script_created`              | `Script`                                  | Triggered when a new script is created.   |
-| `script_renamed`                  | `Script`                                  | Triggered when a script has been renamed. |
-| `script_deleted`                  | `Script`                                  | Triggered when a script has been deleted. |
+| `new_script_created`              | `Script`                                  | Emitted when a new script is created.     |
+| `script_renamed`                  | `Script`                                  | Emitted when a script has been renamed.   |
+| `script_deleted`                  | `Script`                                  | Emitted when a script has been deleted.   |
 
 ### Attributes
 
-| Parameter                         | Description                               |
+| Name                              | Description                               |
 | --------------------------------- | ----------------------------------------- |
 | `scripts`                         | A list of all scripts.                    |
 | `nodes`                           | A list of all registered nodes.           |
@@ -24,18 +24,18 @@ The following signals are yousful if you use custom widgets for listing the scri
 
 ### Methods
 
-#### `Session.Session(flow_performance_mode: str = 'pretty', animations_enabled: bool = True, flow_theme_name: str = 'ueli', flow_data_conn_class=DataConnection, flow_exec_conn_class=ExecConnection, project: dict = None)`
+#### `Session(flow_performance_mode: str = 'pretty', animations_enabled: bool = True, flow_theme_name: str = 'ueli', flow_data_conn_class=DataConnection, flow_exec_conn_class=ExecConnection, project: dict = None)`
 
 | Parameter                         | Description                               |
 | --------------------------------- | ----------------------------------------- |
 | `flow_performance_mode`           | `'pretty'` or `'fast'` |
 | `animations_enabled`              | NodeInstances blink on update if enabled |
-| `flow_theme_name`                 | The name of the used flow theme. See `Session.design.available_flow_themes()`. |
+| `flow_theme_name`                 | The name of the used flow theme. |
 | `flow_data_conn_class`            | (not official yet) You might be able to customize connections in the future (for adding stuff like weights, for instance). |
 | `flow_exec_conn_class`            | (not official yet) You might be able to customize connections in the future (for adding stuff like weights, for instance). |
 | `project`                         | A project config dict for directly causing a `Session.load()` call. |
 
-#### `Session.register_node(node: Node)`
+#### `register_node(node: Node)`
 
 Before you can use a node in a session's scripts' flows, you need to register them.
 
@@ -58,11 +58,11 @@ Before you can use a node in a session's scripts' flows, you need to register th
     ```
     See class `Node`.
 
-#### `Session.register_nodes(nodes: [Node])`
+#### `register_nodes(nodes: [Node])`
 
 Convenience class for registering a list of nodes at once.
 
-#### `Session.create_script(title: str, flow_size: list = None, flow_parent=None, create_default_logs=True) -> Script`
+#### `create_script(title: str, flow_size: list = None, flow_parent=None, create_default_logs=True) -> Script`
 
 | Parameter                         | Description                               |
 | --------------------------------- | ----------------------------------------- |
@@ -73,54 +73,253 @@ Convenience class for registering a list of nodes at once.
 
 Creates and returns a script which triggers the `Session.new_script_created` signal.
 
-#### `Session.rename_script(script: Script, title: str)`
+#### `rename_script(script: Script, title: str)`
 
 Renames a script which triggers the `Session.script_renamed` signal.
 
-#### `Session.delete_script(script: Script)`
+#### `delete_script(script: Script)`
 
 Deletes a script which triggers the `Session.script_deleted` signal.
 
-#### `Session.load(project: dict) -> bool`
+#### `load(project: dict) -> bool`
 
 Loads a project, which meands creating all scripts saved in the provided project dict and building all their contents including the flows.
 
-#### `Session.serialize() -> list`
+#### `serialize() -> list`
 
 Returns a list with *config data* of all scripts for saving the project.
 
 !!! warning
     Method signature might get changed
 
-#### `Session.all_node_instances() -> [NodeInstance]`
+#### `all_node_instances() -> [NodeInstance]`
 
 Returns a list of all NodeInstance objects from all flows of the session's scripts, which can be useful for analysis.
 
-#### `Session.set_stylesheet(s: str)`
+#### `set_stylesheet(s: str)`
 
 Sets the session's stylesheet which can be accessed by NodeInstances and their widgets.
 
 ## [class] `Debugger`
 
-The debugger class just provides another way to print, such that the additional info is disabled by default but can be enabled for troubleshooting. No official API *yet*.
+The debugger class just provides another way to print, such that the additional info is disabled by default but can be enabled for troubleshooting. No official API *yet* (might follow soon).
 
 ## [class] `Script`
 
+### Attributes
 
+| Name                              | Description                               |
+| --------------------------------- | ----------------------------------------- |
+| `session`                         | a ref to the session                      |
+| `flow`                            | the script's flow                         |
+| `logger`                          | the script's logger                       |
+| `vars_manager`                    | the script's vars manager managing the script variables |
+| `title`                           | the script's current tile                 |
+
+### Methods
+
+#### `config_data() -> dict`
+
+(WIP...)
 
 ## [class] `Logger`
 
+The logger manages all the logs of the script.
+
+### Signals
+
+| Name                              | Type                                      | Description                               |
+| --------------------------------- | ----------------------------------------- | ----------------------------------------- |
+| `new_log_created`                 | `Log`                                     | Emitted when a new Log has been created, either manually through `new_log` or automatically (default logs). |
+
+### Attributes
+
+| Name                              | Description                               |
+| --------------------------------- | ----------------------------------------- |
+| `script`                          | a ref to the script                       |
+| `logs`                            | a list of all logs registered in the script |
+
+### Methods
+
+#### `create_default_logs()`
+
+Creates the default script's logs *Global* and *Errors*. This is done automatically if you didn't disable default logs when creating the the script.
+
+#### `log_message(msg: str, target: str = '')`
+
+Logs a message to all logs with name `target`. If you want to print to a specific log individual log (not one of the default logs), you should use the `Log.write()` method.
+
+#### `new_log(title: str) -> Log`
+
+Creates an individual new log which you can use for anything. Emits the `new_log_created` signal.
+
 ## [class] `Log`
+
+### Signals
+
+The following signals are useful if you implement your own log GUI. Connect them to your widget so it catches those events.
+
+| Name                              | Type                                      | Description                               |
+| --------------------------------- | ----------------------------------------- | ----------------------------------------- |
+| `enabled`                         | `-`                                       | Emitted when the log has been enabled. For instance when a NodeInstance which requested the log was removed from the flow and has been restored through an undo command, the logs get reenabled. |
+| `disabled`                        | `-`                                       | Emitted when the log has been disabled. For instance when a NodInstance which requested the log has been removed from the flow. |
+| `wrote`                           | `str`                                     | Emitted when someone write a message to the log. (name might change!) |
+| `cleared`                         | `-`                                       | Emitted when the log has been cleared. |
+
+### Attributes
+
+| Name                              | Description                               |
+| --------------------------------- | ----------------------------------------- |
+| `title`                           | the log's title string                    |
+| `lines`                           | a list of all logged strings (doesn't get cleared when the log gets cleared) |
+
+
+### Methods
+
+#### `write(*args)`
+
+Writes a list of arguments to the log like python's print function does, converting everything to strings.
+
+#### `clear()`
+
+Clears the log and emits `cleared` signal. This doesn't clear the `lines` attribute!
+
+!!! todo
+    I should maybe add `current_lines` attribute
+
+#### `disable()`
+
+Disables the log and emits `disabled`. A disabled log does not `write` anymore.
+
+#### `enable()` 
+
+Enables the log and emits `enabled`.
+
+#### `save_to_file(fpath: str)`
+
+*planned*
 
 ## [class] `VarsManager`
 
+### Signals
+
+The following signals are useful if you implement your own script vars list GUI.
+
+| Name                              | Type                                      | Description                               |
+| --------------------------------- | ----------------------------------------- | ----------------------------------------- |
+| `new_var_created`                 | `Variable`                                | Emitted when a new script variable has been created. |
+| `var_deleted`                     | `Variable`                                | Emitted when a script variable has been deleted. |
+
+!!! todo
+    I should probably implement a signal `var_val_changed` to enable GUI that shows the live value!
+
+#### Attributes
+
+| Name                              | Description                               |
+| --------------------------------- | ----------------------------------------- |
+| `variables`                       | A list of all the variable objects.       |
+
+### Methods
+
+#### `check_new_var_name_validity(name: str) -> bool`
+
+Checks whether name is empty or already used and returns `True` if not.
+
+#### `create_new_var(name: str, val=None) -> Variable`
+
+Creates and returns a new script variable with given name and initial value. Emits the `new_var_created` signal.
+
+#### `get_var(name) -> Variable`
+
+Returns script variable with given name or `None` if it couldn't be found.
+
+#### `get_var_val(name)`
+
+Returns the value of a script variable with given name or `None` if it couldn't be found.
+
+#### `set_var(name, val) -> bool`
+
+Sets the value of an existing script variable. Returns `False` if the var couldn't be found.
+
+#### `delete_variable(var: Variable)`
+
+Deletes a script variable and emits `var_deleted`.
+
+#### `register_receiver(receiver, var_name: str, method)`
+
+Registers a var receiver. A registered receiver (method) gets triggered every time the value of a variable with the given name changes (also when it gets created).
+
+#### `unregister_receiver(receiver, var_name: str) -> bool`
+
+Unregisters a var receiver.
+
+#### `config_data()`
+
+(WIP...)
+
 ## [class] `Flow`
+
+### Signals
+
+| Name                              | Type                                      | Description                               |
+| --------------------------------- | ----------------------------------------- | ----------------------------------------- |
+| `node_inst_selection_changed`     | `list`                                    | Emitted when the list of selected NodeInstances in the scene changed. |
+| `algorithm_mode_changed`          | `str`                                     | Emitted when the flow's algorithm mode changed, see `set_algorithm_mode()`. |
+| `viewport_update_mode_changed`    | `str`                                     | Emitted when the flow's viewport update mode changed, see `set_viewport_update_mode()`. |
+
+#### Attributes
+
+| Name                              | Description                               |
+| --------------------------------- | ----------------------------------------- |
+| `node_instances`                  | A list of all currently placed NodeInstances. |
+| `connections`                     | A list of all current connections. |
+
+### Methods
+
+#### `algorithm_mode() -> str`
+
+Returns the flow's current algorithms mode (`exec` for *execution flow* or `data` for *data flow*).
+
+#### `set_algorithm_mode(mode: str)`
+
+| Parameter             | Description                               |
+| --------------------- | ----------------------------------------- |
+| `mode`                | `'data'` or `'exec'`                          |
+
+#### `viewport_update_mode() -> str`
+
+Returns the flow's  viewport update mode (`sync` or `async`).
+
+#### `set_viewport_update_mode(mode: str)`
+
+| Parameter             | Description                               |
+| --------------------- | ----------------------------------------- |
+| `mode`                | `'sync'` or `'async'`                         |
+
+#### `get_viewport_img() -> QImage`
+
+Returns a clear image of the viewport.
+
+#### `get_whole_scene_img() -> QImage`
+
+Returns an image of the whole scene, scaled accordingly to current scale factor.
+
+!!! bug
+    Currently, this only works from the viewport's position down and right, so the user has to scroll to the top left corner in order to get the full scene.
+
+#### `show_framerate(show: bool = True, m_sec_interval: int = 1000)`
+
+(WIP...)
+
+#### `config_data() -> dict`
+
+(WIP...)
 
 ## [class] `Node`
 
 ### Methods
 
-#### `Node.Node(title: str, node_inst_class, inputs: [NodePort] = [], input_widgets: dict = {}, outputs: [NodePort] = [], description: str = '', style: str = 'extended', color: str = '#A9D5EF', widget=None, widget_pos: str = 'below ports', type_: str = '')`
+#### `Node(title: str, node_inst_class, inputs: [NodePort] = [], input_widgets: dict = {}, outputs: [NodePort] = [], description: str = '', style: str = 'extended', color: str = '#A9D5EF', widget=None, widget_pos: str = 'below ports', type_: str = '')`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
@@ -153,7 +352,7 @@ The debugger class just provides another way to print, such that the additional 
 
 ### Methods
 
-#### `NodePort.NodePort(type_: str = 'data', label: str = '', widget: str = None, widget_pos: str = 'besides')`
+#### `NodePort(type_: str = 'data', label: str = '', widget: str = None, widget_pos: str = 'besides')`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
@@ -174,7 +373,7 @@ The `NodeInstance` class gets subclassed for every node.
 
 ### Subclassed Methods
 
-#### `NodeInstance.NodeInstance(params)`
+#### `NodeInstance(params)`
 
 The constructor can be skipped if it isn't needed in the subclass. Otherwise, you would do something like this:
 
@@ -191,7 +390,7 @@ The constructor can be skipped if it isn't needed in the subclass. Otherwise, yo
             self.temp_var_val = None
     ```
 
-#### `NodeInstance.update_event(input_called=-1)`
+#### `update_event(input_called=-1)`
 
 Triggered when the NodeInstance updates, usually through `NodeInstance.update()`. The node's functionality is defined here.
 
@@ -204,7 +403,7 @@ Triggered when the NodeInstance updates, usually through `NodeInstance.update()`
 		self.set_output_val(0, arr[index])
     ```
 
-#### `NodeInstance.get_data()`
+#### `get_data()`
 
 In this method, you need to provide all your internal data that define's your NodeInstance's current state (if there are different states). Usually you want to create a dict and put all your attributes *in JSON compatible format* in it, return it, and do the reverse in `NodeInstance.set_data(data)` (see below). The reason this method exists is that not all internal, potentially state defining attributes are serializable by something like `pickle` (Qt objects for instance).
 
@@ -218,7 +417,7 @@ Most simpler NodeInstances don't have states.
         return data
     ```
 
-#### `NodeInstance.set_data(data)`
+#### `set_data(data)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
@@ -235,7 +434,7 @@ Here you do the reverse of what you did in `NodeInstance.get_data()`.
         self.num_inputs = data['num inputs']
     ```
 
-#### `NodeInstance.remove_event()`
+#### `remove_event()`
 
 Triggered when the NodeInstance is removed from the scene. Note that this action might be undone by an undo operation by the user, in this case the exact NodeInstance object will just be placed in the scene again to not lose any data.
 
@@ -246,9 +445,12 @@ Triggered when the NodeInstance is removed from the scene. Note that this action
         self.timer.stop()
     ```
 
+!!! todo
+    I should add equivalent of remove event for the opposite; `place_event()` or sth.
+
 ### Builtin Methods
 
-#### `NodeInstance.update(input_called=-1, output_called=-1)`
+#### `update(input_called=-1, output_called=-1)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
@@ -257,11 +459,11 @@ Triggered when the NodeInstance is removed from the scene. Note that this action
 
 Triggers an update event.
 
-#### `NodeInstance.input(index: int)`
+#### `input(index: int)`
 
 Returns the data that is at the input with given index. If the input is not connected, the input will return the widget's data (if it has a widget), otherwise it will return the data at the connected output of another NodeInstance. In all other cases, it returns `None`.
 
-#### `NodeInstance.exec_output(index: int)`
+#### `exec_output(index: int)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
@@ -269,7 +471,7 @@ Returns the data that is at the input with given index. If the input is not conn
 
 For active (exec) nodes. Executes the output with given index.
 
-#### `NodeInstance.set_output_val(index: int, val)`
+#### `set_output_val(index: int, val)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
@@ -278,7 +480,7 @@ For active (exec) nodes. Executes the output with given index.
 
 In dataflows, this causes update events in all connected NodeInstances. This way, change of data is farward propagated through all NodeInstances that depend on it.
 
-#### `NodeInstance.new_log(title: str) -> Log`
+#### `new_log(title: str) -> Log`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
@@ -286,26 +488,26 @@ In dataflows, this causes update events in all connected NodeInstances. This way
 
 Creates and returns a new log, owned by the NodeInstance.
 
-#### `NodeInstance.disable_logs()`
+#### `disable_logs()`
 
 Disables all logs owned by the NodeInstance. The convenience Log widget ryvencore provides then can be hidden. All logs owned by a NodeInstance automatically get disabled when the NodeInstance is removed.
 
-#### `NodeInstance.enable_logs()`
+#### `enable_logs()`
 
 Enabled all logs owned by the NodeInstance. The convenience Log widget ryvencore provides then shows the widget again, in case it has been hidden after it was disabled. All logs owned by a NodeInstance automatically get enabled again when a removed NodeInstance is restored through an undo operation.
 
-#### `NodeInstance.log_message(msg: str, target: str)`
+#### `log_message(msg: str, target: str)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
 | `msg`                 | The message as string. |
 | `target`              | `'Global'` or `'Errors'`. Refers to one of the script's default logs. |
 
-#### `NodeInstance.update_shape()`
+#### `update_shape()`
 
 Causes recompilation of the whole shape.
 
-#### `NodeInstance.create_new_input(type_: str = 'data', label: str = '', widget_name=None, widget_pos='besides', pos=-1)`
+#### `create_new_input(type_: str = 'data', label: str = '', widget_name=None, widget_pos='besides', pos=-1)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
@@ -316,14 +518,14 @@ Causes recompilation of the whole shape.
 | `pos`                 | The index this input should be inserted at. `-1` means appending at the end. |
 <!-- | `config`              | The message as string. | -->
 
-#### `NodeInstance.delete_input(i)`
+#### `delete_input(i)`
 
 Deletes the input at index `i`. All existing connections get removed automatically.
 
 !!! warning
     Parameter signature might get changed soon
 
-#### `NodeInstance.create_new_output(type_: str = 'data', label: str = '', pos=-1)`
+#### `create_new_output(type_: str = 'data', label: str = '', pos=-1)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
@@ -331,18 +533,18 @@ Deletes the input at index `i`. All existing connections get removed automatical
 | `label`               | The output's displayed label string. |
 | `pos`                 | The index this output should be inserted at. `-1` means appending at the end. |
 
-#### `NodeInstance.delete_output(o)`
+#### `delete_output(o)`
 
 Deletes the output at index `o`. All existing connections get removed automatically.
 
 !!! warning
     Parameter signature might get changed soon
 
-#### `NodeInstance.session_stylesheet() -> str`
+#### `session_stylesheet() -> str`
 
 Returns the current session's stylesheet. This should be used for custom widgets to match the window's style. See `Session.register_stylesheet()`.
 
-#### `NodeInstance.get_var_val(name: str)`
+#### `get_var_val(name: str)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
@@ -350,7 +552,7 @@ Returns the current session's stylesheet. This should be used for custom widgets
 
 Returns the current value of a script variable and `None` if it couldn't be found.
 
-#### `NodeInstance.set_var_val(name: str, val)`
+#### `set_var_val(name: str, val)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
@@ -359,7 +561,7 @@ Returns the current value of a script variable and `None` if it couldn't be foun
 
 Sets the value of a script variable and causes all registered receivers to update (see below).
 
-#### `NodeInstance.register_var_receiver(name: str, method)`
+#### `register_var_receiver(name: str, method)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
@@ -376,7 +578,7 @@ Registers a method as receiver for changes of script variable with given name.
     self.used_variable_names.append('x')
     ```
 
-#### `NodeInstance.unregister_var_receiver(name: str)`
+#### `unregister_var_receiver(name: str)`
 
 Unregisters a previously registers variable receiver. See `NodeInstance.register_var_receiver()`.
 

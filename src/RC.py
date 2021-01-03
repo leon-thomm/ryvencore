@@ -40,7 +40,7 @@ class FlowVPUpdateMode(IntEnum):
 #         ASYNC = 2
 
 
-class PortPos(IntEnum):
+class PortObjPos(IntEnum):
     """Used for performance"""
     INPUT = 1
     OUTPUT = 2

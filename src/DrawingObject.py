@@ -30,7 +30,7 @@ class DrawingObject(QGraphicsItem):
         self.viewport_pos: QPointF = config['viewport pos'] if 'viewport pos' in config else None
         # if the drawing gets loaded, its correct global floating pos is already correct (gets set by flow then)
 
-        self.movement_state = None  # ugly - should get replaced later, see NodeInstance, same issue
+        self.movement_state = None  # ugly - should get replaced later, see NodeItem, same issue
         self.movement_pos_from = None
 
         if 'points' in config:

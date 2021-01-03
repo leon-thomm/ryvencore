@@ -1,7 +1,7 @@
 from PySide2.QtCore import QObject, Signal, Qt
 from PySide2.QtGui import QPen, QColor
 
-from .NodeInstancePainter import NIPainter_DarkStd, NIPainter_DarkTron, NIPainter_Ghostly, NIPainter_Blender, \
+from .NodeItemPainter import NIPainter_DarkStd, NIPainter_DarkTron, NIPainter_Ghostly, NIPainter_Blender, \
     NIPainter_Easy, NIPainter_Peasy, NIPainter_Ueli
 
 
@@ -9,12 +9,12 @@ class FlowTheme:
     """ **This FlowTheme system will be changed**
 
     A FlowTheme holds all design information for the flow. And it defines what
-    themes exist. Notice, that all drawing of NodeInstances and PortInstances
+    themes exist. Notice, that all drawing of NodeItems and PortInstances
     is done by NIPainter classes, while for each FlowTheme there exists exactly
     one NIPainter class.
 
     HOW TO CREATE NEW THEMES
-    - Create a new subclass of NIPainter in NodeInstancePainter.py, and implement
+    - Create a new subclass of NIPainter in NodeItemPainter.py, and implement
     all methods that are passed in NIPainter (take a look at the other already
     existing NIPainter subclasses there for reference)
     - Add a new theme entry to the flow_themes array of DesignContainer and
@@ -23,10 +23,10 @@ class FlowTheme:
     def __init__(self, name,
                  flow_conn_exec_color, flow_conn_exec_width, flow_conn_exec_pen_style,
                  flow_conn_data_color, flow_conn_data_width, flow_conn_data_pen_style,
-                 node_instance_painter,
+                 node_item_painter,
                  flow_background_color=QColor('#333333')):
         self.name = name
-        self.node_inst_painter = node_instance_painter
+        self.node_item_painter = node_item_painter
 
         self.flow_conn_exec_pen = QPen(flow_conn_exec_color, flow_conn_exec_width)
         self.flow_conn_exec_pen.setStyle(flow_conn_exec_pen_style)
@@ -121,7 +121,7 @@ class Design(QObject):
         self.flow_theme = None
 
         self.performance_mode = ''
-        self.node_inst_shadows_enabled = False
+        self.node_item_shadows_enabled = False
         self.set_performance_mode(performance_mode)
 
         self.animations_enabled = animations_enabled
@@ -151,9 +151,9 @@ class Design(QObject):
     def set_performance_mode(self, new_mode: str):
         self.performance_mode = new_mode
         if new_mode == 'fast':
-            self.node_inst_shadows_enabled = False
+            self.node_item_shadows_enabled = False
         else:
-            self.node_inst_shadows_enabled = True
+            self.node_item_shadows_enabled = True
 
         # the performance mode affects the flow's foreground theme
         self.flow_theme_changed.emit(self.flow_theme)
@@ -161,8 +161,8 @@ class Design(QObject):
     def set_animations_enabled(self, b: bool):
         self.animations_enabled = b
 
-    def set_node_inst_shadows(self, b: bool):
-        self.node_inst_shadows_enabled = b
+    def set_node_item_shadows(self, b: bool):
+        self.node_item_shadows_enabled = b
 
     def set_node_choice_stylesheet(self, s: str):
         self.node_choice_stylesheet = s

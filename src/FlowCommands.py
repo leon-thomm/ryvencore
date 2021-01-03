@@ -1,6 +1,6 @@
 from PySide2.QtWidgets import QUndoCommand
 
-from .NodeInstance import NodeInstance
+from .NodeItem import NodeItem
 
 
 class MoveComponents_Command(QUndoCommand):
@@ -32,19 +32,19 @@ class MoveComponents_Command(QUndoCommand):
         self.flow.scene().destroyItemGroup(items_group)
 
 
-class PlaceNodeInstanceInScene_Command(QUndoCommand):
-    def __init__(self, flow, node_instance, pos):
-        super(PlaceNodeInstanceInScene_Command, self).__init__()
+class PlaceNodeItemInScene_Command(QUndoCommand):
+    def __init__(self, flow, node_item, pos):
+        super(PlaceNodeItemInScene_Command, self).__init__()
 
         self.flow = flow
-        self.node_instance = node_instance
+        self.node_item = node_item
         self.NI_pos = pos
 
     def undo(self):
-        self.flow.remove_node_instance(self.node_instance)
+        self.flow.remove_node_item(self.node_item)
 
     def redo(self):
-        self.flow.add_node_instance(self.node_instance, self.NI_pos)
+        self.flow.add_node_item(self.node_item, self.NI_pos)
 
 
 class PlaceDrawingObject_Command(QUndoCommand):
@@ -80,26 +80,28 @@ class RemoveComponents_Command(QUndoCommand):
         self.internal_connections = set()
         # self.connections = set()
 
-        self.node_instances = []
+        self.node_items = []
+        self.nodes = []
         for i in self.items:
-            if isinstance(i, NodeInstance):
-                self.node_instances.append(i)
+            if isinstance(i, NodeItem):
+                self.node_items.append(i)
+                self.nodes.append(i.node)
 
-        self.connected_node_instances_indices_not_in_del_selection = []
-        for n in self.node_instances:
+        self.connected_nodes_indices_not_in_del_selection = []
+        for n in self.nodes:
             for i in n.inputs:
                 for c in i.connections:
-                    cpi = c.out
-                    cni = cpi.parent_node_instance
-                    if cni not in self.node_instances:
+                    cp = c.out
+                    cn = cp.node
+                    if cn not in self.nodes:
                         self.broken_connections.append(c)
                     else:
                         self.internal_connections.add(c)
             for o in n.outputs:
                 for c in o.connections:
-                    cpi = c.inp
-                    cni = cpi.parent_node_instance
-                    if cni not in self.node_instances:
+                    cp = c.inp
+                    cn = cp.node
+                    if cn not in self.nodes:
                         self.broken_connections.append(c)
                     else:
                         self.internal_connections.add(c)
@@ -125,11 +127,11 @@ class RemoveComponents_Command(QUndoCommand):
 
     def restore_broken_connections(self):
         for b_c in self.broken_connections:
-            self.flow.connect_pins(connection=b_c)
+            self.flow.connect_ports(connection=b_c)
 
     def remove_broken_connections(self):
         for b_c in self.broken_connections:
-            self.flow.connect_pins(b_c.out, b_c.inp)
+            self.flow.connect_ports(b_c.out, b_c.inp)
 
 
 class ConnectPorts_Command(QUndoCommand):
@@ -150,10 +152,10 @@ class ConnectPorts_Command(QUndoCommand):
     def undo(self):
         if self.connecting:
             # disconnect
-            self.flow.connect_pins(self.out, self.inp)
+            self.flow.connect_ports(self.out, self.inp)
         else:
             # connect
-            self.flow.connect_pins(connection=self.connection)
+            self.flow.connect_ports(connection=self.connection)
 
     def redo(self):
         if self.connecting:
@@ -162,11 +164,11 @@ class ConnectPorts_Command(QUndoCommand):
                 self.connection = self.flow.new_connection(self.out, self.inp)
 
             # connect using the new or cached connection
-            self.flow.connect_pins(connection=self.connection)
+            self.flow.connect_ports(connection=self.connection)
 
         else:
             # disconnect
-            self.flow.connect_pins(self.out, self.inp)
+            self.flow.connect_ports(self.out, self.inp)
 
 
 
@@ -178,7 +180,7 @@ class Paste_Command(QUndoCommand):
         self.data = data
         self.offset_for_middle_pos = offset_for_middle_pos
         self.pasted_items = None
-        self.pasted_node_instances = None
+        self.pasted_nodes = None
         self.pasted_drawing_objects = None
 
         # TODO: also cache pasted_connections; replace self.flow.connect_pins in undo with self.flow.remove_connection
@@ -189,31 +191,33 @@ class Paste_Command(QUndoCommand):
         self.flow.remove_components(self.pasted_items)
 
         # remove connections
-        for ni in self.pasted_node_instances:
+        for ni in self.pasted_nodes:
             for o in ni.outputs:
                 for c in o.connections:
 
                     # disconnect pins here so they can be connected in connect_nodes_from_config in redo below again
-                    self.flow.connect_pins(c.out, c.inp)
+                    self.flow.connect_ports(c.out, c.inp)
 
     def redo(self):
         if self.pasted_items is None:
-            new_node_instances = self.flow.place_nodes_from_config(self.data['nodes'],
-                                                                   offset_pos=self.offset_for_middle_pos.toPoint())
+            new_nodes, new_node_items = self.flow.place_nodes_from_config(
+                self.data['nodes'],
+                offset_pos=self.offset_for_middle_pos.toPoint()
+            )
 
-            self.flow.connect_nodes_from_config(new_node_instances, self.data['connections'])
+            self.flow.connect_nodes_from_config(new_nodes, self.data['connections'])
 
             new_drawing_objects = self.flow.place_drawings_from_config(self.data['drawings'],
                                                                        offset_pos=self.offset_for_middle_pos.toPoint())
 
-            self.pasted_items = new_node_instances + new_drawing_objects
-            self.pasted_node_instances = new_node_instances
+            self.pasted_items = new_node_items + new_drawing_objects
+            self.pasted_nodes = new_nodes
             self.pasted_drawing_objects = new_drawing_objects
         else:
-            self.flow.add_node_instances(self.pasted_node_instances)
+            self.flow.add_node_items([n.item for n in self.pasted_nodes])
             self.flow.add_drawings(self.pasted_drawing_objects)
 
             # not keeping them cached for now...
-            self.flow.connect_nodes_from_config(self.pasted_node_instances, self.data['connections'])
+            self.flow.connect_nodes_from_config(self.pasted_nodes, self.data['connections'])
 
         self.flow.select_components(self.pasted_items)
