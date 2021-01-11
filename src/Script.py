@@ -20,7 +20,9 @@ class Script(QObject):
         self.vars_manager = None
         self.title = title
         self.flow = None
-        self.__thumbnail_source = ''  # URL to the Script's thumbnail picture
+
+        # TODO: move the thumbnail source to the list widget
+        self._thumbnail_source = ''  # URL to the Script's thumbnail picture
 
         if config:
             self.title = config['name']

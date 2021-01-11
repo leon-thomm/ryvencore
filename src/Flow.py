@@ -61,6 +61,7 @@ class Flow(QGraphicsView):
         self._last_mouse_move_pos: QPointF = None
         self._node_place_pos = QPointF()
         self._left_mouse_pressed_in_flow = False
+        self._right_mouse_pressed_in_flow = False
         self._mouse_press_pos: QPointF = None
         self._auto_connection_pin = None  # stores the gate that we may try to auto connect to a newly placed NI
         self._panning = False
@@ -265,15 +266,15 @@ class Flow(QGraphicsView):
             self._left_mouse_pressed_in_flow = True
 
         elif event.button() == Qt.RightButton:
-            if len(self.items(event.pos())) == 0:
-                self._node_choice_widget.reset_list()
-                self.show_node_choice_widget(event.pos())
-
-        elif event.button() == Qt.MidButton:
-            self._panning = True
-            self._pan_last_x = event.x()
-            self._pan_last_y = event.y()
+            self._right_mouse_pressed_in_flow = True
             event.accept()
+
+        # elif event.button() == Qt.MidButton:
+        # elif event.button() == Qt.RightButton:
+        #     self._panning = True
+        #     self._pan_last_x = event.x()
+        #     self._pan_last_y = event.y()
+        #     event.accept()
 
         self._mouse_press_pos = self.mapToScene(event.pos())
 
@@ -281,9 +282,22 @@ class Flow(QGraphicsView):
 
         QGraphicsView.mouseMoveEvent(self, event)
 
-        if self._panning:  # middle mouse pressed
+        # print('qwer')
+        # print(event.button())
+
+        if self._right_mouse_pressed_in_flow:    # PAN
+
+            if not self._panning:
+                self._panning = True
+                self._pan_last_x = event.x()
+                self._pan_last_y = event.y()
+
             self.pan(event.pos())
             event.accept()
+
+        # if self._panning:  # middle mouse pressed
+        #     self.pan(event.pos())
+        #     event.accept()
 
         self._last_mouse_move_pos = self.mapToScene(event.pos())
 
@@ -304,34 +318,52 @@ class Flow(QGraphicsView):
             self.ignore_mouse_event = False
             return
 
-        elif event.button() == Qt.MidButton:
+        elif self._panning:
+        # elif event.button() == Qt.MidButton:
             self._panning = False
 
+        elif event.button() == Qt.RightButton:
+            self._right_mouse_pressed_in_flow = False
+            if self._mouse_press_pos == self._last_mouse_move_pos and \
+                    len(self.items(event.pos())) == 0:
 
-        # connection dropped over specific pin
-        if self.dragging_connection and self.itemAt(event.pos()) and \
-                isinstance(self.itemAt(event.pos()), PortItemPin):
-            self.connect_node_ports__cmd(self.selected_pin.port,
-                                         self.itemAt(event.pos()).port)
+                self._node_choice_widget.reset_list()
+                self.show_node_choice_widget(event.pos())
+                return
 
-        # connection dropped above NodeItem -> auto connect
-        elif self.dragging_connection and node_item_at_event_pos:
-            # find node item
-            ni_under_drop = None
-            for item in self.items(event.pos()):
-                if isinstance(item, NodeItem):
-                    ni_under_drop = item
-                    self.auto_connect(self.selected_pin.port, ni_under_drop.node)
-                    break
 
-        elif self.dragging_connection:
-            # connection dropped somewhere else - show node choice widget
-            self._auto_connection_pin = self.selected_pin
-            self.show_node_choice_widget(event.pos())
+        if self.dragging_connection:
 
-        self._left_mouse_pressed_in_flow = False
-        self.dragging_connection = False
-        self.selected_pin = None
+            # connection dropped over specific pin
+            if self.itemAt(event.pos()) and isinstance(self.itemAt(event.pos()), PortItemPin):
+
+                self.connect_node_ports__cmd(
+                    self.selected_pin.port,
+                    self.itemAt(event.pos()).port
+                )
+
+            # connection dropped above NodeItem -> auto connect
+            elif node_item_at_event_pos:
+                # find node item
+                ni_under_drop = None
+                for item in self.items(event.pos()):
+                    if isinstance(item, NodeItem):
+                        ni_under_drop = item
+                        self.auto_connect(self.selected_pin.port, ni_under_drop.node)
+                        break
+
+            # connection dropped somewhere else -> show node choice widget
+            else:
+                self._auto_connection_pin = self.selected_pin
+                self.show_node_choice_widget(event.pos())
+
+            self.dragging_connection = False
+            self.selected_pin = None
+
+        if event.button() == Qt.LeftButton:
+            self._left_mouse_pressed_in_flow = False
+        elif event.button() == Qt.RightButton:
+            self._right_mouse_pressed_in_flow = False
 
         self.viewport().repaint()
 
@@ -530,14 +562,14 @@ class Flow(QGraphicsView):
     def get_viewport_img(self) -> QImage:
         """Returns a clear image of the viewport"""
 
-        self.__hide_proxies()
+        self._hide_proxies()
         img = QImage(self.viewport().rect().width(), self.viewport().height(), QImage.Format_ARGB32)
         img.fill(Qt.transparent)
 
         painter = QPainter(img)
         painter.setRenderHint(QPainter.Antialiasing)
         self.render(painter, self.viewport().rect(), self.viewport().rect())
-        self.__show_proxies()
+        self._show_proxies()
         return img
 
     def get_whole_scene_img(self) -> QImage:
@@ -545,7 +577,7 @@ class Flow(QGraphicsView):
         A bug makes this only work from the viewport position down and right, so the user has to scroll to
         the top left corner in order to get the full scene"""
 
-        self.__hide_proxies()
+        self._hide_proxies()
         img = QImage(self.sceneRect().width() / self._total_scale_div, self.sceneRect().height() / self._total_scale_div,
                      QImage.Format_RGB32)
         img.fill(Qt.transparent)
@@ -559,7 +591,7 @@ class Flow(QGraphicsView):
         rect.setHeight(img.rect().height())
         # rect is right... but it only renders from the viewport's point down-and rightwards, not from topleft (0,0) ...
         self.render(painter, rect, rect.toRect())
-        self.__show_proxies()
+        self._show_proxies()
         return img
 
     # PROXY POSITIONS
@@ -570,11 +602,11 @@ class Flow(QGraphicsView):
         self._stylus_modes_proxy.setPos(
             self.mapToScene(self.viewport().width() - self._stylus_modes_widget.width() - self._zoom_widget.width(), 0))
 
-    def __hide_proxies(self):
+    def _hide_proxies(self):
         self._stylus_modes_proxy.hide()
         self._zoom_proxy.hide()
 
-    def __show_proxies(self):
+    def _show_proxies(self):
         self._stylus_modes_proxy.show()
         self._zoom_proxy.show()
 

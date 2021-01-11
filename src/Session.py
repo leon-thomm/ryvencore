@@ -30,7 +30,7 @@ class Session(QObject):
     ):
         super().__init__()
 
-        self.__register_fonts()
+        self._register_fonts()
 
         self.scripts: [Script] = []
         self.nodes = []  # list of node CLASSES
@@ -60,7 +60,7 @@ class Session(QObject):
             self.load(project)
 
 
-    def __register_fonts(self):
+    def _register_fonts(self):
         QFontDatabase.addApplicationFont(Location.PACKAGE_PATH+'/resources/fonts/poppins/Poppins-Medium.ttf')
         QFontDatabase.addApplicationFont(Location.PACKAGE_PATH+'/resources/fonts/source code pro/SourceCodePro-Regular.ttf')
         QFontDatabase.addApplicationFont(Location.PACKAGE_PATH+'/resources/fonts/asap/Asap-Regular.ttf')
@@ -89,7 +89,7 @@ class Session(QObject):
         return script
 
 
-    def __load_script(self, config: dict):
+    def _load_script(self, config: dict):
         """Loads a script from a project dict"""
 
         script = Script(session=self, config=config)
@@ -131,7 +131,7 @@ class Session(QObject):
             return False
 
         for s in project['scripts']:
-            self.__load_script(config=s)
+            self._load_script(config=s)
 
 
     def serialize(self) -> list:

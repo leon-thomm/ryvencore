@@ -67,7 +67,7 @@ class VarsManager(QObject):
         """Sets the value of an existing script variable.
         Returns true in case of success, false if the var couldn't be found and set."""
 
-        var_index = self.__get_var_index_from_name(name)
+        var_index = self._get_var_index_from_name(name)
         if var_index is None:
             return False
 
@@ -80,7 +80,7 @@ class VarsManager(QObject):
 
         return True
 
-    def __get_var_index_from_name(self, name):
+    def _get_var_index_from_name(self, name):
         var_names_list = [v.name for v in self.variables]
         for i in range(len(var_names_list)):
             if var_names_list[i] == name:

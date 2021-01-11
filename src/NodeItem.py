@@ -198,6 +198,7 @@ class NodeItem(QGraphicsItem, QObject):
 
     def update_shape(self):
         self.widget.update_shape()
+        self.update_conn_pos()
         self.flow.viewport().update()
 
     def update_design(self):
@@ -313,8 +314,9 @@ class NodeItem(QGraphicsItem, QObject):
 
     def mousePressEvent(self, event):
         """Used for Moving-Commands in Flow - may be replaced later with a nicer determination of a moving action."""
-        self.movement_state = MovementEnum.mouse_clicked
-        self.movement_pos_from = self.pos()
+        if event.button() == Qt.LeftButton:
+            self.movement_state = MovementEnum.mouse_clicked
+            self.movement_pos_from = self.pos()
         return QGraphicsItem.mousePressEvent(self, event)
 
     def mouseReleaseEvent(self, event):
@@ -356,7 +358,7 @@ class NodeItem(QGraphicsItem, QObject):
         return actions
 
     def config_data(self):
-        return {'pos x': self.pos().x(), 'pos y': self.pos().x()}
+        return {'pos x': self.pos().x(), 'pos y': self.pos().y()}
 
     # def get_special_actions_data(self, actions):
     #     cleaned_actions = actions.copy()
