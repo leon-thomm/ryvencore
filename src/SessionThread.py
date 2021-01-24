@@ -17,6 +17,6 @@ class SessionThread(QThread):
     def _script_request__create_flow(self, script, params):
         # TODO: implement this with actual thread safety!
 
-        self.flow_created.connect(script.flow_created)
+        self.flow_created.connect(script.flow_widget_created)
         self.flow_created.emit(Flow(*params))
-        self.flow_created.disconnect(script.flow_created)
+        self.flow_created.disconnect(script.flow_widget_created)

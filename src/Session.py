@@ -25,8 +25,8 @@ class Session(QObject):
             # debug_messages_enabled: bool = False,
             threaded: bool = False,
             parent: QObject = None,
-            flow_data_conn_class=DataConnection,
-            flow_exec_conn_class=ExecConnection,
+            # flow_data_conn_class=DataConnection,
+            # flow_exec_conn_class=ExecConnection,
             project: dict = None
     ):
         super().__init__(parent=parent)
@@ -40,9 +40,9 @@ class Session(QObject):
             self.custom_thread = self.thread()
             self.gui_thread = self.thread().thread()
 
-        # connections
-        self.flow_data_conn_class = flow_data_conn_class
-        self.flow_exec_conn_class = flow_exec_conn_class
+        # # connections
+        # self.flow_data_conn_class = flow_data_conn_class
+        # self.flow_exec_conn_class = flow_exec_conn_class
 
         self.design = Design(
             performance_mode=flow_performance_mode,
@@ -97,7 +97,7 @@ class Session(QObject):
     def _load_script(self, config: dict):
         """Loads a script from a project dict"""
 
-        script = Script(session=self, config=config)
+        script = Script(session=self, content_data=config)
         self.scripts.append(script)
         self.new_script_created.emit(script)
 
@@ -144,7 +144,7 @@ class Session(QObject):
 
         scripts_data = []
         for script in self.scripts:
-            scripts_data.append(script.config_data())
+            scripts_data.append(script.content_data())
         return scripts_data
 
 

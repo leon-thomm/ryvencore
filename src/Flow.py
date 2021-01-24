@@ -1,3 +1,5 @@
+import time
+
 from PySide2.QtCore import Qt, QPointF, QPoint, QRectF, QSizeF, Signal, QTimer, QObject
 from PySide2.QtGui import QPainter, QPen, QColor, QKeySequence, QTabletEvent, QImage, QGuiApplication, QFont
 from PySide2.QtWidgets import QGraphicsView, QGraphicsScene, QShortcut, QMenu, QGraphicsItem, QUndoStack
@@ -10,11 +12,11 @@ from .FlowSessionThreadInterface import FlowSessionThreadInterface
 from .FlowZoomWidget import FlowZoomWidget
 from .Node import Node
 from .NodeObjPort import NodeObjPort, NodeObjOutput, NodeObjInput
-from .node_choice_widget.NodeChoiceWidget import NodeChoiceWidget
+from .node_choice_widget.PlaceNodeWidget import PlaceNodeWidget
 from .NodeItem import NodeItem
 from .PortItem import PortItem, PortItemPin
-from .Connection import Connection
-from .ConnectionItem import default_cubic_connection_path
+from .Connection import Connection, DataConnection
+from .ConnectionItem import default_cubic_connection_path, ConnectionItem, DataConnectionItem, ExecConnectionItem
 from .DrawingObject import DrawingObject
 from .global_tools.Debugger import Debugger
 from .RC import PortObjPos, FlowAlg
@@ -24,17 +26,23 @@ import json
 
 
 class Flow(QGraphicsView):
-    """Manages all GUI of flows"""
+    """Manages the GUI of flows"""
 
     nodes_selection_changed = Signal(list)
-    algorithm_mode_changed = Signal(str)
+
+    create_node_request = Signal(object, dict)
+    remove_node_request = Signal(Node)
+
+    check_connection_validity_request = Signal(NodeObjPort, NodeObjPort)
+    connect_request = Signal(NodeObjPort, NodeObjPort)
+
+    get_nodes_config_request = Signal(list)
+    get_connections_config_request = Signal(list)
+
     viewport_update_mode_changed = Signal(str)
-    trigger_port_connected = Signal(NodeObjPort)
-    trigger_port_disconnected = Signal(NodeObjPort)
-    create_node_request = Signal(object, tuple)
 
 
-    def __init__(self, session, script, flow_size: list = None, config=None, parent=None):
+    def __init__(self, session, script, flow, config=None, flow_size: list = None, parent=None):
         super(Flow, self).__init__(parent=parent)
 
 
@@ -49,15 +57,20 @@ class Flow(QGraphicsView):
         self._init_shortcuts()
 
         # GENERAL ATTRIBUTES
-        self.script = script
         self.session = session
-        self.node_items: [NodeItem] = []
-        self.nodes: [Node] = []
-        # self.connection_items = []
-        self.connections: [Connection] = []
-        self.selected_pin: PortItemPin = None
-        self.dragging_connection = False
-        self.ignore_mouse_event = False  # for stylus - see tablet event
+        self.script = script
+        self.flow = flow
+        self.node_items: dict = {}  # {Node: NodeItem}
+        self.node_items__cache: dict = {}
+        self.connection_items: dict = {}  # {Connection: ConnectionItem}
+        self.connection_items__cache: dict = {}
+
+        # PRIVATE FIELDS
+        self._temp_config_data = None
+        self._selected_pin: PortItemPin = None
+        self._dragging_connection = False
+        self._temp_connection_ports = None
+        self._ignore_mouse_event = False  # for stylus - see tablet event
         self._showing_framerate = False
         self._last_mouse_move_pos: QPointF = None
         self._node_place_pos = QPointF()
@@ -71,23 +84,26 @@ class Flow(QGraphicsView):
         self._current_scale = 1
         self._total_scale_div = 1
 
-        self.thread_interface = FlowSessionThreadInterface(self.session)
-        self.trigger_port_connected.connect(self.thread_interface.trigger_port_connected)
-        self.trigger_port_disconnected.connect(self.thread_interface.trigger_port_disconnected)
-        self.create_node_request.connect(self.thread_interface.create_node)
-        self.thread_interface.node_created.connect(self.node_created)
+        # CONNECTIONS TO FLOW
+        self.create_node_request.connect(self.flow.create_node)
+        self.remove_node_request.connect(self.flow.remove_node)
+        self.check_connection_validity_request.connect(self.flow.check_connection_validity_request)
+        self.get_nodes_config_request.connect(self.flow.generate_nodes_config)
+        self.get_connections_config_request.connect(self.flow.generate_connections_config)
+
+        # CONNECTIONS FROM FLOW
+        self.flow.node_added.connect(self.add_node)
+        self.flow.node_removed.connect(self.remove_node)
+        self.flow.connection_added.connect(self.add_connection)
+        self.flow.connection_removed.connect(self.remove_connection)
+        self.flow.connection_request_valid.connect(self.connection_request_valid)
+
+        # SESSION THREAD
         if self.session.threaded:
             self.session_thread = self.session.custom_thread
-        # if self.session.threaded:
-        #     self.worker_thread = FlowWorkerThread(self.thread())
-        #     FWT = self.worker_thread
-        #     self.trigger_port_connected.connect(FWT.interface.trigger_port_connected)
-        #     self.trigger_port_disconnected.connect(FWT.interface.trigger_port_disconnected)
-        #     self.worker_thread.start()
 
         # SETTINGS
-        self.alg_mode = FlowAlg.DATA    # Flow_AlgorithmMode()
-        self.vp_update_mode: VPUpdateMode = VPUpdateMode.SYNC  # Flow_ViewportUpdateMode()
+        self.vp_update_mode: VPUpdateMode = VPUpdateMode.SYNC
 
         # CREATE UI
         scene = QGraphicsScene(self)
@@ -108,13 +124,13 @@ class Flow(QGraphicsView):
 
         self.centerOn(QPointF(self.viewport().width() / 2, self.viewport().height() / 2))
 
-        # NODE CHOICE WIDGET
-        self._node_choice_proxy = FlowProxyWidget(self)
-        self._node_choice_proxy.setZValue(1000)
-        self._node_choice_widget = NodeChoiceWidget(self, self.session.nodes)  # , main_window.node_images)
-        self._node_choice_proxy.setWidget(self._node_choice_widget)
-        self.scene().addItem(self._node_choice_proxy)
-        self.hide_node_choice_widget()
+        # PLACE NODE WIDGET
+        self._place_node_widget_proxy = FlowProxyWidget(self)
+        self._place_node_widget_proxy.setZValue(1000)
+        self._place_node_widget = PlaceNodeWidget(self, self.session.nodes)
+        self._place_node_widget_proxy.setWidget(self._place_node_widget)
+        self.scene().addItem(self._place_node_widget_proxy)
+        self.hide_place_node_widget()
 
         # ZOOM WIDGET
         self._zoom_proxy = FlowProxyWidget(self)
@@ -144,35 +160,8 @@ class Flow(QGraphicsView):
         # pan_gesture_id = QGestureRecognizer.registerRecognizer(recognizer) <--- CRASH HERE
         # self.grabGesture(pan_gesture_id)
 
-        # DESIGN THEME
+        # DESIGN
         self.session.design.flow_theme_changed.connect(self._theme_changed)
-
-        if config is not None:
-            # algorithm mode
-            mode = config['algorithm mode']
-            if mode == 'data' or mode == 'data flow':  # mode == FlowAlg.DATA
-                # self.alg_mode = FlowAlg.DATA
-                self.set_algorithm_mode('data')
-            elif mode == 'exec' or mode == 'exec flow':  # mode == FlowAlg.EXEC
-                # self.alg_mode = FlowAlg.EXEC
-                self.set_algorithm_mode('exec')
-
-            # viewport update mode
-            vpum = config['viewport update mode']
-            if vpum == 'sync':  # vpum == VPUpdateMode.SYNC
-                # self.vp_update_mode = VPUpdateMode.SYNC
-                self.set_viewport_update_mode('sync')
-            elif vpum == 'async':  # vpum == VPUpdateMode.ASYNC
-                self.vp_update_mode = VPUpdateMode.ASYNC
-                self.set_viewport_update_mode('async')
-
-            self.nodes, self.node_items = self.place_nodes_from_config(config['nodes'])
-            self.connect_nodes_from_config(self.nodes, config['connections'])
-
-            if list(config.keys()).__contains__('drawings'):  # not all (old) project files have drawings arr
-                self.place_drawings_from_config(config['drawings'])
-            self._undo_stack.clear()
-
 
         # FRAMERATE TRACKING
         self.num_frames = 0
@@ -181,6 +170,21 @@ class Flow(QGraphicsView):
         self.framerate_timer.timeout.connect(self._on_framerate_timer_timeout)
 
         self.show_framerate(m_sec_interval=100)  # for testing
+
+        # CONFIG
+        if config is not None:
+            # viewport update mode
+            vpum = config['viewport update mode']
+            if vpum == 'sync':  # vpum == VPUpdateMode.SYNC
+                # self.vp_update_mode = VPUpdateMode.SYNC
+                self.set_viewport_update_mode('sync')
+            elif vpum == 'async':  # vpum == VPUpdateMode.ASYNC
+                # self.vp_update_mode = VPUpdateMode.ASYNC
+                self.set_viewport_update_mode('async')
+
+            if 'drawings' in config:  # not all (old) project files have drawings arr
+                self.place_drawings_from_config(config['drawings'])
+            self._undo_stack.clear()
 
 
     def show_framerate(self, show: bool = True, m_sec_interval: int = 1000):
@@ -195,14 +199,14 @@ class Flow(QGraphicsView):
     def _init_shortcuts(self):
         place_new_node_shortcut = QShortcut(QKeySequence('Shift+P'), self)
         place_new_node_shortcut.activated.connect(self._place_new_node_by_shortcut)
-        move_selected_nodes_left_shortcut = QShortcut(QKeySequence('Shift+Left'), self)
-        move_selected_nodes_left_shortcut.activated.connect(self._move_selected_nodes_left)
-        move_selected_nodes_up_shortcut = QShortcut(QKeySequence('Shift+Up'), self)
-        move_selected_nodes_up_shortcut.activated.connect(self._move_selected_nodes_up)
-        move_selected_nodes_right_shortcut = QShortcut(QKeySequence('Shift+Right'), self)
-        move_selected_nodes_right_shortcut.activated.connect(self._move_selected_nodes_right)
-        move_selected_nodes_down_shortcut = QShortcut(QKeySequence('Shift+Down'), self)
-        move_selected_nodes_down_shortcut.activated.connect(self._move_selected_nodes_down)
+        move_selected_components_left_shortcut = QShortcut(QKeySequence('Shift+Left'), self)
+        move_selected_components_left_shortcut.activated.connect(self._move_selected_comps_left)
+        move_selected_components_up_shortcut = QShortcut(QKeySequence('Shift+Up'), self)
+        move_selected_components_up_shortcut.activated.connect(self._move_selected_comps_up)
+        move_selected_components_right_shortcut = QShortcut(QKeySequence('Shift+Right'), self)
+        move_selected_components_right_shortcut.activated.connect(self._move_selected_comps_right)
+        move_selected_components_down_shortcut = QShortcut(QKeySequence('Shift+Down'), self)
+        move_selected_components_down_shortcut.activated.connect(self._move_selected_comps_down)
         select_all_shortcut = QShortcut(QKeySequence('Ctrl+A'), self)
         select_all_shortcut.activated.connect(self.select_all)
         copy_shortcut = QShortcut(QKeySequence.Copy, self)
@@ -251,8 +255,8 @@ class Flow(QGraphicsView):
         Debugger.write('mouse press event received, point:', event.pos())
 
         # to catch tablet events (for some reason, it results in a mousePrEv too)
-        if self.ignore_mouse_event:
-            self.ignore_mouse_event = False
+        if self._ignore_mouse_event:
+            self._ignore_mouse_event = False
             return
 
         # there might be a proxy widget meant to receive the event instead of the flow
@@ -260,17 +264,17 @@ class Flow(QGraphicsView):
 
         # to catch any Proxy that received the event. Checking for event.isAccepted() or what is returned by
         # QGraphicsView.mousePressEvent(...) both didn't work so far, so I do it manually
-        if self.ignore_mouse_event:
-            self.ignore_mouse_event = False
+        if self._ignore_mouse_event:
+            self._ignore_mouse_event = False
             return
 
         if event.button() == Qt.LeftButton:
-            if self._node_choice_proxy.isVisible():
-                self.hide_node_choice_widget()
+            if self._place_node_widget_proxy.isVisible():
+                self.hide_place_node_widget()
             else:
                 if isinstance(self.itemAt(event.pos()), PortItemPin):
-                    self.selected_pin = self.itemAt(event.pos())
-                    self.dragging_connection = True
+                    self._selected_pin = self.itemAt(event.pos())
+                    self._dragging_connection = True
 
             self._left_mouse_pressed_in_flow = True
 
@@ -310,7 +314,7 @@ class Flow(QGraphicsView):
 
         self._last_mouse_move_pos = self.mapToScene(event.pos())
 
-        if self.dragging_connection:
+        if self._dragging_connection:
             self.viewport().repaint()
 
     def mouseReleaseEvent(self, event):
@@ -322,9 +326,9 @@ class Flow(QGraphicsView):
             if isinstance(item, NodeItem):
                 node_item_at_event_pos = item
 
-        if self.ignore_mouse_event or \
+        if self._ignore_mouse_event or \
                 (event.button() == Qt.LeftButton and not self._left_mouse_pressed_in_flow):
-            self.ignore_mouse_event = False
+            self._ignore_mouse_event = False
             return
 
         elif self._panning:
@@ -336,18 +340,19 @@ class Flow(QGraphicsView):
             if self._mouse_press_pos == self._last_mouse_move_pos and \
                     len(self.items(event.pos())) == 0:
 
-                self._node_choice_widget.reset_list()
-                self.show_node_choice_widget(event.pos())
+                self._place_node_widget.reset_list()
+                self.show_place_node_widget(event.pos())
                 return
 
 
-        if self.dragging_connection:
+        if self._dragging_connection:
 
             # connection dropped over specific pin
             if self.itemAt(event.pos()) and isinstance(self.itemAt(event.pos()), PortItemPin):
 
+                # the validity of the connection is checked in connect_node_ports__cmd
                 self.connect_node_ports__cmd(
-                    self.selected_pin.port,
+                    self._selected_pin.port,
                     self.itemAt(event.pos()).port
                 )
 
@@ -358,16 +363,16 @@ class Flow(QGraphicsView):
                 for item in self.items(event.pos()):
                     if isinstance(item, NodeItem):
                         ni_under_drop = item
-                        self.auto_connect(self.selected_pin.port, ni_under_drop.node)
+                        self.auto_connect(self._selected_pin.port, ni_under_drop.node)
                         break
 
             # connection dropped somewhere else -> show node choice widget
             else:
-                self._auto_connection_pin = self.selected_pin
-                self.show_node_choice_widget(event.pos())
+                self._auto_connection_pin = self._selected_pin
+                self.show_place_node_widget(event.pos())
 
-            self.dragging_connection = False
-            self.selected_pin = None
+            self._dragging_connection = False
+            self._selected_pin = None
 
         if event.button() == Qt.LeftButton:
             self._left_mouse_pressed_in_flow = False
@@ -388,9 +393,11 @@ class Flow(QGraphicsView):
             return True
 
         elif event.key() == Qt.Key_Delete:
-            self.remove_selected_components()
+            self.remove_selected_components__cmd()
 
     def wheelEvent(self, event):
+
+        # ZOOM
         if event.modifiers() == Qt.CTRL and event.angleDelta().x() == 0:
             self.zoom(event.pos(), self.mapToScene(event.pos()), event.angleDelta().y())
             event.accept()
@@ -411,7 +418,7 @@ class Flow(QGraphicsView):
         scaled_event_pos: QPointF = event.posF()/self._current_scale
 
         if event.type() == QTabletEvent.TabletPress:
-            self.ignore_mouse_event = True
+            self._ignore_mouse_event = True
 
             if event.button() == Qt.LeftButton:
                 if self.stylus_mode == 'comment':
@@ -428,7 +435,7 @@ class Flow(QGraphicsView):
                 self._pan_last_y = event.y()
 
         elif event.type() == QTabletEvent.TabletMove:
-            self.ignore_mouse_event = True
+            self._ignore_mouse_event = True
             if self._panning:
                 self.pan(event.pos())
 
@@ -493,7 +500,9 @@ class Flow(QGraphicsView):
     #                                      [n for n in self.session.nodes if find_type_in_object(n, GetVar_Node) or
     #                                       find_type_in_object(n, SetVar_Node)])
 
+    # PAINTING
     def drawBackground(self, painter, rect):
+        # TODO: maybe add custom draw_background method to FlowThemes
         painter.fillRect(rect.intersected(self.sceneRect()), self.session.design.flow_theme.flow_background_color)
         painter.setPen(Qt.NoPen)
         painter.drawRect(self.sceneRect())
@@ -515,27 +524,32 @@ class Flow(QGraphicsView):
 
 
         # DRAW CURRENTLY DRAGGED CONNECTION
-        if self.dragging_connection:
+        if self._dragging_connection:
             pen = QPen('#101520')
             pen.setWidth(3)
             pen.setStyle(Qt.DotLine)
             painter.setPen(pen)
 
-            pin_pos = self.selected_pin.get_scene_center_pos()
-            spp = self.selected_pin.port
+            pin_pos = self._selected_pin.get_scene_center_pos()
+            spp = self._selected_pin.port
             cursor_pos = self._last_mouse_move_pos
 
             pos1 = pin_pos if spp.io_pos == PortObjPos.OUTPUT else cursor_pos
             pos2 = pin_pos if spp.io_pos == PortObjPos.INPUT else cursor_pos
 
-            if spp.type_ == 'data':
-                painter.drawPath(
-                    default_cubic_connection_path(pos1, pos2)
-                )
-            elif spp.type_ == 'exec':
-                painter.drawPath(
-                    default_cubic_connection_path(pos1, pos2)
-                )
+            painter.drawPath(
+                default_cubic_connection_path(pos1, pos2)
+            )
+            # TODO: use custom connection-paint-methods later
+
+            # if spp.type_ == 'data':
+            #     painter.drawPath(
+            #         default_cubic_connection_path(pos1, pos2)
+            #     )
+            # elif spp.type_ == 'exec':
+            #     painter.drawPath(
+            #         default_cubic_connection_path(pos1, pos2)
+            #     )
 
 
         # DRAW SELECTED NIs BORDER
@@ -583,7 +597,7 @@ class Flow(QGraphicsView):
 
     def get_whole_scene_img(self) -> QImage:
         """Returns an image of the whole scene, scaled accordingly to current scale factor.
-        A bug makes this only work from the viewport position down and right, so the user has to scroll to
+        Due to a bug this only works from the viewport position down and right, so the user has to scroll to
         the top left corner in order to get the full scene"""
 
         self._hide_proxies()
@@ -619,36 +633,53 @@ class Flow(QGraphicsView):
         self._stylus_modes_proxy.show()
         self._zoom_proxy.show()
 
-    # NODE CHOICE WIDGET
-    def show_node_choice_widget(self, pos, nodes=None):
-        """Opens the node choice dialog in the scene."""
+    # PLACE NODE WIDGET
+    def show_place_node_widget(self, pos, nodes=None):
+        """Opens the place node dialog in the scene."""
 
         # calculating position
         self._node_place_pos = self.mapToScene(pos)
         dialog_pos = QPoint(pos.x() + 1, pos.y() + 1)
 
         # ensure that the node_choice_widget stays in the viewport
-        if dialog_pos.x() + self._node_choice_widget.width() / self._total_scale_div > self.viewport().width():
+        if dialog_pos.x() + self._place_node_widget.width() / self._total_scale_div > self.viewport().width():
             dialog_pos.setX(dialog_pos.x() - (
-                    dialog_pos.x() + self._node_choice_widget.width() / self._total_scale_div - self.viewport().width()))
-        if dialog_pos.y() + self._node_choice_widget.height() / self._total_scale_div > self.viewport().height():
+                    dialog_pos.x() + self._place_node_widget.width() / self._total_scale_div - self.viewport().width()))
+        if dialog_pos.y() + self._place_node_widget.height() / self._total_scale_div > self.viewport().height():
             dialog_pos.setY(dialog_pos.y() - (
-                    dialog_pos.y() + self._node_choice_widget.height() / self._total_scale_div - self.viewport().height()))
+                    dialog_pos.y() + self._place_node_widget.height() / self._total_scale_div - self.viewport().height()))
         dialog_pos = self.mapToScene(dialog_pos)
 
         # open nodes dialog
         # the dialog emits 'node_chosen' which is connected to self.place_node,
         # so this all continues at self.place_node below
-        self._node_choice_widget.update_list(nodes if nodes is not None else self.session.nodes)
-        self._node_choice_widget.update_view()
-        self._node_choice_proxy.setPos(dialog_pos)
-        self._node_choice_proxy.show()
-        self._node_choice_widget.refocus()
+        self._place_node_widget.update_list(nodes if nodes is not None else self.session.nodes)
+        self._place_node_widget.update_view()
+        self._place_node_widget_proxy.setPos(dialog_pos)
+        self._place_node_widget_proxy.show()
+        self._place_node_widget.refocus()
 
-    def hide_node_choice_widget(self):
-        self._node_choice_proxy.hide()
-        self._node_choice_widget.clearFocus()
+    def hide_place_node_widget(self):
+        self._place_node_widget_proxy.hide()
+        self._place_node_widget.clearFocus()
         self._auto_connection_pin = None
+
+    def _place_new_node_by_shortcut(self):  # Shift+P
+        point_in_viewport = None
+        selected_NIs = self.selected_node_items()
+        if len(selected_NIs) > 0:
+            x = selected_NIs[-1].pos().x() + 150
+            y = selected_NIs[-1].pos().y()
+            self._node_place_pos = QPointF(x, y)
+            point_in_viewport = self.mapFromScene(QPoint(x, y))
+        else:  # place in center
+            viewport_x = self.viewport().width() / 2
+            viewport_y = self.viewport().height() / 2
+            point_in_viewport = QPointF(viewport_x, viewport_y).toPoint()
+            self._node_place_pos = self.mapToScene(point_in_viewport)
+
+        self._place_node_widget.reset_list()
+        self.show_place_node_widget(point_in_viewport)
 
     # PAN
     def pan(self, new_pos):
@@ -709,186 +740,108 @@ class Flow(QGraphicsView):
 
         self.ensureVisible(target_rect, 0, 0)
 
-    # NODE PLACING: -----
-    def create_node(self, node_class, config, commanded=True, pos=None):
-        """Creates and returns a new Node object and None if the session is threaded.
-        If it's commanded, then it also automatically adds the item."""
 
-        params = (self, self.session.design, config)
 
-        if self.session.threaded:
-            self.create_node_request.emit(node_class, params, commanded=commanded, pos=pos)
-            return None
-        else:
-            node = node_class(params)
-            self.node_created(node, params, commanded, pos)
-            return node
 
-        # node = node_class(params=(self, self.session.design, config))
-        #
-        # if self.session.threaded:
-        #     node.moveToThread(self.session_thread)
-        #
-        # node.finish_initialization()
-        #
-        # return node
+    # NODES
+    def add_node(self, node):
 
-    def node_created(self, node, node_item_params, commanded, pos):
-        """
-        Creates the NodeItem and adds node and node item to the lists.
-        Called after a node, possibly in another thread, has been created by the FlowSessionThreadWorker.
-        """
+        # create item
+        item: NodeItem = None
 
-        # self.nodes.append(node)
+        if node in self.node_items__cache.keys():  # load from cache
+            item = self.node_items__cache[node]
+            self._add_node_item(item)
 
-        item = NodeItem(node, params=node_item_params)
-        # self.add_node_item(item)
+        else:  # create new item
+            item = NodeItem(node, params=(self, self.session.design, node.init_config))
+            item.initialize()
+            self._add_node_item(item, self._node_place_pos)
 
-        if commanded:
-            place_command = PlaceNode_Command(self, node, item, self.pos)
-            self._undo_stack.push(place_command)
-        else:
-            self.add_node(node)
-            self.add_node_item(item, pos)
-
-        item.initialize()
-
+        # auto connect
         if self._auto_connection_pin:
             self.auto_connect(self._auto_connection_pin.port,
                               node)
 
-    def add_node(self, node):
-        self.nodes.append(node)
+    def _add_node_item(self, item: NodeItem, pos=None):
+        self.node_items[item.node] = item
+
+        self.scene().addItem(item)
+        if pos:
+            item.setPos(pos)
+
+        # select new item
+        self.clear_selection()
+        item.setSelected(True)
 
     def remove_node(self, node):
-        self.nodes.remove(node)
+        item = self.node_items[node]
+        self._remove_node_item(item)
+        del self.node_items[node]
 
-    def add_node_item(self, ni: NodeItem, pos=None):
-        """Adds a NodeItem to the scene."""
+    def _remove_node_item(self, item: NodeItem):
+        # store item in case the remove action gets undone later
+        self.node_items__cache[item.node] = item
+        self.scene().removeItem(item)
 
-        self.scene().addItem(ni)
-        ni.node.enable_logs()
-        if pos:
-            ni.setPos(pos)
+    # CONNECTIONS
+    def connect_node_ports__cmd(self, p1: NodeObjPort, p2: NodeObjPort):
+        self._temp_connection_ports = (p1, p2)
+        self.check_connection_validity_request.emit(p1, p2)
 
-        # select new NI
-        self.scene().clearSelection()
-        ni.setSelected(True)
+    def connection_request_valid(self, valid: bool):
+        """
+        Triggered after the abstract flow evaluated validity of pending connect request.
+        This can also lead to a disconnect!
+        """
 
-        self.node_items.append(ni)
-        # self.nodes.append(ni.node)
+        if valid:
+            out, inp = self._temp_connection_ports
+            if out.io_pos == PortObjPos.INPUT:
+                out, inp = inp, out
+            self._undo_stack.push(ConnectPorts_Command(self, out=out, inp=inp))
 
-    def add_node_items(self, node_items: [NodeItem]):
-        """Adds a list of NodeItems to the scene."""
+    def add_connection(self, c: Connection):
+        item: ConnectionItem = None
+        if c in self.connection_items__cache.keys():
+            item = self.connection_items__cache[c]
+            self._add_conn_item(item)
 
-        for ni in node_items:
-            self.add_node_item(ni)
-
-    def remove_node_item(self, ni: NodeItem):
-        """Removes a NodeItem from the scene and the node from the list."""
-
-        if self.session.threaded:
-            self.trigger_node_remove_event(ni.node)
         else:
-            ni.node.prepare_removal()
-
-        self.scene().removeItem(ni)
-
-        self.node_items.remove(ni)
-        # self.nodes.remove(ni.node)
-
-    def _place_new_node_by_shortcut(self):  # Shift+P
-        point_in_viewport = None
-        selected_NIs = self.selected_node_items()
-        if len(selected_NIs) > 0:
-            x = selected_NIs[-1].pos().x() + 150
-            y = selected_NIs[-1].pos().y()
-            self._node_place_pos = QPointF(x, y)
-            point_in_viewport = self.mapFromScene(QPoint(x, y))
-        else:  # place in center
-            viewport_x = self.viewport().width() / 2
-            viewport_y = self.viewport().height() / 2
-            point_in_viewport = QPointF(viewport_x, viewport_y).toPoint()
-            self._node_place_pos = self.mapToScene(point_in_viewport)
-
-        self._node_choice_widget.reset_list()
-        self.show_node_choice_widget(point_in_viewport)
-
-    def place_nodes_from_config(self, nodes_config: list, offset_pos: QPoint = QPoint(0, 0)):
-        """Creates Nodes and places them in the scene from nodes_config.
-        The exact config list is included in what is returned by the config_data() method at 'nodes'."""
-
-        nodes = []
-        node_items = []
-
-        for n_c in nodes_config:
-            
-            # find class
-            node_class = None
-            if 'parent node title' in n_c:  # backwards compatibility
-                for nc in self.session.nodes:
-                    if nc.title == n_c['parent node title']:
-                        node_class = nc
-                        break
+            if isinstance(c, DataConnection):
+                item = DataConnectionItem(c, self.session.design)
             else:
-                for nc in self.session.nodes:
-                    if nc.__name__ == n_c['identifier']:
-                        node_class = nc
-                        break
+                item = ExecConnectionItem(c, self.session.design)
+            self._add_node_item(item)
 
-            node = self.create_node(node_class, n_c, commanded=False,
-                             pos=QPoint(n_c['position x'], n_c['position y']) + offset_pos)
+    def _add_connection_item(self, item: ConnectionItem):
+        self.connection_items[item.connection] = item
+        self.scene().addItem(item)
+        item.setZValue(10)
+        # self.viewport().repaint()
 
-            # self.add_node_item(node.item, QPoint(n_c['position x'], n_c['position y']) + offset_pos)
-            nodes.append(node)
-            # node_items.append(node.item)
+    def remove_connection(self, c: Connection):
+        item = self.connections[c]
+        self._remove_connection_item(item)
+        del self.connections[c]
 
-        # self.nodes += nodes
-        # self.node_items += node_items
+    def _remove_connection_item(self, item: ConnectionItem):
+        self.connection_items__cache[item.connection] = item
+        self.scene().removeItem(item)
 
-        return nodes, node_items
-
-    # def remove_node_instance_triggered(self, node_instance):  # called from context menu of NodeInstance
-    #     if node_instance in self.selected_node_items():
-    #         self.__undo_stack.push(
-    #             RemoveComponents_Command(self, self.scene().selectedItems()))
-    #     else:
-    #         self.__undo_stack.push(RemoveComponents_Command(self, [node_instance]))
-
-    # def get_node_instance_class_from_node(self, node):
-    #     return self.all_node_instance_classes[node]
-
-    # def get_custom_input_widget_classes(self):
-    #     return self.script.main_window.custom_node_input_widget_classes
-
-    def connect_nodes_from_config(self, nodes: [Node], connections_config: list):
-        """Connects Nodes according to the config list. This list is included in what is returned by the
-        config_data() method at 'connections'."""
-
-        for c in connections_config:
-
-            c_parent_node_index = -1
-            if 'parent node instance index' in c:  # backwards compatibility
-                c_parent_node_index = c['parent node instance index']
-            else:
-                c_parent_node_index = c['parent node index']
-
-            c_output_port_index = c['output port index']
-
-            c_connected_node_index = -1
-            if 'connected node instance' in c:  # backwards compatibility
-                c_connected_node_index = c['connected node instance']
-            else:
-                c_connected_node_index = c['connected node']
-
-            c_connected_input_port_index = c['connected input port index']
-
-            if c_connected_node_index is not None:  # which can be the case when pasting
-                parent_node = nodes[c_parent_node_index]
-                connected_node = nodes[c_connected_node_index]
-
-                self.connect_ports(parent_node.outputs[c_output_port_index],
-                                   connected_node.inputs[c_connected_input_port_index])
+    def auto_connect(self, p: NodeObjPort, n: Node):
+        if p.io_pos == PortObjPos.OUTPUT:
+            for inp in n.inputs:
+                if p.type_ == inp.type_:
+                    # connect exactly once
+                    self.connect_node_ports__cmd(p, inp)
+                    return
+        elif p.io_pos == PortObjPos.INPUT:
+            for out in n.outputs:
+                if p.type_ == out.type_:
+                    # connect exactly once
+                    self.connect_node_ports__cmd(p, out)
+                    return
 
     # DRAWINGS
     def create_drawing(self, config=None) -> DrawingObject:
@@ -937,6 +890,33 @@ class Flow(QGraphicsView):
         self._undo_stack.push(place_command)
         return new_drawing_obj
 
+    # ADDING/REMOVING COMPONENTS
+    def add_component(self, e: QGraphicsItem):
+        if isinstance(e, NodeItem):
+            self.add_node(e.node)
+            self.add_node_item(e)
+        elif isinstance(e, DrawingObject):
+            self.add_drawing(e)
+
+    def remove_components(self, comps: [QGraphicsItem]):
+        for c in comps:
+            self.remove_component(c)
+
+    def remove_component(self, e: QGraphicsItem):
+        if isinstance(e, NodeItem):
+            self.remove_node(e.node)
+            self.remove_node_item(e)
+        elif isinstance(e, DrawingObject):
+            self.remove_drawing(e)
+
+    def remove_selected_components__cmd(self):
+        self._undo_stack.push(
+            RemoveComponents_Command(self, self.scene().selectedItems())
+        )
+
+        self.viewport().update()
+
+    # MOVING COMPONENTS
     def _move_selected_copmonents__cmd(self, x, y):
         new_rel_pos = QPointF(x, y)
 
@@ -966,18 +946,19 @@ class Flow(QGraphicsView):
 
         self.viewport().repaint()
 
-    def _move_selected_nodes_left(self):
+    def _move_selected_comps_left(self):
         self._move_selected_copmonents__cmd(-40, 0)
 
-    def _move_selected_nodes_up(self):
+    def _move_selected_comps_up(self):
         self._move_selected_copmonents__cmd(0, -40)
 
-    def _move_selected_nodes_right(self):
+    def _move_selected_comps_right(self):
         self._move_selected_copmonents__cmd(+40, 0)
 
-    def _move_selected_nodes_down(self):
+    def _move_selected_comps_down(self):
         self._move_selected_copmonents__cmd(0, +40)
 
+    # SELECTION
     def selected_components_moved(self, pos_diff):
         items_list = self.scene().selectedItems()
 
@@ -1010,23 +991,27 @@ class Flow(QGraphicsView):
                 i.setSelected(True)
         self.viewport().repaint()
 
+    def clear_selection(self):
+        self.scene().clearSelection()
+
     def select_components(self, comps):
         self.scene().clearSelection()
         for c in comps:
             c.setSelected(True)
 
+    # ACTIONS
     def _copy(self):  # ctrl+c
         data = {'nodes': self._get_nodes_config_data(self.selected_nodes()),
                 'connections': self._get_connections_config_data(self.selected_nodes()),
                 'drawings': self._get_drawings_config_data(self.selected_drawings())}
         QGuiApplication.clipboard().setText(json.dumps(data))
 
-    def _cut(self):  # called from shortcut ctrl+x
+    def _cut(self):  # ctrl+x
         data = {'nodes': self._get_nodes_config_data(self.selected_nodes()),
                 'connections': self._get_connections_config_data(self.selected_nodes()),
                 'drawings': self._get_drawings_config_data(self.selected_drawings())}
         QGuiApplication.clipboard().setText(json.dumps(data))
-        self.remove_selected_components()
+        self.remove_selected_components__cmd()
 
     def _paste(self):
         data = {}
@@ -1065,171 +1050,7 @@ class Flow(QGraphicsView):
 
         self._undo_stack.push(Paste_Command(self, data, offset_for_middle_pos))
 
-    def add_component(self, e: QGraphicsItem):
-        if isinstance(e, NodeItem):
-            self.add_node(e.node)
-            self.add_node_item(e)
-        elif isinstance(e, DrawingObject):
-            self.add_drawing(e)
-
-    def remove_components(self, comps: [QGraphicsItem]):
-        for c in comps:
-            self.remove_component(c)
-
-    def remove_component(self, e: QGraphicsItem):
-        if isinstance(e, NodeItem):
-            self.remove_node(e.node)
-            self.remove_node_item(e)
-        elif isinstance(e, DrawingObject):
-            self.remove_drawing(e)
-
-    def remove_selected_components(self):
-        self._undo_stack.push(
-            RemoveComponents_Command(self, self.scene().selectedItems()))
-
-        self.viewport().update()
-
-    # NODE SELECTION: ----
-    def clear_selection(self):
-        self.scene().clearSelection()
-
-    # CONNECTIONS: ----
-    def connect_node_ports__cmd(self, p1: NodeObjPort, p2: NodeObjPort):
-        """Connects if possible, disconnects if ports are already connected"""
-
-        out = None
-        inp = None
-        if p1.io_pos == PortObjPos.OUTPUT and p2.io_pos == PortObjPos.INPUT:
-            out = p1
-            inp = p2
-        elif p1.io_pos == PortObjPos.INPUT and p2.io_pos == PortObjPos.OUTPUT:
-            out = p2
-            inp = p1
-        else:
-            # ports have same direction
-            return
-
-        if out.type_ != inp.type_:
-            return
-
-        self._undo_stack.push(ConnectPorts_Command(self, out=out, inp=inp))
-
-    def connect_ports(self, out: NodeObjOutput = None, inp: NodeObjInput = None, connection: Connection = None):
-        """
-        DEFAULT: connects out and inp if they are not connected, otherwise they get disconnected
-        connected() or disconnected() is triggered afterwards of the ports
-        IF CONNECTION PROVIDED: the connection gets added to the scene and connected() is triggered on the ports.
-        """
-
-        inp = inp if not connection else connection.inp
-        out = out if not connection else connection.out
-
-
-        for c in out.connections:
-            if c.inp == inp:
-                # disconnect
-                self.remove_connection(c)
-                out.disconnected()
-                inp.disconnected()
-                return
-
-        if inp.node == out.node:
-            return
-
-
-        # CONNECT
-
-        # remove all connections from input port instance if it's a data input
-        if inp.type_ == 'data':
-            for c in inp.connections:
-                self.connect_node_ports__cmd(c.out, inp)
-
-
-        if connection:
-            self.add_connection(connection)
-            if self.session.threaded:
-                self.trigger_port_connected.emit(out)
-                self.trigger_port_connected.emit(inp)
-            else:
-                connection.out.connected()
-                connection.inp.connected()
-            return
-
-
-        c = self.new_connection(out, inp)
-        self.add_connection(c)
-
-        if self.session.threaded:
-            self.trigger_port_connected.emit(out)
-            self.trigger_port_connected.emit(inp)
-        else:
-            c.out.connected()
-            c.inp.connected()
-
-    def new_connection(self, out: NodeObjOutput, inp: NodeObjInput) -> Connection:
-        """Creates the connection object"""
-        c = None
-        if inp.type_ == 'data':
-            c = self.session.flow_data_conn_class((out, inp, self.session.design))
-        elif inp.type_ == 'exec':
-            c = self.session.flow_exec_conn_class((out, inp, self.session.design))
-        c.item.setZValue(10)
-        if self.session.threaded:
-            c.moveToThread(self.session_thread)
-        return c
-
-    def add_connection(self, c: Connection):
-        """Adds the connection object to the scene and sets it in the ports"""
-        c.out.connections.append(c)
-        c.inp.connections.append(c)
-
-        self.connections.append(c)
-
-        self.scene().addItem(c.item)
-        self.viewport().repaint()
-
-    def remove_connection(self, c: Connection):
-        """Removes the connection object from the scene and from the ports"""
-        c.out.connections.remove(c)
-        c.inp.connections.remove(c)
-
-        self.connections.remove(c)
-
-        self.scene().removeItem(c.item)
-        self.viewport().repaint()
-
-    def auto_connect(self, p: NodeObjPort, n: Node):
-        if p.io_pos == PortObjPos.OUTPUT:
-            for inp in n.inputs:
-                if p.type_ == inp.type_:
-                    # connect exactly once
-                    self.connect_node_ports__cmd(p, inp)
-                    return
-        elif p.io_pos == PortObjPos.INPUT:
-            for out in n.outputs:
-                if p.type_ == out.type_:
-                    # connect exactly once
-                    self.connect_node_ports__cmd(p, out)
-                    return
-
-    # MODES API
-
-    def algorithm_mode(self) -> str:
-        """Returns the current algorithm mode of the flow as string"""
-        return FlowAlg.stringify(self.alg_mode)
-
-    def set_algorithm_mode(self, mode: str):
-        """
-        Sets the algorithm mode of the flow
-        :mode: 'data' or 'exec'
-        """
-        if mode == 'data':
-            self.alg_mode = FlowAlg.DATA
-        elif mode == 'exec':
-            self.alg_mode = FlowAlg.EXEC
-
-        self.algorithm_mode_changed.emit(self.algorithm_mode())
-
+    # VIEWPORT UPDATE MODE
     def viewport_update_mode(self) -> str:
         """Returns the current viewport update mode as string (sync or async) of the flow"""
         return VPUpdateMode.stringify(self.vp_update_mode)
@@ -1246,56 +1067,61 @@ class Flow(QGraphicsView):
 
         self.viewport_update_mode_changed.emit(self.viewport_update_mode())
 
-    def config_data(self) -> dict:
-        print(self.nodes)
-        flow_dict = {'algorithm mode': FlowAlg.stringify(self.alg_mode),
-                     'viewport update mode': VPUpdateMode.stringify(self.vp_update_mode),
-                     'nodes': self._get_nodes_config_data(self.nodes),
-                     'connections': self._get_connections_config_data(self.nodes),
-                     'drawings': self._get_drawings_config_data(self.drawings)}
-        return flow_dict
+    # CONFIG
+    def generate_config_data(self):
+        data = {# 'algorithm mode': FlowAlg.stringify(self.alg_mode),
+                 'viewport update mode': VPUpdateMode.stringify(self.vp_update_mode),
+                 # 'nodes': self._get_nodes_config_data(self.nodes),
+                 # 'connections': self._get_connections_config_data(self.nodes),
+                 'drawings': self._get_drawings_config_data(self.drawings)}
+
+        # self.config_generated.emit(data)
+        self._temp_config_data = data
+
+        # return data
+
+    def complete_nodes_config_data(self, nodes_config_dict):
+        """
+        Adds the item config (scene pos etc.) to the config of the nodes.
+        """
+
+        for n in list(nodes_config_dict.keys()):
+            nodes_config_dict[n] = {**nodes_config_dict[n], **self.node_items[n].config_data()}
+
+        self._temp_config_data = nodes_config_dict
+        return nodes_config_dict
+        # self.nodes_config_data_completed.emit(nodes_config_dict)
+
+        # return nodes_config_dict
+
+    def complete_connections_config_data(self, conn_config_dict):
+        """
+        Adds the item config to the config of the connections
+        """
+        cfg = conn_config_dict
+        # TODO: add custom config when implementing custom connection items later
+        self._temp_config_data = cfg
+        return cfg
 
     def _get_nodes_config_data(self, nodes):
-        nodes_data = []
-        for n in nodes:
-            nodes_data.append(n.config_data(n.item.config_data()))
+        self.get_nodes_config_request.emit(nodes)
 
-        return nodes_data
+        # wait for abstract flow
+        self.flow._temp_config_data = None
+        while self.flow._temp_config_data is None:
+            time.sleep(0.001)
 
-    def _get_connections_config_data(self, nodes, only_with_connections_to=None):
-        script_ni_connections_list = []
-        for n in nodes:
-            for out in n.outputs:
-                if len(out.connections) > 0:
-                    for c in out.connections:
-                        connected_port = c.inp
+        return self.complete_nodes_config_data(self.flow._temp_config_data)
 
-                        # this only applies when saving config data through deleting nodes:
-                        if only_with_connections_to is not None and \
-                                connected_port.node not in only_with_connections_to and \
-                                n not in only_with_connections_to:
-                            continue
-                        # because I am not allowed to save connections between nodes connected to each other and both
-                        # connected to the deleted node, only the connections to the deleted node shall be saved
+    def _get_connections_config_data(self, nodes):
+        self.get_connections_config_request.emit(nodes)
 
-                        connection_dict = {'parent node index': nodes.index(n),
-                                           'output port index': n.outputs.index(out)}
+        # wait for abstract flow
+        self.flow._temp_config_data = None
+        while self.flow._temp_config_data is None:
+            time.sleep(0.001)
 
-                        # yes, very important: when copying components, there might be connections going outside the
-                        # selected lists, these should be ignored. When saving a project, all components are considered,
-                        # so then the index values will never be none
-                        connected_node_index = nodes.index(connected_port.node) if \
-                            connected_port.node in nodes else None
-
-                        connection_dict['connected node'] = connected_node_index
-
-                        connected_ip_index = connected_port.node.inputs.index(connected_port) if \
-                            connected_node_index is not None else None
-                        connection_dict['connected input port index'] = connected_ip_index
-
-                        script_ni_connections_list.append(connection_dict)
-
-        return script_ni_connections_list
+        return self.complete_connections_config_data(self.flow._temp_config_data)
 
     def _get_drawings_config_data(self, drawings):
         drawings_list = []

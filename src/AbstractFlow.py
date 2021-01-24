@@ -8,9 +8,9 @@ from .RC import FlowAlg, PortObjPos
 
 class AbstractFlow(QObject):
 
-    node_created = Signal(Node, dict=None)
+    node_added = Signal(Node, dict=None)
     node_removed = Signal(Node)
-    connection_created = Signal(Connection)
+    connection_added = Signal(Connection)
     connection_removed = Signal(Connection)
     connection_request_valid = Signal(bool)
 
@@ -26,6 +26,7 @@ class AbstractFlow(QObject):
         self.script = script
         self.nodes: [Node] = []
         self.connections: [Connection] = []
+        self._temp_config_data = None
 
         self.alg_mode = FlowAlg.DATA
 
@@ -66,25 +67,57 @@ class AbstractFlow(QObject):
                         break
 
             node = self.create_node(node_class, n_c)
-            node.append(node)
-            self.add_node(node)
-            self.node_created.emit(Node, info={'scene pos': [n_c['position x'], n_c['position y']]})
+            nodes.append(node)
+            # self.add_node(node)
+            # self.node_created.emit(Node, n_c)  # info={'scene pos': [n_c['position x'], n_c['position y']]})
 
         return nodes
 
 
     def create_node(self, node_class, config=None):
         node = node_class(self, self.session, config)
+        self.add_node(node, config)
         return node
 
 
-    def add_node(self, node: Node):
+    def add_node(self, node: Node, config=None):
+        node.enable_logs()
+        node.place_event()
         self.nodes.append(node)
+        self.node_added.emit(Node, config)
 
 
     def remove_node(self, node: Node):
+        node.prepare_removal()
         self.nodes.remove(node)
         self.node_removed.emit(node)
+
+
+    def connect_nodes_from_config(self, nodes: [Node], config: list):
+        for c in config:
+
+            c_parent_node_index = -1
+            if 'parent node instance index' in c:  # backwards compatibility
+                c_parent_node_index = c['parent node instance index']
+            else:
+                c_parent_node_index = c['parent node index']
+
+            c_output_port_index = c['output port index']
+
+            c_connected_node_index = -1
+            if 'connected node instance' in c:  # backwards compatibility
+                c_connected_node_index = c['connected node instance']
+            else:
+                c_connected_node_index = c['connected node']
+
+            c_connected_input_port_index = c['connected input port index']
+
+            if c_connected_node_index is not None:  # which can be the case when pasting
+                parent_node = nodes[c_parent_node_index]
+                connected_node = nodes[c_connected_node_index]
+
+                self.connect_nodes(parent_node.outputs[c_output_port_index],
+                                   connected_node.inputs[c_connected_input_port_index])
 
 
     def check_connection_validity(self, p1: NodeObjPort, p2: NodeObjPort) -> bool:
@@ -132,7 +165,7 @@ class AbstractFlow(QObject):
         c = DataConnection(out, inp) if out.type_ == 'data' else ExecConnection(out, inp)
         self.add_connection(c)
 
-        self.connection_created.emit(c)
+        self.connection_added.emit(c)
 
 
     def add_connection(self, c: Connection):
@@ -170,15 +203,47 @@ class AbstractFlow(QObject):
         self.algorithm_mode_changed.emit(self.algorithm_mode())
 
 
+    def config_data(self):
+        return self.generate_nodes_config(self.nodes), self.generate_connections_config(self.nodes)# , self.connections)
+
+
     def generate_nodes_config(self, nodes: [Node]):
         cfg = {}
         for n in nodes:
-            cfg[n] = n.config_data()
-        self.nodes_config_generated.emit(cfg)
+            cfg[n] = n.content_data()
+        self._temp_config_data = cfg
+        # self.nodes_config_generated.emit(cfg)
+        return cfg
 
 
-    def generate_connections_config(self, connections: [Connection]):
-        cfg = {}
-        for c in connections:
-            cfg[c] = c.config_data()
-        self.connections_config_generated.emit(cfg)
+    def generate_connections_config(self, nodes: [Node]):  # , connections: [Connection]):
+        cfg = []
+        for i in range(len(nodes)):
+            n = nodes[i]
+            for j in range(len(n.outputs)):
+                out = n.outputs[j]
+
+                for c in out.connections:
+                    connected_port = c.inp
+                    connected_node = connected_port.node
+
+                    # When copying components, there might be connections going outside the selected list of nodes.
+                    # These should be ignored.
+                    if connected_node not in nodes:
+                        continue
+
+                    connected_port_index = connected_node.inputs.index(connected_port)
+                    connected_node_index = nodes.index(connected_node)
+
+                    c_dict = {
+                        'parent node index': i,
+                        'output port index': j,
+                        'connected node': connected_node_index,
+                        'connected input port index': connected_port_index
+                    }
+
+                    cfg.append(c_dict)
+
+        self._temp_config_data = cfg
+        # self.connections_config_generated.emit(cfg)
+        return cfg

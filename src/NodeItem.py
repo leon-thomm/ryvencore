@@ -299,10 +299,14 @@ class NodeItem(QGraphicsItem, QObject):
         """Updates the global positions of connections at outputs"""
         for o in self.node.outputs:
             for c in o.connections:
-                c.item.recompute()
+                # c.item.recompute()
+                item = self.flow.connection_items[c]
+                item.recompute()
         for i in self.node.inputs:
             for c in i.connections:
-                c.item.recompute()
+                # c.item.recompute()
+                item = self.flow.connections_items[c]
+                item.recompute()
 
     def hoverEnterEvent(self, event):
         self.widget.title_label.set_NI_hover_state(hovering=True)

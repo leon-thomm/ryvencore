@@ -8,12 +8,13 @@ from .global_tools.math import pythagoras, sqrt
 
 
 class ConnectionItem(QGraphicsItem):
-    def __init__(self, out_item, inp_item, type_, session_design):
+    def __init__(self, connection, session_design):
         super().__init__()
 
-        self.out = out_item
-        self.inp = inp_item
-        self.type_ = type_
+        self.connection = connection
+        self.out = self.connection.out
+        self.inp = self.connection.inp
+        # self.type_ = type_
         self.session_design = session_design
         self.changed = False
         self.path: QPainterPath = None
@@ -46,7 +47,7 @@ class ExecConnectionItem(ConnectionItem):
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget=...) -> None:
 
-        pen = self.session_design.flow_theme.get_flow_conn_pen_inst(self.type_)
+        pen = self.session_design.flow_theme.get_flow_conn_pen_inst('exec')
         c = pen.color()
 
         # highlight hovered connections
@@ -81,7 +82,7 @@ class DataConnectionItem(ConnectionItem):
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget=...) -> None:
 
-        pen = self.session_design.flow_theme.get_flow_conn_pen_inst(self.type_)
+        pen = self.session_design.flow_theme.get_flow_conn_pen_inst('data')
         c = pen.color()
 
         # highlight hovered connections

@@ -15,13 +15,6 @@ class PortItem(QGraphicsGridLayout):
     def __init__(self, node, port, flow):
         super(PortItem, self).__init__()
 
-        # # GENERAL ATTRIBUTES
-        # self.val = None
-        # self.parent_node_instance = parent_node_instance
-        # self.io_pos = io_pos
-        # self.type_ = type_
-        # self.label_str = label_str
-        # self.connections = []  # connections stored here
         self.node = node
         self.port = port
         self.flow = flow
@@ -29,15 +22,13 @@ class PortItem(QGraphicsGridLayout):
         self.port.has_been_connected.connect(self.port_connected)
         self.port.has_been_disconnected.connect(self.port_disconnected)
 
-        # gate/pin
         self.pin = PortItemPin(self.port, self.node)
 
-        # label
         self.label = PortItemLabel(self.port, self.node)
 
 
     def setup_ui(self):
-        pass  # reimplemented in subclasses
+        pass
 
     def port_connected(self):
         pass
