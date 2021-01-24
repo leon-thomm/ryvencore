@@ -94,8 +94,11 @@ class NodeItemWidget(QGraphicsWidget):
 
     def update_shape(self):
 
-        # if not self.initializing:   # just to make sure
-        #     self.rebuild_ui()       # (hopefully) temporary fix -> see rebuild_ui() docstring
+        # makes extended node items shrink according to resizing input widgets
+        if not self.node_item.initializing:
+            self.rebuild_ui()
+        # strangely, this only works for small node items without this, not for extended ones
+
         mw = self.node_item.main_widget
         if mw is not None:  # maybe the main_widget got resized
             self.main_widget_proxy.setMaximumSize(mw.size())

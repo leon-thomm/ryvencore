@@ -64,7 +64,7 @@ class Node(QObject):
         else:
             self.setup_ports()
 
-        self.item.initialized()
+        # self.item.initialized()
 
         self.initialized()
 
@@ -148,10 +148,12 @@ class Node(QObject):
         """Sets the value of a data output.
         self.data_outputs_updated() has to be called manually after all values are set."""
 
-        if not self.session.threading_enabled:
-            if self.flow.vp_update_mode == FlowVPUpdateMode.ASYNC and not self.item.initializing:  # asynchronous viewport updates
-                vp = self.flow.viewport()
-                vp.repaint(self.flow.mapFromScene(self.item.sceneBoundingRect()))
+        # TODO: implement this using a signal that gets connected to a slot in the flow
+        #  by the FlowSessionThreadInterface
+        # if not self.session.threaded:
+        #     if self.flow.vp_update_mode == FlowVPUpdateMode.ASYNC and not self.item.initializing:  # asynchronous viewport updates
+        #         vp = self.flow.viewport()
+        #         vp.repaint(self.flow.mapFromScene(self.item.sceneBoundingRect()))
 
         self.outputs[index].set_val(val)
 
@@ -234,8 +236,8 @@ class Node(QObject):
         # self.item.add_new_input(inp, pos)
         self.input_added.emit(inp, pos)
 
-        if self.session.threading_enabled:
-            inp.moveToThread(self.flow.worker_thread)
+        # if self.session.threaded:
+        #     inp.moveToThread(self.flow.worker_thread)
 
 
     def delete_input(self, i):
@@ -275,8 +277,8 @@ class Node(QObject):
         # self.item.add_new_output(out, pos)
         self.output_added.emit(out, pos)
 
-        if self.session.threading_enabled:
-            out.moveToThread(self.flow.worker_thread)
+        # if self.session.threaded:
+        #     out.moveToThread(self.flow.worker_thread)
 
     def delete_output(self, o):
         """Disconnects and removes output. Handy for subclasses."""
@@ -316,7 +318,7 @@ class Node(QObject):
         pass
 
     def session_stylesheet(self) -> str:
-        return self.flow.session.design.global_stylesheet
+        return self.session.design.global_stylesheet
 
     # VARIABLES
 
@@ -386,7 +388,7 @@ class Node(QObject):
     # def action_remove(self):
     #     self.flow.remove_node_item(self.item)
 
-    def about_to_remove_from_scene(self):
+    def prepare_removal(self):
         """Called from Flow when the NI gets removed from the scene
         to stop all running threads and disable personal logs."""
 

@@ -1,8 +1,13 @@
 from PySide2.QtGui import QFontMetrics
 from PySide2.QtWidgets import QSpinBox, QLineEdit
 
-from .WidgetBaseClasses import IWB
-from .retain import M
+
+# TODO: the relative import leads to an error when overriding src code in Ryven...
+#  which is really strange and hopefully resolved when using ryvencore as package
+# from .WidgetBaseClasses import IWB
+# from .retain import M
+from custom_src.ryvencore.src.WidgetBaseClasses import IWB
+from custom_src.ryvencore.src.retain import M
 
 
 class StdSpinBoxInputWidget(QSpinBox, IWB):

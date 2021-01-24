@@ -191,7 +191,8 @@ class NodeChoiceWidget(QWidget):
     def place_node(self, index):
         node_index = index
         node = self.current_nodes[node_index]
-        self.flow.place_node__cmd(node)
+        # self.flow.create_node__cmd(node)
+        self.flow.create_node(node, commanded=True, pos=self.flow._node_place_pos)
 
         self.flow.hide_node_choice_widget()
 

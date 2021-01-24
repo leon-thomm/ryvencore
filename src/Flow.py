@@ -2,11 +2,11 @@ from PySide2.QtCore import Qt, QPointF, QPoint, QRectF, QSizeF, Signal, QTimer, 
 from PySide2.QtGui import QPainter, QPen, QColor, QKeySequence, QTabletEvent, QImage, QGuiApplication, QFont
 from PySide2.QtWidgets import QGraphicsView, QGraphicsScene, QShortcut, QMenu, QGraphicsItem, QUndoStack
 
-from .FlowCommands import MoveComponents_Command, PlaceNodeItemInScene_Command, \
+from .FlowCommands import MoveComponents_Command, PlaceNode_Command, \
     PlaceDrawingObject_Command, RemoveComponents_Command, ConnectPorts_Command, Paste_Command
 from .FlowProxyWidget import FlowProxyWidget
 from .FlowStylusModesWidget import FlowStylusModesWidget
-from .FlowWorkerThread import FlowWorkerThread
+from .FlowSessionThreadInterface import FlowSessionThreadInterface
 from .FlowZoomWidget import FlowZoomWidget
 from .Node import Node
 from .NodeObjPort import NodeObjPort, NodeObjOutput, NodeObjInput
@@ -31,6 +31,7 @@ class Flow(QGraphicsView):
     viewport_update_mode_changed = Signal(str)
     trigger_port_connected = Signal(NodeObjPort)
     trigger_port_disconnected = Signal(NodeObjPort)
+    create_node_request = Signal(object, tuple)
 
 
     def __init__(self, session, script, flow_size: list = None, config=None, parent=None):
@@ -61,6 +62,7 @@ class Flow(QGraphicsView):
         self._last_mouse_move_pos: QPointF = None
         self._node_place_pos = QPointF()
         self._left_mouse_pressed_in_flow = False
+        self._right_mouse_pressed_in_flow = False
         self._mouse_press_pos: QPointF = None
         self._auto_connection_pin = None  # stores the gate that we may try to auto connect to a newly placed NI
         self._panning = False
@@ -69,12 +71,19 @@ class Flow(QGraphicsView):
         self._current_scale = 1
         self._total_scale_div = 1
 
-        if self.session.threading_enabled:
-            self.worker_thread = FlowWorkerThread(self.thread())
-            FWT = self.worker_thread
-            self.trigger_port_connected.connect(FWT.interface.trigger_port_connected)
-            self.trigger_port_disconnected.connect(FWT.interface.trigger_port_disconnected)
-            self.worker_thread.start()
+        self.thread_interface = FlowSessionThreadInterface(self.session)
+        self.trigger_port_connected.connect(self.thread_interface.trigger_port_connected)
+        self.trigger_port_disconnected.connect(self.thread_interface.trigger_port_disconnected)
+        self.create_node_request.connect(self.thread_interface.create_node)
+        self.thread_interface.node_created.connect(self.node_created)
+        if self.session.threaded:
+            self.session_thread = self.session.custom_thread
+        # if self.session.threaded:
+        #     self.worker_thread = FlowWorkerThread(self.thread())
+        #     FWT = self.worker_thread
+        #     self.trigger_port_connected.connect(FWT.interface.trigger_port_connected)
+        #     self.trigger_port_disconnected.connect(FWT.interface.trigger_port_disconnected)
+        #     self.worker_thread.start()
 
         # SETTINGS
         self.alg_mode = FlowAlg.DATA    # Flow_AlgorithmMode()
@@ -159,6 +168,7 @@ class Flow(QGraphicsView):
 
             self.nodes, self.node_items = self.place_nodes_from_config(config['nodes'])
             self.connect_nodes_from_config(self.nodes, config['connections'])
+
             if list(config.keys()).__contains__('drawings'):  # not all (old) project files have drawings arr
                 self.place_drawings_from_config(config['drawings'])
             self._undo_stack.clear()
@@ -265,15 +275,15 @@ class Flow(QGraphicsView):
             self._left_mouse_pressed_in_flow = True
 
         elif event.button() == Qt.RightButton:
-            if len(self.items(event.pos())) == 0:
-                self._node_choice_widget.reset_list()
-                self.show_node_choice_widget(event.pos())
-
-        elif event.button() == Qt.MidButton:
-            self._panning = True
-            self._pan_last_x = event.x()
-            self._pan_last_y = event.y()
+            self._right_mouse_pressed_in_flow = True
             event.accept()
+
+        # elif event.button() == Qt.MidButton:
+        # elif event.button() == Qt.RightButton:
+        #     self._panning = True
+        #     self._pan_last_x = event.x()
+        #     self._pan_last_y = event.y()
+        #     event.accept()
 
         self._mouse_press_pos = self.mapToScene(event.pos())
 
@@ -281,9 +291,22 @@ class Flow(QGraphicsView):
 
         QGraphicsView.mouseMoveEvent(self, event)
 
-        if self._panning:  # middle mouse pressed
+        # print('qwer')
+        # print(event.button())
+
+        if self._right_mouse_pressed_in_flow:    # PAN
+
+            if not self._panning:
+                self._panning = True
+                self._pan_last_x = event.x()
+                self._pan_last_y = event.y()
+
             self.pan(event.pos())
             event.accept()
+
+        # if self._panning:  # middle mouse pressed
+        #     self.pan(event.pos())
+        #     event.accept()
 
         self._last_mouse_move_pos = self.mapToScene(event.pos())
 
@@ -304,34 +327,52 @@ class Flow(QGraphicsView):
             self.ignore_mouse_event = False
             return
 
-        elif event.button() == Qt.MidButton:
+        elif self._panning:
+        # elif event.button() == Qt.MidButton:
             self._panning = False
 
+        elif event.button() == Qt.RightButton:
+            self._right_mouse_pressed_in_flow = False
+            if self._mouse_press_pos == self._last_mouse_move_pos and \
+                    len(self.items(event.pos())) == 0:
 
-        # connection dropped over specific pin
-        if self.dragging_connection and self.itemAt(event.pos()) and \
-                isinstance(self.itemAt(event.pos()), PortItemPin):
-            self.connect_node_ports__cmd(self.selected_pin.port,
-                                         self.itemAt(event.pos()).port)
+                self._node_choice_widget.reset_list()
+                self.show_node_choice_widget(event.pos())
+                return
 
-        # connection dropped above NodeItem -> auto connect
-        elif self.dragging_connection and node_item_at_event_pos:
-            # find node item
-            ni_under_drop = None
-            for item in self.items(event.pos()):
-                if isinstance(item, NodeItem):
-                    ni_under_drop = item
-                    self.auto_connect(self.selected_pin.port, ni_under_drop.node)
-                    break
 
-        elif self.dragging_connection:
-            # connection dropped somewhere else - show node choice widget
-            self._auto_connection_pin = self.selected_pin
-            self.show_node_choice_widget(event.pos())
+        if self.dragging_connection:
 
-        self._left_mouse_pressed_in_flow = False
-        self.dragging_connection = False
-        self.selected_pin = None
+            # connection dropped over specific pin
+            if self.itemAt(event.pos()) and isinstance(self.itemAt(event.pos()), PortItemPin):
+
+                self.connect_node_ports__cmd(
+                    self.selected_pin.port,
+                    self.itemAt(event.pos()).port
+                )
+
+            # connection dropped above NodeItem -> auto connect
+            elif node_item_at_event_pos:
+                # find node item
+                ni_under_drop = None
+                for item in self.items(event.pos()):
+                    if isinstance(item, NodeItem):
+                        ni_under_drop = item
+                        self.auto_connect(self.selected_pin.port, ni_under_drop.node)
+                        break
+
+            # connection dropped somewhere else -> show node choice widget
+            else:
+                self._auto_connection_pin = self.selected_pin
+                self.show_node_choice_widget(event.pos())
+
+            self.dragging_connection = False
+            self.selected_pin = None
+
+        if event.button() == Qt.LeftButton:
+            self._left_mouse_pressed_in_flow = False
+        elif event.button() == Qt.RightButton:
+            self._right_mouse_pressed_in_flow = False
 
         self.viewport().repaint()
 
@@ -530,14 +571,14 @@ class Flow(QGraphicsView):
     def get_viewport_img(self) -> QImage:
         """Returns a clear image of the viewport"""
 
-        self.__hide_proxies()
+        self._hide_proxies()
         img = QImage(self.viewport().rect().width(), self.viewport().height(), QImage.Format_ARGB32)
         img.fill(Qt.transparent)
 
         painter = QPainter(img)
         painter.setRenderHint(QPainter.Antialiasing)
         self.render(painter, self.viewport().rect(), self.viewport().rect())
-        self.__show_proxies()
+        self._show_proxies()
         return img
 
     def get_whole_scene_img(self) -> QImage:
@@ -545,7 +586,7 @@ class Flow(QGraphicsView):
         A bug makes this only work from the viewport position down and right, so the user has to scroll to
         the top left corner in order to get the full scene"""
 
-        self.__hide_proxies()
+        self._hide_proxies()
         img = QImage(self.sceneRect().width() / self._total_scale_div, self.sceneRect().height() / self._total_scale_div,
                      QImage.Format_RGB32)
         img.fill(Qt.transparent)
@@ -559,7 +600,7 @@ class Flow(QGraphicsView):
         rect.setHeight(img.rect().height())
         # rect is right... but it only renders from the viewport's point down-and rightwards, not from topleft (0,0) ...
         self.render(painter, rect, rect.toRect())
-        self.__show_proxies()
+        self._show_proxies()
         return img
 
     # PROXY POSITIONS
@@ -570,11 +611,11 @@ class Flow(QGraphicsView):
         self._stylus_modes_proxy.setPos(
             self.mapToScene(self.viewport().width() - self._stylus_modes_widget.width() - self._zoom_widget.width(), 0))
 
-    def __hide_proxies(self):
+    def _hide_proxies(self):
         self._stylus_modes_proxy.hide()
         self._zoom_proxy.hide()
 
-    def __show_proxies(self):
+    def _show_proxies(self):
         self._stylus_modes_proxy.show()
         self._zoom_proxy.show()
 
@@ -669,17 +710,58 @@ class Flow(QGraphicsView):
         self.ensureVisible(target_rect, 0, 0)
 
     # NODE PLACING: -----
-    def create_node(self, node_class, config) -> Node:
-        """Creates and returns a new Node object."""
+    def create_node(self, node_class, config, commanded=True, pos=None):
+        """Creates and returns a new Node object and None if the session is threaded.
+        If it's commanded, then it also automatically adds the item."""
 
-        node = node_class(params=(self, self.session.design, config))
-        node.finish_initialization()
+        params = (self, self.session.design, config)
 
-        if self.session.threading_enabled:
-            node.moveToThread(self.worker_thread)
-            # from here, node lives in the worker thread but it's doesn't
+        if self.session.threaded:
+            self.create_node_request.emit(node_class, params, commanded=commanded, pos=pos)
+            return None
+        else:
+            node = node_class(params)
+            self.node_created(node, params, commanded, pos)
+            return node
 
-        return node
+        # node = node_class(params=(self, self.session.design, config))
+        #
+        # if self.session.threaded:
+        #     node.moveToThread(self.session_thread)
+        #
+        # node.finish_initialization()
+        #
+        # return node
+
+    def node_created(self, node, node_item_params, commanded, pos):
+        """
+        Creates the NodeItem and adds node and node item to the lists.
+        Called after a node, possibly in another thread, has been created by the FlowSessionThreadWorker.
+        """
+
+        # self.nodes.append(node)
+
+        item = NodeItem(node, params=node_item_params)
+        # self.add_node_item(item)
+
+        if commanded:
+            place_command = PlaceNode_Command(self, node, item, self.pos)
+            self._undo_stack.push(place_command)
+        else:
+            self.add_node(node)
+            self.add_node_item(item, pos)
+
+        item.initialize()
+
+        if self._auto_connection_pin:
+            self.auto_connect(self._auto_connection_pin.port,
+                              node)
+
+    def add_node(self, node):
+        self.nodes.append(node)
+
+    def remove_node(self, node):
+        self.nodes.remove(node)
 
     def add_node_item(self, ni: NodeItem, pos=None):
         """Adds a NodeItem to the scene."""
@@ -694,7 +776,7 @@ class Flow(QGraphicsView):
         ni.setSelected(True)
 
         self.node_items.append(ni)
-        self.nodes.append(ni.node)
+        # self.nodes.append(ni.node)
 
     def add_node_items(self, node_items: [NodeItem]):
         """Adds a list of NodeItems to the scene."""
@@ -702,15 +784,18 @@ class Flow(QGraphicsView):
         for ni in node_items:
             self.add_node_item(ni)
 
-    def remove_node_item(self, ni):
-        """Removes a NodeItem from the scene."""
+    def remove_node_item(self, ni: NodeItem):
+        """Removes a NodeItem from the scene and the node from the list."""
 
-        ni.node.about_to_remove_from_scene()
+        if self.session.threaded:
+            self.trigger_node_remove_event(ni.node)
+        else:
+            ni.node.prepare_removal()
 
         self.scene().removeItem(ni)
 
         self.node_items.remove(ni)
-        self.nodes.remove(ni.node)
+        # self.nodes.remove(ni.node)
 
     def _place_new_node_by_shortcut(self):  # Shift+P
         point_in_viewport = None
@@ -751,29 +836,17 @@ class Flow(QGraphicsView):
                         node_class = nc
                         break
 
-            node = self.create_node(node_class, n_c)
-            self.add_node_item(node.item, QPoint(n_c['position x'], n_c['position y']) + offset_pos)
-            nodes.append(node)
-            node_items.append(node.item)
+            node = self.create_node(node_class, n_c, commanded=False,
+                             pos=QPoint(n_c['position x'], n_c['position y']) + offset_pos)
 
-        self.nodes += nodes
-        self.node_items += node_items
+            # self.add_node_item(node.item, QPoint(n_c['position x'], n_c['position y']) + offset_pos)
+            nodes.append(node)
+            # node_items.append(node.item)
+
+        # self.nodes += nodes
+        # self.node_items += node_items
 
         return nodes, node_items
-
-    def place_node__cmd(self, node_class, config=None):
-
-        node = self.create_node(node_class, config)
-
-        place_command = PlaceNodeItemInScene_Command(self, node.item, self._node_place_pos)
-
-        self._undo_stack.push(place_command)
-
-        if self._auto_connection_pin:
-            self.auto_connect(self._auto_connection_pin.port,
-                              node)
-
-        return node
 
     # def remove_node_instance_triggered(self, node_instance):  # called from context menu of NodeInstance
     #     if node_instance in self.selected_node_items():
@@ -992,18 +1065,20 @@ class Flow(QGraphicsView):
 
         self._undo_stack.push(Paste_Command(self, data, offset_for_middle_pos))
 
-    def add_component(self, e):
+    def add_component(self, e: QGraphicsItem):
         if isinstance(e, NodeItem):
+            self.add_node(e.node)
             self.add_node_item(e)
         elif isinstance(e, DrawingObject):
             self.add_drawing(e)
 
-    def remove_components(self, comps):
+    def remove_components(self, comps: [QGraphicsItem]):
         for c in comps:
             self.remove_component(c)
 
-    def remove_component(self, e):
+    def remove_component(self, e: QGraphicsItem):
         if isinstance(e, NodeItem):
+            self.remove_node(e.node)
             self.remove_node_item(e)
         elif isinstance(e, DrawingObject):
             self.remove_drawing(e)
@@ -1072,7 +1147,7 @@ class Flow(QGraphicsView):
 
         if connection:
             self.add_connection(connection)
-            if self.session.threading_enabled:
+            if self.session.threaded:
                 self.trigger_port_connected.emit(out)
                 self.trigger_port_connected.emit(inp)
             else:
@@ -1084,7 +1159,7 @@ class Flow(QGraphicsView):
         c = self.new_connection(out, inp)
         self.add_connection(c)
 
-        if self.session.threading_enabled:
+        if self.session.threaded:
             self.trigger_port_connected.emit(out)
             self.trigger_port_connected.emit(inp)
         else:
@@ -1099,8 +1174,8 @@ class Flow(QGraphicsView):
         elif inp.type_ == 'exec':
             c = self.session.flow_exec_conn_class((out, inp, self.session.design))
         c.item.setZValue(10)
-        if self.session.threading_enabled:
-            c.moveToThread(self.worker_thread)
+        if self.session.threaded:
+            c.moveToThread(self.session_thread)
         return c
 
     def add_connection(self, c: Connection):

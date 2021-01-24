@@ -23,18 +23,22 @@ class Session(QObject):
             animations_enabled: bool = True,
             flow_theme_name: str = 'ueli',
             # debug_messages_enabled: bool = False,
-            threading_enabled: bool = True,
+            threaded: bool = False,
+            parent: QObject = None,
             flow_data_conn_class=DataConnection,
             flow_exec_conn_class=ExecConnection,
             project: dict = None
     ):
-        super().__init__()
+        super().__init__(parent=parent)
 
-        self.__register_fonts()
+        self._register_fonts()
 
         self.scripts: [Script] = []
         self.nodes = []  # list of node CLASSES
-        self.threading_enabled = threading_enabled
+        self.threaded = threaded
+        if threaded:
+            self.custom_thread = self.thread()
+            self.gui_thread = self.thread().thread()
 
         # connections
         self.flow_data_conn_class = flow_data_conn_class
@@ -60,7 +64,7 @@ class Session(QObject):
             self.load(project)
 
 
-    def __register_fonts(self):
+    def _register_fonts(self):
         QFontDatabase.addApplicationFont(Location.PACKAGE_PATH+'/resources/fonts/poppins/Poppins-Medium.ttf')
         QFontDatabase.addApplicationFont(Location.PACKAGE_PATH+'/resources/fonts/source code pro/SourceCodePro-Regular.ttf')
         QFontDatabase.addApplicationFont(Location.PACKAGE_PATH+'/resources/fonts/asap/Asap-Regular.ttf')
@@ -79,17 +83,18 @@ class Session(QObject):
         self.nodes.append(node_class)
 
 
-    def create_script(self, title: str, flow_size: list = None, flow_parent=None, create_default_logs=True) -> Script:
+    def create_script(self, title: str, flow_size: list = None, create_default_logs=True, gui_parent=None) -> Script:
         """Creates and returns a new script"""
 
-        script = Script(session=self, title=title, flow_size=flow_size, flow_parent=flow_parent,
-                        create_default_logs=create_default_logs)
+        script = Script(session=self, title=title, flow_size=flow_size, create_default_logs=create_default_logs,
+                        gui_parent=gui_parent)
+
         self.scripts.append(script)
         self.new_script_created.emit(script)
         return script
 
 
-    def __load_script(self, config: dict):
+    def _load_script(self, config: dict):
         """Loads a script from a project dict"""
 
         script = Script(session=self, config=config)
@@ -131,7 +136,7 @@ class Session(QObject):
             return False
 
         for s in project['scripts']:
-            self.__load_script(config=s)
+            self._load_script(config=s)
 
 
     def serialize(self) -> list:

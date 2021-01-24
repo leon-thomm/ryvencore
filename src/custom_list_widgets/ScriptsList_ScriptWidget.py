@@ -74,9 +74,9 @@ class ScriptsList_ScriptWidget(QWidget):
     def event(self, event):
         if event.type() == QEvent.ToolTip:
             img: QImage = self.script.flow.get_viewport_img()
-            self.script.__thumbnail_source = 'temp/script_' + self.script.title + '_thumbnail.png'
-            img.save(self.script.__thumbnail_source)
-            self.setToolTip('<img height=100 src="' + self.script.__thumbnail_source + '"/>')
+            self.script._thumbnail_source = 'temp/script_' + self.script.title + '_thumbnail.png'
+            img.save(self.script._thumbnail_source)
+            self.setToolTip('<img height=100 src="' + self.script._thumbnail_source + '"/>')
 
         return QWidget.event(self, event)
 

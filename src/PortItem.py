@@ -27,6 +27,7 @@ class PortItem(QGraphicsGridLayout):
         self.flow = flow
 
         self.port.has_been_connected.connect(self.port_connected)
+        self.port.has_been_disconnected.connect(self.port_disconnected)
 
         # gate/pin
         self.pin = PortItemPin(self.port, self.node)

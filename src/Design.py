@@ -117,7 +117,7 @@ class Design(QObject):
                       QColor('#3f4044'))
         ]
 
-        self.__default_flow_theme = self.flow_themes[-1]
+        self._default_flow_theme = self.flow_themes[-1]
         self.flow_theme = None
 
         self.performance_mode = ''
@@ -143,7 +143,7 @@ class Design(QObject):
         elif name != '':
             self.flow_theme = self.flow_theme_by_name(name)
         else:
-            self.flow_theme = self.__default_flow_theme
+            self.flow_theme = self._default_flow_theme
 
         self.flow_theme_changed.emit(self.flow_theme.name)
 

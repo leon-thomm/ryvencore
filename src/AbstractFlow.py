@@ -1,0 +1,184 @@
+from PySide2.QtCore import QObject, Signal
+
+from .Connection import Connection, DataConnection, ExecConnection
+from .Node import Node
+from .NodeObjPort import NodeObjOutput, NodeObjInput, NodeObjPort
+from .RC import FlowAlg, PortObjPos
+
+
+class AbstractFlow(QObject):
+
+    node_created = Signal(Node, dict=None)
+    node_removed = Signal(Node)
+    connection_created = Signal(Connection)
+    connection_removed = Signal(Connection)
+    connection_request_valid = Signal(bool)
+
+    algorithm_mode_changed = Signal(int)
+
+    nodes_config_generated = Signal(dict)
+    connections_config_generated = Signal(dict)
+
+    def __init__(self, session, script, parent=None):
+        super().__init__(parent=parent)
+
+        self.session = session
+        self.script = script
+        self.nodes: [Node] = []
+        self.connections: [Connection] = []
+
+        self.alg_mode = FlowAlg.DATA
+
+
+    def load(self, config):
+        # algorithm mode
+        mode = config['algorithm mode']
+        if mode == 'data' or mode == 'data flow':
+            self.set_algorithm_mode('data')
+        elif mode == 'exec' or mode == 'exec flow':
+            self.set_algorithm_mode('exec')
+
+        # build flow
+        self.create_nodes_from_config(config['nodes'])
+        self.connect_nodes_from_config(self.nodes, config['connections'])
+
+
+    def create_nodes_from_config(self, nodes_config: list):
+        """
+        Creates Nodes from nodes_config, previously returned by config_data.
+        """
+
+        nodes = []
+
+        for n_c in nodes_config:
+
+            # find class
+            node_class = None
+            if 'parent node title' in n_c:  # backwards compatibility
+                for nc in self.session.nodes:
+                    if nc.title == n_c['parent node title']:
+                        node_class = nc
+                        break
+            else:
+                for nc in self.session.nodes:
+                    if nc.__name__ == n_c['identifier']:
+                        node_class = nc
+                        break
+
+            node = self.create_node(node_class, n_c)
+            node.append(node)
+            self.add_node(node)
+            self.node_created.emit(Node, info={'scene pos': [n_c['position x'], n_c['position y']]})
+
+        return nodes
+
+
+    def create_node(self, node_class, config=None):
+        node = node_class(self, self.session, config)
+        return node
+
+
+    def add_node(self, node: Node):
+        self.nodes.append(node)
+
+
+    def remove_node(self, node: Node):
+        self.nodes.remove(node)
+        self.node_removed.emit(node)
+
+
+    def check_connection_validity(self, p1: NodeObjPort, p2: NodeObjPort) -> bool:
+        """
+        Checks whether a considered connect action is legal.
+        """
+        valid = True
+
+        if p1.node == p2.node:
+            valid = False
+
+        if p1.io_pos == p2.io_pos or p1.type_ != p2.type_:
+            valid = False
+
+        # used by FlowWidget
+        self.connection_request_valid.emit(valid)
+
+        return valid
+
+
+    def connect_nodes(self, p1: NodeObjPort, p2: NodeObjPort):
+        """
+        Used to connect/disconnect nodes. If the ports are compatible but not yet connected,
+        existing connections that are not allowed with the new connection get removed automatically.
+        """
+
+        if not self.check_connection_validity(p1, p2):
+            raise Exception('Illegal connection request. Use check_connection_validity to check if a request is legal.')
+
+        out = p1
+        inp = p2
+        if out.io_pos == PortObjPos.INPUT:
+            out, inp = inp, out
+
+        for c in out.connections:
+            if c.inp == inp:
+                # DISCONNECT
+                self.remove_connection(c)
+                return
+
+        if inp.type_ == 'data':
+            for c in inp.connections:
+                self.remove_connection(c)
+
+        c = DataConnection(out, inp) if out.type_ == 'data' else ExecConnection(out, inp)
+        self.add_connection(c)
+
+        self.connection_created.emit(c)
+
+
+    def add_connection(self, c: Connection):
+        c.out.connections.append(c)
+        c.inp.connections.append(c)
+        c.out.connected()
+        c.inp.connected()
+        self.connections.append(c)
+
+
+    def remove_connection(self, c: Connection):
+        c.out.connections.remove(c)
+        c.inp.connections.remove(c)
+        c.out.disconnected()
+        c.inp.disconnected()
+        self.connections.remove(c)
+
+
+    def algorithm_mode(self) -> str:
+        """Returns the current algorithm mode of the flow as string"""
+
+        return FlowAlg.stringify(self.alg_mode)
+
+
+    def set_algorithm_mode(self, mode: str):
+        """
+        Sets the algorithm mode of the flow
+        """
+
+        if mode == 'data':
+            self.alg_mode = FlowAlg.DATA
+        elif mode == 'exec':
+            self.alg_mode = FlowAlg.EXEC
+
+        self.algorithm_mode_changed.emit(self.algorithm_mode())
+
+
+    def generate_nodes_config(self, nodes: [Node]):
+        cfg = {}
+        for n in nodes:
+            cfg[n] = n.config_data()
+        self.nodes_config_generated.emit(cfg)
+
+
+    def generate_connections_config(self, connections: [Connection]):
+        cfg = {}
+        for c in connections:
+            cfg[c] = c.config_data()
+        self.connections_config_generated.emit(cfg)
