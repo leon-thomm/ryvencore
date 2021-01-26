@@ -12,8 +12,8 @@ class Script(QObject):
 
     # name_changed = Signal(str)  ->  Script()
     _create_flow_widget_request = Signal(object, tuple)
-    _complete_nodes_config_request = Signal(list)
-    _complete_connections_config_request = Signal(list)
+    # _complete_nodes_config_request = Signal(list)
+    # _complete_connections_config_request = Signal(list)
     _generate_flow_widget_config_request = Signal()
 
     def __init__(self, session, title: str = None, content_data: dict = None, flow_size: list = None, gui_parent=None,
@@ -24,7 +24,7 @@ class Script(QObject):
         self.logger = Logger(self, create_default_logs)
         self.vars_manager = None
         self.title = title
-        self.abstract_flow = AbstractFlow(self.session, self)
+        self.abstract_flow = AbstractFlow(self.session, self, self)
         self.flow_widget = None
 
         self.init_flow_config = content_data['flow'] if content_data is not None else None
@@ -63,46 +63,29 @@ class Script(QObject):
         """Triggered from SessionThread if threading is enabled."""
         self.flow_widget = flow_widget
 
-        self._complete_nodes_config_request.connect(self.flow_widget.complete_nodes_config_data)
-        self._complete_connections_config_request.connect(self.flow_widget.complete_connections_config_data)
+        # self._complete_nodes_config_request.connect(self.flow_widget.complete_nodes_config_data)
+        # self._complete_connections_config_request.connect(self.flow_widget.complete_connections_config_data)
         self._generate_flow_widget_config_request.connect(self.flow_widget.generate_config_data)
 
-        self.abstract_flow.load(config=self.init_flow_config)
+        if self.init_flow_config is not None:
+            self.abstract_flow.load(config=self.init_flow_config)
 
 
     def content_data(self) -> dict:
         """Returns the config data of the script, including variables and flow content"""
 
-        nodes_cfg, connections_cfg = self.abstract_flow.config_data()
-
-        # complete nodes config
-        self.flow_widget._temp_config_data = None
-        self._complete_nodes_config_request.emit(nodes_cfg)
-        while self.flow_widget._temp_config_data is None:
-            time.sleep(0.001)
-        nodes_cfg_complete = self.flow_widget._temp_config_data
-
-        # complete connections config
-        self.flow_widget._temp_config_data = None
-        self._complete_connections_config_request.emit(connections_cfg)
-        while self.flow_widget._temp_config_data is None:
-            time.sleep(0.001)
-        connections_cfg_complete = self.flow_widget._temp_config_data
-
-        # flow widget config
+        # the flow widget currently creates the whole config
         self.flow_widget._temp_config_data = None
         self._generate_flow_widget_config_request.emit()
         while self.flow_widget._temp_config_data is None:
-            time.sleep(0.001)
-        flow_widget_config = self.flow_widget._temp_config_data
+            time.sleep(0.001)  # join threads
+        flow_config, flow_widget_config = self.flow_widget._temp_config_data
 
         script_dict = {
             'name': self.title,
             'variables': self.vars_manager.config_data(),
-            'flow': {
-                'nodes': nodes_cfg_complete,
-                'connections': connections_cfg_complete
-            },
-            'flow widget config': flow_widget_config}
+            'flow': flow_config,
+            'flow widget config': flow_widget_config
+        }
 
         return script_dict

@@ -5,7 +5,7 @@ from PySide2.QtGui import QPainter, QPen, QColor, QKeySequence, QTabletEvent, QI
 from PySide2.QtWidgets import QGraphicsView, QGraphicsScene, QShortcut, QMenu, QGraphicsItem, QUndoStack
 
 from .FlowCommands import MoveComponents_Command, PlaceNode_Command, \
-    PlaceDrawingObject_Command, RemoveComponents_Command, ConnectPorts_Command, Paste_Command
+    PlaceDrawing_Command, RemoveComponents_Command, ConnectPorts_Command, Paste_Command
 from .FlowProxyWidget import FlowProxyWidget
 from .FlowStylusModesWidget import FlowStylusModesWidget
 from .FlowSessionThreadInterface import FlowSessionThreadInterface
@@ -29,6 +29,7 @@ class Flow(QGraphicsView):
     """Manages the GUI of flows"""
 
     nodes_selection_changed = Signal(list)
+    node_placed = Signal(Node)
 
     create_node_request = Signal(object, dict)
     remove_node_request = Signal(Node)
@@ -38,6 +39,7 @@ class Flow(QGraphicsView):
 
     get_nodes_config_request = Signal(list)
     get_connections_config_request = Signal(list)
+    get_flow_config_data_request = Signal()
 
     viewport_update_mode_changed = Signal(str)
 
@@ -87,9 +89,11 @@ class Flow(QGraphicsView):
         # CONNECTIONS TO FLOW
         self.create_node_request.connect(self.flow.create_node)
         self.remove_node_request.connect(self.flow.remove_node)
-        self.check_connection_validity_request.connect(self.flow.check_connection_validity_request)
+        self.node_placed.connect(self.flow.node_placed)
+        self.check_connection_validity_request.connect(self.flow.check_connection_validity)
         self.get_nodes_config_request.connect(self.flow.generate_nodes_config)
         self.get_connections_config_request.connect(self.flow.generate_connections_config)
+        self.get_flow_config_data_request.connect(self.flow.generate_config_data)
 
         # CONNECTIONS FROM FLOW
         self.flow.node_added.connect(self.add_node)
@@ -744,6 +748,11 @@ class Flow(QGraphicsView):
 
 
     # NODES
+    def create_node__cmd(self, node_class):
+        self._undo_stack.push(
+            PlaceNode_Command(self, node_class, self._node_place_pos)
+        )
+
     def add_node(self, node):
 
         # create item
@@ -754,9 +763,19 @@ class Flow(QGraphicsView):
             self._add_node_item(item)
 
         else:  # create new item
-            item = NodeItem(node, params=(self, self.session.design, node.init_config))
+            item_config = node.init_config
+            item = NodeItem(node, params=(self, self.session.design, item_config))
+            node.item = item
             item.initialize()
-            self._add_node_item(item, self._node_place_pos)
+            self.node_placed.emit(node)
+
+            pos = None
+            if item_config is not None and 'pos x' in item_config:
+                pos = QPointF(item_config['pos x'], item_config['pos y'])
+            else:
+                pos = self._node_place_pos
+
+            self._add_node_item(item, pos)
 
         # auto connect
         if self._auto_connection_pin:
@@ -799,7 +818,9 @@ class Flow(QGraphicsView):
             out, inp = self._temp_connection_ports
             if out.io_pos == PortObjPos.INPUT:
                 out, inp = inp, out
-            self._undo_stack.push(ConnectPorts_Command(self, out=out, inp=inp))
+            self._undo_stack.push(
+                ConnectPorts_Command(self, out=out, inp=inp)
+            )
 
     def add_connection(self, c: Connection):
         item: ConnectionItem = None
@@ -886,7 +907,7 @@ class Flow(QGraphicsView):
 
     def _create_and_place_drawing__cmd(self, posF, config=None):
         new_drawing_obj = self.create_drawing(config)
-        place_command = PlaceDrawingObject_Command(self, posF, new_drawing_obj)
+        place_command = PlaceDrawing_Command(self, posF, new_drawing_obj)
         self._undo_stack.push(place_command)
         return new_drawing_obj
 
@@ -1028,8 +1049,8 @@ class Flow(QGraphicsView):
             positions.append({'x': d['pos x'],
                               'y': d['pos y']})
         for n in data['nodes']:
-            positions.append({'x': n['position x'],
-                              'y': n['position y']})
+            positions.append({'x': n['pos x'],
+                              'y': n['pos y']})
 
         offset_for_middle_pos = QPointF(0, 0)
         if len(positions) > 0:
@@ -1069,39 +1090,56 @@ class Flow(QGraphicsView):
 
     # CONFIG
     def generate_config_data(self):
-        data = {# 'algorithm mode': FlowAlg.stringify(self.alg_mode),
-                 'viewport update mode': VPUpdateMode.stringify(self.vp_update_mode),
-                 # 'nodes': self._get_nodes_config_data(self.nodes),
-                 # 'connections': self._get_connections_config_data(self.nodes),
-                 'drawings': self._get_drawings_config_data(self.drawings)}
+
+        self.flow._temp_config_data = None
+        self.get_flow_config_data_request.emit()
+        while self.flow._temp_config_data is None:
+            time.sleep(0.001)
+        flow_config, nodes_cfg, connections_cfg = self.flow._temp_config_data
+
+        final_flow_config = {
+            **flow_config,
+            'nodes': self.complete_nodes_config_data(nodes_cfg),
+            'connections': self.complete_connections_config_data(connections_cfg),
+        }
+        self_config = {
+            'viewport update mode': VPUpdateMode.stringify(self.vp_update_mode),
+            'drawings': self._get_drawings_config_data(self.drawings)
+        }
 
         # self.config_generated.emit(data)
-        self._temp_config_data = data
-
-        # return data
+        self._temp_config_data = final_flow_config, self_config
+        return final_flow_config, self_config
 
     def complete_nodes_config_data(self, nodes_config_dict):
         """
         Adds the item config (scene pos etc.) to the config of the nodes.
         """
 
+        nodes_config_list = []
         for n in list(nodes_config_dict.keys()):
-            nodes_config_dict[n] = {**nodes_config_dict[n], **self.node_items[n].config_data()}
+            cfg = nodes_config_dict[n]
 
-        self._temp_config_data = nodes_config_dict
-        return nodes_config_dict
-        # self.nodes_config_data_completed.emit(nodes_config_dict)
+            item = self.node_items[n]
+            nodes_config_list.append(item.complete_config(cfg))
 
-        # return nodes_config_dict
+
+        self._temp_config_data = nodes_config_list
+        return nodes_config_list
 
     def complete_connections_config_data(self, conn_config_dict):
         """
         Adds the item config to the config of the connections
         """
-        cfg = conn_config_dict
+
         # TODO: add custom config when implementing custom connection items later
-        self._temp_config_data = cfg
-        return cfg
+
+        conns_config_list = []
+        for c in list(conn_config_dict.keys()):
+            conns_config_list.append(conn_config_dict[c])
+
+        self._temp_config_data = conns_config_list
+        return conns_config_list
 
     def _get_nodes_config_data(self, nodes):
         self.get_nodes_config_request.emit(nodes)

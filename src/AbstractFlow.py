@@ -8,16 +8,19 @@ from .RC import FlowAlg, PortObjPos
 
 class AbstractFlow(QObject):
 
-    node_added = Signal(Node, dict=None)
+    node_added = Signal(Node)
     node_removed = Signal(Node)
     connection_added = Signal(Connection)
     connection_removed = Signal(Connection)
     connection_request_valid = Signal(bool)
+    nodes_created_from_config = Signal(list)
+    connections_created_from_config = Signal(list)
+    test_signal = Signal()
 
     algorithm_mode_changed = Signal(int)
 
-    nodes_config_generated = Signal(dict)
-    connections_config_generated = Signal(dict)
+    # nodes_config_generated = Signal(dict)
+    # connections_config_generated = Signal(dict)
 
     def __init__(self, session, script, parent=None):
         super().__init__(parent=parent)
@@ -29,6 +32,8 @@ class AbstractFlow(QObject):
         self._temp_config_data = None
 
         self.alg_mode = FlowAlg.DATA
+
+        # self.node_added.emit(None)
 
 
     def load(self, config):
@@ -71,20 +76,27 @@ class AbstractFlow(QObject):
             # self.add_node(node)
             # self.node_created.emit(Node, n_c)  # info={'scene pos': [n_c['position x'], n_c['position y']]})
 
+        self.nodes_created_from_config.emit(nodes)
         return nodes
 
 
     def create_node(self, node_class, config=None):
-        node = node_class(self, self.session, config)
-        self.add_node(node, config)
+        node = node_class((self, self.session, config))
+        self.add_node(node)
         return node
 
 
-    def add_node(self, node: Node, config=None):
+    def add_node(self, node: Node):
         node.enable_logs()
-        node.place_event()
         self.nodes.append(node)
-        self.node_added.emit(Node, config)
+        # thread = self.thread()
+        self.node_added.emit(node)
+
+
+    def node_placed(self, node: Node):
+        """Triggered after the FlowWidget added the item to the scene."""
+        node.finish_initialization()
+        node.place_event()
 
 
     def remove_node(self, node: Node):
@@ -94,6 +106,8 @@ class AbstractFlow(QObject):
 
 
     def connect_nodes_from_config(self, nodes: [Node], config: list):
+        connections = []
+
         for c in config:
 
             c_parent_node_index = -1
@@ -116,8 +130,13 @@ class AbstractFlow(QObject):
                 parent_node = nodes[c_parent_node_index]
                 connected_node = nodes[c_connected_node_index]
 
-                self.connect_nodes(parent_node.outputs[c_output_port_index],
-                                   connected_node.inputs[c_connected_input_port_index])
+                c = self.connect_nodes(parent_node.outputs[c_output_port_index],
+                                       connected_node.inputs[c_connected_input_port_index])
+                connections.append(c)
+
+        self.connections_created_from_config.emit(connections)
+
+        return connections
 
 
     def check_connection_validity(self, p1: NodeObjPort, p2: NodeObjPort) -> bool:
@@ -162,10 +181,10 @@ class AbstractFlow(QObject):
             for c in inp.connections:
                 self.remove_connection(c)
 
-        c = DataConnection(out, inp) if out.type_ == 'data' else ExecConnection(out, inp)
+        c = DataConnection((out, inp)) if out.type_ == 'data' else ExecConnection((out, inp))
         self.add_connection(c)
 
-        self.connection_added.emit(c)
+        return c
 
 
     def add_connection(self, c: Connection):
@@ -174,6 +193,7 @@ class AbstractFlow(QObject):
         c.out.connected()
         c.inp.connected()
         self.connections.append(c)
+        self.connection_added.emit(c)
 
 
     def remove_connection(self, c: Connection):
@@ -182,17 +202,18 @@ class AbstractFlow(QObject):
         c.out.disconnected()
         c.inp.disconnected()
         self.connections.remove(c)
+        self.connection_removed.emit(c)
 
 
     def algorithm_mode(self) -> str:
-        """Returns the current algorithm mode of the flow as string"""
+        """returns the current algorithm mode of the flow as string"""
 
         return FlowAlg.stringify(self.alg_mode)
 
 
     def set_algorithm_mode(self, mode: str):
         """
-        Sets the algorithm mode of the flow
+        sets the algorithm mode of the flow
         """
 
         if mode == 'data':
@@ -203,20 +224,29 @@ class AbstractFlow(QObject):
         self.algorithm_mode_changed.emit(self.algorithm_mode())
 
 
-    def config_data(self):
-        return self.generate_nodes_config(self.nodes), self.generate_connections_config(self.nodes)# , self.connections)
+    def generate_config_data(self):
+        """
+        generates the abstract config data and saves as well as returns it as tuple (flow config, nodes, connections)
+        """
+
+        cfg = {'algorithm mode': FlowAlg.stringify(self.alg_mode)}, \
+            self.generate_nodes_config(self.nodes), \
+            self.generate_connections_config(self.nodes)
+
+        self._temp_config_data = cfg
+        return cfg
 
 
     def generate_nodes_config(self, nodes: [Node]):
         cfg = {}
         for n in nodes:
-            cfg[n] = n.content_data()
+            cfg[n] = n.config_data()
         self._temp_config_data = cfg
         # self.nodes_config_generated.emit(cfg)
         return cfg
 
 
-    def generate_connections_config(self, nodes: [Node]):  # , connections: [Connection]):
+    def generate_connections_config(self, nodes: [Node]):
         cfg = []
         for i in range(len(nodes)):
             n = nodes[i]
@@ -242,7 +272,7 @@ class AbstractFlow(QObject):
                         'connected input port index': connected_port_index
                     }
 
-                    cfg.append(c_dict)
+                    cfg[c] = c_dict
 
         self._temp_config_data = cfg
         # self.connections_config_generated.emit(cfg)

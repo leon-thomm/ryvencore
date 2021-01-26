@@ -45,9 +45,7 @@ class Node(QObject):
 
         self.init_config = config
 
-        # CAUTION !!!
-        # The item will live in a different thread! No direct method calls after initialization!
-        self.item = NodeItem(self, params)
+        self.item = None  # set by the flow widget
 
     def finish_initialization(self):
 
@@ -157,9 +155,10 @@ class Node(QObject):
 
         self.outputs[index].set_val(val)
 
-    def remove_event(self):
-        """Method to stop all threads in hold of the NI itself."""
+    def place_event(self):
+        pass
 
+    def remove_event(self):
         pass
 
     #                                 _
@@ -250,7 +249,7 @@ class Node(QObject):
 
         # break all connections
         for c in inp.connections:
-            self.flow.connect_ports(c.out, inp)
+            self.flow.connect_nodes(c.out, inp)
 
         self.inputs.remove(inp)
         # self.item.remove_input(inp)
@@ -290,7 +289,7 @@ class Node(QObject):
 
         # break all connections
         for c in out.connections:
-            self.flow.connect_ports(out, c.inp)
+            self.flow.connect_nodes(out, c.inp)
 
         self.outputs.remove(out)
         # self.item.remove_output(out)
@@ -413,19 +412,16 @@ class Node(QObject):
         return self.main_widget() is not None
 
 
-    def config_data(self, item_config):
+    def config_data(self):
         """Returns all metadata of the NI including position, package etc. in a JSON-able dict format.
         Used to rebuild the Flow when loading a project."""
 
         # general attributes
-        node_dict = {'identifier': self.__class__.__name__,
-                     'position x': item_config['pos x'],
-                     'position y': item_config['pos y']}
-        if self.main_widget():
-            node_dict['main widget data'] = self.main_widget().get_data()
-
-        node_dict['state data'] = self.get_data()
-        node_dict['special actions'] = self.get_special_actions_data(self.special_actions)
+        node_dict = {
+            'identifier': self.__class__.__name__,
+            'state data': self.get_data(),
+            'special actions': self.get_special_actions_data(self.special_actions)
+        }
 
         # inputs
         inputs = []

@@ -192,8 +192,8 @@ class PlaceNodeWidget(QWidget):
     def place_node(self, index):
         node_index = index
         node = self.current_nodes[node_index]
-        # self.flow.create_node__cmd(node)
-        self.flow.create_node_request.emit(node, None)
+        self.flow.create_node__cmd(node)
+        # self.flow.create_node_request.emit(node, None)
 
         self.flow.hide_place_node_widget()
 
