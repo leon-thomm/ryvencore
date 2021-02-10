@@ -2,10 +2,10 @@ from PySide2.QtWidgets import QWidget, QPushButton, QHBoxLayout
 
 
 class FlowZoomWidget(QWidget):
-    def __init__(self, flow):
+    def __init__(self, flow_view):
         super(FlowZoomWidget, self).__init__()
 
-        self.flow = flow
+        self.flow_view = flow_view
 
         self.zoom_in_button = QPushButton('+')
         self.zoom_in_button.clicked.connect(self.on_zoom_in_button_clicked)
@@ -54,7 +54,7 @@ class FlowZoomWidget(QWidget):
 
 
     def on_zoom_in_button_clicked(self):
-        self.flow.zoom_in(250)
+        self.flow_view.zoom_in(250)
 
     def on_zoom_out_button_clicked(self):
-        self.flow.zoom_out(250)
+        self.flow_view.zoom_out(250)

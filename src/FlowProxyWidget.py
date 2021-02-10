@@ -2,19 +2,19 @@ from PySide2.QtWidgets import QGraphicsProxyWidget
 
 
 class FlowProxyWidget(QGraphicsProxyWidget):
-    def __init__(self, flow, parent=None):
+    def __init__(self, flow_view, parent=None):
         super(FlowProxyWidget, self).__init__(parent)
 
-        self.flow = flow
+        self.flow_view = flow_view
 
 
     def mousePressEvent(self, arg__1):
         QGraphicsProxyWidget.mousePressEvent(self, arg__1)
         if arg__1.isAccepted():
-            self.flow._ignore_mouse_event = True
+            self.flow_view._ignore_mouse_event = True
 
     def mouseReleaseEvent(self, arg__1):
-        self.flow._ignore_mouse_event = True
+        self.flow_view._ignore_mouse_event = True
         QGraphicsProxyWidget.mouseReleaseEvent(self, arg__1)
 
     def wheelEvent(self, event):
@@ -23,4 +23,4 @@ class FlowProxyWidget(QGraphicsProxyWidget):
     def keyPressEvent(self, arg__1):
         QGraphicsProxyWidget.keyPressEvent(self, arg__1)
         if arg__1.isAccepted():
-            self.flow.ignore_key_event = True
+            self.flow_view.ignore_key_event = True

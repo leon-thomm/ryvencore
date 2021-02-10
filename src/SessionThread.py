@@ -1,6 +1,6 @@
 from PySide2.QtCore import QThread, Signal
 
-from custom_src.ryvencore.src.Flow import Flow
+from custom_src.ryvencore.src.FlowView import FlowView
 
 
 class SessionThread(QThread):
@@ -18,5 +18,5 @@ class SessionThread(QThread):
         # TODO: implement this with actual thread safety!
 
         self.flow_created.connect(script.flow_widget_created)
-        self.flow_created.emit(Flow(*params))
+        self.flow_created.emit(FlowView(*params))
         self.flow_created.disconnect(script.flow_widget_created)

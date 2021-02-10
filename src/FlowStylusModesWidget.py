@@ -4,11 +4,11 @@ from PySide2.QtGui import QColor
 
 
 class FlowStylusModesWidget(QWidget):
-    def __init__(self, flow):
+    def __init__(self, flow_view):
         super(FlowStylusModesWidget, self).__init__()
 
         # GENERAL ATTRIBUTES
-        self.flow = flow
+        self.flow_view = flow_view
         self.pen_color = QColor(255, 255, 0)
 
         # stylus button
@@ -94,10 +94,10 @@ class FlowStylusModesWidget(QWidget):
         elif not self.settings_widget.isHidden():
             self.settings_widget.hide()
         self.adjustSize()
-        self.flow.set_stylus_proxy_pos()
+        self.flow_view.set_stylus_proxy_pos()
 
     def on_edit_button_clicked(self):
-        self.flow.stylus_mode = 'edit'
+        self.flow_view.stylus_mode = 'edit'
         self.pen_style_widget.hide()
 
         # if I don't hide and show the settings_widget manually here, the stylus mode buttons take up the additional
@@ -106,14 +106,14 @@ class FlowStylusModesWidget(QWidget):
         self.settings_widget.show()
 
         self.adjustSize()
-        self.flow.set_stylus_proxy_pos()
+        self.flow_view.set_stylus_proxy_pos()
         # self.flow.setDragMode(QGraphicsView.RubberBandDrag)
 
     def on_comment_button_clicked(self):
-        self.flow.stylus_mode = 'comment'
+        self.flow_view.stylus_mode = 'comment'
         self.pen_style_widget.show()
         self.adjustSize()
-        self.flow.set_stylus_proxy_pos()
+        self.flow_view.set_stylus_proxy_pos()
         # self.flow.setDragMode(QGraphicsView.NoDrag)
 
     def on_choose_color_clicked(self):

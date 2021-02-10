@@ -23,8 +23,8 @@ class ConnectionItem(QGraphicsItem):
         self.recompute()
 
     def boundingRect(self):
-        op = self.out.pin.get_scene_center_pos()
-        ip = self.inp.pin.get_scene_center_pos()
+        op = self.out.item.pin.get_scene_center_pos()
+        ip = self.inp.item.pin.get_scene_center_pos()
         top = min(0, (ip-self.pos()).y())
         left = min(0, (op-self.pos()).x())
         w = abs(ip.x()-op.x())
@@ -33,7 +33,7 @@ class ConnectionItem(QGraphicsItem):
 
 
     def recompute(self):
-        self.setPos(self.out.pin.get_scene_center_pos())
+        self.setPos(self.out.item.pin.get_scene_center_pos())
         self.changed = True
 
 
@@ -51,15 +51,15 @@ class ExecConnectionItem(ConnectionItem):
         c = pen.color()
 
         # highlight hovered connections
-        if self.out.pin.hovered or self.inp.pin.hovered:
+        if self.out.item.pin.hovered or self.inp.item.pin.hovered:
             c = QColor('#c5c5c5')
             pen.setWidth(5)
 
         if self.changed or not self.path:
             self.changed = False
 
-            self.path = self.connection_path(self.out.pin.get_scene_center_pos() - self.scenePos(),
-                                             self.inp.pin.get_scene_center_pos() - self.scenePos())
+            self.path = self.connection_path(self.out.item.pin.get_scene_center_pos() - self.scenePos(),
+                                             self.inp.item.pin.get_scene_center_pos() - self.scenePos())
 
             w = self.path.boundingRect().width()
             h = self.path.boundingRect().height()
@@ -86,7 +86,7 @@ class DataConnectionItem(ConnectionItem):
         c = pen.color()
 
         # highlight hovered connections
-        if self.out.pin.hovered or self.inp.pin.hovered:
+        if self.out.item.pin.hovered or self.inp.item.pin.hovered:
             c = QColor('#c5c5c5')
             pen.setWidth(5)
 
@@ -94,8 +94,8 @@ class DataConnectionItem(ConnectionItem):
         if self.changed or not self.path:
             self.changed = False
 
-            self.path = self.connection_path(self.out.pin.get_scene_center_pos() - self.scenePos(),
-                                             self.inp.pin.get_scene_center_pos() - self.scenePos())
+            self.path = self.connection_path(self.out.item.pin.get_scene_center_pos() - self.scenePos(),
+                                             self.inp.item.pin.get_scene_center_pos() - self.scenePos())
 
             w = self.path.boundingRect().width()
             h = self.path.boundingRect().height()

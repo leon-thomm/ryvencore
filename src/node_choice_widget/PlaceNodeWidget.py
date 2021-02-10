@@ -8,10 +8,10 @@ from ..node_choice_widget.NodeWidget import NodeWidget
 
 class PlaceNodeWidget(QWidget):
     # TODO: rename "node" occurrences accordingly to new "node class" system
-    def __init__(self, flow, nodes):
+    def __init__(self, flow_view, nodes):
         super(PlaceNodeWidget, self).__init__()
 
-        self.flow = flow
+        self.flow_view = flow_view
 
         self.all_nodes = sort_nodes(nodes)  # copy, no ref
 
@@ -60,7 +60,7 @@ class PlaceNodeWidget(QWidget):
 
         self.update_view('')
 
-        self.setStyleSheet(self.flow.session.design.node_choice_stylesheet)
+        self.setStyleSheet(self.flow_view.session.design.node_choice_stylesheet)
 
         self.search_line_edit.setFocus()
 
@@ -71,7 +71,7 @@ class PlaceNodeWidget(QWidget):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
-            self.flow.hide_place_node_widget()
+            self.flow_view.hide_place_node_widget()
 
         elif event.key() == Qt.Key_Down:
             index = self.active_node_widget_index+1 if \
@@ -183,7 +183,7 @@ class PlaceNodeWidget(QWidget):
 
 
     def node_widget_chosen(self):  # gets called when the user clicks on a node widget with the mouse
-        self.flow._ignore_mouse_event = True  # otherwise, it will receive a mouse press event
+        self.flow_view._ignore_mouse_event = True  # otherwise, it will receive a mouse press event
 
         index = int(self.sender().objectName()[self.sender().objectName().rindex('_')+1:])
         self.place_node(index)
@@ -192,10 +192,10 @@ class PlaceNodeWidget(QWidget):
     def place_node(self, index):
         node_index = index
         node = self.current_nodes[node_index]
-        self.flow.create_node__cmd(node)
+        self.flow_view.create_node__cmd(node)
         # self.flow.create_node_request.emit(node, None)
 
-        self.flow.hide_place_node_widget()
+        self.flow_view.hide_place_node_widget()
 
 
 def sort_nodes(nodes):

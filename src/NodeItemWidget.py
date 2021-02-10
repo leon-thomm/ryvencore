@@ -13,13 +13,16 @@ class NodeItemWidget(QGraphicsWidget):
 
         self.node = node
         self.node_item = node_item
-        self.flow = self.node_item.flow
+        self.flow_view = self.node_item.flow_view
 
         self.title_label = TitleLabel(node, node_item)
+        self.main_widget_proxy: FlowProxyWidget = None
+        if self.node_item.main_widget:
+            self.main_widget_proxy = FlowProxyWidget(self.flow_view)
+            self.main_widget_proxy.setWidget(self.node_item.main_widget)
         self.body_layout: QGraphicsLinearLayout = None
         self.inputs_layout: QGraphicsLinearLayout = None
         self.outputs_layout: QGraphicsLinearLayout = None
-        self.main_widget_proxy: FlowProxyWidget = None
         self.setLayout(self.setup_layout())
 
     def setup_layout(self) -> QGraphicsLinearLayout:
@@ -52,21 +55,24 @@ class NodeItemWidget(QGraphicsWidget):
         self.body_layout.addItem(self.outputs_layout)
         self.body_layout.setAlignment(self.outputs_layout, Qt.AlignVCenter | Qt.AlignRight)
 
-        if self.node_item.main_widget:
-            self.main_widget_proxy = FlowProxyWidget(self.flow)
-            self.main_widget_proxy.setWidget(self.node_item.main_widget)
 
-            if self.node.main_widget_pos == 'between ports':
-                self.body_layout.insertItem(1, self.main_widget_proxy)
-                self.body_layout.insertStretch(2)
-                layout.addItem(self.body_layout)
+        # if self.node_item.main_widget:
+        #     self.main_widget_proxy = FlowProxyWidget(self.flow)
+        #     self.main_widget_proxy.setWidget(self.node_item.main_widget)
+        #
+        #     if self.node.main_widget_pos == 'between ports':
+        #         self.body_layout.insertItem(1, self.main_widget_proxy)
+        #         self.body_layout.insertStretch(2)
+        #         layout.addItem(self.body_layout)
+        #
+        #     elif self.node.main_widget_pos == 'below ports':
+        #         layout.addItem(self.body_layout)
+        #         layout.addItem(self.main_widget_proxy)
+        #         layout.setAlignment(self.main_widget_proxy, Qt.AlignHCenter)
+        # else:
+        #     layout.addItem(self.body_layout)
 
-            elif self.node.main_widget_pos == 'below ports':
-                layout.addItem(self.body_layout)
-                layout.addItem(self.main_widget_proxy)
-                layout.setAlignment(self.main_widget_proxy, Qt.AlignHCenter)
-        else:
-            layout.addItem(self.body_layout)
+        layout.addItem(self.body_layout)
 
         return layout
 
@@ -91,6 +97,9 @@ class NodeItemWidget(QGraphicsWidget):
             self.add_input_to_layout(inp.item)
         for out in self.node.outputs:
             self.add_output_to_layout(out.item)
+
+        if self.node_item.main_widget:
+            self.add_main_widget_to_layout()
 
     def update_shape(self):
 
@@ -128,6 +137,15 @@ class NodeItemWidget(QGraphicsWidget):
         if not self.node.style == 'extended':
             self.title_label.setPos(QPointF(-self.title_label.boundingRect().width() / 2,
                                             -self.title_label.boundingRect().height() / 2))
+
+    def add_main_widget_to_layout(self):
+        if self.node.main_widget_pos == 'between ports':
+            self.body_layout.insertItem(1, self.main_widget_proxy)
+            self.body_layout.insertStretch(2)
+
+        elif self.node.main_widget_pos == 'below ports':
+            self.layout().addItem(self.main_widget_proxy)
+            self.layout().setAlignment(self.main_widget_proxy, Qt.AlignHCenter)
 
     def add_input_to_layout(self, inp: InputPortItem):
         if self.inputs_layout.count() > 0:

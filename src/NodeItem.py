@@ -17,8 +17,8 @@ class NodeItem(QGraphicsItem, QObject):
         QObject.__init__(self)
 
         self.node = node
-        flow, design, config = params
-        self.flow = flow
+        flow_view, design, config = params
+        self.flow_view = flow_view
         self.session_design = design
         self.movement_state = None
         self.movement_pos_from = None
@@ -180,7 +180,7 @@ class NodeItem(QGraphicsItem, QObject):
     def update_shape(self):
         self.widget.update_shape()
         self.update_conn_pos()
-        self.flow.viewport().update()
+        self.flow_view.viewport().update()
 
     def update_design(self):
         """Loads the shadow effect option and causes redraw with active theme."""
@@ -243,7 +243,7 @@ class NodeItem(QGraphicsItem, QObject):
         self.painted_once = True
 
     def get_context_menu(self):
-        menu = QMenu(self.flow)
+        menu = QMenu(self.flow_view)
 
         for a in self.get_actions(self.node.get_extended_default_actions(), menu):  # menu needed for 'parent'
             if type(a) == NodeItemAction:
@@ -268,7 +268,7 @@ class NodeItem(QGraphicsItem, QObject):
 
         if change == QGraphicsItem.ItemPositionChange:
             if self.session_design.performance_mode == 'pretty':
-                self.flow.viewport().update()
+                self.flow_view.viewport().update()
             if self.movement_state == MovementEnum.mouse_clicked:
                 self.movement_state = MovementEnum.position_changed
 
@@ -281,12 +281,24 @@ class NodeItem(QGraphicsItem, QObject):
         for o in self.node.outputs:
             for c in o.connections:
                 # c.item.recompute()
-                item = self.flow.connection_items[c]
+
+                if c not in self.flow_view.connection_items:
+                    # it can happen that the connection item hasn't been
+                    # created yet
+                    continue
+
+                item = self.flow_view.connection_items[c]
                 item.recompute()
         for i in self.node.inputs:
             for c in i.connections:
                 # c.item.recompute()
-                item = self.flow.connections_items[c]
+
+                if c not in self.flow_view.connection_items:
+                    # it can happen that the connection item hasn't been
+                    # created yet
+                    continue
+
+                item = self.flow_view.connection_items[c]
                 item.recompute()
 
     def hoverEnterEvent(self, event):
@@ -307,7 +319,7 @@ class NodeItem(QGraphicsItem, QObject):
     def mouseReleaseEvent(self, event):
         """Used for Moving-Commands in Flow - may be replaced later with a nicer determination of a moving action."""
         if self.movement_state == MovementEnum.position_changed:
-            self.flow.selected_components_moved(self.pos() - self.movement_pos_from)
+            self.flow_view.selected_components_moved(self.pos() - self.movement_pos_from)
         self.movement_state = None
         return QGraphicsItem.mouseReleaseEvent(self, event)
 
@@ -325,9 +337,9 @@ class NodeItem(QGraphicsItem, QObject):
                 except KeyError:
                     pass
                 action = NodeItemAction(text=k, method=method, menu=menu, data=data)
-                if self.flow.session.threaded:
-                    action.triggered_with_data__thread.connect(self.flow.thread_interface.trigger_node_action)
-                    action.triggered_without_data__thread.connect(self.flow.thread_interface.trigger_node_action)
+                if self.flow_view.session.threaded:
+                    action.triggered_with_data__thread.connect(self.flow_view.thread_interface.trigger_node_action)
+                    action.triggered_without_data__thread.connect(self.flow_view.thread_interface.trigger_node_action)
                 else:
                     action.triggered_with_data.connect(method)  # see NodeItemAction for explanation
                     action.triggered_without_data.connect(method)  # see NodeItemAction for explanation
@@ -351,7 +363,7 @@ class NodeItem(QGraphicsItem, QObject):
             if inp_item.port.type_ == 'data':
                 if inp_item.widget:
                     input_cfg['has widget'] = True
-                    input_cfg['widget name'] = inp_item.widget_name
+                    input_cfg['widget name'] = inp_item.port.widget_name
                     input_cfg['widget data'] = inp_item.widget.get_data()
                     input_cfg['widget position'] = inp_item.port.widget_pos
                 else:
@@ -361,6 +373,7 @@ class NodeItem(QGraphicsItem, QObject):
         # add item properties
         node_config['pos x'] = self.pos().x()
         node_config['pos y'] = self.pos().y()
-        node_config['main widget data'] = self.main_widget.get_data()
+        if self.main_widget:
+            node_config['main widget data'] = self.main_widget.get_data()
 
         return node_config

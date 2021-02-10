@@ -12,12 +12,12 @@ from .FlowProxyWidget import FlowProxyWidget
 
 class PortItem(QGraphicsGridLayout):
 
-    def __init__(self, node, port, flow):
+    def __init__(self, node, port, flow_view):
         super(PortItem, self).__init__()
 
         self.node = node
         self.port = port
-        self.flow = flow
+        self.flow_view = flow_view
 
         self.port.has_been_connected.connect(self.port_connected)
         self.port.has_been_disconnected.connect(self.port_disconnected)
@@ -105,7 +105,7 @@ class InputPortItem(PortItem):
             else:  # custom input widget
                 self.widget = self.get_input_widget_class(wn)(params)
 
-            self.proxy = FlowProxyWidget(self.flow, parent=self.node.item)
+            self.proxy = FlowProxyWidget(self.flow_view, parent=self.node.item)
             self.proxy.setWidget(self.widget)
 
     def get_input_widget_class(self, widget_name):

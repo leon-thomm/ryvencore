@@ -2,8 +2,8 @@ import time
 
 from PySide2.QtCore import QObject, Signal
 
-from .AbstractFlow import AbstractFlow
 from .Flow import Flow
+from .FlowView import FlowView
 from .logging.Logger import Logger
 from .script_variables.VarsManager import VarsManager
 
@@ -24,11 +24,18 @@ class Script(QObject):
         self.logger = Logger(self, create_default_logs)
         self.vars_manager = None
         self.title = title
-        self.abstract_flow = AbstractFlow(self.session, self, self)
-        self.flow_widget = None
+        self.flow = Flow(self.session, self, self)
+        self.flow_view = None
 
-        self.init_flow_config = content_data['flow'] if content_data is not None else None
-        self.init_flow_widget_config = content_data['flow widget'] if content_data is not None else None
+        self.init_flow_config = None
+        self.init_flow_widget_config = None
+        if content_data:
+            self.init_flow_config = content_data['flow'] if content_data is not None else None
+            if 'flow widget config' in content_data:
+                self.init_flow_widget_config = content_data['flow widget config'] if content_data is not None else None
+            else:  # backwards compatibility
+                self.init_flow_widget_config = content_data['flow']
+
         self.init_flow_size = flow_size
         self.init_flow_gui_parent = gui_parent
 
@@ -42,7 +49,7 @@ class Script(QObject):
                     "When using threading, you must provide a gui_parent."
                 )
 
-        flow_widget_params = (session, self, self.abstract_flow, self.init_flow_widget_config, flow_size, gui_parent)
+        flow_widget_params = (session, self, self.flow, self.init_flow_widget_config, flow_size, gui_parent)
 
         # TITLE, VARS MANAGER
         if content_data:
@@ -55,31 +62,31 @@ class Script(QObject):
         if self.session.threaded:
             self._create_flow_request.emit(self, flow_widget_params)  # leads to flow_created trigger from SessionThread
         else:
-            flow_widget = Flow(*flow_widget_params)
+            flow_widget = FlowView(*flow_widget_params)
             self.flow_widget_created(flow_widget)
 
 
     def flow_widget_created(self, flow_widget):
         """Triggered from SessionThread if threading is enabled."""
-        self.flow_widget = flow_widget
+        self.flow_view = flow_widget
 
         # self._complete_nodes_config_request.connect(self.flow_widget.complete_nodes_config_data)
         # self._complete_connections_config_request.connect(self.flow_widget.complete_connections_config_data)
-        self._generate_flow_widget_config_request.connect(self.flow_widget.generate_config_data)
+        self._generate_flow_widget_config_request.connect(self.flow_view.generate_config_data)
 
         if self.init_flow_config is not None:
-            self.abstract_flow.load(config=self.init_flow_config)
+            self.flow.load(config=self.init_flow_config)
 
 
     def content_data(self) -> dict:
         """Returns the config data of the script, including variables and flow content"""
 
         # the flow widget currently creates the whole config
-        self.flow_widget._temp_config_data = None
+        self.flow_view._temp_config_data = None
         self._generate_flow_widget_config_request.emit()
-        while self.flow_widget._temp_config_data is None:
+        while self.flow_view._temp_config_data is None:
             time.sleep(0.001)  # join threads
-        flow_config, flow_widget_config = self.flow_widget._temp_config_data
+        flow_config, flow_widget_config = self.flow_view._temp_config_data
 
         script_dict = {
             'name': self.title,

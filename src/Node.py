@@ -39,7 +39,7 @@ class Node(QObject):
         self.session = self.script.session
         self.inputs: [NodeInput] = []
         self.outputs: [NodeOutput] = []
-        self.default_actions = default_node_actions
+        self.default_actions = self.init_default_actions()
         self.special_actions = {}
         self.logs = []
 
@@ -64,9 +64,12 @@ class Node(QObject):
 
         # self.item.initialized()
 
-        self.initialized()
+        self._initialized()
 
         self.update()
+
+    def init_default_actions(self) -> dict:
+        return {'update shape': {'method': self.update_shape}}
 
     def setup_ports(self, inputs_config=None, outputs_config=None):
 
@@ -82,7 +85,7 @@ class Node(QObject):
                 self.create_output(out.type_, out.label)
         else:  # when loading saved NIs, the init_inputs and init_outputs are irrelevant
             for inp in inputs_config:
-                has_widget = inp['has widget']
+                has_widget = inp['has widget'] if inp['type'] == 'data' else False
 
                 self.create_input(type_=inp['type'], label=inp['label'],
                                   widget_name=inp['widget name'] if has_widget else None,
@@ -146,13 +149,6 @@ class Node(QObject):
         """Sets the value of a data output.
         self.data_outputs_updated() has to be called manually after all values are set."""
 
-        # TODO: implement this using a signal that gets connected to a slot in the flow
-        #  by the FlowSessionThreadInterface
-        # if not self.session.threaded:
-        #     if self.flow.vp_update_mode == FlowVPUpdateMode.ASYNC and not self.item.initializing:  # asynchronous viewport updates
-        #         vp = self.flow.viewport()
-        #         vp.repaint(self.flow.mapFromScene(self.item.sceneBoundingRect()))
-
         self.outputs[index].set_val(val)
 
     def place_event(self):
@@ -170,7 +166,8 @@ class Node(QObject):
     #
     # all algorithm-unrelated api methods:
 
-    def initialized(self):
+    def _initialized(self):
+        """Called after the node has been initialized and the item has been created."""
         pass
 
     #   LOGGING
@@ -438,11 +435,3 @@ class Node(QObject):
         node_dict['outputs'] = outputs
 
         return node_dict
-
-
-
-
-
-
-default_node_actions = {  # 'remove': {'method': Node.action_remove},
-                   'update shape': {'method': Node.update_shape}}
