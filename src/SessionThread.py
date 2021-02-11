@@ -1,6 +1,6 @@
-from PySide2.QtCore import QThread, Signal
+from PySide2.QtCore import QThread, Signal, SIGNAL
 
-from custom_src.ryvencore.src.FlowView import FlowView
+from .FlowView import FlowView
 
 
 class SessionThread(QThread):
@@ -9,14 +9,21 @@ class SessionThread(QThread):
     This OBJECT is supposed to live in the main (GUI) thread. It's the interface for ryvencore to create GUI.
     """
 
-    flow_created = Signal(object)
+    flow_view_created = Signal(object)
 
     # def __init__(self, parent=None):
     #     super().__init__(parent=parent)
 
-    def _script_request__create_flow(self, script, params):
+    def script_request__create_flow_view(self, script, params):
+        print('creating flow view in SessionThread')
+        print(self.receivers(SIGNAL("flow_view_created(object)")))
+
         # TODO: implement this with actual thread safety!
 
-        self.flow_created.connect(script.flow_widget_created)
-        self.flow_created.emit(FlowView(*params))
-        self.flow_created.disconnect(script.flow_widget_created)
+        # self.flow_view_created.connect(script.flow_view_created)
+        view = FlowView(*params)
+        print('new view:', view)
+        print('emitting flow_view created')
+        self.flow_view_created.emit(view)
+        print('finished in SessionThread')
+        # self.flow_view_created.disconnect(script.flow_view_created)

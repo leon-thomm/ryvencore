@@ -1,3 +1,5 @@
+import time
+
 from PySide2.QtCore import QObject, Signal
 from PySide2.QtGui import QFontDatabase
 
@@ -86,11 +88,25 @@ class Session(QObject):
     def create_script(self, title: str, flow_size: list = None, create_default_logs=True, gui_parent=None) -> Script:
         """Creates and returns a new script"""
 
+        print('a')
+
         script = Script(session=self, title=title, flow_size=flow_size, create_default_logs=create_default_logs,
                         gui_parent=gui_parent)
 
+        print('b')
+
+        # joining threads: wait for flow view to get created
+        while script.flow_view is None:
+            print(script.flow_view)
+            time.sleep(0.001)
+
+        print('c')
+
         self.scripts.append(script)
         self.new_script_created.emit(script)
+
+        print('d')
+
         return script
 
 
