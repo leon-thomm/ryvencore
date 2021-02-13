@@ -1,7 +1,7 @@
 from PySide2.QtCore import QPointF, QRectF, Qt
 from PySide2.QtWidgets import QGraphicsWidget, QGraphicsLinearLayout
 
-from .FlowProxyWidget import FlowProxyWidget
+from .FlowViewProxyWidget import FlowViewProxyWidget
 # from .Node import Node
 from .NodeItem_TitleLabel import TitleLabel
 from .PortItem import InputPortItem, OutputPortItem
@@ -16,9 +16,9 @@ class NodeItemWidget(QGraphicsWidget):
         self.flow_view = self.node_item.flow_view
 
         self.title_label = TitleLabel(node, node_item)
-        self.main_widget_proxy: FlowProxyWidget = None
+        self.main_widget_proxy: FlowViewProxyWidget = None
         if self.node_item.main_widget:
-            self.main_widget_proxy = FlowProxyWidget(self.flow_view)
+            self.main_widget_proxy = FlowViewProxyWidget(self.flow_view)
             self.main_widget_proxy.setWidget(self.node_item.main_widget)
         self.body_layout: QGraphicsLinearLayout = None
         self.inputs_layout: QGraphicsLinearLayout = None

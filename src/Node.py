@@ -62,8 +62,6 @@ class Node(QObject):
         else:
             self.setup_ports()
 
-        # self.item.initialized()
-
         self._initialized()
 
         self.update()

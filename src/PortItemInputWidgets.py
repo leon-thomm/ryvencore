@@ -1,9 +1,8 @@
+from PySide2.QtCore import Signal
 from PySide2.QtGui import QFontMetrics
 from PySide2.QtWidgets import QSpinBox, QLineEdit
 
 
-# TODO: the relative import leads to an error when overriding src code in Ryven...
-#  which is really strange and hopefully resolved when using ryvencore as package
 from .WidgetBaseClasses import IWB
 from .retain import M
 # from custom_src.ryvencore.src.WidgetBaseClasses import IWB
@@ -11,9 +10,14 @@ from .retain import M
 
 
 class StdSpinBoxInputWidget(QSpinBox, IWB):
+
+    trigger_update = Signal(int)
+
     def __init__(self, params):
         QSpinBox.__init__(self)
         IWB.__init__(self, params)
+
+        self.trigger_update.connect(self.node.update)
 
         self.port_local_pos = None
 
@@ -29,7 +33,8 @@ class StdSpinBoxInputWidget(QSpinBox, IWB):
         self.editingFinished.connect(self.editing_finished)
 
     def editing_finished(self):
-        self.node.update(self.node.inputs.index(self.input))
+        # self.node.update(self.node.inputs.index(self.input))
+        self.trigger_update.emit(self.node.inputs.index(self.input))
 
     def remove_event(self):
         pass
@@ -45,9 +50,14 @@ class StdSpinBoxInputWidget(QSpinBox, IWB):
 
 
 class StdLineEditInputWidget(QLineEdit, IWB):
+
+    trigger_update = Signal(int)
+
     def __init__(self, params, size='medium', resize=False):
         IWB.__init__(self, params)
         QLineEdit.__init__(self)
+
+        self.trigger_update.connect(self.node.update)
 
         self.port_local_pos = None
         self.resizing = resize
@@ -95,7 +105,8 @@ class StdLineEditInputWidget(QLineEdit, IWB):
             # self.parent_node_instance.rebuild_ui()  # see rebuild_ui() for explanation
 
     def editing_finished(self):
-        self.node.update(self.node.inputs.index(self.input))
+        # self.node.update(self.node.inputs.index(self.input))
+        self.trigger_update.emit(self.node.inputs.index(self.input))
 
     def remove_event(self):
         pass

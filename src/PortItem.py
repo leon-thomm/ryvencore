@@ -7,7 +7,7 @@ from .PortItemInputWidgets import StdSpinBoxInputWidget, StdLineEditInputWidget_
     StdLineEditInputWidget
 from .global_tools.strings import get_longest_line, shorten
 
-from .FlowProxyWidget import FlowProxyWidget
+from .FlowViewProxyWidget import FlowViewProxyWidget
 
 
 class PortItem(QGraphicsGridLayout):
@@ -42,7 +42,7 @@ class InputPortItem(PortItem):
         super().__init__(node, port, node.flow)
 
         self.widget = None
-        self.proxy: FlowProxyWidget = None
+        self.proxy: FlowViewProxyWidget = None
 
         if self.port.widget_config_data is not None:
             self.create_widget()
@@ -105,7 +105,7 @@ class InputPortItem(PortItem):
             else:  # custom input widget
                 self.widget = self.get_input_widget_class(wn)(params)
 
-            self.proxy = FlowProxyWidget(self.flow_view, parent=self.node.item)
+            self.proxy = FlowViewProxyWidget(self.flow_view, parent=self.node.item)
             self.proxy.setWidget(self.widget)
 
     def get_input_widget_class(self, widget_name):
