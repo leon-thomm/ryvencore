@@ -84,12 +84,12 @@ class NodeItem(QGraphicsItem, QObject):
                     print('Exception while setting data in', self.title, 'Node\'s main widget:', e,
                           ' (was this intended?)')
 
-        # # catch up on ports
-        # for i in self.node.inputs:
-        #     self.add_new_input(i, -1)
-        #
-        # for o in self.node.outputs:
-        #     self.add_new_output(o, -1)
+        # catch up on ports
+        for i in self.node.inputs:
+            self.add_new_input(i, -1)
+
+        for o in self.node.outputs:
+            self.add_new_output(o, -1)
 
 
         self.initializing = False

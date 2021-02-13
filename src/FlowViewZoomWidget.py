@@ -7,6 +7,8 @@ class FlowViewZoomWidget(QWidget):
 
         self.flow_view = flow_view
 
+        self.setObjectName('FlowViewZoomWidget')
+
         self.zoom_in_button = QPushButton('+')
         self.zoom_in_button.clicked.connect(self.on_zoom_in_button_clicked)
         self.zoom_out_button = QPushButton('-')
@@ -17,6 +19,12 @@ class FlowViewZoomWidget(QWidget):
         main_horizontal_layout.addWidget(self.zoom_out_button)
         main_horizontal_layout.addWidget(self.zoom_in_button)
         self.setLayout(main_horizontal_layout)
+
+        self.setStyleSheet('''
+QWidget#FlowViewZoomWidget {
+    background: transparent; 
+}
+        ''')
 
 
     def on_zoom_in_button_clicked(self):

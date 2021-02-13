@@ -1,3 +1,5 @@
+import os
+
 from PySide2.QtCore import Signal
 from PySide2.QtGui import QFontMetrics
 from PySide2.QtWidgets import QSpinBox, QLineEdit
@@ -23,12 +25,12 @@ class StdSpinBoxInputWidget(QSpinBox, IWB):
 
         self.setFixedWidth(50)
         self.setFixedHeight(25)
-        self.setStyleSheet("""
-            QSpinBox {
-                color: white;
-                background: transparent;
-            }
-        """)
+        # self.setStyleSheet("""
+        #     QSpinBox {
+        #         color: white;
+        #         background: transparent;
+        #     }
+        # """)
         self.setMaximum(1000000)
         self.editingFinished.connect(self.editing_finished)
 
@@ -71,23 +73,32 @@ class StdLineEditInputWidget(QLineEdit, IWB):
 
         self.setFixedWidth(self.base_width)
 
-        self.setFixedHeight(25)
+        # self.setFixedHeight(25)
         self.setPlaceholderText('')
-        self.setStyleSheet("""
-            QLineEdit{
-                border-radius: 10px;
-                background-color: transparent;
-                border: 1px solid #404040;
-                color: #aaaaaa;
-                padding: 3px;
-            }
-            QLineEdit:hover {
-                background-color: rgba(59, 156, 217, 150);
-            }
-            QLineEdit:disabled{
-                color: #777777;
-            }
-        """)
+
+        # / *border - color: '''+self.node.color+'''; * /
+
+        self.setStyleSheet('''
+QLineEdit{{ 
+    padding: 1px 1px ;
+}}
+        '''.format(**os.environ))
+
+        # self.setStyleSheet("""
+        #     QLineEdit{
+        #         border-radius: 10px;
+        #         background-color: transparent;
+        #         border: 1px solid #404040;
+        #         color: #aaaaaa;
+        #         padding: 3px;
+        #     }
+        #     QLineEdit:hover {
+        #         background-color: rgba(59, 156, 217, 150);
+        #     }
+        #     QLineEdit:disabled{
+        #         color: #777777;
+        #     }
+        # """)
         f = self.font()
         f.setPointSize(10)
         self.setFont(f)
@@ -132,18 +143,18 @@ class StdLineEditInputWidget_NoBorder(StdLineEditInputWidget):
     def __init__(self, params, size='medium', resize=False):
         StdLineEditInputWidget.__init__(self, params, size, resize)
 
-        self.setStyleSheet("""
-            QLineEdit{
-                border: none;
-                border-radius: 5px;
-                background-color: transparent;
-                color: #aaaaaa;
-                padding: 3px;
-            }
-            QLineEdit:hover {
-                background-color: rgba(59, 156, 217, 150);
-            }
-            QLineEdit:disabled{
-                color: #777777;
-            }
-        """)
+        # self.setStyleSheet("""
+        #     QLineEdit{
+        #         border: none;
+        #         border-radius: 5px;
+        #         background-color: transparent;
+        #         color: #aaaaaa;
+        #         padding: 3px;
+        #     }
+        #     QLineEdit:hover {
+        #         background-color: rgba(59, 156, 217, 150);
+        #     }
+        #     QLineEdit:disabled{
+        #         color: #777777;
+        #     }
+        # """)

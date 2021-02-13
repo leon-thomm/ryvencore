@@ -32,6 +32,7 @@ class Flow(QObject):
         self.script = script
         self.nodes: [Node] = []
         self.nodes_initialized = {}
+        self._num_queued_building_nodes = 0
         self.connections: [Connection] = []
         self._temp_config_data = None
         self._build_connections_queue = None
@@ -48,8 +49,8 @@ class Flow(QObject):
             self.set_algorithm_mode('exec')
 
         # build flow
-        self.create_nodes_from_config(config['nodes'])
-        self._build_connections_queue = (self.nodes, config['connections'])
+        new_nodes = self.create_nodes_from_config(config['nodes'])
+        self.connect_nodes_from_config(new_nodes, config['connections'])
 
 
     def create_nodes_from_config(self, nodes_config: list):
@@ -88,22 +89,20 @@ class Flow(QObject):
 
 
     def add_node(self, node: Node):
-        node.enable_logs()
+        if not node.initialized:
+            node.finish_initialization()
+
         self.nodes.append(node)
-        self.nodes_initialized[node] = False
+
         self.node_added.emit(node)
 
 
     def node_placed(self, node: Node):
         """Triggered after the FlowWidget added the item to the scene."""
-        node.finish_initialization()
-        node.place_event()
-        self.nodes_initialized[node] = True
 
-        # we may be waiting for nodes to be initialized to start connecting from config
-        if self._build_connections_queue and False not in self.nodes_initialized.values():
-            self.connect_nodes_from_config(*self._build_connections_queue)
-            self._build_connections_queue = None
+        node.load_config_data()
+        node.place_event()
+        node.update()
 
 
     def remove_node(self, node: Node):

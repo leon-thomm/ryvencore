@@ -852,6 +852,7 @@ class FlowView(QGraphicsView):
             )
 
     def add_connection(self, c: Connection):
+
         item: ConnectionItem = None
         if c in self.connection_items__cache.keys():
             item = self.connection_items__cache[c]

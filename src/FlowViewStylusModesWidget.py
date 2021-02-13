@@ -7,6 +7,8 @@ class FlowViewStylusModesWidget(QWidget):
     def __init__(self, flow_view):
         super(FlowViewStylusModesWidget, self).__init__()
 
+        self.setObjectName('FlowViewStylusModesWidget')
+
         # GENERAL ATTRIBUTES
         self.flow_view = flow_view
         self.pen_color = QColor(255, 255, 0)
@@ -40,6 +42,12 @@ class FlowViewStylusModesWidget(QWidget):
         main_horizontal_layout.addWidget(self.stylus_button)
 
         self.setLayout(main_horizontal_layout)
+
+        self.setStyleSheet('''
+        QWidget#FlowViewStylusModesWidget {
+            background: transparent; 
+        }
+                ''')
 
         self.hide_stylus_buttons()
         self.hide_pen_style_widgets()
