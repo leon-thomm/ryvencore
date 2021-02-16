@@ -1,9 +1,13 @@
-from PySide2.QtCore import QObject, Signal
+import time
+
+from PySide2.QtCore import QObject, Signal, QThread
 from PySide2.QtGui import QFontDatabase
+from PySide2.QtWidgets import QWidget
 
 from .Connection import DataConnection, ExecConnection
 from .GlobalAttributes import Location
 from .Script import Script
+from .SessionThreadingBridge import SessionThreadingBridge
 from .global_tools.Debugger import Debugger
 from .Design import Design
 
@@ -19,45 +23,51 @@ class Session(QObject):
 
     def __init__(
             self,
-            flow_performance_mode: str = 'pretty',
-            animations_enabled: bool = True,
-            flow_theme_name: str = 'ueli',
-            # debug_messages_enabled: bool = False,
-            threading_enabled: bool = True,
-            flow_data_conn_class=DataConnection,
-            flow_exec_conn_class=ExecConnection,
-            project: dict = None
+            threaded: bool = False,
+            gui_parent: QWidget = None,
+            gui_thread: QThread = None,
+            flow_theme_name=None,
+            performance_mode=None,
+            parent: QObject = None
     ):
-        super().__init__()
+        super().__init__(parent=parent)
 
         self._register_fonts()
 
         self.scripts: [Script] = []
         self.nodes = []  # list of node CLASSES
-        self.threading_enabled = threading_enabled
+        self.threaded = threaded
+        self.threading_bridge = None
+        self.gui_parent = gui_parent
+        if self.threaded:
+            self.threading_bridge = SessionThreadingBridge()
+            self.threading_bridge.moveToThread(gui_parent.thread())
 
-        # connections
-        self.flow_data_conn_class = flow_data_conn_class
-        self.flow_exec_conn_class = flow_exec_conn_class
+        # if threaded:
+        #     self.custom_thread = self.thread()
+        #     self.gui_thread = self.thread().thread()
 
-        self.design = Design(
-            performance_mode=flow_performance_mode,
-            animations_enabled=animations_enabled
-        )
+        # # connections
+        # self.flow_data_conn_class = flow_data_conn_class
+        # self.flow_exec_conn_class = flow_exec_conn_class
 
-        self.design.set_flow_theme(name=flow_theme_name)
-        self.design.set_flow_theme(name=flow_theme_name)  # temporary
-        #   the double call is just a temporary fix for an issue I will address in a future release.
-        #   Problem: because the signal emitted when setting a flow theme is directly connected to the according slots
-        #   in NodeItem as well as NodeItem_TitleLabel, the NodeItem's slot (which starts an animation which
-        #   uses the title label's current and theme dependent color) could get called before the title
-        #   label's slot has been called to reinitialize this color. This results in wrong color end points for the
-        #   title label when activating animations.
-        #   This is pretty nasty since I cannot think of a nice fix for this issue other that not letting the slot
-        #   methods be called directly from the emitted signal but instead through a defined procedure like before.
+        self.design = Design()
+        if flow_theme_name:
+            self.design.set_flow_theme(name=flow_theme_name)
+        if performance_mode:
+            self.design.set_performance_mode(performance_mode)
 
-        if project:
-            self.load(project)
+        # if flow_theme_name:
+        #     self.design.set_flow_theme(name=flow_theme_name)
+        #     self.design.set_flow_theme(name=flow_theme_name)  # temporary
+        #     # the double call is just a temporary fix for an issue I will address in a future release.
+        #     # Problem: because the signal emitted when setting a flow theme is directly connected to the according slots
+        #     # in NodeItem as well as NodeItem_TitleLabel, the NodeItem's slot (which starts an animation which
+        #     # uses the title label's current and theme dependent color) could get called before the title
+        #     # label's slot has been called to reinitialize this color. This results in wrong color end points for the
+        #     # title label when activating animations.
+        #     # This is pretty nasty since I cannot think of a nice fix for this issue other that not letting the slot
+        #     # methods be called directly from the emitted signal but instead through a defined procedure like before.
 
 
     def _register_fonts(self):
@@ -79,20 +89,21 @@ class Session(QObject):
         self.nodes.append(node_class)
 
 
-    def create_script(self, title: str, flow_size: list = None, flow_parent=None, create_default_logs=True) -> Script:
+    def create_script(self, title: str, flow_size: list = None, create_default_logs=True) -> Script:
         """Creates and returns a new script"""
 
-        script = Script(session=self, title=title, flow_size=flow_size, flow_parent=flow_parent,
-                        create_default_logs=create_default_logs)
+        script = Script(session=self, title=title, flow_size=flow_size, create_default_logs=create_default_logs)
+
         self.scripts.append(script)
         self.new_script_created.emit(script)
+
         return script
 
 
     def _load_script(self, config: dict):
         """Loads a script from a project dict"""
 
-        script = Script(session=self, config=config)
+        script = Script(session=self, content_data=config)
         self.scripts.append(script)
         self.new_script_created.emit(script)
 
@@ -134,13 +145,16 @@ class Session(QObject):
             self._load_script(config=s)
 
 
-    def serialize(self) -> list:
+    def serialize(self) -> dict:
         """Returns a list with 'config data' of all scripts for saving the project"""
 
-        scripts_data = []
+        data = {}
+        scripts_list = []
         for script in self.scripts:
-            scripts_data.append(script.config_data())
-        return scripts_data
+            scripts_list.append(script.serialize())
+        data['scripts'] = scripts_list
+
+        return data
 
 
     def all_nodes(self):

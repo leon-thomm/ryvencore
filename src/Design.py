@@ -1,49 +1,10 @@
-from PySide2.QtCore import QObject, Signal, Qt
-from PySide2.QtGui import QPen, QColor
+import json
 
-from .NodeItemPainter import NIPainter_DarkStd, NIPainter_DarkTron, NIPainter_Ghostly, NIPainter_Blender, \
-    NIPainter_Easy, NIPainter_Peasy, NIPainter_Ueli
+from PySide2.QtCore import QObject, Signal
 
-
-class FlowTheme:
-    """ **This FlowTheme system will be changed**
-
-    A FlowTheme holds all design information for the flow. And it defines what
-    themes exist. Notice, that all drawing of NodeItems and PortInstances
-    is done by NIPainter classes, while for each FlowTheme there exists exactly
-    one NIPainter class.
-
-    HOW TO CREATE NEW THEMES
-    - Create a new subclass of NIPainter in NodeItemPainter.py, and implement
-    all methods that are passed in NIPainter (take a look at the other already
-    existing NIPainter subclasses there for reference)
-    - Add a new theme entry to the flow_themes array of DesignContainer and
-    reference the new NIPainter subclass for your new theme you just made"""
-
-    def __init__(self, name,
-                 flow_conn_exec_color, flow_conn_exec_width, flow_conn_exec_pen_style,
-                 flow_conn_data_color, flow_conn_data_width, flow_conn_data_pen_style,
-                 node_item_painter,
-                 flow_background_color=QColor('#333333')):
-        self.name = name
-        self.node_item_painter = node_item_painter
-
-        self.flow_conn_exec_pen = QPen(flow_conn_exec_color, flow_conn_exec_width)
-        self.flow_conn_exec_pen.setStyle(flow_conn_exec_pen_style)
-        self.flow_conn_exec_pen.setCapStyle(Qt.RoundCap)
-
-        self.flow_conn_data_pen = QPen(flow_conn_data_color, flow_conn_data_width)
-        self.flow_conn_data_pen.setStyle(flow_conn_data_pen_style)
-        self.flow_conn_data_pen.setCapStyle(Qt.RoundCap)
-
-        self.flow_background_color = flow_background_color
-
-    def get_flow_conn_pen_inst(self, connection_type):
-        if connection_type == 'data':
-            return self.flow_conn_data_pen.__copy__()
-        else:
-            return self.flow_conn_exec_pen.__copy__()
-
+from .FlowTheme import FlowTheme_Toy, FlowTheme_DarkTron, FlowTheme_Ghost, FlowTheme_Blender, \
+    FlowTheme_Simple, FlowTheme_Ueli, FlowTheme_Samuel1, FlowTheme, FlowTheme_Samuel1_Light, \
+    FlowTheme_Samuel2, FlowTheme_Samuel2_Light
 
 
 class Design(QObject):
@@ -52,80 +13,58 @@ class Design(QObject):
 
     flow_theme_changed = Signal(str)
 
-    def __init__(self, performance_mode: str = 'pretty', animations_enabled: bool = True):
+    def __init__(self):
         super().__init__()
 
+        self.flow_themes = []
+        self.flow_theme: FlowTheme = None
+        self.performance_mode: str = None
+        self.node_item_shadows_enabled: bool = None
+        self.animations_enabled: bool = None
+        self.node_selection_stylesheet = default_node_selection_stylesheet
+
+        # load standard default values
+        self.register_flow_themes()
+        self._default_flow_theme = self.flow_themes[-1]
+        self.set_performance_mode('pretty')
+        self.set_flow_theme(self._default_flow_theme)
+
+
+    def register_flow_themes(self):
         self.flow_themes = [
-            FlowTheme('dark std',
-                      QColor(188, 187, 242),
-                      5,
-                      Qt.SolidLine,
-                      QColor(188, 187, 242),
-                      5,
-                      Qt.DashLine,
-                      NIPainter_DarkStd),
-            FlowTheme('dark tron',
-                      QColor(0, 120, 180),
-                      4,
-                      Qt.SolidLine,
-                      QColor(0, 120, 180),
-                      4,
-                      Qt.DashLine,
-                      NIPainter_DarkTron),
-            FlowTheme('ghostly',
-                      QColor(0, 17, 25),
-                      2,
-                      Qt.SolidLine,
-                      QColor(0, 17, 25),
-                      2,
-                      Qt.DashLine,
-                      NIPainter_Ghostly),
-            FlowTheme('blender',
-                      QColor(0, 17, 25),
-                      2,
-                      Qt.SolidLine,
-                      QColor(0, 17, 25),
-                      2,
-                      Qt.DashLine,
-                      NIPainter_Blender),
-            FlowTheme('easy',
-                      QColor('#989c9f'),
-                      2,
-                      Qt.SolidLine,
-                      QColor('#989c9f'),
-                      2,
-                      Qt.DashLine,
-                      NIPainter_Easy,
-                      QColor('#212429')),
-            FlowTheme('peasy',
-                      QColor('#989c9f'),
-                      2,
-                      Qt.SolidLine,
-                      QColor('#989c9f'),
-                      2,
-                      Qt.DashLine,
-                      NIPainter_Peasy,
-                      QColor('#3f4044')),
-            FlowTheme('ueli',
-                      QColor('#989c9f'),
-                      2,
-                      Qt.SolidLine,
-                      QColor('#989c9f'),
-                      2,
-                      Qt.DashLine,
-                      NIPainter_Ueli,
-                      QColor('#3f4044'))
+            FlowTheme_Toy(),
+            FlowTheme_DarkTron(),
+            FlowTheme_Ghost(),
+            FlowTheme_Blender(),
+            FlowTheme_Simple(),
+            FlowTheme_Ueli(),
+            FlowTheme_Samuel1(),
+            FlowTheme_Samuel2(),
+            FlowTheme_Samuel1_Light(),
+            FlowTheme_Samuel2_Light()
         ]
 
-        self._default_flow_theme = self.flow_themes[-1]
-        self.flow_theme = None
+    def load_from_config(self, filepath: str):
+        """Loads design configs from a config json file"""
 
-        self.performance_mode = ''
-        self.node_item_shadows_enabled = False
-        self.set_performance_mode(performance_mode)
+        f = open(filepath, 'r')
+        data = f.read()
+        f.close()
 
-        self.animations_enabled = animations_enabled
-        self.node_choice_stylesheet = default_node_choice_stylesheet
+        IMPORT_DATA = json.loads(data)
+
+        if 'flow themes' in IMPORT_DATA:
+            # load flow theme configs
+            FTID = IMPORT_DATA['flow themes']
+            for flow_theme in self.flow_themes:
+                flow_theme.load(FTID)
+
+        if 'init flow theme' in IMPORT_DATA:
+            self._default_flow_theme = self.flow_theme_by_name(IMPORT_DATA.get('init flow theme'))
+            self.set_flow_theme(self._default_flow_theme)
+
+        if 'init performance mode' in IMPORT_DATA:
+            self.set_performance_mode(IMPORT_DATA['init performance mode'])
 
     def available_flow_themes(self) -> dict:
         return {theme.name: theme for theme in self.flow_themes}
@@ -140,10 +79,10 @@ class Design(QObject):
         """You can either specify the theme by name, or directly provide a FlowTheme object."""
         if theme:
             self.flow_theme = theme
-        elif name != '':
+        elif name and name != '':
             self.flow_theme = self.flow_theme_by_name(name)
         else:
-            self.flow_theme = self._default_flow_theme
+            return
 
         self.flow_theme_changed.emit(self.flow_theme.name)
 
@@ -165,13 +104,13 @@ class Design(QObject):
         self.node_item_shadows_enabled = b
 
     def set_node_choice_stylesheet(self, s: str):
-        self.node_choice_stylesheet = s
+        self.node_selection_stylesheet = s
 
 
 
 
 
-default_node_choice_stylesheet = '''
+default_node_selection_stylesheet = '''
 QWidget {
 	background-color: #2b2b2b;
 	border-radius: 3px;

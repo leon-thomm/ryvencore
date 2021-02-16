@@ -1,93 +1,167 @@
+from PySide2.QtCore import Signal, QObject
 from PySide2.QtWidgets import QUndoCommand
 
+from .DrawingObject import DrawingObject
+from .Node import Node
+from .Connection import Connection
 from .NodeItem import NodeItem
+from .NodeObjPort import NodeObjPort
 
 
-class MoveComponents_Command(QUndoCommand):
-    def __init__(self, flow, items_list, p_from, p_to):
-        super(MoveComponents_Command, self).__init__()
+class FlowUndoCommand(QUndoCommand, QObject):
+    """
+    The main difference to normal QUndoCommands is the activation feature. This allows the flow widget to add the
+    undo command to the undo stack before redo() is called. This is important since some of these commands can cause
+    other commands to be added while they are performing redo()
+    """
 
-        self.flow = flow
+    def __init__(self, flow_view):
+
+        self.flow_view = flow_view
+        self.flow = flow_view.flow
+        self._activated = False
+
+        QUndoCommand.__init__(self)
+        QObject.__init__(self)
+
+    def activate(self):
+        self._activated = True
+        self.redo()
+
+    def redo(self) -> None:
+        if not self._activated:
+            return
+        else:
+            self.redo_()
+
+    def undo(self) -> None:
+        self.undo_()
+
+    def redo_(self):
+        """subclassed"""
+        pass
+
+    def undo_(self):
+        """subclassed"""
+        pass
+
+
+class MoveComponents_Command(FlowUndoCommand):
+    def __init__(self, flow_view, items_list, p_from, p_to):
+        super(MoveComponents_Command, self).__init__(flow_view)
+
         self.items_list = items_list
         self.p_from = p_from
         self.p_to = p_to
         self.last_item_group_pos = p_to
 
-    def undo(self):
+    def undo_(self):
         items_group = self.items_group()
         items_group.setPos(self.p_from)
         self.last_item_group_pos = items_group.pos()
         self.destroy_items_group(items_group)
 
-    def redo(self):
+    def redo_(self):
         items_group = self.items_group()
         items_group.setPos(self.p_to - self.last_item_group_pos)
         self.destroy_items_group(items_group)
 
 
     def items_group(self):
-        return self.flow.scene().createItemGroup(self.items_list)
+        return self.flow_view.scene().createItemGroup(self.items_list)
 
     def destroy_items_group(self, items_group):
-        self.flow.scene().destroyItemGroup(items_group)
+        self.flow_view.scene().destroyItemGroup(items_group)
 
 
-class PlaceNodeItemInScene_Command(QUndoCommand):
-    def __init__(self, flow, node_item, pos):
-        super(PlaceNodeItemInScene_Command, self).__init__()
+class PlaceNode_Command(FlowUndoCommand):
 
-        self.flow = flow
-        self.node_item = node_item
-        self.NI_pos = pos
+    create_node_request = Signal(object)
+    add_node_request = Signal(Node)
+    remove_node_request = Signal(Node)
 
-    def undo(self):
-        self.flow.remove_node_item(self.node_item)
+    def __init__(self, flow_view, node_class, pos):
+        super().__init__(flow_view)
 
-    def redo(self):
-        self.flow.add_node_item(self.node_item, self.NI_pos)
+        self.node_class = node_class
+        self.node = None
+        self.item_pos = pos
+
+        self.create_node_request.connect(self.flow.create_node)
+        self.add_node_request.connect(self.flow.add_node)
+        self.remove_node_request.connect(self.flow.remove_node)
+
+        self.flow_view.node_placed.connect(self.node_placed_in_flow)
+
+    def undo_(self):
+        self.remove_node_request.emit(self.node)
+
+    def redo_(self):
+        if self.node:
+            self.add_node_request.emit(self.node)
+        else:
+            self.flow_view.node_placed.connect(self.node_placed_in_flow)
+            self.create_node_request.emit(self.node_class)
+
+        # --> node_placed_in_flow()
+
+    def node_placed_in_flow(self, node):
+        self.flow_view.node_placed.disconnect(self.node_placed_in_flow)
+        self.node = node
 
 
-class PlaceDrawingObject_Command(QUndoCommand):
-    def __init__(self, flow, posF, drawing_obj):
-        super(PlaceDrawingObject_Command, self).__init__()
+class PlaceDrawing_Command(FlowUndoCommand):
+    def __init__(self, flow_view, posF, drawing):
+        super().__init__(flow_view)
 
-        self.flow = flow
-
-        self.drawing_obj = drawing_obj
+        self.drawing = drawing
         self.drawing_obj_place_pos = posF
         self.drawing_obj_pos = self.drawing_obj_place_pos
 
-    def undo(self):
-        """Important: The drawing_obj_pos is not anymore the drawing_obj_place_pos here anymore because after the
-        drawing object was completed, it's actual position got recalculated according to all points and differs from
-        the initial pen press pos (=drawing_obj_place_pos). See DrawingObject.finished()."""
+    def undo_(self):
+        # The drawing_obj_pos is not anymore the drawing_obj_place_pos because after the
+        # drawing object was completed, its actual position got recalculated according to all points and differs from
+        # the initial pen press pos (=drawing_obj_place_pos). See DrawingObject.finished().
 
-        self.drawing_obj_pos = self.drawing_obj.pos()
+        self.drawing_obj_pos = self.drawing.pos()
 
-        self.flow.remove_component(self.drawing_obj)
+        self.flow_view.remove_component(self.drawing)
 
-    def redo(self):
-        self.flow.add_drawing(self.drawing_obj, self.drawing_obj_pos)
+    def redo_(self):
+        self.flow_view.add_drawing(self.drawing, self.drawing_obj_pos)
 
 
-class RemoveComponents_Command(QUndoCommand):
-    def __init__(self, flow, items):
-        super(RemoveComponents_Command, self).__init__()
+class RemoveComponents_Command(FlowUndoCommand):
 
-        self.flow = flow
+    add_node_request = Signal(Node)
+    remove_node_request = Signal(Node)
+
+    add_connection_request = Signal(Connection)
+    remove_connection_request = Signal(Connection)
+
+    def __init__(self, flow_view, items):
+        super().__init__(flow_view)
+
         self.items = items
-        self.broken_connections = []  # the connections that go beyond the removed ports and need to be restored in undo
+        self.broken_connections = []  # the connections that go beyond the removed nodes and need to be restored in undo
         self.internal_connections = set()
-        # self.connections = set()
+
+        # static connections
+        self.add_node_request.connect(self.flow.add_node)
+        self.remove_node_request.connect(self.flow.remove_node)
+        self.add_connection_request.connect(self.flow.add_connection)
+        self.remove_connection_request.connect(self.flow.remove_connection)
 
         self.node_items = []
         self.nodes = []
+        self.drawings = []
         for i in self.items:
             if isinstance(i, NodeItem):
                 self.node_items.append(i)
                 self.nodes.append(i.node)
+            elif isinstance(i, DrawingObject):
+                self.drawings.append(i)
 
-        self.connected_nodes_indices_not_in_del_selection = []
         for n in self.nodes:
             for i in n.inputs:
                 for c in i.connections:
@@ -106,118 +180,197 @@ class RemoveComponents_Command(QUndoCommand):
                     else:
                         self.internal_connections.add(c)
 
-    def undo(self):
-        for i in self.items:
-            self.flow.add_component(i)
-        # reconnect
+    def undo_(self):
+        # add connections
         self.restore_broken_connections()
-        for c in self.internal_connections:
-            self.flow.add_connection(c)
+        self.restore_internal_connections()
 
-        self.flow.select_components(self.items)
+        # add nodes
+        for n in self.nodes:
+            self.add_node_request.emit(n)
 
-    def redo(self):
-        # disconnect
+        # add drawings
+        for d in self.drawings:
+            self.flow_view.add_drawing(d)
+
+    def redo_(self):
+
+        # remove connections
         self.remove_broken_connections()
-        for c in self.internal_connections:
-            self.flow.remove_connection(c)
+        self.remove_internal_connections()
 
-        for i in self.items:
-            self.flow.remove_component(i)
+        # remove nodes
+        for n in self.nodes:
+            self.remove_node_request.emit(n)
+
+        # remove drawings
+        for d in self.drawings:
+            self.flow_view.remove_drawing(d)
+
+    def restore_internal_connections(self):
+        for c in self.internal_connections:
+            self.add_connection_request.emit(c)
+
+    def remove_internal_connections(self):
+        for c in self.internal_connections:
+            self.remove_connection_request.emit(c)
 
     def restore_broken_connections(self):
-        for b_c in self.broken_connections:
-            self.flow.connect_ports(connection=b_c)
+        for c in self.broken_connections:
+            self.add_connection_request.emit(c)
 
     def remove_broken_connections(self):
-        for b_c in self.broken_connections:
-            self.flow.connect_ports(b_c.out, b_c.inp)
+        for c in self.broken_connections:
+            self.remove_connection_request.emit(c)
 
 
-class ConnectPorts_Command(QUndoCommand):
-    def __init__(self, flow, out, inp):
-        super(ConnectPorts_Command, self).__init__()
+class ConnectPorts_Command(FlowUndoCommand):
 
-        self.flow = flow
+    connect_request = Signal(NodeObjPort, NodeObjPort)
+    add_connection_request = Signal(Connection)
+    remove_connection_request = Signal(Connection)
+
+    def __init__(self, flow_view, out, inp):
+        super().__init__(flow_view)
+
+        # CAN ALSO LEAD TO DISCONNECT INSTEAD OF CONNECT!!
+
         self.out = out
         self.inp = inp
         self.connection = None
         self.connecting = True
+
+        # static connections
+        self.connect_request.connect(self.flow.connect_nodes)
+        self.add_connection_request.connect(self.flow.add_connection)
+        self.remove_connection_request.connect(self.flow.remove_connection)
 
         for c in self.out.connections:
             if c.inp == self.inp:
                 self.connection = c
                 self.connecting = False
 
-    def undo(self):
+
+    def undo_(self):
         if self.connecting:
-            # disconnect
-            self.flow.connect_ports(self.out, self.inp)
+            # remove connection
+            self.remove_connection_request.emit(self.connection)
         else:
-            # connect
-            self.flow.connect_ports(connection=self.connection)
+            # recreate former connection
+            self.add_connection_request.emit(self.connection)
 
-    def redo(self):
+    def redo_(self):
         if self.connecting:
-
-            if not self.connection:
-                self.connection = self.flow.new_connection(self.out, self.inp)
-
-            # connect using the new or cached connection
-            self.flow.connect_ports(connection=self.connection)
-
+            if self.connection:
+                self.add_connection_request.emit(self.connection)
+            else:
+                # connection hasn't been created yet
+                self.flow.connection_added.connect(self.connection_created)
+                self.connect_request.emit(self.out, self.inp)
         else:
-            # disconnect
-            self.flow.connect_ports(self.out, self.inp)
+            # remove existing connection
+            self.remove_connection_request.emit(self.connection)
+
+    def connection_created(self, c):
+        self.flow.connection_added.disconnect(self.connection_created)
+        self.connection = c
 
 
 
-class Paste_Command(QUndoCommand):
-    def __init__(self, flow, data, offset_for_middle_pos):
-        super(Paste_Command, self).__init__()
 
-        self.flow = flow
+class Paste_Command(FlowUndoCommand):
+
+    create_nodes_request = Signal(list)
+    create_connections_request = Signal(list, list)
+
+    add_node_request = Signal(Node)
+    remove_node_request = Signal(Node)
+
+    add_connection_request = Signal(Connection)
+    remove_connection_request = Signal(Connection)
+
+
+    def __init__(self, flow_view, data, offset_for_middle_pos):
+        super().__init__(flow_view)
+
         self.data = data
-        self.offset_for_middle_pos = offset_for_middle_pos
-        self.pasted_items = None
-        self.pasted_nodes = None
-        self.pasted_drawing_objects = None
+        self.modify_data_positions(offset_for_middle_pos)
+        self.pasted_components = None
 
-        # TODO: also cache pasted_connections; replace self.flow.connect_pins in undo with self.flow.remove_connection
-        #  and replace self.flow.connect_nodes_from_config with self.flow.add_connection(s) in redo
-        #  problem: Flow.connect_nodes_from_config has to return the new connections which might get messy...
+        # static connections
+        self.add_node_request.connect(self.flow.add_node)
+        self.remove_node_request.connect(self.flow.remove_node)
+        self.add_connection_request.connect(self.flow.add_connection)
+        self.remove_connection_request.connect(self.flow.remove_connection)
 
-    def undo(self):
-        self.flow.remove_components(self.pasted_items)
 
-        # remove connections
-        for ni in self.pasted_nodes:
-            for o in ni.outputs:
-                for i in range(len(o.connections)):
-                    c = o.connections[0]
-                    # disconnect pins here so they can be connected in connect_nodes_from_config in redo below again
-                    self.flow.connect_ports(c.out, c.inp)
+    def modify_data_positions(self, offset):
+        """adds the offset to the components' positions in data"""
 
-    def redo(self):
-        if self.pasted_items is None:
-            new_nodes, new_node_items = self.flow.place_nodes_from_config(
-                self.data['nodes'],
-                offset_pos=self.offset_for_middle_pos.toPoint()
-            )
+        for node in self.data['nodes']:
+            node['pos x'] = node['pos x'] + offset.x()
+            node['pos y'] = node['pos y'] + offset.y()
+        for drawing in self.data['drawings']:
+            drawing['pos x'] = drawing['pos x'] + offset.x()
+            drawing['pos y'] = drawing['pos y'] + offset.y()
 
-            self.flow.connect_nodes_from_config(new_nodes, self.data['connections'])
 
-            new_drawing_objects = self.flow.place_drawings_from_config(self.data['drawings'],
-                                                                       offset_pos=self.offset_for_middle_pos.toPoint())
+    def connect_to_flow(self):
+        """creates temporary connections to retrieve the created components once"""
+        self.flow.nodes_created_from_config.connect(self.nodes_created)
+        self.flow.connections_created_from_config.connect(self.connections_created)
+        self.create_nodes_request.connect(self.flow.create_nodes_from_config)
+        self.create_connections_request.connect(self.flow.connect_nodes_from_config)
 
-            self.pasted_items = new_node_items + new_drawing_objects
-            self.pasted_nodes = new_nodes
-            self.pasted_drawing_objects = new_drawing_objects
+    def disconnect_from_flow(self):
+        self.flow.nodes_created_from_config.disconnect(self.nodes_created)
+        self.flow.connections_created_from_config.disconnect(self.connections_created)
+        self.create_nodes_request.disconnect(self.flow.create_nodes_from_config)
+        self.create_connections_request.disconnect(self.flow.connect_nodes_from_config)
+
+
+    def redo_(self):
+        if self.pasted_components is None:
+            # create components
+            self.connect_to_flow()
+            self.create_nodes_request.emit(self.data['nodes'])
+            # --> nodes_created()
         else:
-            self.flow.add_node_items([n.item for n in self.pasted_nodes])
-            self.flow.add_drawings(self.pasted_drawing_objects)
+            self.add_existing_components()
 
-            # not keeping them cached for now...
-            self.flow.connect_nodes_from_config(self.pasted_nodes, self.data['connections'])
+    def undo_(self):
+        # remove components and their items from flow
+        for n in self.pasted_components['nodes']:
+            self.remove_node_request.emit(n)
+        for c in self.pasted_components['connections']:
+            self.remove_connection_request.emit(c)
+        for d in self.pasted_components['drawings']:
+            self.flow_view.remove_drawing(d)
 
-        self.flow.select_components(self.pasted_items)
+    def add_existing_components(self):
+        # add existing components and items to flow
+        for n in self.pasted_components['nodes']:
+            self.add_node_request.emit(n)
+        for c in self.pasted_components['connections']:
+            self.add_connection_request.emit(c)
+        for d in self.pasted_components['drawings']:
+            self.flow_view.add_drawing(d)
+
+
+
+    def nodes_created(self, nodes):
+        self.pasted_components = {'nodes': nodes}
+        self.create_connections_request.emit(nodes, self.data['connections'])
+        # --> connections_created()
+
+    def connections_created(self, connections):
+        self.disconnect_from_flow()
+        self.pasted_components['connections'] = connections
+
+        self.create_drawings()
+
+    def create_drawings(self):
+        drawings = []
+        for d in self.data['drawings']:
+            self.flow_view.create_drawing(d)
+        self.pasted_components['drawings'] = drawings

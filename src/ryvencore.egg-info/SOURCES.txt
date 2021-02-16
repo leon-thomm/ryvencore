@@ -1,6 +1,0 @@
-setup.py
-src/ryvencore.py
-src/ryvencore.egg-info/PKG-INFO
-src/ryvencore.egg-info/SOURCES.txt
-src/ryvencore.egg-info/dependency_links.txt
-src/ryvencore.egg-info/top_level.txt

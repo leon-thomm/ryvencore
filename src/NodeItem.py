@@ -6,37 +6,19 @@ from .NodeObjPort import NodeObjInput, NodeObjOutput
 from .NodeItemAction import NodeItemAction
 from .NodeItemAnimator import NodeItemAnimator
 from .NodeItemWidget import NodeItemWidget
-from .RC import FlowVPUpdateMode
-from .global_tools.Debugger import Debugger
-from .global_tools.MovementEnum import MovementEnum
-from .logging.Log import Log
-
 from .PortItem import InputPortItem, OutputPortItem
-from .retain import M
+from .global_tools.MovementEnum import MovementEnum
 
 
 class NodeItem(QGraphicsItem, QObject):
 
-    # # FIELDS
-    # init_inputs = []
-    # init_outputs = []
-    # title = ''
-    # type_ = ''
-    # description = ''
-    # main_widget_class = None
-    # main_widget_pos = 'below ports'
-    # input_widget_classes = {}
-    # style = 'extended'
-    # color = '#c69a15'
-
     def __init__(self, node, params):
-        # super(NodeItem, self).__init__()
         QGraphicsItem.__init__(self)
         QObject.__init__(self)
 
         self.node = node
-        flow, design, config = params
-        self.flow = flow
+        flow_view, design, config = params
+        self.flow_view = flow_view
         self.session_design = design
         self.movement_state = None
         self.movement_pos_from = None
@@ -45,10 +27,6 @@ class NodeItem(QGraphicsItem, QObject):
         self.outputs = []
         self.color = QColor(self.node.color)  # manipulated by self.animator
 
-        # self.default_actions = {'remove': {'method': self.action_remove},
-        #                         'update shape': {'method': self.update_shape}}
-                                # 'console ref': {'method': self.set_console_scope}}  # for context menus
-        # self.special_actions = {}  # only gets written in custom NodeInstance-subclasses
         self.personal_logs = []
 
         # 'initializing' will be set to False below. It's needed for the ports setup, to prevent shape updating stuff
@@ -94,13 +72,11 @@ class NodeItem(QGraphicsItem, QObject):
 
 
 
-    def initialized(self):
+    def initialize(self):
         """All ports and the main widget get finally created here."""
 
         # LOADING CONFIG
         if self.init_config is not None:
-            # self.setPos(config['position x'], config['position y'])
-            # self.setup_ports(self.init_config['inputs'], self.init_config['outputs'])
             if self.main_widget:
                 try:
                     self.main_widget.set_data(self.init_config['main widget data'])
@@ -108,17 +84,19 @@ class NodeItem(QGraphicsItem, QObject):
                     print('Exception while setting data in', self.title, 'Node\'s main widget:', e,
                           ' (was this intended?)')
 
-            # self.special_actions = self.set_special_actions_data(self.init_config['special actions'])
-            # self.temp_state_data = self.init_config['state data']
-        # else:
-        #     self.setup_ports()
+        # catch up on ports
+        for i in self.node.inputs:
+            self.add_new_input(i, -1)
+
+        for o in self.node.outputs:
+            self.add_new_output(o, -1)
 
 
         self.initializing = False
 
         # No self.update_shape() here because for some reason, the bounding rect hasn't been initialized yet, so
         # self.update_shape() gets called when the item is being drawn the first time (see paint event in NI painter)
-        # TODO: change that ^ once there is a solution for this: https://forum.qt.io/topic/117179/force-qgraphicsitem-to-update-immediately-wait-for-update-event
+        # https://forum.qt.io/topic/117179/force-qgraphicsitem-to-update-immediately-wait-for-update-event
 
         self.update_design()  # load current design, update QGraphicsItem
 
@@ -129,11 +107,6 @@ class NodeItem(QGraphicsItem, QObject):
     # --------------------------------------------------------------------------------------
     # UI STUFF ----------------------------------------
 
-    # def set_console_scope(self):
-    #     # extensive_dict = {}  # unlike self.__dict__, it also includes methods to call! :)
-    #     # for att in dir(self):
-    #     #     extensive_dict[att] = getattr(self, att)
-    #     MainConsole.main_console.add_obj_context(self)
 
     def node_updated(self):
         if self.session_design.animations_enabled:
@@ -141,6 +114,10 @@ class NodeItem(QGraphicsItem, QObject):
 
 
     def add_new_input(self, inp: NodeObjInput, pos: int):
+
+        # create item
+        inp.item = InputPortItem(inp.node, inp)
+
         if pos == -1:
             self.inputs.append(inp.item)
             self.widget.add_input_to_layout(inp.item)
@@ -170,6 +147,10 @@ class NodeItem(QGraphicsItem, QObject):
             self.update()
 
     def add_new_output(self, out: NodeObjOutput, pos: int):
+
+        # create item
+        out.item = OutputPortItem(out.node, out)
+
         if pos == -1:
             self.outputs.append(out.item)
             self.widget.add_output_to_layout(out.item)
@@ -199,7 +180,7 @@ class NodeItem(QGraphicsItem, QObject):
     def update_shape(self):
         self.widget.update_shape()
         self.update_conn_pos()
-        self.flow.viewport().update()
+        self.flow_view.viewport().update()
 
     def update_design(self):
         """Loads the shadow effect option and causes redraw with active theme."""
@@ -209,7 +190,7 @@ class NodeItem(QGraphicsItem, QObject):
             self.shadow_effect.setXOffset(12)
             self.shadow_effect.setYOffset(12)
             self.shadow_effect.setBlurRadius(20)
-            self.shadow_effect.setColor(QColor('#2b2b2b'))
+            self.shadow_effect.setColor(self.session_design.flow_theme.node_item_shadow_color)
             self.setGraphicsEffect(self.shadow_effect)
         else:
             self.setGraphicsEffect(None)
@@ -248,11 +229,12 @@ class NodeItem(QGraphicsItem, QObject):
             self.update_shape()
             self.update_conn_pos()
 
-        self.session_design.flow_theme.node_item_painter.paint_NI(
-            design_style=self.node.style,
+        self.session_design.flow_theme.paint_NI(
+            node=self.node,
+            node_style=self.node.style,
             painter=painter,
             option=option,
-            c=self.color,
+            color=self.color,
             w=self.boundingRect().width(),
             h=self.boundingRect().height(),
             bounding_rect=self.boundingRect(),
@@ -262,7 +244,7 @@ class NodeItem(QGraphicsItem, QObject):
         self.painted_once = True
 
     def get_context_menu(self):
-        menu = QMenu(self.flow)
+        menu = QMenu(self.flow_view)
 
         for a in self.get_actions(self.node.get_extended_default_actions(), menu):  # menu needed for 'parent'
             if type(a) == NodeItemAction:
@@ -287,7 +269,7 @@ class NodeItem(QGraphicsItem, QObject):
 
         if change == QGraphicsItem.ItemPositionChange:
             if self.session_design.performance_mode == 'pretty':
-                self.flow.viewport().update()
+                self.flow_view.viewport().update()
             if self.movement_state == MovementEnum.mouse_clicked:
                 self.movement_state = MovementEnum.position_changed
 
@@ -299,10 +281,26 @@ class NodeItem(QGraphicsItem, QObject):
         """Updates the global positions of connections at outputs"""
         for o in self.node.outputs:
             for c in o.connections:
-                c.item.recompute()
+                # c.item.recompute()
+
+                if c not in self.flow_view.connection_items:
+                    # it can happen that the connection item hasn't been
+                    # created yet
+                    continue
+
+                item = self.flow_view.connection_items[c]
+                item.recompute()
         for i in self.node.inputs:
             for c in i.connections:
-                c.item.recompute()
+                # c.item.recompute()
+
+                if c not in self.flow_view.connection_items:
+                    # it can happen that the connection item hasn't been
+                    # created yet
+                    continue
+
+                item = self.flow_view.connection_items[c]
+                item.recompute()
 
     def hoverEnterEvent(self, event):
         self.widget.title_label.set_NI_hover_state(hovering=True)
@@ -322,7 +320,7 @@ class NodeItem(QGraphicsItem, QObject):
     def mouseReleaseEvent(self, event):
         """Used for Moving-Commands in Flow - may be replaced later with a nicer determination of a moving action."""
         if self.movement_state == MovementEnum.position_changed:
-            self.flow.selected_components_moved(self.pos() - self.movement_pos_from)
+            self.flow_view.selected_components_moved(self.pos() - self.movement_pos_from)
         self.movement_state = None
         return QGraphicsItem.mouseReleaseEvent(self, event)
 
@@ -340,9 +338,9 @@ class NodeItem(QGraphicsItem, QObject):
                 except KeyError:
                     pass
                 action = NodeItemAction(text=k, method=method, menu=menu, data=data)
-                if self.flow.session.threading_enabled:
-                    action.triggered_with_data__thread.connect(self.flow.worker_thread.interface.trigger_node_action)
-                    action.triggered_without_data__thread.connect(self.flow.worker_thread.interface.trigger_node_action)
+                if self.flow_view.session.threaded:
+                    action.triggered_with_data__thread.connect(self.flow_view.thread_interface.trigger_node_action)
+                    action.triggered_without_data__thread.connect(self.flow_view.thread_interface.trigger_node_action)
                 else:
                     action.triggered_with_data.connect(method)  # see NodeItemAction for explanation
                     action.triggered_without_data.connect(method)  # see NodeItemAction for explanation
@@ -357,136 +355,26 @@ class NodeItem(QGraphicsItem, QObject):
 
         return actions
 
-    def config_data(self):
-        return {'pos x': self.pos().x(), 'pos y': self.pos().y()}
+    def complete_config(self, node_config):
+        # add input widgets config
+        for i in range(len(node_config['inputs'])):
+            input_cfg = node_config['inputs'][i]
+            inp_item = self.inputs[i]
 
-    # def get_special_actions_data(self, actions):
-    #     cleaned_actions = actions.copy()
-    #     for key in cleaned_actions:
-    #         v = cleaned_actions[key]
-    #         if type(v) == M:  # callable(v):
-    #             cleaned_actions[key] = v.method_name
-    #         elif callable(v):
-    #             cleaned_actions[key] = v.__name__
-    #         elif type(v) == dict:
-    #             cleaned_actions[key] = self.get_special_actions_data(v)
-    #         else:
-    #             cleaned_actions[key] = v
-    #     return cleaned_actions
+            if inp_item.port.type_ == 'data':
+                if inp_item.widget:
+                    input_cfg['has widget'] = True
+                    input_cfg['widget name'] = inp_item.port.widget_name
+                    input_cfg['widget data'] = inp_item.widget.get_data()
+                    input_cfg['widget position'] = inp_item.port.widget_pos
+                else:
+                    input_cfg['has widget'] = False
+                node_config['inputs'][i] = input_cfg
 
-    # def set_special_actions_data(self, actions_data):
-    #     actions = {}
-    #     for key in actions_data:
-    #         if type(actions_data[key]) != dict:
-    #             if key == 'method':
-    #                 try:
-    #                     actions['method'] = M(getattr(self, actions_data[key]))
-    #                 except AttributeError:  # outdated method referenced
-    #                     pass
-    #             elif key == 'data':
-    #                 actions['data'] = actions_data[key]
-    #         else:
-    #             actions[key] = self.set_special_actions_data(actions_data[key])
-    #     return actions
+        # add item properties
+        node_config['pos x'] = self.pos().x()
+        node_config['pos y'] = self.pos().y()
+        if self.main_widget:
+            node_config['main widget data'] = self.main_widget.get_data()
 
-    # PORTS
-    # def setup_ports(self, inputs_config=None, outputs_config=None):
-    #     if not inputs_config and not outputs_config:
-    #         for i in range(len(self.init_inputs)):
-    #             inp = self.init_inputs[i]
-    #             self.create_new_input(inp.type_, inp.label,
-    #                                   widget_name=self.init_inputs[i].widget_name,
-    #                                   widget_pos =self.init_inputs[i].widget_pos)
-    #
-    #         for o in range(len(self.init_outputs)):
-    #             out = self.init_outputs[o]
-    #             self.create_new_output(out.type_, out.label)
-    #     else:  # when loading saved NIs, the port instances might not be synchronised to the parent's ports anymore
-    #         for inp in inputs_config:
-    #             has_widget = inp['has widget']
-    #
-    #             self.create_new_input(inp['type'], inp['label'],
-    #                                   widget_name=inp['widget name'] if has_widget else None,
-    #                                   widget_pos =inp['widget position'] if has_widget else None,
-    #                                   config=inp['widget data'] if has_widget else None)
-    #
-    #         for out in outputs_config:
-    #             self.create_new_output(out['type'], out['label'])
-
-    # def add_input_to_scene(self, i):
-    #     self.flow.scene().addItem(i.pin)
-    #     self.flow.scene().addItem(i.label)
-    #     if i.widget:
-    #         self.flow.scene().addItem(i.proxy)
-    #
-    # def add_output_to_scene(self, o):
-    #     self.flow.scene().addItem(o.pin)
-    #     self.flow.scene().addItem(o.label)
-
-    # # GENERAL
-    # def about_to_remove_from_scene(self):
-    #     """Called from Flow when the NI gets removed from the scene
-    #     to stop all running threads and disable personal logs."""
-    #
-    #     if self.main_widget:
-    #         self.main_widget.remove_event()
-    #     self.remove_event()
-    #
-    #     self.disable_logs()
-    #
-    # def is_active(self):
-    #     for i in self.inputs:
-    #         if i.type_ == 'exec':
-    #             return True
-    #     for o in self.outputs:
-    #         if o.type_ == 'exec':
-    #             return True
-    #     return False
-    #
-    # def has_main_widget(self):
-    #     """Might be used later in CodePreview_Widget to enable not only showing the NI's class but also it's
-    #     main_widget's class."""
-    #     return self.main_widget is not None
-
-    # def get_input_widgets(self):
-    #     """Might be used later in CodePreview_Widget to enable not only showing the NI's class but its input widgets'
-    #     classes."""
-    #     input_widgets = []
-    #     for i in range(len(self.inputs)):
-    #         inp = self.inputs[i]
-    #         if inp.widget is not None:
-    #             input_widgets.append({i: inp.widget})
-    #     return input_widgets
-
-    # def config_data(self):
-    #     """Returns all metadata of the NI including position, package etc. in a JSON-able dict format.
-    #     Used to rebuild the Flow when loading a project."""
-    #
-    #     # general attributes
-    #     node_instance_dict = {'parent node title': self.title,
-    #                           'parent node type': self.type_,
-    #                           # 'parent node package': self.parent_node.package,
-    #                           'parent node description': self.description,
-    #                           'position x': self.pos().x(),
-    #                           'position y': self.pos().y()}
-    #     if self.main_widget:
-    #         node_instance_dict['main widget data'] = self.main_widget.get_data()
-    #
-    #     node_instance_dict['state data'] = self.get_data()
-    #     node_instance_dict['special actions'] = self.get_special_actions_data(self.special_actions)
-    #
-    #     # inputs
-    #     node_instance_inputs_list = []
-    #     for i in self.inputs:
-    #         input_dict = i.config_data()
-    #         node_instance_inputs_list.append(input_dict)
-    #     node_instance_dict['inputs'] = node_instance_inputs_list
-    #
-    #     # outputs
-    #     node_instance_outputs_list = []
-    #     for o in self.outputs:
-    #         output_dict = o.config_data()
-    #         node_instance_outputs_list.append(output_dict)
-    #     node_instance_dict['outputs'] = node_instance_outputs_list
-    #
-    #     return node_instance_dict
+        return node_config

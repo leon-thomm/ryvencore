@@ -39,15 +39,14 @@ class Node(QObject):
         self.session = self.script.session
         self.inputs: [NodeInput] = []
         self.outputs: [NodeOutput] = []
-        self.default_actions = default_node_actions
+        self.default_actions = self.init_default_actions()
         self.special_actions = {}
         self.logs = []
 
         self.init_config = config
+        self.initialized = False
 
-        # CAUTION !!!
-        # The item will live in a different thread! No direct method calls after initialization!
-        self.item = NodeItem(self, params)
+        self.item = None  # set by the flow widget
 
     def finish_initialization(self):
 
@@ -56,19 +55,27 @@ class Node(QObject):
 
             self.special_actions = self.set_special_actions_data(self.init_config['special actions'])
 
+        else:
+            self.setup_ports()
+
+        self.enable_logs()
+
+        self._initialized()
+
+        self.initialized = True
+
+        # self.update()
+
+    def load_config_data(self):
+        if self.init_config:
             try:
                 self.set_data(self.init_config['state data'])
             except Exception as e:
                 print('Exception while setting data in', self.title, 'Node:', e,
                       ' (was this intended?)')
-        else:
-            self.setup_ports()
 
-        self.item.initialized()
-
-        self.initialized()
-
-        self.update()
+    def init_default_actions(self) -> dict:
+        return {'update shape': {'method': self.update_shape}}
 
     def setup_ports(self, inputs_config=None, outputs_config=None):
 
@@ -84,7 +91,7 @@ class Node(QObject):
                 self.create_output(out.type_, out.label)
         else:  # when loading saved NIs, the init_inputs and init_outputs are irrelevant
             for inp in inputs_config:
-                has_widget = inp['has widget']
+                has_widget = inp['has widget'] if inp['type'] == 'data' else False
 
                 self.create_input(type_=inp['type'], label=inp['label'],
                                   widget_name=inp['widget name'] if has_widget else None,
@@ -148,16 +155,12 @@ class Node(QObject):
         """Sets the value of a data output.
         self.data_outputs_updated() has to be called manually after all values are set."""
 
-        if not self.session.threading_enabled:
-            if self.flow.vp_update_mode == FlowVPUpdateMode.ASYNC and not self.item.initializing:  # asynchronous viewport updates
-                vp = self.flow.viewport()
-                vp.repaint(self.flow.mapFromScene(self.item.sceneBoundingRect()))
-
         self.outputs[index].set_val(val)
 
-    def remove_event(self):
-        """Method to stop all threads in hold of the NI itself."""
+    def place_event(self):
+        pass
 
+    def remove_event(self):
         pass
 
     #                                 _
@@ -169,7 +172,8 @@ class Node(QObject):
     #
     # all algorithm-unrelated api methods:
 
-    def initialized(self):
+    def _initialized(self):
+        """Called after the node has been initialized and the item has been created."""
         pass
 
     #   LOGGING
@@ -234,8 +238,8 @@ class Node(QObject):
         # self.item.add_new_input(inp, pos)
         self.input_added.emit(inp, pos)
 
-        if self.session.threading_enabled:
-            inp.moveToThread(self.flow.worker_thread)
+        # if self.session.threaded:
+        #     inp.moveToThread(self.flow.worker_thread)
 
 
     def delete_input(self, i):
@@ -248,7 +252,7 @@ class Node(QObject):
 
         # break all connections
         for c in inp.connections:
-            self.flow.connect_ports(c.out, inp)
+            self.flow.connect_nodes(c.out, inp)
 
         self.inputs.remove(inp)
         # self.item.remove_input(inp)
@@ -275,8 +279,8 @@ class Node(QObject):
         # self.item.add_new_output(out, pos)
         self.output_added.emit(out, pos)
 
-        if self.session.threading_enabled:
-            out.moveToThread(self.flow.worker_thread)
+        # if self.session.threaded:
+        #     out.moveToThread(self.flow.worker_thread)
 
     def delete_output(self, o):
         """Disconnects and removes output. Handy for subclasses."""
@@ -288,7 +292,7 @@ class Node(QObject):
 
         # break all connections
         for c in out.connections:
-            self.flow.connect_ports(out, c.inp)
+            self.flow.connect_nodes(out, c.inp)
 
         self.outputs.remove(out)
         # self.item.remove_output(out)
@@ -316,7 +320,7 @@ class Node(QObject):
         pass
 
     def session_stylesheet(self) -> str:
-        return self.flow.session.design.global_stylesheet
+        return self.session.design.global_stylesheet
 
     # VARIABLES
 
@@ -386,7 +390,7 @@ class Node(QObject):
     # def action_remove(self):
     #     self.flow.remove_node_item(self.item)
 
-    def about_to_remove_from_scene(self):
+    def prepare_removal(self):
         """Called from Flow when the NI gets removed from the scene
         to stop all running threads and disable personal logs."""
 
@@ -411,19 +415,16 @@ class Node(QObject):
         return self.main_widget() is not None
 
 
-    def config_data(self, item_config):
+    def config_data(self):
         """Returns all metadata of the NI including position, package etc. in a JSON-able dict format.
         Used to rebuild the Flow when loading a project."""
 
         # general attributes
-        node_dict = {'identifier': self.__class__.__name__,
-                     'position x': item_config['pos x'],
-                     'position y': item_config['pos y']}
-        if self.main_widget():
-            node_dict['main widget data'] = self.main_widget().get_data()
-
-        node_dict['state data'] = self.get_data()
-        node_dict['special actions'] = self.get_special_actions_data(self.special_actions)
+        node_dict = {
+            'identifier': self.__class__.__name__,
+            'state data': self.get_data(),
+            'special actions': self.get_special_actions_data(self.special_actions)
+        }
 
         # inputs
         inputs = []
@@ -440,11 +441,3 @@ class Node(QObject):
         node_dict['outputs'] = outputs
 
         return node_dict
-
-
-
-
-
-
-default_node_actions = {  # 'remove': {'method': Node.action_remove},
-                   'update shape': {'method': Node.update_shape}}

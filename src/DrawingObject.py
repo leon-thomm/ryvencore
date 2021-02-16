@@ -6,14 +6,14 @@ from .global_tools.MovementEnum import MovementEnum
 
 
 class DrawingObject(QGraphicsItem):
-    def __init__(self, flow, config=None):
+    def __init__(self, flow_view, config=None):
         super(DrawingObject, self).__init__()
 
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable |
                       QGraphicsItem.ItemSendsScenePositionChanges)
         self.setAcceptHoverEvents(True)
 
-        self.flow = flow
+        self.flow_view = flow_view
         self.color = None
         self.base_stroke_weight = None
         self.type = 'pen'  # so far the only available, but I already save it so I could add more types in the future
@@ -144,7 +144,7 @@ class DrawingObject(QGraphicsItem):
 
     def itemChange(self, change, value):
         if change == QGraphicsItem.ItemPositionChange:
-            self.flow.viewport().update()
+            self.flow_view.viewport().update()
             if self.movement_state == MovementEnum.mouse_clicked:
                 self.movement_state = MovementEnum.position_changed
 
@@ -159,7 +159,7 @@ class DrawingObject(QGraphicsItem):
     def mouseReleaseEvent(self, event):
         """Used for Moving-Commands in Flow - may be replaced later with a nicer determination of a move action."""
         if self.movement_state == MovementEnum.position_changed:
-            self.flow.selected_components_moved(self.pos() - self.movement_pos_from)
+            self.flow_view.selected_components_moved(self.pos() - self.movement_pos_from)
         self.movement_state = None
         return QGraphicsItem.mouseReleaseEvent(self, event)
 

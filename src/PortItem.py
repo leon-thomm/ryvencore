@@ -7,37 +7,28 @@ from .PortItemInputWidgets import StdSpinBoxInputWidget, StdLineEditInputWidget_
     StdLineEditInputWidget
 from .global_tools.strings import get_longest_line, shorten
 
-from .FlowProxyWidget import FlowProxyWidget
+from .FlowViewProxyWidget import FlowViewProxyWidget
 
 
 class PortItem(QGraphicsGridLayout):
 
-    def __init__(self, node, port, flow):
+    def __init__(self, node, port, flow_view):
         super(PortItem, self).__init__()
 
-        # # GENERAL ATTRIBUTES
-        # self.val = None
-        # self.parent_node_instance = parent_node_instance
-        # self.io_pos = io_pos
-        # self.type_ = type_
-        # self.label_str = label_str
-        # self.connections = []  # connections stored here
         self.node = node
         self.port = port
-        self.flow = flow
+        self.flow_view = flow_view
 
         self.port.has_been_connected.connect(self.port_connected)
         self.port.has_been_disconnected.connect(self.port_disconnected)
 
-        # gate/pin
         self.pin = PortItemPin(self.port, self.node)
 
-        # label
         self.label = PortItemLabel(self.port, self.node)
 
 
     def setup_ui(self):
-        pass  # reimplemented in subclasses
+        pass
 
     def port_connected(self):
         pass
@@ -51,7 +42,7 @@ class InputPortItem(PortItem):
         super().__init__(node, port, node.flow)
 
         self.widget = None
-        self.proxy: FlowProxyWidget = None
+        self.proxy: FlowViewProxyWidget = None
 
         if self.port.widget_config_data is not None:
             self.create_widget()
@@ -114,7 +105,7 @@ class InputPortItem(PortItem):
             else:  # custom input widget
                 self.widget = self.get_input_widget_class(wn)(params)
 
-            self.proxy = FlowProxyWidget(self.flow, parent=self.node.item)
+            self.proxy = FlowViewProxyWidget(self.flow_view, parent=self.node.item)
             self.proxy.setWidget(self.widget)
 
     def get_input_widget_class(self, widget_name):
@@ -184,11 +175,16 @@ class PortItemPin(QGraphicsWidget):
         return QSizeF(self.width, self.height)
 
     def paint(self, painter, option, widget=None):
-        self.node_item.session_design.flow_theme.node_item_painter.paint_PI(
-            painter, option, self.node_item.color,
-            self.port.type_,
-            len(self.port.connections) > 0,
-            self.padding, self.painting_width, self.painting_height
+        self.node_item.session_design.flow_theme.paint_PI(
+            node=self.node,
+            painter=painter,
+            option=option,
+            node_color=self.node_item.color,
+            type_=self.port.type_,
+            connected=len(self.port.connections) > 0,
+            padding=self.padding,
+            w=self.painting_width,
+            h=self.painting_height
         )
 
     def mousePressEvent(self, event):
@@ -246,7 +242,8 @@ class PortItemLabel(QGraphicsWidget):
         return QSizeF(self.width, self.height)
 
     def paint(self, painter, option, widget=None):
-        self.node_item.session_design.flow_theme.node_item_painter.paint_PI_label(
+        self.node_item.session_design.flow_theme.paint_PI_label(
+            self.node,
             painter, option,
             self.port.type_,
             len(self.port.connections) > 0,

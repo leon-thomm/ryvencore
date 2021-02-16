@@ -1,19 +1,20 @@
 # import math
 
 from PySide2.QtCore import QRectF, QPointF
-from PySide2.QtGui import QPainter, QColor, QRadialGradient, QPainterPath
+from PySide2.QtGui import QPainter, QColor, QRadialGradient, QPainterPath, QPen, Qt
 from PySide2.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem
 
 from .global_tools.math import pythagoras, sqrt
 
 
 class ConnectionItem(QGraphicsItem):
-    def __init__(self, out_item, inp_item, type_, session_design):
+    def __init__(self, connection, session_design):
         super().__init__()
 
-        self.out = out_item
-        self.inp = inp_item
-        self.type_ = type_
+        self.connection = connection
+        self.out = self.connection.out
+        self.inp = self.connection.inp
+        # self.type_ = type_
         self.session_design = session_design
         self.changed = False
         self.path: QPainterPath = None
@@ -22,8 +23,8 @@ class ConnectionItem(QGraphicsItem):
         self.recompute()
 
     def boundingRect(self):
-        op = self.out.pin.get_scene_center_pos()
-        ip = self.inp.pin.get_scene_center_pos()
+        op = self.out.item.pin.get_scene_center_pos()
+        ip = self.inp.item.pin.get_scene_center_pos()
         top = min(0, (ip-self.pos()).y())
         left = min(0, (op-self.pos()).x())
         w = abs(ip.x()-op.x())
@@ -32,7 +33,7 @@ class ConnectionItem(QGraphicsItem):
 
 
     def recompute(self):
-        self.setPos(self.out.pin.get_scene_center_pos())
+        self.setPos(self.out.item.pin.get_scene_center_pos())
         self.changed = True
 
 
@@ -46,19 +47,24 @@ class ExecConnectionItem(ConnectionItem):
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget=...) -> None:
 
-        pen = self.session_design.flow_theme.get_flow_conn_pen_inst(self.type_)
+        theme = self.session_design.flow_theme
+
+        pen = QPen(theme.exec_conn_color, theme.exec_conn_width)
+        pen.setStyle(theme.exec_conn_pen_style)
+        pen.setCapStyle(Qt.RoundCap)
+
         c = pen.color()
 
         # highlight hovered connections
-        if self.out.pin.hovered or self.inp.pin.hovered:
+        if self.out.item.pin.hovered or self.inp.item.pin.hovered:
             c = QColor('#c5c5c5')
             pen.setWidth(5)
 
         if self.changed or not self.path:
             self.changed = False
 
-            self.path = self.connection_path(self.out.pin.get_scene_center_pos() - self.scenePos(),
-                                             self.inp.pin.get_scene_center_pos() - self.scenePos())
+            self.path = self.connection_path(self.out.item.pin.get_scene_center_pos() - self.scenePos(),
+                                             self.inp.item.pin.get_scene_center_pos() - self.scenePos())
 
             w = self.path.boundingRect().width()
             h = self.path.boundingRect().height()
@@ -81,11 +87,16 @@ class DataConnectionItem(ConnectionItem):
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget=...) -> None:
 
-        pen = self.session_design.flow_theme.get_flow_conn_pen_inst(self.type_)
+        theme = self.session_design.flow_theme
+
+        pen = QPen(theme.data_conn_color, theme.data_conn_width)
+        pen.setStyle(theme.data_conn_pen_style)
+        pen.setCapStyle(Qt.RoundCap)
+
         c = pen.color()
 
         # highlight hovered connections
-        if self.out.pin.hovered or self.inp.pin.hovered:
+        if self.out.item.pin.hovered or self.inp.item.pin.hovered:
             c = QColor('#c5c5c5')
             pen.setWidth(5)
 
@@ -93,8 +104,8 @@ class DataConnectionItem(ConnectionItem):
         if self.changed or not self.path:
             self.changed = False
 
-            self.path = self.connection_path(self.out.pin.get_scene_center_pos() - self.scenePos(),
-                                             self.inp.pin.get_scene_center_pos() - self.scenePos())
+            self.path = self.connection_path(self.out.item.pin.get_scene_center_pos() - self.scenePos(),
+                                             self.inp.item.pin.get_scene_center_pos() - self.scenePos())
 
             w = self.path.boundingRect().width()
             h = self.path.boundingRect().height()
