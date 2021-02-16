@@ -1,12 +1,11 @@
 from PySide2.QtCore import QObject, Signal
 
-from .NodeItem import NodeItem
 from .NodeObjPort import NodeObjInput, NodeObjOutput
 from .NodePort import NodeInput, NodeOutput
-from .RC import FlowVPUpdateMode
 from .logging.Log import Log
 from .retain import M
-from .global_tools.Debugger import Debugger
+from .InfoMsgs import InfoMsgs
+from .tools import serialize, deserialize
 
 
 class Node(QObject):
@@ -30,6 +29,7 @@ class Node(QObject):
     input_widget_classes = {}
     style = 'extended'
     color = '#c69a15'
+    icon = None
 
     def __init__(self, params):
         super().__init__()
@@ -69,7 +69,10 @@ class Node(QObject):
     def load_config_data(self):
         if self.init_config:
             try:
-                self.set_data(self.init_config['state data'])
+                if type(self.init_config['state data']) == dict:  # backwards compatibility
+                    self.set_data(self.init_config['state data'])
+                else:
+                    self.set_data(deserialize(self.init_config['state data']))
             except Exception as e:
                 print('Exception while setting data in', self.title, 'Node:', e,
                       ' (was this intended?)')
@@ -82,21 +85,26 @@ class Node(QObject):
         if not inputs_config and not outputs_config:
             for i in range(len(self.init_inputs)):
                 inp = self.init_inputs[i]
-                self.create_input(inp.type_, inp.label,
-                                  widget_name=self.init_inputs[i].widget_name,
-                                  widget_pos =self.init_inputs[i].widget_pos)
+                self.create_input(
+                    inp.type_, inp.label,
+                    widget_name=self.init_inputs[i].widget_name,
+                    widget_pos =self.init_inputs[i].widget_pos
+                )
 
             for o in range(len(self.init_outputs)):
                 out = self.init_outputs[o]
                 self.create_output(out.type_, out.label)
-        else:  # when loading saved NIs, the init_inputs and init_outputs are irrelevant
+
+        else:  # when loading saved Nodes, the init_inputs and init_outputs are irrelevant
             for inp in inputs_config:
                 has_widget = inp['has widget'] if inp['type'] == 'data' else False
 
-                self.create_input(type_=inp['type'], label=inp['label'],
-                                  widget_name=inp['widget name'] if has_widget else None,
-                                  widget_pos =inp['widget position'] if has_widget else None,
-                                  config=inp['widget data'] if has_widget else None)
+                self.create_input(
+                    type_=inp['type'], label=inp['label'],
+                    widget_name=inp['widget name'] if has_widget else None,
+                    widget_pos =inp['widget position'] if has_widget else None,
+                    config=inp['widget data'] if has_widget else None
+                )
 
             for out in outputs_config:
                 self.create_output(out['type'], out['label'])
@@ -124,11 +132,11 @@ class Node(QObject):
         # self.item.node_updated()
         self.updated.emit()
 
-        Debugger.write('update in', self.title, 'on input', input_called)
+        InfoMsgs.write('update in', self.title, 'on input', input_called)
         try:
             self.update_event(input_called)
         except Exception as e:
-            Debugger.write_err('EXCEPTION IN', self.title, 'NI:', e)
+            InfoMsgs.write_err('EXCEPTION IN', self.title, 'NI:', e)
 
     def update_event(self, input_called=-1):
         """Gets called when an input received a signal. This is where the magic begins in subclasses."""
@@ -140,7 +148,7 @@ class Node(QObject):
         If the input is connected, the value of the connected output is used:
         If not, the value of the widget is used."""
 
-        Debugger.write('input called in', self.title, 'NI:', index)
+        InfoMsgs.write('input called in', self.title, 'Node:', index)
         return self.inputs[index].get_val()
 
     def input_widget(self, index: int):
@@ -212,8 +220,7 @@ class Node(QObject):
         Creates and adds a new input.
         :widget_pos: 'besides' or 'below'
         """
-        Debugger.write('create_new_input called')
-
+        InfoMsgs.write('create_new_input called')
 
 
         # backwards compatibility
@@ -415,14 +422,14 @@ class Node(QObject):
         return self.main_widget() is not None
 
 
-    def config_data(self):
+    def config_data(self) -> dict:
         """Returns all metadata of the NI including position, package etc. in a JSON-able dict format.
         Used to rebuild the Flow when loading a project."""
 
         # general attributes
         node_dict = {
             'identifier': self.__class__.__name__,
-            'state data': self.get_data(),
+            'state data': serialize(self.get_data()),
             'special actions': self.get_special_actions_data(self.special_actions)
         }
 

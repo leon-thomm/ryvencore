@@ -14,7 +14,7 @@ class Script(QObject):
     create_flow_view_request = Signal(object, tuple)
     generate_flow_view_config_request = Signal(dict)
 
-    def __init__(self, session, title: str = None, content_data: dict = None, flow_size: list = None,
+    def __init__(self, session, title: str = None, content_data: dict = None, flow_view_size: list = None,
                  create_default_logs=True):
         super(Script, self).__init__(parent=session)
 
@@ -34,8 +34,8 @@ class Script(QObject):
             else:  # backwards compatibility
                 self.init_flow_view_config = content_data['flow']
 
-        self.init_flow_size = flow_size
-        self.init_flow_gui_parent = self.session.gui_parent
+        self.init_flow_view_size = flow_view_size
+        self.init_flow_view_gui_parent = self.session.gui_parent
 
         # TODO: move the thumbnail source to the list widget
         self._thumbnail_source = ''  # URL to the Script's thumbnail picture
@@ -51,7 +51,7 @@ class Script(QObject):
                     "When using threading, you must provide a gui_parent."
                 )
 
-        flow_view_params = (session, self, self.flow, self.init_flow_view_config, flow_size, self.session.gui_parent)
+        flow_view_params = (session, self, self.flow, self.init_flow_view_config, flow_view_size, self.session.gui_parent)
 
         # TITLE, VARS MANAGER
         if content_data:

@@ -2,7 +2,7 @@ from PySide2.QtCore import Signal, QObject
 
 from ..script_variables.Variable import Variable
 
-from ..global_tools.Debugger import Debugger
+from ..InfoMsgs import InfoMsgs
 
 
 class VarsManager(QObject):
@@ -50,7 +50,7 @@ class VarsManager(QObject):
     def get_var(self, name) -> Variable:
         """Returns script variable with given name or None if it couldn't be found."""
 
-        Debugger.write('getting variable with name:', name)
+        InfoMsgs.write('getting variable with name:', name)
 
         for v in self.variables:
             if v.name == name:

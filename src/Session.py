@@ -1,14 +1,11 @@
-import time
-
 from PySide2.QtCore import QObject, Signal, QThread
 from PySide2.QtGui import QFontDatabase
 from PySide2.QtWidgets import QWidget
 
-from .Connection import DataConnection, ExecConnection
 from .GlobalAttributes import Location
 from .Script import Script
 from .SessionThreadingBridge import SessionThreadingBridge
-from .global_tools.Debugger import Debugger
+from .InfoMsgs import InfoMsgs
 from .Design import Design
 
 
@@ -89,10 +86,10 @@ class Session(QObject):
         self.nodes.append(node_class)
 
 
-    def create_script(self, title: str, flow_size: list = None, create_default_logs=True) -> Script:
+    def create_script(self, title: str, flow_view_size: list = None, create_default_logs=True) -> Script:
         """Creates and returns a new script"""
 
-        script = Script(session=self, title=title, flow_size=flow_size, create_default_logs=create_default_logs)
+        script = Script(session=self, title=title, flow_view_size=flow_view_size, create_default_logs=create_default_logs)
 
         self.scripts.append(script)
         self.new_script_created.emit(script)
@@ -131,7 +128,7 @@ class Session(QObject):
         self.script_deleted.emit(script)
 
 
-    def debugger(self) -> Debugger:
+    def debugger(self) -> InfoMsgs:
         """(WIP) Returns the session's debugger"""
         pass
 

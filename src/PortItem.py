@@ -1,21 +1,22 @@
-from PySide2.QtWidgets import QGraphicsItem, QGraphicsGridLayout, QGraphicsWidget, \
+from PySide2.QtWidgets import QGraphicsGridLayout, QGraphicsWidget, \
     QGraphicsLayoutItem
 from PySide2.QtCore import Qt, QRectF, QPointF, QSizeF
 from PySide2.QtGui import QFontMetricsF, QFont
 
 from .PortItemInputWidgets import StdSpinBoxInputWidget, StdLineEditInputWidget_NoBorder, \
     StdLineEditInputWidget
-from .global_tools.strings import get_longest_line, shorten
+from .tools import get_longest_line, shorten, deserialize
 
 from .FlowViewProxyWidget import FlowViewProxyWidget
 
 
 class PortItem(QGraphicsGridLayout):
 
-    def __init__(self, node, port, flow_view):
+    def __init__(self, node, node_item, port, flow_view):
         super(PortItem, self).__init__()
 
         self.node = node
+        self.node_item = node_item
         self.port = port
         self.flow_view = flow_view
 
@@ -38,8 +39,8 @@ class PortItem(QGraphicsGridLayout):
 
 
 class InputPortItem(PortItem):
-    def __init__(self, node, port):
-        super().__init__(node, port, node.flow)
+    def __init__(self, node, node_item, port):
+        super().__init__(node, node_item, port, node.flow)
 
         self.widget = None
         self.proxy: FlowViewProxyWidget = None
@@ -47,10 +48,14 @@ class InputPortItem(PortItem):
         if self.port.widget_config_data is not None:
             self.create_widget()
             try:
-                self.widget.set_data(self.port.widget_config_data)
+                c_d = self.port.widget_config_data
+                if type(c_d) == dict:  # backwards compatibility
+                    self.widget.set_data(c_d)
+                else:
+                    self.widget.set_data(deserialize(c_d))
             except Exception as e:
                 print('Exception while setting data in', self.node.title,
-                      'NodeInstance\'s input widget:', e, ' (was this intended?)')
+                      '\'s input widget:', e, ' (was this intended?)')
         else:
             self.create_widget()
 
@@ -75,7 +80,7 @@ class InputPortItem(PortItem):
 
             wn = self.port.widget_name
 
-            params = (self.port, self.node)
+            params = (self.port, self, self.node, self.node_item)
 
             if wn is None:  # no input widget
                 return
@@ -122,10 +127,15 @@ class InputPortItem(PortItem):
         if self.widget:
             self.widget.setEnabled(True)
 
+    def updated_val(self):
+        """Called from output port"""
+        if self.widget:
+            self.widget.val_update_event(self.port.val)
+
 
 class OutputPortItem(PortItem):
-    def __init__(self, node, port):
-        super().__init__(node, port, node.flow)
+    def __init__(self, node, node_item, port):
+        super().__init__(node, node_item, port, node.flow)
         # super(OutputPortItem, self).__init__(parent_node_instance, PortObjPos.OUTPUT, type_, label_str)
 
         self.setup_ui()
@@ -149,6 +159,7 @@ class PortItemPin(QGraphicsWidget):
         self.port = port
         self.node = node
         self.node_item = node.item
+        self.flow_view = self.node_item.flow_view
 
         self.setGraphicsItem(self)
         self.setAcceptHoverEvents(True)
@@ -188,27 +199,37 @@ class PortItemPin(QGraphicsWidget):
         )
 
     def mousePressEvent(self, event):
-        event.accept()
+        if event.button() == Qt.LeftButton:  # DRAG NEW CONNECTION
+            self.flow_view.mouse_event_taken = True
+            self.flow_view._selected_pin = self
+            self.flow_view._dragging_connection = True
+            event.accept()  # don't pass the ev ent to anything below
+        else:
+            return QGraphicsWidget.mousePressEvent(self, event)
+
 
     def hoverEnterEvent(self, event):
         if self.port.type_ == 'data':  # and self.parent_port_instance.io_pos == PortPos.OUTPUT:
             self.setToolTip(shorten(str(self.port.val), 1000, line_break=True))
 
-        # hover all connections
-        # self.parent_node_instance.flow.hovered_port_inst_gate = self
-        # self.parent_node_instance.flow.update()
+        # update all connections
+        for c in self.port.connections:
+            conn_item = self.flow_view.connection_items[c]
+            conn_item.update()
+
         self.hovered = True
 
-        QGraphicsItem.hoverEnterEvent(self, event)
+        QGraphicsWidget.hoverEnterEvent(self, event)
 
     def hoverLeaveEvent(self, event):
 
         # turn connection highlighting off
-        # self.parent_node_instance.flow.hovered_port_inst_gate = None
-        # self.parent_node_instance.flow.update()
+        for c in self.port.connections:
+            conn_item = self.flow_view.connection_items[c]
+            conn_item.update()
         self.hovered = False
 
-        QGraphicsItem.hoverLeaveEvent(self, event)
+        QGraphicsWidget.hoverLeaveEvent(self, event)
 
     def get_scene_center_pos(self):
         return QPointF(self.scenePos().x() + self.boundingRect().width()/2,

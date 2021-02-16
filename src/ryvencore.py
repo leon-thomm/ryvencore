@@ -2,7 +2,7 @@ from .Node import Node
 from .NodePort import NodeInput, NodeOutput
 from .Session import Session
 from .WidgetBaseClasses import MWB, IWB
-from .global_tools.Debugger import Debugger
+from .InfoMsgs import InfoMsgs
 from .Connection import DataConnection, ExecConnection
 
 

@@ -12,7 +12,7 @@ class Connection(QObject):
         super().__init__()
 
         self.out, self.inp, self.flow = params
-        self.item = None
+        # self.item = None
         # self.activation_request.connect(self.flow.connection_activation_request)
 
 

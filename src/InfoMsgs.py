@@ -1,28 +1,28 @@
 import sys
 
 
-class Debugger:
+class InfoMsgs:
     enabled = False
 
     @staticmethod
     def enable():
-        Debugger.enabled = True
+        InfoMsgs.enabled = True
 
     @staticmethod
     def disable():
-        Debugger.enabled = False
+        InfoMsgs.enabled = False
 
     def write(*args):
-        if not Debugger.enabled:
+        if not InfoMsgs.enabled:
             return
 
         s = ''
         for arg in args:
             s += ' '+str(arg)
-        print('--> DEBUG:', s)
+        print('--> INFO:', s)
 
     def write_err(*args):
-        if not Debugger.enabled:
+        if not InfoMsgs.enabled:
             return
 
         s = ''
@@ -31,10 +31,9 @@ class Debugger:
 
         sys.stderr.write(s)
 
-        # print(DEBUG_COLORS.WARNING + s + DEBUG_COLORS.ENDC)
 
 
-class DEBUG_COLORS:
+class MSG_COLORS:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKCYAN = '\033[96m'

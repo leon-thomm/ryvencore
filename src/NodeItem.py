@@ -7,7 +7,7 @@ from .NodeItemAction import NodeItemAction
 from .NodeItemAnimator import NodeItemAnimator
 from .NodeItemWidget import NodeItemWidget
 from .PortItem import InputPortItem, OutputPortItem
-from .global_tools.MovementEnum import MovementEnum
+from .tools import MovementEnum, serialize, deserialize
 
 
 class NodeItem(QGraphicsItem, QObject):
@@ -57,7 +57,7 @@ class NodeItem(QGraphicsItem, QObject):
         self.shadow_effect = None
         self.main_widget = None
         if self.node.main_widget_class is not None:
-            self.main_widget = self.node.main_widget_class(self.node)
+            self.main_widget = self.node.main_widget_class((self.node, self))
         self.widget = NodeItemWidget(self.node, self)  # QGraphicsWidget(self)
 
         self.animator = NodeItemAnimator(self)  # needs self.title_label
@@ -79,7 +79,10 @@ class NodeItem(QGraphicsItem, QObject):
         if self.init_config is not None:
             if self.main_widget:
                 try:
-                    self.main_widget.set_data(self.init_config['main widget data'])
+                    if type(self.init_config['main widget data']) == dict:  # backwards compatibility
+                        self.main_widget.set_data(self.init_config['main widget data'])
+                    else:
+                        self.main_widget.set_data(deserialize(self.init_config['main widget data']))
                 except Exception as e:
                     print('Exception while setting data in', self.title, 'Node\'s main widget:', e,
                           ' (was this intended?)')
@@ -116,7 +119,7 @@ class NodeItem(QGraphicsItem, QObject):
     def add_new_input(self, inp: NodeObjInput, pos: int):
 
         # create item
-        inp.item = InputPortItem(inp.node, inp)
+        inp.item = InputPortItem(inp.node, self, inp)
 
         if pos == -1:
             self.inputs.append(inp.item)
@@ -149,7 +152,7 @@ class NodeItem(QGraphicsItem, QObject):
     def add_new_output(self, out: NodeObjOutput, pos: int):
 
         # create item
-        out.item = OutputPortItem(out.node, out)
+        out.item = OutputPortItem(out.node, self, out)
 
         if pos == -1:
             self.outputs.append(out.item)
@@ -312,6 +315,8 @@ class NodeItem(QGraphicsItem, QObject):
 
     def mousePressEvent(self, event):
         """Used for Moving-Commands in Flow - may be replaced later with a nicer determination of a moving action."""
+        self.flow_view.mouse_event_taken = True
+
         if event.button() == Qt.LeftButton:
             self.movement_state = MovementEnum.mouse_clicked
             self.movement_pos_from = self.pos()
@@ -319,6 +324,8 @@ class NodeItem(QGraphicsItem, QObject):
 
     def mouseReleaseEvent(self, event):
         """Used for Moving-Commands in Flow - may be replaced later with a nicer determination of a moving action."""
+        self.flow_view.mouse_event_taken = True
+
         if self.movement_state == MovementEnum.position_changed:
             self.flow_view.selected_components_moved(self.pos() - self.movement_pos_from)
         self.movement_state = None
@@ -365,7 +372,7 @@ class NodeItem(QGraphicsItem, QObject):
                 if inp_item.widget:
                     input_cfg['has widget'] = True
                     input_cfg['widget name'] = inp_item.port.widget_name
-                    input_cfg['widget data'] = inp_item.widget.get_data()
+                    input_cfg['widget data'] = serialize(inp_item.widget.get_data())
                     input_cfg['widget position'] = inp_item.port.widget_pos
                 else:
                     input_cfg['has widget'] = False
@@ -375,6 +382,6 @@ class NodeItem(QGraphicsItem, QObject):
         node_config['pos x'] = self.pos().x()
         node_config['pos y'] = self.pos().y()
         if self.main_widget:
-            node_config['main widget data'] = self.main_widget.get_data()
+            node_config['main widget data'] = serialize(self.main_widget.get_data())
 
         return node_config

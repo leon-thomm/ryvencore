@@ -1,5 +1,4 @@
-import pickle
-import base64
+from custom_src.ryvencore.src.tools import serialize, deserialize
 
 
 class Variable:
@@ -13,14 +12,12 @@ class Variable:
         self.val = None
         if type(val) != dict:  # backwards compatibility
             try:
-                self.val = pickle.loads(base64.b64decode(val))
+                self.val = deserialize(val)
             except Exception:
                 self.val = val
 
         elif 'serialized' in val.keys():
-            self.val = pickle.loads(base64.b64decode(val['serialized']))
+            self.val = deserialize(val['serialized'])
 
     def serialize(self):
-        pickled = pickle.dumps(self.val)
-        serialized = base64.b64encode(pickled).decode('ascii')
-        return serialized
+        return serialize(self.val)

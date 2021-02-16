@@ -135,6 +135,9 @@ QLineEdit{
         if type(data) == str:
             self.setText(data)
 
+    def val_update_event(self, val):
+        self.setText(str(val))
+
 
 class StdLineEditInputWidget_NoBorder(StdLineEditInputWidget):
     def __init__(self, params, size='medium', resize=False):

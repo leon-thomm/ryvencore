@@ -2,7 +2,7 @@ from PySide2.QtWidgets import QGraphicsItem
 from PySide2.QtGui import QPen, QPainter, QColor, QPainterPath
 from PySide2.QtCore import Qt, QRectF, QPointF, QLineF
 
-from .global_tools.MovementEnum import MovementEnum
+from .tools import MovementEnum
 
 
 class DrawingObject(QGraphicsItem):
@@ -164,11 +164,13 @@ class DrawingObject(QGraphicsItem):
         return QGraphicsItem.mouseReleaseEvent(self, event)
 
     def config_data(self):
-        drawing_dict = {'pos x': self.pos().x(),
-                        'pos y': self.pos().y(),
-                        'color': self.color.name(),
-                        'type': self.type,
-                        'base stroke weight': self.base_stroke_weight}
+        drawing_dict = {
+            'pos x': self.pos().x(),
+            'pos y': self.pos().y(),
+            'color': self.color.name(),
+            'type': self.type,
+            'base stroke weight': self.base_stroke_weight
+        }
         points_list = []
         for i in range(len(self.points)):
             p = self.points[i]

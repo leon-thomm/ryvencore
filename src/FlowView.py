@@ -1,7 +1,7 @@
 import time
 import json
 
-from PySide2.QtCore import Qt, QPointF, QPoint, QRectF, QSizeF, Signal, QTimer, QObject
+from PySide2.QtCore import Qt, QPointF, QPoint, QRectF, QSizeF, Signal, QTimer
 from PySide2.QtGui import QPainter, QPen, QColor, QKeySequence, QTabletEvent, QImage, QGuiApplication, QFont
 from PySide2.QtWidgets import QGraphicsView, QGraphicsScene, QShortcut, QMenu, QGraphicsItem, QUndoStack
 
@@ -13,15 +13,15 @@ from .FlowViewStylusModesWidget import FlowViewStylusModesWidget
 from .FlowSessionThreadInterface import FlowSessionThreadInterface
 from .FlowViewZoomWidget import FlowViewZoomWidget
 from .Node import Node
-from .NodeObjPort import NodeObjPort, NodeObjOutput, NodeObjInput
+from .NodeObjPort import NodeObjPort
 from .node_choice_widget.PlaceNodeWidget import PlaceNodeWidget
 from .NodeItem import NodeItem
-from .PortItem import PortItem, PortItemPin
+from .PortItem import PortItemPin
 from .Connection import Connection, DataConnection
 from .ConnectionItem import default_cubic_connection_path, ConnectionItem, DataConnectionItem, ExecConnectionItem
 from .DrawingObject import DrawingObject
-from .global_tools.Debugger import Debugger
-from .RC import PortObjPos, FlowAlg
+from .InfoMsgs import InfoMsgs
+from .RC import PortObjPos
 from .RC import FlowVPUpdateMode as VPUpdateMode
 
 
@@ -72,7 +72,7 @@ class FlowView(QGraphicsView):
         self._selected_pin: PortItemPin = None
         self._dragging_connection = False
         self._temp_connection_ports = None
-        self._ignore_mouse_event = False  # for stylus - see tablet event
+        self.mouse_event_taken = False  # for stylus - see tablet event
         self._showing_framerate = False
         self._last_mouse_move_pos: QPointF = None
         self._node_place_pos = QPointF()
@@ -267,51 +267,34 @@ class FlowView(QGraphicsView):
         self.viewport().update()
 
     def mousePressEvent(self, event):
-        Debugger.write('mouse press event received, point:', event.pos())
+        InfoMsgs.write('mouse press event received, point:', event.pos())
 
         # to catch tablet events (for some reason, it results in a mousePrEv too)
-        if self._ignore_mouse_event:
-            self._ignore_mouse_event = False
+        if self.mouse_event_taken:
+            self.mouse_event_taken = False
             return
 
-        # there might be a proxy widget meant to receive the event instead of the flow
         QGraphicsView.mousePressEvent(self, event)
 
-        # to catch any Proxy that received the event. Checking for event.isAccepted() or what is returned by
-        # QGraphicsView.mousePressEvent(...) both didn't work so far, so I do it manually
-        if self._ignore_mouse_event:
-            self._ignore_mouse_event = False
+        # don't process the event if it has been processed by a specific component in the scene
+        # this includes node items, node port pins, proxy widgets etc.
+        if self.mouse_event_taken:
+            self.mouse_event_taken = False
             return
 
         if event.button() == Qt.LeftButton:
             if self._place_node_widget_proxy.isVisible():
                 self.hide_place_node_widget()
-            else:
-                if isinstance(self.itemAt(event.pos()), PortItemPin):
-                    self._selected_pin = self.itemAt(event.pos())
-                    self._dragging_connection = True
-
-            self._left_mouse_pressed_in_flow = True
 
         elif event.button() == Qt.RightButton:
             self._right_mouse_pressed_in_flow = True
             event.accept()
-
-        # elif event.button() == Qt.MidButton:
-        # elif event.button() == Qt.RightButton:
-        #     self._panning = True
-        #     self._pan_last_x = event.x()
-        #     self._pan_last_y = event.y()
-        #     event.accept()
 
         self._mouse_press_pos = self.mapToScene(event.pos())
 
     def mouseMoveEvent(self, event):
 
         QGraphicsView.mouseMoveEvent(self, event)
-
-        # print('qwer')
-        # print(event.button())
 
         if self._right_mouse_pressed_in_flow:    # PAN
 
@@ -322,10 +305,6 @@ class FlowView(QGraphicsView):
 
             self.pan(event.pos())
             event.accept()
-
-        # if self._panning:  # middle mouse pressed
-        #     self.pan(event.pos())
-        #     event.accept()
 
         self._last_mouse_move_pos = self.mapToScene(event.pos())
 
@@ -341,19 +320,16 @@ class FlowView(QGraphicsView):
             if isinstance(item, NodeItem):
                 node_item_at_event_pos = item
 
-        if self._ignore_mouse_event or \
-                (event.button() == Qt.LeftButton and not self._left_mouse_pressed_in_flow):
-            self._ignore_mouse_event = False
+        if self.mouse_event_taken:
+            self.mouse_event_taken = False
             return
 
         elif self._panning:
-        # elif event.button() == Qt.MidButton:
             self._panning = False
 
         elif event.button() == Qt.RightButton:
             self._right_mouse_pressed_in_flow = False
-            if self._mouse_press_pos == self._last_mouse_move_pos and \
-                    len(self.items(event.pos())) == 0:
+            if self._mouse_press_pos == self._last_mouse_move_pos:
 
                 self._place_node_widget.reset_list()
                 self.show_place_node_widget(event.pos())
@@ -389,8 +365,8 @@ class FlowView(QGraphicsView):
             self._dragging_connection = False
             self._selected_pin = None
 
-        if event.button() == Qt.LeftButton:
-            self._left_mouse_pressed_in_flow = False
+        # if event.button() == Qt.LeftButton:
+        #     self._left_mouse_pressed_in_flow = False
         elif event.button() == Qt.RightButton:
             self._right_mouse_pressed_in_flow = False
 
@@ -433,7 +409,7 @@ class FlowView(QGraphicsView):
         scaled_event_pos: QPointF = event.posF()/self._current_scale
 
         if event.type() == QTabletEvent.TabletPress:
-            self._ignore_mouse_event = True
+            self.mouse_event_taken = True
 
             if event.button() == Qt.LeftButton:
                 if self.stylus_mode == 'comment':
@@ -450,7 +426,7 @@ class FlowView(QGraphicsView):
                 self._pan_last_y = event.y()
 
         elif event.type() == QTabletEvent.TabletMove:
-            self._ignore_mouse_event = True
+            self.mouse_event_taken = True
             if self._panning:
                 self.pan(event.pos())
 
@@ -470,7 +446,7 @@ class FlowView(QGraphicsView):
             if self._panning:
                 self._panning = False
             if self.stylus_mode == 'comment' and self._drawing:
-                Debugger.write('drawing obj finished')
+                InfoMsgs.write('drawing obj finished')
                 self._current_drawing.finish()
                 self._current_drawing = None
                 self._drawing = False
@@ -500,7 +476,7 @@ class FlowView(QGraphicsView):
     # def dropEvent(self, event):
     #     text = event.mimeData().text()
     #     item: QListWidgetItem = event.mimeData()
-    #     Debugger.write('drop received in Flow:', text)
+    #     InfoMsgs.write('drop received in Flow:', text)
     #
     #     j_obj = None
     #     type = ''

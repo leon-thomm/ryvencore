@@ -1,6 +1,5 @@
 from PySide2.QtCore import QObject, Signal
 
-from .PortItem import InputPortItem, OutputPortItem
 from .RC import PortObjPos, FlowAlg
 
 
@@ -77,7 +76,9 @@ class NodeObjInput(NodeObjPort):
     def update(self):
         """called from another node or from connected()"""
         if self.type_ == 'data':
-            self.val = self.get_val()  # might remove that later for performance
+            self.val = self.get_val()
+            if self.item:
+                self.item.updated_val()
 
         if (self.node.is_active() and self.type_ == 'exec') or \
            not self.node.is_active():
@@ -95,7 +96,7 @@ class NodeObjOutput(NodeObjPort):
             c.activate()
 
     def get_val(self):
-        # Debugger.debug('returning val directly')
+        # InfoMsgs.debug('returning val directly')
         if self.node.flow.alg_mode == FlowAlg.EXEC:
             self.node.update()
         return self.val

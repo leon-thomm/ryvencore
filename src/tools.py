@@ -1,0 +1,82 @@
+import base64
+import enum
+import json
+import os
+import pickle
+from math import sqrt
+
+
+def pythagoras(a, b):
+    return sqrt(a ** 2 + b ** 2)
+
+
+def get_longest_line(s: str):
+    lines = s.split('\n')
+    lines = [line.replace('\n', '') for line in lines]
+    longest_line_found = ''
+    for line in lines:
+        if len(line) > len(longest_line_found):
+            longest_line_found = line
+    return line
+
+
+def shorten(s: str, max_chars: int, line_break: bool = False):
+    """Ensures, that a given string does not exceed a given max length. If it would, its cut in the middle."""
+    l = len(s)
+    if l > max_chars:
+        insert = ' . . . '
+        if line_break:
+            insert = '\n'+insert+'\n'
+        insert_length = len(insert)
+        left = s[:round((max_chars-insert_length)/2)]
+        right = s[round(l-((max_chars-insert_length)/2)):]
+        return left+insert+right
+    else:
+        return s
+
+
+class MovementEnum(enum.Enum):
+    """bug test: click on NI, drag, then use shortcut movement and release. Should result in a double undo stack push
+    this should get removed later, it's an ugly implementation"""
+    mouse_clicked = 1
+    position_changed = 2
+    mouse_released = 3
+
+
+def serialize(data) -> str:
+    """Serializes any data into a string or None if data is None"""
+    return base64.b64encode(pickle.dumps(data)).decode('ascii')
+
+
+def deserialize(data):
+    return pickle.loads(base64.b64decode(data))
+
+
+
+def translate_project(filepath: str):
+    f = open(filepath, 'r')
+    project_str = f.read()
+    f.close()
+    project: dict = json.loads(project_str)
+    project_repaired = translate_project__repair(project)
+    project_repaired_str = json.dumps(project_repaired, indent=4)
+
+    f = open(os.path.splitext(filepath)[0]+'_TRANSLATED.rpo', 'w')
+    f.write(project_repaired_str)
+    f.close()
+
+
+def translate_project__repair(obj):
+    if type(obj) == dict:
+        for k, v in obj.items():
+            if k in ('state data', 'widget data', 'main widget data'):
+                obj[k] = serialize(v)
+
+            else:
+                obj[k] = translate_project__repair(v)
+
+    elif type(obj) == list:
+        for i in range(len(obj)):
+            obj[i] = translate_project__repair(obj[i])
+
+    return obj

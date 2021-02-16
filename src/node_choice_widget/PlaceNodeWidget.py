@@ -2,7 +2,7 @@ from PySide2.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QLabel, QScrollAr
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QFont
 
-from ..global_tools.Debugger import Debugger
+from ..InfoMsgs import InfoMsgs
 from ..node_choice_widget.NodeWidget import NodeWidget
 
 
@@ -150,7 +150,7 @@ class PlaceNodeWidget(QWidget):
     def get_sorted_dict_matching_search(self, items_dict, text):
         indices_dict = {}
         for item, name in items_dict.items():  # the strings are already lowered here
-            Debugger.write(item, name, text)
+            InfoMsgs.write(item, name, text)
             if name.__contains__(text):
                 index = name.index(text)
                 indices_dict[item] = index
@@ -183,7 +183,7 @@ class PlaceNodeWidget(QWidget):
 
 
     def node_widget_chosen(self):  # gets called when the user clicks on a node widget with the mouse
-        self.flow_view._ignore_mouse_event = True  # otherwise, it will receive a mouse press event
+        self.flow_view.mouse_event_taken = True  # otherwise, it will receive a mouse press event
 
         index = int(self.sender().objectName()[self.sender().objectName().rindex('_')+1:])
         self.place_node(index)

@@ -3,6 +3,7 @@ from PySide2.QtWidgets import QGraphicsWidget, QGraphicsLinearLayout
 
 from .FlowViewProxyWidget import FlowViewProxyWidget
 # from .Node import Node
+from .NodeItem_Icon import NodeItem_Icon
 from .NodeItem_TitleLabel import TitleLabel
 from .PortItem import InputPortItem, OutputPortItem
 
@@ -15,6 +16,7 @@ class NodeItemWidget(QGraphicsWidget):
         self.node_item = node_item
         self.flow_view = self.node_item.flow_view
 
+        self.icon = NodeItem_Icon(node, node_item) if node.icon else None
         self.title_label = TitleLabel(node, node_item)
         self.main_widget_proxy: FlowViewProxyWidget = None
         if self.node_item.main_widget:
@@ -32,8 +34,13 @@ class NodeItemWidget(QGraphicsWidget):
         layout.setSpacing(10)
 
         if self.node.style == 'extended':
-            layout.addItem(self.title_label)
-            layout.setAlignment(self.title_label, Qt.AlignTop)
+            header_layout = QGraphicsLinearLayout(Qt.Horizontal)
+            if self.icon:
+                header_layout.addItem(self.icon)
+            header_layout.addItem(self.title_label)
+
+            layout.addItem(header_layout)
+            # layout.setAlignment(self.title_label, Qt.AlignTop)
         else:
             self.setZValue(self.title_label.zValue()+1)
 
@@ -135,8 +142,17 @@ class NodeItemWidget(QGraphicsWidget):
         self.setPos(rect.left(), rect.top())
 
         if not self.node.style == 'extended':
-            self.title_label.setPos(QPointF(-self.title_label.boundingRect().width() / 2,
-                                            -self.title_label.boundingRect().height() / 2))
+            if self.icon:
+                self.icon.setPos(
+                    QPointF(-self.icon.boundingRect().width() / 2,
+                            -self.icon.boundingRect().height() / 2)
+                )
+                self.title_label.hide()
+            else:
+                self.title_label.setPos(
+                    QPointF(-self.title_label.boundingRect().width() / 2,
+                            -self.title_label.boundingRect().height() / 2)
+                )
 
     def add_main_widget_to_layout(self):
         if self.node.main_widget_pos == 'between ports':
