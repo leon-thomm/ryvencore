@@ -175,11 +175,16 @@ class PortItemPin(QGraphicsWidget):
         return QSizeF(self.width, self.height)
 
     def paint(self, painter, option, widget=None):
-        self.node_item.session_design.flow_theme.node_item_painter.paint_PI(
-            painter, option, self.node_item.color,
-            self.port.type_,
-            len(self.port.connections) > 0,
-            self.padding, self.painting_width, self.painting_height
+        self.node_item.session_design.flow_theme.paint_PI(
+            node=self.node,
+            painter=painter,
+            option=option,
+            node_color=self.node_item.color,
+            type_=self.port.type_,
+            connected=len(self.port.connections) > 0,
+            padding=self.padding,
+            w=self.painting_width,
+            h=self.painting_height
         )
 
     def mousePressEvent(self, event):
@@ -237,7 +242,8 @@ class PortItemLabel(QGraphicsWidget):
         return QSizeF(self.width, self.height)
 
     def paint(self, painter, option, widget=None):
-        self.node_item.session_design.flow_theme.node_item_painter.paint_PI_label(
+        self.node_item.session_design.flow_theme.paint_PI_label(
+            self.node,
             painter, option,
             self.port.type_,
             len(self.port.connections) > 0,

@@ -1,7 +1,7 @@
 import os
 
 from PySide2.QtCore import Signal
-from PySide2.QtGui import QFontMetrics
+from PySide2.QtGui import QFontMetrics, QColor
 from PySide2.QtWidgets import QSpinBox, QLineEdit
 
 
@@ -78,27 +78,24 @@ class StdLineEditInputWidget(QLineEdit, IWB):
 
         # / *border - color: '''+self.node.color+'''; * /
 
-        self.setStyleSheet('''
-QLineEdit{{ 
-    padding: 1px 1px ;
-}}
-        '''.format(**os.environ))
+        # c = QColor('#8c8c8c')
+        # background_color = f'rgba({c.red()}, {c.green()}, {c.blue()}, 0.2)'
 
-        # self.setStyleSheet("""
-        #     QLineEdit{
-        #         border-radius: 10px;
-        #         background-color: transparent;
-        #         border: 1px solid #404040;
-        #         color: #aaaaaa;
-        #         padding: 3px;
-        #     }
-        #     QLineEdit:hover {
-        #         background-color: rgba(59, 156, 217, 150);
-        #     }
-        #     QLineEdit:disabled{
-        #         color: #777777;
-        #     }
-        # """)
+        if self.node.style == 'small':
+            self.setStyleSheet('''
+QLineEdit{
+    padding: 1px 1px ;
+    background: transparent;
+}
+
+            ''')
+        else:
+            self.setStyleSheet('''
+QLineEdit{ 
+    padding: 1px 1px ;
+}
+            ''')
+
         f = self.font()
         f.setPointSize(10)
         self.setFont(f)
@@ -143,18 +140,16 @@ class StdLineEditInputWidget_NoBorder(StdLineEditInputWidget):
     def __init__(self, params, size='medium', resize=False):
         StdLineEditInputWidget.__init__(self, params, size, resize)
 
-        # self.setStyleSheet("""
-        #     QLineEdit{
-        #         border: none;
-        #         border-radius: 5px;
-        #         background-color: transparent;
-        #         color: #aaaaaa;
-        #         padding: 3px;
-        #     }
-        #     QLineEdit:hover {
-        #         background-color: rgba(59, 156, 217, 150);
-        #     }
-        #     QLineEdit:disabled{
-        #         color: #777777;
-        #     }
-        # """)
+        c = QColor(self.node.color)
+
+        hover_color = f'rgba({c.red()}, {c.green()}, {c.blue()}, 0.5)'
+
+        self.setStyleSheet(self.styleSheet() + '''
+QLineEdit {
+    border: none;
+}
+QLineEdit:hover {
+    background-color: '''+hover_color+''';
+    border: none;
+}
+        ''')

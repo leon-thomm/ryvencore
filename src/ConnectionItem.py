@@ -1,7 +1,7 @@
 # import math
 
 from PySide2.QtCore import QRectF, QPointF
-from PySide2.QtGui import QPainter, QColor, QRadialGradient, QPainterPath
+from PySide2.QtGui import QPainter, QColor, QRadialGradient, QPainterPath, QPen, Qt
 from PySide2.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem
 
 from .global_tools.math import pythagoras, sqrt
@@ -47,7 +47,12 @@ class ExecConnectionItem(ConnectionItem):
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget=...) -> None:
 
-        pen = self.session_design.flow_theme.get_flow_conn_pen_inst('exec')
+        theme = self.session_design.flow_theme
+
+        pen = QPen(theme.exec_conn_color, theme.exec_conn_width)
+        pen.setStyle(theme.exec_conn_pen_style)
+        pen.setCapStyle(Qt.RoundCap)
+
         c = pen.color()
 
         # highlight hovered connections
@@ -82,7 +87,12 @@ class DataConnectionItem(ConnectionItem):
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget=...) -> None:
 
-        pen = self.session_design.flow_theme.get_flow_conn_pen_inst('data')
+        theme = self.session_design.flow_theme
+
+        pen = QPen(theme.data_conn_color, theme.data_conn_width)
+        pen.setStyle(theme.data_conn_pen_style)
+        pen.setCapStyle(Qt.RoundCap)
+
         c = pen.color()
 
         # highlight hovered connections

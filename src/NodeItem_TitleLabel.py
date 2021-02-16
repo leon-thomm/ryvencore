@@ -42,7 +42,8 @@ class TitleLabel(QGraphicsWidget):
 
     def paint(self, painter, option, widget=None):
 
-        self.node_item.session_design.flow_theme.node_item_painter.paint_NI_title_label(
+        self.node_item.session_design.flow_theme.paint_NI_title_label(
+            self.node,
             painter, option, self.hovering,
             self.design_style(), self.title_str, self.node_item.color,
             self.boundingRect()

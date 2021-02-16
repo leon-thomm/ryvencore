@@ -190,7 +190,7 @@ class NodeItem(QGraphicsItem, QObject):
             self.shadow_effect.setXOffset(12)
             self.shadow_effect.setYOffset(12)
             self.shadow_effect.setBlurRadius(20)
-            self.shadow_effect.setColor(QColor('#2b2b2b'))
+            self.shadow_effect.setColor(self.session_design.flow_theme.node_item_shadow_color)
             self.setGraphicsEffect(self.shadow_effect)
         else:
             self.setGraphicsEffect(None)
@@ -229,11 +229,12 @@ class NodeItem(QGraphicsItem, QObject):
             self.update_shape()
             self.update_conn_pos()
 
-        self.session_design.flow_theme.node_item_painter.paint_NI(
-            design_style=self.node.style,
+        self.session_design.flow_theme.paint_NI(
+            node=self.node,
+            node_style=self.node.style,
             painter=painter,
             option=option,
-            c=self.color,
+            color=self.color,
             w=self.boundingRect().width(),
             h=self.boundingRect().height(),
             bounding_rect=self.boundingRect(),

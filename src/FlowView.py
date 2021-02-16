@@ -1,4 +1,5 @@
 import time
+import json
 
 from PySide2.QtCore import Qt, QPointF, QPoint, QRectF, QSizeF, Signal, QTimer, QObject
 from PySide2.QtGui import QPainter, QPen, QColor, QKeySequence, QTabletEvent, QImage, QGuiApplication, QFont
@@ -22,8 +23,6 @@ from .DrawingObject import DrawingObject
 from .global_tools.Debugger import Debugger
 from .RC import PortObjPos, FlowAlg
 from .RC import FlowVPUpdateMode as VPUpdateMode
-
-import json
 
 
 class FlowView(QGraphicsView):
@@ -518,10 +517,29 @@ class FlowView(QGraphicsView):
 
     # PAINTING
     def drawBackground(self, painter, rect):
-        # TODO: maybe add custom draw_background method to FlowThemes
-        painter.fillRect(rect.intersected(self.sceneRect()), self.session.design.flow_theme.flow_background_color)
+
+        painter.setBrush(self.session.design.flow_theme.flow_background_brush)
+        painter.drawRect(rect.intersected(self.sceneRect()))
         painter.setPen(Qt.NoPen)
         painter.drawRect(self.sceneRect())
+
+        if self.session.design.performance_mode == 'pretty':
+            theme = self.session.design.flow_theme
+            if theme.flow_background_grid:
+                if theme.flow_background_grid[0] == 'points':
+                    color = theme.flow_background_grid[1]
+                    pen_width = theme.flow_background_grid[2]
+                    diff_x = theme.flow_background_grid[3]
+                    diff_y = theme.flow_background_grid[4]
+
+                    pen = QPen(color)
+                    pen.setWidthF(pen_width)
+                    painter.setPen(pen)
+
+                    for x in range(diff_x, self.sceneRect().toRect().width(), diff_x):
+                        for y in range(diff_y, self.sceneRect().toRect().height(), diff_y):
+                            painter.drawPoint(x, y)
+
 
         self.set_stylus_proxy_pos()  # has to be called here instead of in drawForeground to prevent lagging
         self.set_zoom_proxy_pos()
@@ -556,21 +574,11 @@ class FlowView(QGraphicsView):
             painter.drawPath(
                 default_cubic_connection_path(pos1, pos2)
             )
-            # TODO: use custom connection-paint-methods later
-
-            # if spp.type_ == 'data':
-            #     painter.drawPath(
-            #         default_cubic_connection_path(pos1, pos2)
-            #     )
-            # elif spp.type_ == 'exec':
-            #     painter.drawPath(
-            #         default_cubic_connection_path(pos1, pos2)
-            #     )
 
 
         # DRAW SELECTED NIs BORDER
         for ni in self.selected_node_items():
-            pen = QPen(QColor('#245d75'))
+            pen = QPen(self.session.design.flow_theme.flow_highlight_pen_color)
             pen.setWidth(3)
             painter.setPen(pen)
             painter.setBrush(Qt.NoBrush)
@@ -601,14 +609,14 @@ class FlowView(QGraphicsView):
     def get_viewport_img(self) -> QImage:
         """Returns a clear image of the viewport"""
 
-        self._hide_proxies()
+        self.hide_proxies()
         img = QImage(self.viewport().rect().width(), self.viewport().height(), QImage.Format_ARGB32)
         img.fill(Qt.transparent)
 
         painter = QPainter(img)
         painter.setRenderHint(QPainter.Antialiasing)
         self.render(painter, self.viewport().rect(), self.viewport().rect())
-        self._show_proxies()
+        self.show_proxies()
         return img
 
     def get_whole_scene_img(self) -> QImage:
@@ -616,7 +624,7 @@ class FlowView(QGraphicsView):
         Due to a bug this only works from the viewport position down and right, so the user has to scroll to
         the top left corner in order to get the full scene"""
 
-        self._hide_proxies()
+        self.hide_proxies()
         img = QImage(self.sceneRect().width() / self._total_scale_div, self.sceneRect().height() / self._total_scale_div,
                      QImage.Format_RGB32)
         img.fill(Qt.transparent)
@@ -630,7 +638,7 @@ class FlowView(QGraphicsView):
         rect.setHeight(img.rect().height())
         # rect is right... but it only renders from the viewport's point down-and rightwards, not from topleft (0,0) ...
         self.render(painter, rect, rect.toRect())
-        self._show_proxies()
+        self.show_proxies()
         return img
 
     # PROXY POSITIONS
@@ -641,11 +649,11 @@ class FlowView(QGraphicsView):
         self._stylus_modes_proxy.setPos(
             self.mapToScene(self.viewport().width() - self._stylus_modes_widget.width() - self._zoom_widget.width(), 0))
 
-    def _hide_proxies(self):
+    def hide_proxies(self):
         self._stylus_modes_proxy.hide()
         self._zoom_proxy.hide()
 
-    def _show_proxies(self):
+    def show_proxies(self):
         self._stylus_modes_proxy.show()
         self._zoom_proxy.show()
 
