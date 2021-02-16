@@ -20,7 +20,7 @@ class LogWidget(QWidget):
         self.header_layout = QHBoxLayout()
 
         title_label = QLabel(self.log.title)
-        title_label.setFont(QFont('Poppins', 13))
+        title_label.setFont(QFont('Poppins', 12))
         self.header_layout.addWidget(title_label)
 
         self.remove_button = QPushButton('x')
@@ -36,27 +36,27 @@ class LogWidget(QWidget):
 
         self.setLayout(self.main_layout)
 
-        self.enabled_style_sheet = '''
-            QLabel {
-                border: None;
-            }
-            QWidget {
-                color: #e9f4fb;
-            }
-        '''
-        self.disabled_style_sheet = '''
-            QLabel {
-                border: None;
-            }
-            QWidget {
-                color: #e9f4fb;
-            }
-            QPlainTextEdit {
-                background: black; 
-                color: grey;
-            }
-        '''
-        self.setStyleSheet(self.enabled_style_sheet)
+        # self.enabled_style_sheet = '''
+        #     QLabel {
+        #         border: None;
+        #     }
+        #     QWidget {
+        #         color: #e9f4fb;
+        #     }
+        # '''
+        # self.disabled_style_sheet = '''
+        #     QLabel {
+        #         border: None;
+        #     }
+        #     QWidget {
+        #         color: #e9f4fb;
+        #     }
+        #     QPlainTextEdit {
+        #         background: black;
+        #         color: grey;
+        #     }
+        # '''
+        # self.setStyleSheet(self.enabled_style_sheet)
 
     def write(self, msg: str):
         self.text_edit.appendPlainText(msg)
@@ -66,11 +66,11 @@ class LogWidget(QWidget):
 
     def disable(self):
         self.remove_button.show()
-        self.setStyleSheet(self.disabled_style_sheet)
+        # self.setStyleSheet(self.disabled_style_sheet)
 
     def enable(self):
         self.remove_button.hide()
-        self.setStyleSheet(self.enabled_style_sheet)
+        # self.setStyleSheet(self.enabled_style_sheet)
         self.show()
 
     def remove_clicked(self):

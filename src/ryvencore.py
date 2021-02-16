@@ -1,8 +1,6 @@
 from .Node import Node
 from .NodePort import NodeInput, NodeOutput
-from .NodeItem import NodeItem
 from .Session import Session
-from .SessionThread import SessionThread
 from .WidgetBaseClasses import MWB, IWB
 from .global_tools.Debugger import Debugger
 from .Connection import DataConnection, ExecConnection
@@ -58,4 +56,4 @@ class Retain:
 import os
 from .GlobalAttributes import Location
 Location.PACKAGE_PATH = os.path.normpath(os.path.dirname(__file__)+'/../')
-print(Location.PACKAGE_PATH)
+# print(Location.PACKAGE_PATH)

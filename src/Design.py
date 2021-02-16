@@ -2,7 +2,7 @@ from PySide2.QtCore import QObject, Signal, Qt
 from PySide2.QtGui import QPen, QColor
 
 from .NodeItemPainter import NIPainter_DarkStd, NIPainter_DarkTron, NIPainter_Ghostly, NIPainter_Blender, \
-    NIPainter_Easy, NIPainter_Peasy, NIPainter_Ueli
+    NIPainter_Easy, NIPainter_Peasy, NIPainter_Ueli, NIPainter_Samuel1
 
 
 class FlowTheme:
@@ -114,7 +114,19 @@ class Design(QObject):
                       2,
                       Qt.DashLine,
                       NIPainter_Ueli,
-                      QColor('#3f4044'))
+                      QColor('#3f4044')),
+
+            FlowTheme(
+                name='Samuel 1',
+                flow_conn_exec_color=QColor('#ffffff'),
+                flow_conn_exec_width=1.5,
+                flow_conn_exec_pen_style=Qt.SolidLine,
+                flow_conn_data_color=QColor('#ffffff'),
+                flow_conn_data_width=1.5,
+                flow_conn_data_pen_style=Qt.DashLine,
+                node_item_painter=NIPainter_Samuel1,
+                flow_background_color=QColor('#1E242A')
+            )
         ]
 
         self._default_flow_theme = self.flow_themes[-1]
@@ -125,7 +137,7 @@ class Design(QObject):
         self.set_performance_mode(performance_mode)
 
         self.animations_enabled = animations_enabled
-        self.node_choice_stylesheet = default_node_choice_stylesheet
+        self.node_selection_stylesheet = default_node_selection_stylesheet
 
     def available_flow_themes(self) -> dict:
         return {theme.name: theme for theme in self.flow_themes}
@@ -165,13 +177,13 @@ class Design(QObject):
         self.node_item_shadows_enabled = b
 
     def set_node_choice_stylesheet(self, s: str):
-        self.node_choice_stylesheet = s
+        self.node_selection_stylesheet = s
 
 
 
 
 
-default_node_choice_stylesheet = '''
+default_node_selection_stylesheet = '''
 QWidget {
 	background-color: #2b2b2b;
 	border-radius: 3px;

@@ -44,6 +44,7 @@ class Node(QObject):
         self.logs = []
 
         self.init_config = config
+        self.initialized = False
 
         self.item = None  # set by the flow widget
 
@@ -54,19 +55,24 @@ class Node(QObject):
 
             self.special_actions = self.set_special_actions_data(self.init_config['special actions'])
 
+        else:
+            self.setup_ports()
+
+        self.enable_logs()
+
+        self._initialized()
+
+        self.initialized = True
+
+        # self.update()
+
+    def load_config_data(self):
+        if self.init_config:
             try:
                 self.set_data(self.init_config['state data'])
             except Exception as e:
                 print('Exception while setting data in', self.title, 'Node:', e,
                       ' (was this intended?)')
-        else:
-            self.setup_ports()
-
-        # self.item.initialized()
-
-        self._initialized()
-
-        self.update()
 
     def init_default_actions(self) -> dict:
         return {'update shape': {'method': self.update_shape}}

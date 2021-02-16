@@ -1,11 +1,13 @@
 import time
 
-from PySide2.QtCore import QObject, Signal
+from PySide2.QtCore import QObject, Signal, QThread
 from PySide2.QtGui import QFontDatabase
+from PySide2.QtWidgets import QWidget
 
 from .Connection import DataConnection, ExecConnection
 from .GlobalAttributes import Location
 from .Script import Script
+from .SessionThreadingBridge import SessionThreadingBridge
 from .global_tools.Debugger import Debugger
 from .Design import Design
 
@@ -24,12 +26,12 @@ class Session(QObject):
             flow_performance_mode: str = 'pretty',
             animations_enabled: bool = True,
             flow_theme_name: str = 'ueli',
-            # debug_messages_enabled: bool = False,
+
             threaded: bool = False,
-            parent: QObject = None,
-            # flow_data_conn_class=DataConnection,
-            # flow_exec_conn_class=ExecConnection,
-            project: dict = None
+            gui_parent: QWidget = None,
+            gui_thread: QThread = None,
+
+            parent: QObject = None
     ):
         super().__init__(parent=parent)
 
@@ -38,9 +40,15 @@ class Session(QObject):
         self.scripts: [Script] = []
         self.nodes = []  # list of node CLASSES
         self.threaded = threaded
-        if threaded:
-            self.custom_thread = self.thread()
-            self.gui_thread = self.thread().thread()
+        self.threading_bridge = None
+        self.gui_parent = gui_parent
+        if self.threaded:
+            self.threading_bridge = SessionThreadingBridge()
+            self.threading_bridge.moveToThread(gui_parent.thread())
+
+        # if threaded:
+        #     self.custom_thread = self.thread()
+        #     self.gui_thread = self.thread().thread()
 
         # # connections
         # self.flow_data_conn_class = flow_data_conn_class
@@ -62,8 +70,8 @@ class Session(QObject):
         #   This is pretty nasty since I cannot think of a nice fix for this issue other that not letting the slot
         #   methods be called directly from the emitted signal but instead through a defined procedure like before.
 
-        if project:
-            self.load(project)
+        # if project:
+        #     self.load(project)
 
 
     def _register_fonts(self):
@@ -85,27 +93,13 @@ class Session(QObject):
         self.nodes.append(node_class)
 
 
-    def create_script(self, title: str, flow_size: list = None, create_default_logs=True, gui_parent=None) -> Script:
+    def create_script(self, title: str, flow_size: list = None, create_default_logs=True) -> Script:
         """Creates and returns a new script"""
 
-        print('a')
-
-        script = Script(session=self, title=title, flow_size=flow_size, create_default_logs=create_default_logs,
-                        gui_parent=gui_parent)
-
-        print('b')
-
-        # joining threads: wait for flow view to get created
-        while script.flow_view is None:
-            print(script.flow_view)
-            time.sleep(0.001)
-
-        print('c')
+        script = Script(session=self, title=title, flow_size=flow_size, create_default_logs=create_default_logs)
 
         self.scripts.append(script)
         self.new_script_created.emit(script)
-
-        print('d')
 
         return script
 
@@ -155,13 +149,16 @@ class Session(QObject):
             self._load_script(config=s)
 
 
-    def serialize(self) -> list:
+    def serialize(self) -> dict:
         """Returns a list with 'config data' of all scripts for saving the project"""
 
-        scripts_data = []
+        data = {}
+        scripts_list = []
         for script in self.scripts:
-            scripts_data.append(script.content_data())
-        return scripts_data
+            scripts_list.append(script.serialize())
+        data['scripts'] = scripts_list
+
+        return data
 
 
     def all_nodes(self):

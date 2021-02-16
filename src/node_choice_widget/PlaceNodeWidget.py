@@ -60,7 +60,7 @@ class PlaceNodeWidget(QWidget):
 
         self.update_view('')
 
-        self.setStyleSheet(self.flow_view.session.design.node_choice_stylesheet)
+        self.setStyleSheet(self.flow_view.session.design.node_selection_stylesheet)
 
         self.search_line_edit.setFocus()
 

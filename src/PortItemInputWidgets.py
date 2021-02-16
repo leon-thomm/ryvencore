@@ -1,9 +1,10 @@
+import os
+
+from PySide2.QtCore import Signal
 from PySide2.QtGui import QFontMetrics
 from PySide2.QtWidgets import QSpinBox, QLineEdit
 
 
-# TODO: the relative import leads to an error when overriding src code in Ryven...
-#  which is really strange and hopefully resolved when using ryvencore as package
 from .WidgetBaseClasses import IWB
 from .retain import M
 # from custom_src.ryvencore.src.WidgetBaseClasses import IWB
@@ -11,25 +12,31 @@ from .retain import M
 
 
 class StdSpinBoxInputWidget(QSpinBox, IWB):
+
+    trigger_update = Signal(int)
+
     def __init__(self, params):
         QSpinBox.__init__(self)
         IWB.__init__(self, params)
+
+        self.trigger_update.connect(self.node.update)
 
         self.port_local_pos = None
 
         self.setFixedWidth(50)
         self.setFixedHeight(25)
-        self.setStyleSheet("""
-            QSpinBox {
-                color: white;
-                background: transparent;
-            }
-        """)
+        # self.setStyleSheet("""
+        #     QSpinBox {
+        #         color: white;
+        #         background: transparent;
+        #     }
+        # """)
         self.setMaximum(1000000)
         self.editingFinished.connect(self.editing_finished)
 
     def editing_finished(self):
-        self.node.update(self.node.inputs.index(self.input))
+        # self.node.update(self.node.inputs.index(self.input))
+        self.trigger_update.emit(self.node.inputs.index(self.input))
 
     def remove_event(self):
         pass
@@ -45,9 +52,14 @@ class StdSpinBoxInputWidget(QSpinBox, IWB):
 
 
 class StdLineEditInputWidget(QLineEdit, IWB):
+
+    trigger_update = Signal(int)
+
     def __init__(self, params, size='medium', resize=False):
         IWB.__init__(self, params)
         QLineEdit.__init__(self)
+
+        self.trigger_update.connect(self.node.update)
 
         self.port_local_pos = None
         self.resizing = resize
@@ -61,23 +73,32 @@ class StdLineEditInputWidget(QLineEdit, IWB):
 
         self.setFixedWidth(self.base_width)
 
-        self.setFixedHeight(25)
+        # self.setFixedHeight(25)
         self.setPlaceholderText('')
-        self.setStyleSheet("""
-            QLineEdit{
-                border-radius: 10px;
-                background-color: transparent;
-                border: 1px solid #404040;
-                color: #aaaaaa;
-                padding: 3px;
-            }
-            QLineEdit:hover {
-                background-color: rgba(59, 156, 217, 150);
-            }
-            QLineEdit:disabled{
-                color: #777777;
-            }
-        """)
+
+        # / *border - color: '''+self.node.color+'''; * /
+
+        self.setStyleSheet('''
+QLineEdit{{ 
+    padding: 1px 1px ;
+}}
+        '''.format(**os.environ))
+
+        # self.setStyleSheet("""
+        #     QLineEdit{
+        #         border-radius: 10px;
+        #         background-color: transparent;
+        #         border: 1px solid #404040;
+        #         color: #aaaaaa;
+        #         padding: 3px;
+        #     }
+        #     QLineEdit:hover {
+        #         background-color: rgba(59, 156, 217, 150);
+        #     }
+        #     QLineEdit:disabled{
+        #         color: #777777;
+        #     }
+        # """)
         f = self.font()
         f.setPointSize(10)
         self.setFont(f)
@@ -95,7 +116,8 @@ class StdLineEditInputWidget(QLineEdit, IWB):
             # self.parent_node_instance.rebuild_ui()  # see rebuild_ui() for explanation
 
     def editing_finished(self):
-        self.node.update(self.node.inputs.index(self.input))
+        # self.node.update(self.node.inputs.index(self.input))
+        self.trigger_update.emit(self.node.inputs.index(self.input))
 
     def remove_event(self):
         pass
@@ -121,18 +143,18 @@ class StdLineEditInputWidget_NoBorder(StdLineEditInputWidget):
     def __init__(self, params, size='medium', resize=False):
         StdLineEditInputWidget.__init__(self, params, size, resize)
 
-        self.setStyleSheet("""
-            QLineEdit{
-                border: none;
-                border-radius: 5px;
-                background-color: transparent;
-                color: #aaaaaa;
-                padding: 3px;
-            }
-            QLineEdit:hover {
-                background-color: rgba(59, 156, 217, 150);
-            }
-            QLineEdit:disabled{
-                color: #777777;
-            }
-        """)
+        # self.setStyleSheet("""
+        #     QLineEdit{
+        #         border: none;
+        #         border-radius: 5px;
+        #         background-color: transparent;
+        #         color: #aaaaaa;
+        #         padding: 3px;
+        #     }
+        #     QLineEdit:hover {
+        #         background-color: rgba(59, 156, 217, 150);
+        #     }
+        #     QLineEdit:disabled{
+        #         color: #777777;
+        #     }
+        # """)

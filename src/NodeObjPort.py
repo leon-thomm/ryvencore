@@ -108,8 +108,11 @@ class NodeObjOutput(NodeObjPort):
         # if algorithm mode would be exec flow, all data will be required instead of actively forward propagated
         if self.node.flow.alg_mode == FlowAlg.DATA:  # and \
                 # not self.node.initializing
-            self.updated_val()
-
-    def updated_val(self):
-        for c in self.connections:
-            c.activate()
+            for c in self.connections:
+                c.activate()
+                # c.queue()
+    #         self.updated_val()
+    #
+    # def updated_val(self):
+    #     for c in self.connections:
+    #         c.activate()

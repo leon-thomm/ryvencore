@@ -1,9 +1,9 @@
 from PySide2.QtWidgets import QGraphicsProxyWidget
 
 
-class FlowProxyWidget(QGraphicsProxyWidget):
+class FlowViewProxyWidget(QGraphicsProxyWidget):
     def __init__(self, flow_view, parent=None):
-        super(FlowProxyWidget, self).__init__(parent)
+        super(FlowViewProxyWidget, self).__init__(parent)
 
         self.flow_view = flow_view
 

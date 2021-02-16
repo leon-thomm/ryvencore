@@ -7,10 +7,10 @@ from PySide2.QtWidgets import QGraphicsView, QGraphicsScene, QShortcut, QMenu, Q
 from .Flow import Flow
 from .FlowCommands import MoveComponents_Command, PlaceNode_Command, \
     PlaceDrawing_Command, RemoveComponents_Command, ConnectPorts_Command, Paste_Command, FlowUndoCommand
-from .FlowProxyWidget import FlowProxyWidget
-from .FlowStylusModesWidget import FlowStylusModesWidget
+from .FlowViewProxyWidget import FlowViewProxyWidget
+from .FlowViewStylusModesWidget import FlowViewStylusModesWidget
 from .FlowSessionThreadInterface import FlowSessionThreadInterface
-from .FlowZoomWidget import FlowZoomWidget
+from .FlowViewZoomWidget import FlowViewZoomWidget
 from .Node import Node
 from .NodeObjPort import NodeObjPort, NodeObjOutput, NodeObjInput
 from .node_choice_widget.PlaceNodeWidget import PlaceNodeWidget
@@ -107,7 +107,8 @@ class FlowView(QGraphicsView):
 
         # SESSION THREAD
         if self.session.threaded:
-            self.session_thread = self.session.custom_thread
+            self.thread_interface = FlowSessionThreadInterface()
+            self.thread_interface.moveToThread(self.session.thread())
 
         # SETTINGS
         self.vp_update_mode: VPUpdateMode = VPUpdateMode.SYNC
@@ -132,7 +133,7 @@ class FlowView(QGraphicsView):
         self.centerOn(QPointF(self.viewport().width() / 2, self.viewport().height() / 2))
 
         # PLACE NODE WIDGET
-        self._place_node_widget_proxy = FlowProxyWidget(self)
+        self._place_node_widget_proxy = FlowViewProxyWidget(self)
         self._place_node_widget_proxy.setZValue(1000)
         self._place_node_widget = PlaceNodeWidget(self, self.session.nodes)
         self._place_node_widget_proxy.setWidget(self._place_node_widget)
@@ -140,10 +141,10 @@ class FlowView(QGraphicsView):
         self.hide_place_node_widget()
 
         # ZOOM WIDGET
-        self._zoom_proxy = FlowProxyWidget(self)
+        self._zoom_proxy = FlowViewProxyWidget(self)
         self._zoom_proxy.setFlag(QGraphicsItem.ItemIgnoresTransformations, True)
         self._zoom_proxy.setZValue(1001)
-        self._zoom_widget = FlowZoomWidget(self)
+        self._zoom_widget = FlowViewZoomWidget(self)
         self._zoom_proxy.setWidget(self._zoom_widget)
         self.scene().addItem(self._zoom_proxy)
         self.set_zoom_proxy_pos()
@@ -153,10 +154,10 @@ class FlowView(QGraphicsView):
         self._current_drawing = None
         self._drawing = False
         self.drawings = []
-        self._stylus_modes_proxy = FlowProxyWidget(self)
+        self._stylus_modes_proxy = FlowViewProxyWidget(self)
         self._stylus_modes_proxy.setFlag(QGraphicsItem.ItemIgnoresTransformations, True)
         self._stylus_modes_proxy.setZValue(1001)
-        self._stylus_modes_widget = FlowStylusModesWidget(self)
+        self._stylus_modes_widget = FlowViewStylusModesWidget(self)
         self._stylus_modes_proxy.setWidget(self._stylus_modes_widget)
         self.scene().addItem(self._stylus_modes_proxy)
         self.set_stylus_proxy_pos()
@@ -176,7 +177,7 @@ class FlowView(QGraphicsView):
         self.framerate_timer = QTimer(self)
         self.framerate_timer.timeout.connect(self._on_framerate_timer_timeout)
 
-        self.show_framerate(m_sec_interval=100)  # for testing
+        # self.show_framerate(m_sec_interval=100)  # for testing
 
         # CONFIG
         if config is not None:
@@ -191,6 +192,10 @@ class FlowView(QGraphicsView):
 
             if 'drawings' in config:  # not all (old) project files have drawings arr
                 self.place_drawings_from_config(config['drawings'])
+
+            if 'view size' in config:
+                self.setSceneRect(0, 0, config['view size'][0], config['view size'][1])
+
             self._undo_stack.clear()
 
 
@@ -766,7 +771,7 @@ class FlowView(QGraphicsView):
         item: NodeItem = None
 
         if node in self.node_items__cache.keys():  # load from cache
-            print('using a cached item')
+            # print('using a cached item')
             item = self.node_items__cache[node]
             self._add_node_item(item)
 
@@ -847,6 +852,7 @@ class FlowView(QGraphicsView):
             )
 
     def add_connection(self, c: Connection):
+
         item: ConnectionItem = None
         if c in self.connection_items__cache.keys():
             item = self.connection_items__cache[c]
@@ -1119,14 +1125,16 @@ class FlowView(QGraphicsView):
         self.viewport_update_mode_changed.emit(self.viewport_update_mode())
 
     # CONFIG
-    def generate_config_data(self):
+    def generate_config_data(self, abstract_flow_data):
 
-        # wait for abstract flow
-        self.flow._temp_config_data = None
-        self.get_flow_config_data_request.emit()
-        while self.flow._temp_config_data is None:
-            time.sleep(0.001)
-        flow_config, nodes_cfg, connections_cfg = self.flow._temp_config_data
+        # # wait for abstract flow
+        # self.flow._temp_config_data = None
+        # self.get_flow_config_data_request.emit()
+        # while self.flow._temp_config_data is None:
+        #     time.sleep(0.001)
+        # flow_config, nodes_cfg, connections_cfg = self.flow._temp_config_data
+
+        flow_config, nodes_cfg, connections_cfg = abstract_flow_data
 
         final_flow_config = {
             **flow_config,
@@ -1135,11 +1143,12 @@ class FlowView(QGraphicsView):
         }
         self_config = {
             'viewport update mode': VPUpdateMode.stringify(self.vp_update_mode),
-            'drawings': self._get_drawings_config_data(self.drawings)
+            'drawings': self._get_drawings_config_data(self.drawings),
+            'view size': [self.sceneRect().size().width(), self.sceneRect().size().height()]
         }
 
         # self.config_generated.emit(data)
-        self._temp_config_data = final_flow_config, self_config
+        self._temp_config_data = (final_flow_config, self_config)
         return final_flow_config, self_config
 
     def complete_nodes_config_data(self, nodes_config_dict):

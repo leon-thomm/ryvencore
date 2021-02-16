@@ -77,8 +77,6 @@ class NodeItem(QGraphicsItem, QObject):
 
         # LOADING CONFIG
         if self.init_config is not None:
-            # self.setPos(config['position x'], config['position y'])
-            # self.setup_ports(self.init_config['inputs'], self.init_config['outputs'])
             if self.main_widget:
                 try:
                     self.main_widget.set_data(self.init_config['main widget data'])
@@ -86,17 +84,19 @@ class NodeItem(QGraphicsItem, QObject):
                     print('Exception while setting data in', self.title, 'Node\'s main widget:', e,
                           ' (was this intended?)')
 
-            # self.special_actions = self.set_special_actions_data(self.init_config['special actions'])
-            # self.temp_state_data = self.init_config['state data']
-        # else:
-        #     self.setup_ports()
+        # catch up on ports
+        for i in self.node.inputs:
+            self.add_new_input(i, -1)
+
+        for o in self.node.outputs:
+            self.add_new_output(o, -1)
 
 
         self.initializing = False
 
         # No self.update_shape() here because for some reason, the bounding rect hasn't been initialized yet, so
         # self.update_shape() gets called when the item is being drawn the first time (see paint event in NI painter)
-        # TODO: change that ^ once there is a solution for this: https://forum.qt.io/topic/117179/force-qgraphicsitem-to-update-immediately-wait-for-update-event
+        # https://forum.qt.io/topic/117179/force-qgraphicsitem-to-update-immediately-wait-for-update-event
 
         self.update_design()  # load current design, update QGraphicsItem
 

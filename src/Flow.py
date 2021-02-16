@@ -31,8 +31,11 @@ class Flow(QObject):
         self.session = session
         self.script = script
         self.nodes: [Node] = []
+        self.nodes_initialized = {}
+        self._num_queued_building_nodes = 0
         self.connections: [Connection] = []
         self._temp_config_data = None
+        self._build_connections_queue = None
 
         self.alg_mode = FlowAlg.DATA
 
@@ -46,8 +49,8 @@ class Flow(QObject):
             self.set_algorithm_mode('exec')
 
         # build flow
-        self.create_nodes_from_config(config['nodes'])
-        self.connect_nodes_from_config(self.nodes, config['connections'])
+        new_nodes = self.create_nodes_from_config(config['nodes'])
+        self.connect_nodes_from_config(new_nodes, config['connections'])
 
 
     def create_nodes_from_config(self, nodes_config: list):
@@ -86,15 +89,20 @@ class Flow(QObject):
 
 
     def add_node(self, node: Node):
-        node.enable_logs()
+        if not node.initialized:
+            node.finish_initialization()
+
         self.nodes.append(node)
+
         self.node_added.emit(node)
 
 
     def node_placed(self, node: Node):
         """Triggered after the FlowWidget added the item to the scene."""
-        node.finish_initialization()
+
+        node.load_config_data()
         node.place_event()
+        node.update()
 
 
     def remove_node(self, node: Node):
@@ -179,7 +187,7 @@ class Flow(QObject):
         #     for c in inp.connections:
         #         self.remove_connection(c)
 
-        c = DataConnection((out, inp)) if out.type_ == 'data' else ExecConnection((out, inp))
+        c = DataConnection((out, inp, self)) if out.type_ == 'data' else ExecConnection((out, inp, self))
         self.add_connection(c)
 
         return c
@@ -201,6 +209,10 @@ class Flow(QObject):
         c.inp.disconnected()
         self.connections.remove(c)
         self.connection_removed.emit(c)
+
+
+    # def connection_activation_request(self, c: Connection):
+    #     c.activate()
 
 
     def algorithm_mode(self) -> str:

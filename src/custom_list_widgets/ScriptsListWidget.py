@@ -32,6 +32,10 @@ class ScriptsListWidget(QWidget):
         self.list_layout = QVBoxLayout()
         self.list_layout.setAlignment(Qt.AlignTop)
 
+        # le = QLineEdit('test1')
+        # le.setEnabled(False)
+        # self.list_layout.addWidget(le)
+
         main_layout.addLayout(self.list_layout)
 
         self.new_script_title_lineedit = QLineEdit()

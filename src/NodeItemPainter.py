@@ -7,9 +7,11 @@ from .global_tools.math import pythagoras
 
 class NIPainter:
 
+    @staticmethod
     def paint_NI_title_label(painter, option, hovering, design_style, title_str, node_color, bounding_rect):
         pass
 
+    @staticmethod
     def paint_NI_title_label_default(painter, design_style, title_str, c, pen_w, font, bounding_rect):
         pen = QPen(c)
         pen.setWidth(pen_w)
@@ -25,25 +27,29 @@ class NIPainter:
         elif design_style == 'small':
             painter.drawText(text_rect, Qt.AlignTop | Qt.AlignHCenter, title_str)
 
+    @staticmethod
     def paint_PI_label(painter, option, exec_type, connected, label_str, node_color, bounding_rect):
         pass
-
+    
+    @staticmethod
     def paint_PI_label_default(painter, label_str, c, font, bounding_rect):
         painter.setBrush(Qt.NoBrush)
         pen = QPen(c)
         painter.setPen(pen)
         painter.setFont(font)
         painter.drawText(bounding_rect, Qt.AlignCenter, label_str)
-
-
+    
+    @staticmethod
     def paint_PI(painter, option, node_color, exec_type, connected, padding, w, h):
         pass
-
+    
+    @staticmethod
     def paint_NI(design_style,
                  painter, option,
                  c: QColor, w: int, h: int, bounding_rect, title_rect):
         pass
-
+    
+    @staticmethod
     def get_header_rect(w, h, title_rect):
         """
         :param w: width
@@ -57,7 +63,8 @@ class NIPainter:
         header_rect.setWidth(w)
         header_rect.setHeight(header_height)
         return header_rect
-
+    
+    @staticmethod
     def interpolate_color(c1, c2, val):
         r1 = c1.red()
         g1 = c1.green()
@@ -78,7 +85,8 @@ class NIPainter:
 
 
 class NIPainter_DarkStd(NIPainter):
-
+    
+    @staticmethod
     def paint_NI_title_label(painter, option, hovering, design_style, title_str, node_color, bounding_rect):
         if design_style == 'extended':
             NIPainter.paint_NI_title_label_default(
@@ -94,11 +102,13 @@ class NIPainter_DarkStd(NIPainter):
                 QFont('K2D', 20, QFont.Bold, True),
                 bounding_rect
             )
-
+    
+    @staticmethod
     def paint_PI_label(painter, option, exec_type, connected, label_str, node_color, bounding_rect):
         c = QColor('#FFFFFF')
         NIPainter.paint_PI_label_default(painter, label_str, c, QFont("Source Code Pro", 10, QFont.Bold), bounding_rect)
-
+    
+    @staticmethod
     def paint_PI(painter, option, node_color, exec_type, connected, padding, w, h):
 
         color = QColor('#2E688C') if exec_type == 'data' else QColor('#3880ad')
@@ -110,7 +120,8 @@ class NIPainter_DarkStd(NIPainter):
         painter.setPen(Qt.NoPen)
 
         painter.drawEllipse(QRectF(padding, padding, w, h))
-
+    
+    @staticmethod
     def paint_NI(design_style,
                  painter, option,
                  c: QColor, w: int, h: int, bounding_rect, title_rect):
@@ -121,7 +132,8 @@ class NIPainter_DarkStd(NIPainter):
             NIPainter_DarkStd.draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect)
         elif design_style == 'small':
             NIPainter_DarkStd.draw_NI_minimalistic(painter, c, w, h, bounding_rect)
-
+    
+    @staticmethod
     def draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect):
         """
         :param painter: painter from paint event
@@ -148,7 +160,8 @@ class NIPainter_DarkStd(NIPainter):
         painter.setBrush(header_gradient)
         painter.setPen(Qt.NoPen)
         painter.drawRoundedRect(NIPainter_DarkStd.get_header_rect(w, h, title_rect), 12, 12)
-
+    
+    @staticmethod
     def draw_NI_minimalistic(painter, c, w, h, bounding_rect):
         """
         :param painter: painter from paint event
@@ -187,7 +200,8 @@ class NIPainter_DarkStd(NIPainter):
 
 
 class NIPainter_DarkTron(NIPainter):
-
+    
+    @staticmethod
     def paint_NI_title_label(painter, option, hovering, design_style, title_str, node_color, bounding_rect):
         if design_style == 'extended':
             NIPainter.paint_NI_title_label_default(
@@ -203,14 +217,16 @@ class NIPainter_DarkTron(NIPainter):
                 QFont('K2D', 20, QFont.Bold, True),
                 bounding_rect
             )
-
+    
+    @staticmethod
     def paint_PI_label(painter, option, exec_type, connected, label_str, node_color, bounding_rect):
         if exec_type == 'exec':
             c = QColor('#FFFFFF')
         else:
             c = node_color
         NIPainter.paint_PI_label_default(painter, label_str, c, QFont("Source Code Pro", 10, QFont.Bold), bounding_rect)
-
+    
+    @staticmethod
     def paint_PI(painter, option, node_color, exec_type, connected, padding, w, h):
 
         color = QColor('#FFFFFF') if exec_type == 'exec' else node_color
@@ -228,7 +244,8 @@ class NIPainter_DarkTron(NIPainter):
             painter.setBrush(Qt.NoBrush)
 
         painter.drawEllipse(QRectF(padding, padding, w, h))
-
+    
+    @staticmethod
     def paint_NI(design_style,
                  painter, option,
                  c: QColor, w: int, h: int, bounding_rect, title_rect):
@@ -242,7 +259,8 @@ class NIPainter_DarkTron(NIPainter):
                 NIPainter_DarkTron.draw_NI_minimalistic(painter, c, w, h, background_color=c.darker())
             else:
                 NIPainter_DarkTron.draw_NI_minimalistic(painter, c, w, h)
-
+    
+    @staticmethod
     def draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect):
         """
         :param painter: painter from paint event
@@ -269,7 +287,8 @@ class NIPainter_DarkTron(NIPainter):
         painter.setBrush(header_gradient)
         header_path = NIPainter_DarkTron.get_extended_header_path(w, h, title_rect)
         painter.drawPath(header_path)
-
+    
+    @staticmethod
     def get_extended_body_path(w, h):
         """
         :param c_s: corner size/corner radius
@@ -289,7 +308,8 @@ class NIPainter_DarkTron(NIPainter):
         path.lineTo(+w / 2, +h / 2 - c_s)
         path.closeSubpath()
         return path
-
+    
+    @staticmethod
     def get_extended_header_path(w, h, title_rect):
         """
         :param w: width
@@ -312,7 +332,8 @@ class NIPainter_DarkTron(NIPainter):
         path.lineTo(+w / 2, header_bottom - c_s)
         path.closeSubpath()
         return path
-
+    
+    @staticmethod
     def draw_NI_minimalistic(painter, c, w, h, background_color=QColor('#36383B')):
         """
         :param painter: painter from paint event
@@ -346,7 +367,8 @@ class NIPainter_DarkTron(NIPainter):
 
 
 class NIPainter_Ghostly(NIPainter):
-
+    
+    @staticmethod
     def paint_NI_title_label(painter, option, hovering, design_style, title_str, node_color, bounding_rect):
         if design_style == 'extended':
             NIPainter.paint_NI_title_label_default(
@@ -362,14 +384,16 @@ class NIPainter_Ghostly(NIPainter):
                 QFont('K2D', 20, QFont.Bold, True),
                 bounding_rect
             )
-
+    
+    @staticmethod
     def paint_PI_label(painter, option, exec_type, connected, label_str, node_color, bounding_rect):
         if exec_type == 'exec':
             c = QColor('#FFFFFF')
         else:
             c = node_color
         NIPainter.paint_PI_label_default(painter, label_str, c, QFont("Source Code Pro", 10, QFont.Bold), bounding_rect)
-
+    
+    @staticmethod
     def paint_PI(painter, option, node_color, exec_type, connected, padding, w, h):
 
         color = QColor('#FFFFFF') if exec_type == 'exec' else node_color
@@ -396,7 +420,8 @@ class NIPainter_Ghostly(NIPainter):
         pen.setWidth(1)
         painter.setPen(pen)
         painter.drawEllipse(QRectF(padding+w/4, padding+h/4, w/2, h/2))
-
+    
+    @staticmethod
     def paint_NI(design_style,
                  painter, option,
                  c: QColor, w: int, h: int, bounding_rect, title_rect):
@@ -410,7 +435,8 @@ class NIPainter_Ghostly(NIPainter):
                 NIPainter_Ghostly.draw_NI_minimalistic(painter, c, w, h, background_color=c.darker())
             else:
                 NIPainter_Ghostly.draw_NI_minimalistic(painter, c, w, h)
-
+    
+    @staticmethod
     def draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect):
         """
         :param painter: painter from paint event
@@ -437,7 +463,8 @@ class NIPainter_Ghostly(NIPainter):
         painter.setPen(pen)
         body_path = NIPainter_Ghostly.get_extended_body_path(5, w, h)
         painter.drawPath(body_path)
-
+    
+    @staticmethod
     def get_extended_body_path(c_s, w, h):
         """
         Very similar to 'extended tron'
@@ -457,7 +484,8 @@ class NIPainter_Ghostly(NIPainter):
         path.lineTo(+w / 2, +h / 2 - c_s)
         path.closeSubpath()
         return path
-
+    
+    @staticmethod
     def draw_NI_minimalistic(painter, c, w, h, background_color=QColor(30, 30, 30, 170)):
         """
         :param painter: painter from paint event
@@ -480,7 +508,8 @@ class NIPainter_Ghostly(NIPainter):
 
 
 class NIPainter_Blender(NIPainter):
-
+    
+    @staticmethod
     def paint_NI_title_label(painter, option, hovering, design_style, title_str, node_color, bounding_rect):
         if design_style == 'extended':
             NIPainter.paint_NI_title_label_default(
@@ -496,14 +525,16 @@ class NIPainter_Blender(NIPainter):
                 QFont('K2D', 20, QFont.Bold, True),
                 bounding_rect
             )
-
+    
+    @staticmethod
     def paint_PI_label(painter, option, exec_type, connected, label_str, node_color, bounding_rect):
         if exec_type == 'exec':
             c = QColor('#FFFFFF')
         else:
             c = node_color
         NIPainter.paint_PI_label_default(painter, label_str, c, QFont("Source Code Pro", 10, QFont.Bold), bounding_rect)
-
+    
+    @staticmethod
     def paint_PI(painter, option, node_color, exec_type, connected, padding, w, h):
 
         color = QColor('#FFFFFF') if exec_type == 'exec' else node_color
@@ -530,7 +561,8 @@ class NIPainter_Blender(NIPainter):
         pen.setWidth(1)
         painter.setPen(pen)
         painter.drawEllipse(QRectF(padding + w / 4, padding + h / 4, w / 2, h / 2))
-
+    
+    @staticmethod
     def paint_NI(design_style,
                  painter, option,
                  c: QColor, w: int, h: int, bounding_rect, title_rect):
@@ -541,7 +573,8 @@ class NIPainter_Blender(NIPainter):
             NIPainter_Blender.draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect)
         elif design_style == 'small':
             NIPainter_Blender.draw_NI_minimalistic(painter, c, w, h, bounding_rect)
-
+    
+    @staticmethod
     def draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect):
         """
         :param painter: painter from paint event
@@ -565,7 +598,8 @@ class NIPainter_Blender(NIPainter):
         painter.setBrush(gradient)
         painter.setPen(QPen(c.darker()))
         painter.drawRoundedRect(bounding_rect, 7, 7)
-
+    
+    @staticmethod
     def draw_NI_minimalistic(painter, c, w, h, bounding_rect, background_color=QColor(30, 30, 30, 150)):
         """
         :param painter: painter from paint event
@@ -582,7 +616,8 @@ class NIPainter_Blender(NIPainter):
 
 
 class NIPainter_Easy(NIPainter):
-
+    
+    @staticmethod
     def paint_NI_title_label(painter, option, hovering, design_style, title_str, node_color, bounding_rect):
         if design_style == 'extended':
             NIPainter.paint_NI_title_label_default(
@@ -598,7 +633,8 @@ class NIPainter_Easy(NIPainter):
                 QFont('Poppins', 15, QFont.Thin),
                 bounding_rect
             )
-
+    
+    @staticmethod
     def paint_PI_label(painter, option, exec_type, connected, label_str, node_color, bounding_rect):
         c = None
         if not connected:
@@ -609,7 +645,8 @@ class NIPainter_Easy(NIPainter):
             else:
                 c = node_color
         NIPainter.paint_PI_label_default(painter, label_str, c, QFont("Courier New", 10, QFont.Bold), bounding_rect)
-
+    
+    @staticmethod
     def paint_PI(painter, option, node_color, exec_type, connected, padding, w, h):
         color = None
         if not connected:
@@ -643,7 +680,8 @@ class NIPainter_Easy(NIPainter):
         painter.setPen(Qt.NoPen)
 
         painter.drawEllipse(QRectF(padding+w/8, padding+h/8, 3*w/4, 3*h/4))
-
+    
+    @staticmethod
     def paint_NI(design_style,
                  painter, option,
                  c: QColor, w: int, h: int, bounding_rect, title_rect):
@@ -654,7 +692,8 @@ class NIPainter_Easy(NIPainter):
             NIPainter_Easy.draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect)
         elif design_style == 'small':
             NIPainter_Easy.draw_NI_minimalistic(painter, c, w, h, bounding_rect)
-
+    
+    @staticmethod
     def draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect):
         """
         :param painter: painter from paint event
@@ -678,7 +717,8 @@ class NIPainter_Easy(NIPainter):
         painter.setBrush(gradient)
         painter.setPen(Qt.NoPen) #QPen(c.darker()))
         painter.drawRoundedRect(bounding_rect, 9, 9)
-
+    
+    @staticmethod
     def draw_NI_minimalistic(painter, c, w, h, bounding_rect, background_color=QColor('#2b2e33')):
         """
         :param painter: painter from paint event
@@ -695,7 +735,8 @@ class NIPainter_Easy(NIPainter):
 
 
 class NIPainter_Peasy(NIPainter):
-
+    
+    @staticmethod
     def paint_NI_title_label(painter, option, hovering, design_style, title_str, node_color, bounding_rect):
         if design_style == 'extended':
             NIPainter.paint_NI_title_label_default(
@@ -711,7 +752,8 @@ class NIPainter_Peasy(NIPainter):
                 QFont('Poppins', 15, QFont.Thin),
                 bounding_rect
             )
-
+    
+    @staticmethod
     def paint_PI_label(painter, option, exec_type, connected, label_str, node_color, bounding_rect):
         c = None
         if not connected:
@@ -722,7 +764,8 @@ class NIPainter_Peasy(NIPainter):
             else:
                 c = node_color
         NIPainter.paint_PI_label_default(painter, label_str, c, QFont("Courier New", 10, QFont.Bold), bounding_rect)
-
+    
+    @staticmethod
     def paint_PI(painter, option, node_color, exec_type, connected, padding, w, h):
         color = None
         if not connected:
@@ -756,7 +799,8 @@ class NIPainter_Peasy(NIPainter):
         painter.setPen(Qt.NoPen)
 
         painter.drawEllipse(QRectF(padding+w/8, padding+h/8, 3*w/4, 3*h/4))
-
+    
+    @staticmethod
     def paint_NI(design_style,
                  painter, option,
                  c: QColor, w: int, h: int, bounding_rect, title_rect):
@@ -767,7 +811,8 @@ class NIPainter_Peasy(NIPainter):
             NIPainter_Peasy.draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect)
         elif design_style == 'small':
             NIPainter_Peasy.draw_NI_minimalistic(painter, c, w, h, bounding_rect)
-
+    
+    @staticmethod
     def draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect):
         """
         :param painter: painter from paint event
@@ -791,7 +836,8 @@ class NIPainter_Peasy(NIPainter):
         painter.setBrush(gradient)
         painter.setPen(Qt.NoPen) #QPen(c.darker()))
         painter.drawRoundedRect(bounding_rect, 9, 9)
-
+    
+    @staticmethod
     def draw_NI_minimalistic(painter, c, w, h, bounding_rect, background_color=QColor('#212429')):
         """
         :param painter: painter from paint event
@@ -808,7 +854,8 @@ class NIPainter_Peasy(NIPainter):
 
 
 class NIPainter_Ueli(NIPainter):
-
+    
+    @staticmethod
     def paint_NI_title_label(painter, option, hovering, design_style, title_str, node_color, bounding_rect):
         if design_style == 'extended':
             painter.setPen(QPen(QColor(node_color.name())))
@@ -821,7 +868,8 @@ class NIPainter_Ueli(NIPainter):
                 QFont('Poppins', 15, QFont.Thin),
                 bounding_rect
             )
-
+    
+    @staticmethod
     def paint_PI_label(painter, option, exec_type, connected, label_str, node_color, bounding_rect):
         c = None
         if not connected:
@@ -832,7 +880,8 @@ class NIPainter_Ueli(NIPainter):
             else:
                 c = node_color
         NIPainter.paint_PI_label_default(painter, label_str, c, QFont("Courier New", 10, QFont.Bold), bounding_rect)
-
+    
+    @staticmethod
     def paint_PI(painter, option, node_color, exec_type, connected, padding, w, h):
         color = None
         if not connected:
@@ -866,7 +915,8 @@ class NIPainter_Ueli(NIPainter):
         painter.setPen(Qt.NoPen)
 
         painter.drawEllipse(QRectF(padding+w/8, padding+h/8, 3*w/4, 3*h/4))
-
+    
+    @staticmethod
     def paint_NI(design_style,
                  painter, option,
                  c: QColor, w: int, h: int, bounding_rect, title_rect):
@@ -877,7 +927,8 @@ class NIPainter_Ueli(NIPainter):
             NIPainter_Ueli.draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect)
         elif design_style == 'small':
             NIPainter_Ueli.draw_NI_minimalistic(painter, c, w, h, bounding_rect)
-
+    
+    @staticmethod
     def draw_NI_extended_background(painter, c, w, h, bounding_rect: QRectF, title_rect):
         """
         :param painter: painter from paint event
@@ -905,7 +956,8 @@ class NIPainter_Ueli(NIPainter):
             QPointF(bounding_rect.left(), bounding_rect.top()+header_height),
             bounding_rect.bottomRight()
         ), 6, 6)
-
+    
+    @staticmethod
     def draw_NI_minimalistic(painter, c, w, h, bounding_rect, background_color=QColor('#212429')):
         """
         :param painter: painter from paint event
@@ -919,3 +971,104 @@ class NIPainter_Ueli(NIPainter):
         painter.setBrush(NIPainter.interpolate_color(c, background_color, 0.97))
         painter.setPen(Qt.NoPen)
         painter.drawRoundedRect(bounding_rect, c_s, c_s)
+
+
+class NIPainter_Samuel1(NIPainter):
+
+    @staticmethod
+    def paint_NI_title_label(painter, option, hovering, design_style, title_str, node_color, bounding_rect):
+        if design_style == 'extended':
+            painter.setPen(QPen(QColor('white')))
+            painter.setFont(QFont('Segoe UI', 11))
+            painter.drawText(bounding_rect, Qt.AlignLeft | Qt.AlignVCenter, title_str)
+        # else:
+        #     NIPainter.paint_NI_title_label_default(
+        #         painter, design_style, title_str, node_color,
+        #         2,
+        #         QFont('Poppins', 15, QFont.Thin),
+        #         bounding_rect
+        #     )
+
+    @staticmethod
+    def paint_PI_label(painter, option, exec_type, connected, label_str, node_color, bounding_rect):
+        c = None
+        if not connected:
+            c = QColor('#53585c')
+        else:
+            if exec_type == 'exec':
+                c = QColor('#cccccc')
+            else:
+                c = node_color
+        NIPainter.paint_PI_label_default(painter, label_str, c, QFont("Segoe UI", 10), bounding_rect)
+
+    @staticmethod
+    def paint_PI(painter, option, node_color, exec_type, connected, padding, w, h):
+
+        if connected:
+            painter.setBrush(QColor('#508AD8'))
+            painter.setPen(Qt.NoPen)
+        else:
+            painter.setBrush(Qt.NoBrush)
+            p = QPen(QColor('white'))
+            p.setWidthF(1.1)
+            painter.setPen(p)
+
+        painter.drawEllipse(QRectF(padding + w / 8, padding + h / 8, 3 * w / 4, 3 * h / 4))
+
+    @staticmethod
+    def paint_NI(design_style,
+                 painter, option,
+                 c: QColor, w: int, h: int, bounding_rect, title_rect):
+
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        if design_style == 'extended':
+            NIPainter_Samuel1.draw_NI_extended_background(painter, c, w, h, bounding_rect, title_rect)
+        elif design_style == 'small':
+            NIPainter_Samuel1.draw_NI_minimalistic(painter, c, w, h, bounding_rect)
+
+    @staticmethod
+    def draw_NI_extended_background(painter, c, w, h, bounding_rect: QRectF, title_rect):
+        """
+        :param painter: painter from paint event
+        :param c: NodeItem's theme color
+        :param w: width
+        :param h: height
+        :param bounding_rect: NodeItem's bounding rect
+        :param title_rect: NI's title label's bounding rect
+        """
+
+        background_color = QColor('#0C1116')
+
+        header_height = NIPainter.get_header_rect(w, h, title_rect).height()
+
+        painter.setBrush(QBrush(background_color))
+        painter.setPen(Qt.NoPen)  # QPen(c.darker()))
+        painter.drawRoundedRect(QRectF(
+            QPointF(bounding_rect.left(), bounding_rect.top() + header_height),
+            bounding_rect.bottomRight()
+        ), 3, 3)
+
+        p = QPen(c)
+        p.setWidthF(2.3)
+        painter.setPen(p)
+        painter.drawLine(
+            QPointF(bounding_rect.left(), bounding_rect.top() + header_height),
+            QPointF(bounding_rect.right(), bounding_rect.top() + header_height)
+        )
+
+    @staticmethod
+    def draw_NI_minimalistic(painter, c, w, h, bounding_rect, background_color=QColor('#212429')):
+        """
+        :param painter: painter from paint event
+        :param c_s: corner size/corner radius
+        :param c: color
+        :param w: width
+        :param h: height
+        :param background_color: std background color
+        """
+        ...
+        # c_s = 10
+        # painter.setBrush(NIPainter.interpolate_color(c, background_color, 0.97))
+        # painter.setPen(Qt.NoPen)
+        # painter.drawRoundedRect(bounding_rect, c_s, c_s)
