@@ -16,7 +16,7 @@ from .Node import Node
 from .NodeObjPort import NodeObjPort
 from .node_choice_widget.PlaceNodeWidget import PlaceNodeWidget
 from .NodeItem import NodeItem
-from .PortItem import PortItemPin
+from .PortItem import PortItemPin, PortItem
 from .Connection import Connection, DataConnection
 from .ConnectionItem import default_cubic_connection_path, ConnectionItem, DataConnectionItem, ExecConnectionItem
 from .DrawingObject import DrawingObject
@@ -338,13 +338,16 @@ class FlowView(QGraphicsView):
 
         if self._dragging_connection:
 
-            # connection dropped over specific pin
-            if self.itemAt(event.pos()) and isinstance(self.itemAt(event.pos()), PortItemPin):
+            # connection dropped over port item
+            port_items = {i: isinstance(i, PortItem) for i in self.items(event.pos())}
+            if any(port_items.values()):
+
+                p_i = list(port_items.keys())[list(port_items.values()).index(True)]  # gets the first PortItem
 
                 # the validity of the connection is checked in connect_node_ports__cmd
                 self.connect_node_ports__cmd(
                     self._selected_pin.port,
-                    self.itemAt(event.pos()).port
+                    p_i.port
                 )
 
             # connection dropped above NodeItem -> auto connect

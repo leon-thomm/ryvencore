@@ -29,6 +29,7 @@ class NodeItem(QGraphicsItem, QObject):
 
         self.collapsed = False
         self.hovered = False
+        self.hiding_unconnected_ports = False
 
         self.personal_logs = []
 

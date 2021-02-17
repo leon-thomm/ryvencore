@@ -9,10 +9,11 @@ from .tools import get_longest_line, shorten, deserialize
 from .FlowViewProxyWidget import FlowViewProxyWidget
 
 
-class PortItem(QGraphicsGridLayout):
+class PortItem(QGraphicsWidget):
 
     def __init__(self, node, node_item, port, flow_view):
         super(PortItem, self).__init__()
+        self.setGraphicsItem(self)
 
         self.node = node
         self.node_item = node_item
@@ -26,6 +27,23 @@ class PortItem(QGraphicsGridLayout):
 
         self.label = PortItemLabel(self.port, self.node)
 
+        self._layout = QGraphicsGridLayout()
+        self._layout.setSpacing(0)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self._layout)
+
+    # --------------------------------------------
+    def boundingRect(self):
+        return QRectF(QPointF(0, 0), self.geometry().size())
+
+    def setGeometry(self, rect):
+        self.prepareGeometryChange()
+        QGraphicsLayoutItem.setGeometry(self, rect)
+        self.setPos(rect.topLeft())
+
+    # def sizeHint(self, which, constraint=...):
+    #     return self.boundingRect().size()
+    # --------------------------------------------
 
     def setup_ui(self):
         pass
@@ -61,18 +79,20 @@ class InputPortItem(PortItem):
         self.setup_ui()
 
     def setup_ui(self):
-        self.setSpacing(5)
-        self.addItem(self.pin, 0, 0)
-        self.setAlignment(self.pin, Qt.AlignVCenter | Qt.AlignLeft)
-        self.addItem(self.label, 0, 1)
-        self.setAlignment(self.label, Qt.AlignVCenter | Qt.AlignLeft)
+        l = self._layout
+
+        # l.setSpacing(0)
+        l.addItem(self.pin, 0, 0)
+        l.setAlignment(self.pin, Qt.AlignVCenter | Qt.AlignLeft)
+        l.addItem(self.label, 0, 1)
+        l.setAlignment(self.label, Qt.AlignVCenter | Qt.AlignLeft)
 
         if self.widget is not None:
             if self.port.widget_pos == 'besides':
-                self.addItem(self.proxy, 0, 2)
+                l.addItem(self.proxy, 0, 2)
             elif self.port.widget_pos == 'below':
-                self.addItem(self.proxy, 1, 0, 1, 2)
-            self.setAlignment(self.proxy, Qt.AlignCenter)
+                l.addItem(self.proxy, 1, 0, 1, 2)
+            l.setAlignment(self.proxy, Qt.AlignCenter)
 
     def create_widget(self, configuration=None):
         if (self.port.type_ and self.port.type_ == 'data') or (configuration and configuration['type'] == 'data'):
@@ -150,12 +170,14 @@ class OutputPortItem(PortItem):
         self.setup_ui()
 
     def setup_ui(self):
-        self.setSpacing(5)
-        self.addItem(self.label, 0, 0)
-        self.setAlignment(self.label, Qt.AlignVCenter | Qt.AlignRight)
-        self.addItem(self.pin, 0, 1)
+        l = self._layout
 
-        self.setAlignment(self.pin, Qt.AlignVCenter | Qt.AlignRight)
+        # l.setSpacing(5)
+        l.addItem(self.label, 0, 0)
+        l.setAlignment(self.label, Qt.AlignVCenter | Qt.AlignRight)
+        l.addItem(self.pin, 0, 1)
+
+        l.setAlignment(self.pin, Qt.AlignVCenter | Qt.AlignRight)
 
 
 # CONTENTS -------------------------------------------------------------------------------------------------------------
