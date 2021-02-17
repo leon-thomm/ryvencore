@@ -13,6 +13,8 @@ class Node(QObject):
     # SIGNALS
     updated = Signal()
     update_shape_triggered = Signal()
+    hide_unused_ports_triggered = Signal()
+    show_unused_ports_triggered = Signal()
     input_added = Signal(NodeObjInput, int)
     output_added = Signal(NodeObjOutput, int)
     input_removed = Signal(NodeObjInput)
@@ -78,7 +80,10 @@ class Node(QObject):
                       ' (was this intended?)')
 
     def init_default_actions(self) -> dict:
-        return {'update shape': {'method': self.update_shape}}
+        return {
+            'update shape': {'method': self.update_shape},
+            'hide unused ports': {'method': self.hide_unused_ports}
+        }
 
     def setup_ports(self, inputs_config=None, outputs_config=None):
 
@@ -212,6 +217,17 @@ class Node(QObject):
         """Causes recompilation of the whole shape."""
         # self.item.update_shape()
         self.update_shape_triggered.emit()
+
+    def hide_unused_ports(self):
+        del self.default_actions['hide unused ports']
+        self.default_actions['show unused ports'] = {'method': self.show_unused_ports}
+        self.hide_unused_ports_triggered.emit()
+
+    def show_unused_ports(self):
+        del self.default_actions['show unused ports']
+        self.default_actions['hide unused ports'] = {'method': self.hide_unused_ports}
+        self.show_unused_ports_triggered.emit()
+
 
     # PORTS
     def create_input(self, type_: str = 'data', label: str = '', widget_name=None,

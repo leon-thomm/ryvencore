@@ -43,6 +43,8 @@ class NodeItem(QGraphicsItem, QObject):
         # CONNECT TO NODE
         self.node.updated.connect(self.update)
         self.node.update_shape_triggered.connect(self.update_shape)
+        self.node.hide_unused_ports_triggered.connect(self.hide_unused_ports_triggered)
+        self.node.show_unused_ports_triggered.connect(self.show_unused_ports_triggered)
         self.node.input_added.connect(self.add_new_input)
         self.node.output_added.connect(self.add_new_output)
         self.node.input_removed.connect(self.remove_input)
@@ -233,6 +235,14 @@ class NodeItem(QGraphicsItem, QObject):
                 -self.boundingRect().height()/2 + self.widget.header_widget.rect().height()
             )
         )
+
+    def hide_unused_ports_triggered(self):
+        self.widget.hide_unused_ports()
+        self.update_shape()
+
+    def show_unused_ports_triggered(self):
+        self.widget.show_unused_ports()
+        self.update_shape()
 
 
     def expand(self):

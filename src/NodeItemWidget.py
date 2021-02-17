@@ -234,3 +234,17 @@ class NodeItemWidget(QGraphicsWidget):
         self.body_widget.show()
         if self.main_widget_proxy:
             self.main_widget_proxy.show()
+
+    def hide_unused_ports(self):
+        for inp in self.node_item.inputs:
+            if len(inp.port.connections) == 0:
+                inp.hide()
+        for out in self.node_item.outputs:
+            if len(out.port.connections) == 0:
+                out.hide()
+
+    def show_unused_ports(self):
+        for inp in self.node_item.inputs:
+            inp.show()
+        for out in self.node_item.outputs:
+            out.show()
