@@ -1,6 +1,6 @@
 from PySide2.QtWidgets import QGraphicsItem, QMenu, QGraphicsDropShadowEffect
-from PySide2.QtCore import Qt, QRectF, QObject
-from PySide2.QtGui import QColor
+from PySide2.QtCore import Qt, QRectF, QObject, QPointF
+from PySide2.QtGui import QColor, QPen
 
 from .NodeObjPort import NodeObjInput, NodeObjOutput
 from .NodeItemAction import NodeItemAction
@@ -26,6 +26,9 @@ class NodeItem(QGraphicsItem, QObject):
         self.inputs = []
         self.outputs = []
         self.color = QColor(self.node.color)  # manipulated by self.animator
+
+        self.collapsed = False
+        self.hovered = False
 
         self.personal_logs = []
 
@@ -214,6 +217,34 @@ class NodeItem(QGraphicsItem, QObject):
         rect.setHeight(h)
         return rect
 
+    def get_left_body_header_vertex_scene_pos(self):
+        return self.mapToScene(
+            QPointF(
+                -self.boundingRect().width()/2,
+                -self.boundingRect().height()/2 + self.widget.header_widget.rect().height()
+            )
+        )
+
+    def get_right_body_header_vertex_scene_pos(self):
+        return self.mapToScene(
+            QPointF(
+                +self.boundingRect().width()/2,
+                -self.boundingRect().height()/2 + self.widget.header_widget.rect().height()
+            )
+        )
+
+
+    def expand(self):
+        self.collapsed = False
+        self.widget.expand()
+        self.update_shape()
+
+    def collapse(self):
+        self.collapsed = True
+        self.widget.collapse()
+        self.update_shape()
+
+
     #   PAINTING
     def paint(self, painter, option, widget=None):
         """All painting is done by NodeItemPainter"""
@@ -241,8 +272,32 @@ class NodeItem(QGraphicsItem, QObject):
             w=self.boundingRect().width(),
             h=self.boundingRect().height(),
             bounding_rect=self.boundingRect(),
-            title_rect=self.widget.title_label.boundingRect()
+            title_rect=self.widget.header_widget.boundingRect()
+                       if self.widget.header_widget
+                       else self.widget.title_label.boundingRect()
         )
+
+
+        # painter.setBrush(Qt.NoBrush)
+        # painter.setPen(QPen(QColor('black')))
+        #
+        # # painter.drawRect(
+        # #         self.boundingRect()
+        # # )
+        #
+        # header_rect = QRectF(
+        #         -self.boundingRect().width()/2, -self.boundingRect().height()/2,
+        #         self.widget.header_widget.geometry().width(), self.widget.header_widget.geometry().height()
+        #     )
+        # painter.drawRect(header_rect)
+        #
+        # # note that the widget's layout has spacing 0
+        # body_rect = QRectF(
+        #     -self.boundingRect().width()/2, -self.boundingRect().height()/2 + header_rect.height(),
+        #     self.widget.body_widget.geometry().width(), self.widget.body_widget.geometry().height()
+        # )
+        # painter.drawRect(body_rect)
+
 
         self.painted_once = True
 
@@ -306,10 +361,12 @@ class NodeItem(QGraphicsItem, QObject):
                 item.recompute()
 
     def hoverEnterEvent(self, event):
+        self.hovered = True
         self.widget.title_label.set_NI_hover_state(hovering=True)
         QGraphicsItem.hoverEnterEvent(self, event)
 
     def hoverLeaveEvent(self, event):
+        self.hovered = False
         self.widget.title_label.set_NI_hover_state(hovering=False)
         QGraphicsItem.hoverLeaveEvent(self, event)
 

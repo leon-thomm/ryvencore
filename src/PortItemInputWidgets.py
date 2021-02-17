@@ -1,5 +1,3 @@
-import os
-
 from PySide2.QtCore import Signal
 from PySide2.QtGui import QFontMetrics, QColor
 from PySide2.QtWidgets import QSpinBox, QLineEdit
@@ -7,11 +5,9 @@ from PySide2.QtWidgets import QSpinBox, QLineEdit
 
 from .WidgetBaseClasses import IWB
 from .retain import M
-# from custom_src.ryvencore.src.WidgetBaseClasses import IWB
-# from custom_src.ryvencore.src.retain import M
 
 
-class StdSpinBoxInputWidget(QSpinBox, IWB):
+class RCIW_BUILTIN_SpinBox(QSpinBox, IWB):
 
     trigger_update = Signal(int)
 
@@ -51,7 +47,7 @@ class StdSpinBoxInputWidget(QSpinBox, IWB):
         self.setValue(data)
 
 
-class StdLineEditInputWidget(QLineEdit, IWB):
+class RCIW_BUILTIN_LineEdit(QLineEdit, IWB):
 
     trigger_update = Signal(int)
 
@@ -75,26 +71,6 @@ class StdLineEditInputWidget(QLineEdit, IWB):
 
         # self.setFixedHeight(25)
         self.setPlaceholderText('')
-
-        # / *border - color: '''+self.node.color+'''; * /
-
-        # c = QColor('#8c8c8c')
-        # background_color = f'rgba({c.red()}, {c.green()}, {c.blue()}, 0.2)'
-
-        if self.node.style == 'small':
-            self.setStyleSheet('''
-QLineEdit{
-    padding: 1px 1px ;
-    background: transparent;
-}
-
-            ''')
-        else:
-            self.setStyleSheet('''
-QLineEdit{ 
-    padding: 1px 1px ;
-}
-            ''')
 
         f = self.font()
         f.setPointSize(10)
@@ -139,20 +115,5 @@ QLineEdit{
         self.setText(str(val))
 
 
-class StdLineEditInputWidget_NoBorder(StdLineEditInputWidget):
-    def __init__(self, params, size='medium', resize=False):
-        StdLineEditInputWidget.__init__(self, params, size, resize)
-
-        c = QColor(self.node.color)
-
-        hover_color = f'rgba({c.red()}, {c.green()}, {c.blue()}, 0.5)'
-
-        self.setStyleSheet(self.styleSheet() + '''
-QLineEdit {
-    border: none;
-}
-QLineEdit:hover {
-    background-color: '''+hover_color+''';
-    border: none;
-}
-        ''')
+class RCIW_BUILTIN_LineEdit_small(RCIW_BUILTIN_LineEdit):
+    pass

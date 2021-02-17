@@ -3,8 +3,7 @@ from PySide2.QtWidgets import QGraphicsGridLayout, QGraphicsWidget, \
 from PySide2.QtCore import Qt, QRectF, QPointF, QSizeF
 from PySide2.QtGui import QFontMetricsF, QFont
 
-from .PortItemInputWidgets import StdSpinBoxInputWidget, StdLineEditInputWidget_NoBorder, \
-    StdLineEditInputWidget
+from .PortItemInputWidgets import RCIW_BUILTIN_SpinBox, RCIW_BUILTIN_LineEdit, RCIW_BUILTIN_LineEdit_small
 from .tools import get_longest_line, shorten, deserialize
 
 from .FlowViewProxyWidget import FlowViewProxyWidget
@@ -23,7 +22,7 @@ class PortItem(QGraphicsGridLayout):
         self.port.has_been_connected.connect(self.port_connected)
         self.port.has_been_disconnected.connect(self.port_disconnected)
 
-        self.pin = PortItemPin(self.port, self.node)
+        self.pin = PortItemPin(self.port, self, self.node, self.node_item)
 
         self.label = PortItemLabel(self.port, self.node)
 
@@ -82,33 +81,43 @@ class InputPortItem(PortItem):
 
             params = (self.port, self, self.node, self.node_item)
 
+            # choose correct class for builtin line edit (the small version for small nodes)
+            _RCIW_BUILTIN_LineEdit = RCIW_BUILTIN_LineEdit if self.node.style == 'extended' else \
+                RCIW_BUILTIN_LineEdit_small
+
             if wn is None:  # no input widget
                 return
             elif wn == 'std line edit s':
-                self.widget = StdLineEditInputWidget(params, size='small')
+                self.widget = _RCIW_BUILTIN_LineEdit(params, size='small')
             elif wn == 'std line edit m' or wn == 'std line edit':
-                self.widget = StdLineEditInputWidget(params)
+                self.widget = _RCIW_BUILTIN_LineEdit(params)
             elif wn == 'std line edit l':
-                self.widget = StdLineEditInputWidget(params, size='large')
+                self.widget = _RCIW_BUILTIN_LineEdit(params, size='large')
             elif wn == 'std line edit s r':
-                self.widget = StdLineEditInputWidget(params, size='small', resize=True)
+                self.widget = _RCIW_BUILTIN_LineEdit(params, size='small', resize=True)
             elif wn == 'std line edit m r':
-                self.widget = StdLineEditInputWidget(params, resize=True)
+                self.widget = _RCIW_BUILTIN_LineEdit(params, resize=True)
             elif wn == 'std line edit l r':
-                self.widget = StdLineEditInputWidget(params, size='large', resize=True)
-            elif wn == 'std line edit s r nb':
-                self.widget = StdLineEditInputWidget_NoBorder(params, size='small',
-                                                              resize=True)
-            elif wn == 'std line edit m r nb':
-                self.widget = StdLineEditInputWidget_NoBorder(params,
-                                                              resize=True)
-            elif wn == 'std line edit l r nb':
-                self.widget = StdLineEditInputWidget_NoBorder(params, size='large',
-                                                              resize=True)
+                self.widget = _RCIW_BUILTIN_LineEdit(params, size='large', resize=True)
             elif wn == 'std spin box':
-                self.widget = StdSpinBoxInputWidget(params)
-            else:  # custom input widget
+                self.widget = RCIW_BUILTIN_SpinBox(params)
+
+
+            # backwards compatibility
+
+            elif wn == 'std line edit s r nb':
+                self.widget = _RCIW_BUILTIN_LineEdit(params, size='small', resize=True)
+            elif wn == 'std line edit m r nb':
+                self.widget = _RCIW_BUILTIN_LineEdit(params, resize=True)
+            elif wn == 'std line edit l r nb':
+                self.widget = _RCIW_BUILTIN_LineEdit(params, size='large', resize=True)
+
+
+            # custom input widget
+
+            else:
                 self.widget = self.get_input_widget_class(wn)(params)
+
 
             self.proxy = FlowViewProxyWidget(self.flow_view, parent=self.node.item)
             self.proxy.setWidget(self.widget)
@@ -153,12 +162,13 @@ class OutputPortItem(PortItem):
 
 
 class PortItemPin(QGraphicsWidget):
-    def __init__(self, port, node):
-        super(PortItemPin, self).__init__(node.item)
+    def __init__(self, port, port_item, node, node_item):
+        super(PortItemPin, self).__init__(node_item)
 
         self.port = port
+        self.port_item = port_item
         self.node = node
-        self.node_item = node.item
+        self.node_item = node_item
         self.flow_view = self.node_item.flow_view
 
         self.setGraphicsItem(self)
@@ -232,8 +242,14 @@ class PortItemPin(QGraphicsWidget):
         QGraphicsWidget.hoverLeaveEvent(self, event)
 
     def get_scene_center_pos(self):
-        return QPointF(self.scenePos().x() + self.boundingRect().width()/2,
-                       self.scenePos().y() + self.boundingRect().height()/2)
+        if not self.node_item.collapsed:
+            return QPointF(self.scenePos().x() + self.boundingRect().width()/2,
+                           self.scenePos().y() + self.boundingRect().height()/2)
+        else:
+            if isinstance(self.port_item, InputPortItem):
+                return self.node_item.get_left_body_header_vertex_scene_pos()
+            else:
+                return self.node_item.get_right_body_header_vertex_scene_pos()
 
 
 class PortItemLabel(QGraphicsWidget):

@@ -85,7 +85,7 @@ class FlowTheme:
         painter.setFont(font)
 
         text_rect = node_item_bounding_rect
-        text_rect.setTop(text_rect.top()-7)
+        text_rect.setTop(text_rect.top())
 
         if node_style == 'extended':
             painter.drawText(text_rect, Qt.AlignLeft | Qt.AlignVCenter, title)
@@ -102,7 +102,7 @@ class FlowTheme:
 
     @staticmethod
     def get_header_rect(node_width, node_height, title_rect):
-        header_height = 1.4 * title_rect.height()  # 35 * (self.parent_node.title.count('\n')+1)
+        header_height = 1.0 * title_rect.height()  # 35 * (self.parent_node.title.count('\n')+1)
 
         header_rect = QRectF()
         header_rect.setTopLeft(QPointF(-node_width / 2, -node_height / 2))

@@ -1,6 +1,7 @@
 from PySide2.QtCore import QPointF, QRectF, Qt
-from PySide2.QtWidgets import QGraphicsWidget, QGraphicsLinearLayout
+from PySide2.QtWidgets import QGraphicsWidget, QGraphicsLinearLayout, QSizePolicy
 
+from .NodeItem_CollapseButton import NodeItem_CollapseButton
 from .FlowViewProxyWidget import FlowViewProxyWidget
 # from .Node import Node
 from .NodeItem_Icon import NodeItem_Icon
@@ -16,13 +17,20 @@ class NodeItemWidget(QGraphicsWidget):
         self.node_item = node_item
         self.flow_view = self.node_item.flow_view
 
+        self.body_padding = 6
+        self.header_padding = 2
+
         self.icon = NodeItem_Icon(node, node_item) if node.icon else None
+        self.collapse_button = NodeItem_CollapseButton(node, node_item) if node.style == 'extended' else None
         self.title_label = TitleLabel(node, node_item)
         self.main_widget_proxy: FlowViewProxyWidget = None
         if self.node_item.main_widget:
             self.main_widget_proxy = FlowViewProxyWidget(self.flow_view)
             self.main_widget_proxy.setWidget(self.node_item.main_widget)
+        self.header_layout: QGraphicsWidget = None
+        self.header_widget: QGraphicsWidget = None
         self.body_layout: QGraphicsLinearLayout = None
+        self.body_widget: QGraphicsWidget = None
         self.inputs_layout: QGraphicsLinearLayout = None
         self.outputs_layout: QGraphicsLinearLayout = None
         self.setLayout(self.setup_layout())
@@ -31,18 +39,36 @@ class NodeItemWidget(QGraphicsWidget):
 
         #   main layout
         layout = QGraphicsLinearLayout(Qt.Vertical)
-        layout.setSpacing(10)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
         if self.node.style == 'extended':
-            header_layout = QGraphicsLinearLayout(Qt.Horizontal)
+            self.header_widget = QGraphicsWidget()
+            # self.header_widget.setContentsMargins(0, 0, 0, 0)
+            self.header_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            self.header_layout = QGraphicsLinearLayout(Qt.Horizontal)
+            self.header_layout.setSpacing(0)
+            self.header_layout.setContentsMargins(
+                self.header_padding,
+                self.header_padding,
+                self.header_padding,
+                self.header_padding
+            )
             if self.icon:
-                header_layout.addItem(self.icon)
-            header_layout.addItem(self.title_label)
+                self.header_layout.addItem(self.icon)
+                self.header_layout.setAlignment(self.icon, Qt.AlignVCenter | Qt.AlignLeft)
 
-            layout.addItem(header_layout)
+            self.header_layout.addItem(self.title_label)
+
+            self.header_layout.addItem(self.collapse_button)
+            self.header_layout.setAlignment(self.collapse_button, Qt.AlignVCenter | Qt.AlignRight)
+
+            self.header_widget.setLayout(self.header_layout)
+            # layout.addItem(self.header_layout)
+            layout.addItem(self.header_widget)
             # layout.setAlignment(self.title_label, Qt.AlignTop)
         else:
-            self.setZValue(self.title_label.zValue()+1)
+            self.setZValue(self.title_label.zValue() + 1)
 
         #   inputs
         self.inputs_layout = QGraphicsLinearLayout(Qt.Vertical)
@@ -53,7 +79,15 @@ class NodeItemWidget(QGraphicsWidget):
         self.outputs_layout.setSpacing(2)
 
         #   body
+        self.body_widget = QGraphicsWidget()
+        # self.body_widget.setContentsMargins(0, 0, 0, 0)
         self.body_layout = QGraphicsLinearLayout(Qt.Horizontal)
+        self.body_layout.setContentsMargins(
+            self.body_padding,
+            self.body_padding,
+            self.body_padding,
+            self.body_padding
+        )
 
         self.body_layout.setSpacing(4)
         self.body_layout.addItem(self.inputs_layout)
@@ -62,24 +96,10 @@ class NodeItemWidget(QGraphicsWidget):
         self.body_layout.addItem(self.outputs_layout)
         self.body_layout.setAlignment(self.outputs_layout, Qt.AlignVCenter | Qt.AlignRight)
 
+        self.body_widget.setLayout(self.body_layout)
 
-        # if self.node_item.main_widget:
-        #     self.main_widget_proxy = FlowProxyWidget(self.flow)
-        #     self.main_widget_proxy.setWidget(self.node_item.main_widget)
-        #
-        #     if self.node.main_widget_pos == 'between ports':
-        #         self.body_layout.insertItem(1, self.main_widget_proxy)
-        #         self.body_layout.insertStretch(2)
-        #         layout.addItem(self.body_layout)
-        #
-        #     elif self.node.main_widget_pos == 'below ports':
-        #         layout.addItem(self.body_layout)
-        #         layout.addItem(self.main_widget_proxy)
-        #         layout.setAlignment(self.main_widget_proxy, Qt.AlignHCenter)
-        # else:
-        #     layout.addItem(self.body_layout)
-
-        layout.addItem(self.body_layout)
+        # layout.addItem(self.body_layout)
+        layout.addItem(self.body_widget)
 
         return layout
 
@@ -99,6 +119,9 @@ class NodeItemWidget(QGraphicsWidget):
         self.setLayout(None)
         self.resize(self.minimumSize())
         self.setLayout(self.setup_layout())
+
+        if self.node_item.collapsed:
+            return
 
         for inp in self.node.inputs:
             self.add_input_to_layout(inp.item)
@@ -154,6 +177,7 @@ class NodeItemWidget(QGraphicsWidget):
                             -self.title_label.boundingRect().height() / 2)
                 )
 
+
     def add_main_widget_to_layout(self):
         if self.node.main_widget_pos == 'between ports':
             self.body_layout.insertItem(1, self.main_widget_proxy)
@@ -170,10 +194,10 @@ class NodeItemWidget(QGraphicsWidget):
         self.inputs_layout.setAlignment(inp, Qt.AlignLeft)
 
     def insert_input_into_layout(self, index: int, inp: InputPortItem):
-        self.inputs_layout.insertItem(index*2+1, inp)   # *2 bcs of the stretches
+        self.inputs_layout.insertItem(index * 2 + 1, inp)  # *2 bcs of the stretches
         self.inputs_layout.setAlignment(inp, Qt.AlignLeft)
         if len(self.node.inputs) > 1:
-            self.inputs_layout.insertStretch(index*2+1)  # *2+1 because of the stretches, too
+            self.inputs_layout.insertStretch(index * 2 + 1)  # *2+1 because of the stretches, too
 
     def remove_input_from_layout(self, inp: InputPortItem):
         self.inputs_layout.removeItem(inp)
@@ -189,10 +213,10 @@ class NodeItemWidget(QGraphicsWidget):
         self.outputs_layout.setAlignment(out, Qt.AlignRight)
 
     def insert_output_into_layout(self, index: int, out: OutputPortItem):
-        self.outputs_layout.insertItem(index*2+1, out)  # *2 because of the stretches
+        self.outputs_layout.insertItem(index * 2 + 1, out)  # *2 because of the stretches
         self.outputs_layout.setAlignment(out, Qt.AlignRight)
         if len(self.node.outputs) > 1:
-            self.outputs_layout.insertStretch(index*2+1)  # *2+1 because of the stretches, too
+            self.outputs_layout.insertStretch(index * 2 + 1)  # *2+1 because of the stretches, too
 
     def remove_output_from_layout(self, out: OutputPortItem):
         self.outputs_layout.removeItem(out)
@@ -200,3 +224,13 @@ class NodeItemWidget(QGraphicsWidget):
         # just a temporary workaround for the issues discussed here:
         # https://forum.qt.io/topic/116268/qgraphicslayout-not-properly-resizing-to-change-of-content
         self.rebuild_ui()
+
+    def collapse(self):
+        self.body_widget.hide()
+        if self.main_widget_proxy:
+            self.main_widget_proxy.hide()
+
+    def expand(self):
+        self.body_widget.show()
+        if self.main_widget_proxy:
+            self.main_widget_proxy.show()

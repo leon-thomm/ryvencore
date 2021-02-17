@@ -36,8 +36,7 @@ def shorten(s: str, max_chars: int, line_break: bool = False):
 
 
 class MovementEnum(enum.Enum):
-    """bug test: click on NI, drag, then use shortcut movement and release. Should result in a double undo stack push
-    this should get removed later, it's an ugly implementation"""
+    # this should maybe get removed later
     mouse_clicked = 1
     position_changed = 2
     mouse_released = 3
@@ -80,3 +79,52 @@ def translate_project__repair(obj):
             obj[i] = translate_project__repair(obj[i])
 
     return obj
+
+
+def change_svg_color(filepath: str, color_hex: str):
+    """
+    Changes the color of an SVG image and returns a pixmap.
+
+    https://stackoverflow.com/questions/15123544/change-the-color-of-an-svg-in-qt
+    """
+
+    from PySide2.QtGui import Qt, QPainter
+    from PySide2.QtXml import QDomDocument, QDomElement
+    from PySide2.QtSvg import QSvgRenderer
+    from PySide2.QtGui import QPixmap
+
+
+    def change_svg_color__set_attr_recur(elem: QDomElement, strtagname: str, strattr: str, strattrval: str):
+
+        # if it has the tag name then overwrite desired attribute
+        if elem.tagName() == strtagname:
+            elem.setAttribute(strattr, strattrval)
+
+        # loop all children
+        for i in range(elem.childNodes().count()):
+            if not elem.childNodes().at(i).isElement():
+                continue
+
+            change_svg_color__set_attr_recur(elem.childNodes().at(i).toElement(), strtagname, strattr, strattrval)
+
+
+    # open svg resource load contents to qbytearray
+    f = open(filepath)
+    data = f.read()
+    f.close()
+    # load svg contents to xml document and edit contents
+    doc = QDomDocument()
+    doc.setContent(data)
+    # recursively change color
+    change_svg_color__set_attr_recur(doc.documentElement(), 'path', 'fill', color_hex)
+    # create svg renderer with edited contents
+    svg_renderer = QSvgRenderer(doc.toByteArray())
+    # create pixmap target (could be a QImage)
+    pix = QPixmap(svg_renderer.defaultSize())
+    pix.fill(Qt.transparent)
+    # create painter to act over pixmap
+    pix_painter = QPainter(pix)
+    # use renderer to render over painter which paints on pixmap
+    svg_renderer.render(pix_painter)
+
+    return pix
