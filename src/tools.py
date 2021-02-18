@@ -43,7 +43,6 @@ class MovementEnum(enum.Enum):
 
 
 def serialize(data) -> str:
-    """Serializes any data into a string or None if data is None"""
     return base64.b64encode(pickle.dumps(data)).decode('ascii')
 
 

@@ -62,8 +62,6 @@ class Script(QObject):
 
         # GUI
         if self.session.threaded:
-            QTimer.singleShot(0, self.compute_something)
-
             self.create_flow_view_request.emit(self, flow_view_params)
             while self.tmp_data is None:
                 time.sleep(0.001)

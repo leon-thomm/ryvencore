@@ -49,13 +49,13 @@ class RCIW_BUILTIN_SpinBox(QSpinBox, IWB):
 
 class RCIW_BUILTIN_LineEdit(QLineEdit, IWB):
 
-    trigger_update = Signal(int)
+    trigger_update = Signal(object)
 
     def __init__(self, params, size='medium', resize=False):
         IWB.__init__(self, params)
         QLineEdit.__init__(self)
 
-        self.trigger_update.connect(self.node.update)
+        self.trigger_update.connect(self.input.update)
 
         self.port_local_pos = None
         self.resizing = resize
@@ -90,7 +90,7 @@ class RCIW_BUILTIN_LineEdit(QLineEdit, IWB):
 
     def editing_finished(self):
         # self.node.update(self.node.inputs.index(self.input))
-        self.trigger_update.emit(self.node.inputs.index(self.input))
+        self.trigger_update.emit(self.get_val())
 
     def remove_event(self):
         pass

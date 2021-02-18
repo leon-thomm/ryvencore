@@ -1,6 +1,7 @@
 from PySide2.QtCore import QObject, Signal
 
 from .RC import PortObjPos, FlowAlg
+from.tools import serialize
 
 
 class NodeObjPort(QObject):
@@ -73,16 +74,23 @@ class NodeObjInput(NodeObjPort):
         else:
             return self.connections[0].get_val()
 
-    def update(self):
+    def update(self, data=None):
         """called from another node or from connected()"""
         if self.type_ == 'data':
-            self.val = self.get_val()
+            self.val = data  # self.get_val()
             if self.item:
                 self.item.updated_val()
 
         if (self.node.is_active() and self.type_ == 'exec') or \
            not self.node.is_active():
             self.node.update(self.node.inputs.index(self))
+
+    def config_data(self, include_val=False):
+        data = super().config_data()
+        if include_val:
+            data['val'] = serialize(self.get_val())
+        return data
+
 
 
 class NodeObjOutput(NodeObjPort):
@@ -110,7 +118,7 @@ class NodeObjOutput(NodeObjPort):
         if self.node.flow.alg_mode == FlowAlg.DATA:  # and \
                 # not self.node.initializing
             for c in self.connections:
-                c.activate()
+                c.activate(data=val)
                 # c.queue()
     #         self.updated_val()
     #

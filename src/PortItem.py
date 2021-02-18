@@ -150,6 +150,7 @@ class InputPortItem(PortItem):
         """Disables the widget"""
         if self.widget:
             self.widget.setEnabled(False)
+        self.updated_val()
 
     def port_disconnected(self):
         """Enables the widget again"""

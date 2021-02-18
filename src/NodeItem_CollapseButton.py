@@ -2,8 +2,8 @@ from PySide2.QtCore import QSize, QRectF, QPointF, QSizeF
 from PySide2.QtGui import QPixmap, QImage, QPainter, QIcon, QPicture, Qt, QBrush, QColor, QPen
 from PySide2.QtWidgets import QGraphicsPixmapItem, QGraphicsWidget, QGraphicsLayoutItem, QGraphicsColorizeEffect
 
-from custom_src.ryvencore.src.GlobalAttributes import Location
-from custom_src.ryvencore.src.tools import change_svg_color
+from .GlobalAttributes import Location
+from .tools import change_svg_color
 
 
 class NodeItem_CollapseButton(QGraphicsWidget):
@@ -18,12 +18,6 @@ class NodeItem_CollapseButton(QGraphicsWidget):
         self.setGraphicsItem(self)
         self.setCursor(Qt.PointingHandCursor)
 
-
-        # collapse_img = QImage(Location.PACKAGE_PATH+'/resources/node_collapse_icon.svg')
-        # expand_img = QImage(Location.PACKAGE_PATH+'/resources/node_expand_icon.svg')
-        #
-        # self.collapse_pixmap = QPixmap.fromImage(collapse_img)
-        # self.expand_pixmap = QPixmap.fromImage(expand_img)
 
         self.collapse_pixmap = change_svg_color(Location.PACKAGE_PATH+'/resources/node_collapse_icon.svg',
                                                 self.node.color)
@@ -43,6 +37,9 @@ class NodeItem_CollapseButton(QGraphicsWidget):
         return QSizeF(self.size.width(), self.size.height())
 
     def mousePressEvent(self, event):
+        event.accept()  # make sure the event doesn't get passed on
+        self.node_item.flow_view.mouse_event_taken = True
+
         if self.node_item.collapsed:
             self.node_item.expand()
         else:

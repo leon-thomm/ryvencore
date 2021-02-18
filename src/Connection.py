@@ -35,5 +35,5 @@ class DataConnection(Connection):
     def get_val(self):
         return self.out.get_val()
 
-    def activate(self):
-        self.inp.update()
+    def activate(self, data=None):
+        self.inp.update(data)

@@ -1,4 +1,4 @@
-from custom_src.ryvencore.src.tools import serialize, deserialize
+from ..tools import serialize, deserialize
 
 
 class Variable:
@@ -6,7 +6,7 @@ class Variable:
     because I need a ref to an object in VarsList_VarWidget to always show the current value and stuff"""
 
     def __init__(self, name='', val=None):
-        super(Variable, self).__init__()
+        # super(Variable, self).__init__()
 
         self.name = name
         self.val = None

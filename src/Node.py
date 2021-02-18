@@ -33,6 +33,9 @@ class Node(QObject):
     color = '#c69a15'
     icon = None
 
+    class SIGNALS(QObject):
+        pass
+
     def __init__(self, params):
         super().__init__()
 
@@ -44,6 +47,7 @@ class Node(QObject):
         self.default_actions = self.init_default_actions()
         self.special_actions = {}
         self.logs = []
+        self.signals = self.SIGNALS()
 
         self.init_config = config
         self.initialized = False
@@ -132,14 +136,10 @@ class Node(QObject):
         QGraphicsItem used to graphically update a QGraphicsItem which can be accessed via
         QGraphicsItem.update(self)."""
 
-        # if self.session_design.animations_enabled:
-        #     self.animator.start()
-        # self.item.node_updated()
-        self.updated.emit()
-
         InfoMsgs.write('update in', self.title, 'on input', input_called)
         try:
             self.update_event(input_called)
+            self.updated.emit()
         except Exception as e:
             InfoMsgs.write_err('EXCEPTION IN', self.title, 'NI:', e)
 
@@ -438,9 +438,10 @@ class Node(QObject):
         return self.main_widget() is not None
 
 
-    def config_data(self) -> dict:
+    def config_data(self, include_data_inp_values=False) -> dict:
         """Returns all metadata of the NI including position, package etc. in a JSON-able dict format.
-        Used to rebuild the Flow when loading a project."""
+        Used to rebuild the Flow when loading a project.
+        include_data_inp_values is only used for code generation."""
 
         # general attributes
         node_dict = {
@@ -452,7 +453,7 @@ class Node(QObject):
         # inputs
         inputs = []
         for i in self.inputs:
-            input_dict = i.config_data()
+            input_dict = i.config_data(include_data_inp_values)
             inputs.append(input_dict)
         node_dict['inputs'] = inputs
 
