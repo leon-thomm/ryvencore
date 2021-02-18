@@ -19,7 +19,7 @@ class InfoMsgs:
         s = ''
         for arg in args:
             s += ' '+str(arg)
-        print('--> INFO:', s)
+        print('--> INFO: '+s)
 
     def write_err(*args):
         if not InfoMsgs.enabled:

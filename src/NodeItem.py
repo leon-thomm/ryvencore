@@ -69,7 +69,9 @@ class NodeItem(QGraphicsItem, QObject):
         self.animator = NodeItemAnimator(self)  # needs self.title_label
 
         # TOOLTIP
-        if self.node.description != '':
+        if self.node.description_html:
+            self.setToolTip(self.node.description_html)
+        elif self.node.description != '':
             self.setToolTip('<html><head/><body><p>'+self.node.description+'</p></body></html>')
         self.setCursor(Qt.SizeAllCursor)
 

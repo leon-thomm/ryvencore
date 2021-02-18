@@ -70,8 +70,8 @@ class Flow(QObject):
                         node_class = nc
                         break
             else:
-                for nc in self.session.nodes:
-                    if nc.__name__ == n_c['identifier']:
+                for nc in self.session.nodes + self.session.invisible_nodes:
+                    if nc.identifier == n_c['identifier']:
                         node_class = nc
                         break
 

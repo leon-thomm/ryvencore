@@ -23,9 +23,11 @@ class Node(QObject):
     # FIELDS
     init_inputs: [NodeInput] = []
     init_outputs: [NodeOutput] = []
+    identifier = None  # set by Session if None
     title = ''
     type_ = ''
     description = ''
+    description_html = None
     main_widget_class = None
     main_widget_pos = 'below ports'
     input_widget_classes = {}
@@ -445,7 +447,7 @@ class Node(QObject):
 
         # general attributes
         node_dict = {
-            'identifier': self.__class__.__name__,
+            'identifier': self.identifier,  # self.__class__.__name__,
             'state data': serialize(self.get_data()),
             'special actions': self.get_special_actions_data(self.special_actions)
         }
