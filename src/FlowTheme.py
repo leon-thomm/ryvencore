@@ -991,6 +991,7 @@ class FlowTheme_Samuel1(FlowTheme):
     flow_background_brush = QBrush(QColor('#1E242A'))
     flow_background_grid = ('points', flow_background_brush.color().lighter(), 2, 50, 50)
 
+    node_item_shadow_color = QColor('#101010')
 
     node_ext_background_color = QColor('#0C1116')
     node_small_background_color = QColor('#363c41')
@@ -1055,7 +1056,10 @@ class FlowTheme_Samuel1(FlowTheme):
             p.setWidthF(1.1)
             painter.setPen(p)
 
-        painter.drawEllipse(QRectF(padding + w / 8, padding + h / 8, 3 * w / 4, 3 * h / 4))
+        rect = QRectF(padding + w / 8, padding + h / 8, 3 * w / 4, 3 * h / 4)
+        if type_ == 'exec':
+            painter.setBrush(QBrush(QColor('white')))
+        painter.drawEllipse(rect)
 
 
     def draw_NI_extended(self, node, painter, c, w, h, bounding_rect: QRectF, title_rect):

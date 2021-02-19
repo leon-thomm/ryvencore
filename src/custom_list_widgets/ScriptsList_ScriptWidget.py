@@ -6,6 +6,7 @@ import json
 
 from ..GlobalAttributes import Location
 from .ListWidget_NameLineEdit import ListWidget_NameLineEdit
+from ..FunctionScript import FunctionScript
 
 
 class ScriptsList_ScriptWidget(QWidget):
@@ -21,7 +22,7 @@ class ScriptsList_ScriptWidget(QWidget):
         self.script = script
         self.scripts_list_widget = scripts_list_widget
         self.previous_script_title = ''
-
+        self._thumbnail_source = ''
         self.ignore_title_line_edit_signal = False
 
 
@@ -29,7 +30,10 @@ class ScriptsList_ScriptWidget(QWidget):
         main_layout = QHBoxLayout()
 
         # create icon via label
-        script_icon = QIcon(Location.PACKAGE_PATH+'/resources/pics/script_picture.png')
+        if isinstance(script, FunctionScript):
+            script_icon = QIcon(Location.PACKAGE_PATH+'/resources/pics/function_picture.png')
+        else:
+            script_icon = QIcon(Location.PACKAGE_PATH+'/resources/pics/script_picture.png')
         icon_label = QLabel()
         icon_label.setFixedSize(20, 20)
         icon_label.setStyleSheet('border:none;')
@@ -73,10 +77,10 @@ class ScriptsList_ScriptWidget(QWidget):
 
     def event(self, event):
         if event.type() == QEvent.ToolTip:
-            img: QImage = self.script.flow.get_viewport_img()
-            self.script._thumbnail_source = 'temp/script_' + self.script.title + '_thumbnail.png'
-            img.save(self.script._thumbnail_source)
-            self.setToolTip('<img height=100 src="' + self.script._thumbnail_source + '"/>')
+            img: QImage = self.script.flow_view.get_viewport_img()
+            self._thumbnail_source = Location.PACKAGE_PATH+'/temp/script_' + self.script.title + '_thumbnail.png'
+            img.save(self._thumbnail_source)
+            self.setToolTip('<img height=100 src="' + self._thumbnail_source + '"/>')
 
         return QWidget.event(self, event)
 

@@ -2,6 +2,7 @@ from PySide2.QtCore import QPointF, QObject, Signal
 from PySide2.QtGui import QPainterPath
 
 from .ConnectionItem import ExecConnectionItem, DataConnectionItem
+from .InfoMsgs import InfoMsgs
 
 
 class Connection(QObject):
@@ -27,13 +28,16 @@ class Connection(QObject):
 class ExecConnection(Connection):
 
     def activate(self):
+        InfoMsgs.write('activating exec connection')
         self.inp.update()
 
 
 class DataConnection(Connection):
 
     def get_val(self):
+        InfoMsgs.write('getting value from data connection')
         return self.out.get_val()
 
     def activate(self, data=None):
+        InfoMsgs.write('activating data connection')
         self.inp.update(data)

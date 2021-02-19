@@ -1,5 +1,5 @@
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QWidget, QMessageBox, QVBoxLayout, QLineEdit
+from PySide2.QtWidgets import QWidget, QMessageBox, QVBoxLayout, QLineEdit, QHBoxLayout, QPushButton
 
 from .ScriptsList_ScriptWidget import ScriptsList_ScriptWidget
 
@@ -44,6 +44,18 @@ class ScriptsListWidget(QWidget):
 
         main_layout.addWidget(self.new_script_title_lineedit)
 
+        buttons_layout = QHBoxLayout()
+
+        create_function_button = QPushButton('func')
+        create_function_button.clicked.connect(self.on_create_function_clicked)
+        buttons_layout.addWidget(create_function_button)
+
+        create_script_button = QPushButton('script')
+        create_script_button.clicked.connect(self.on_create_script_clicked)
+        buttons_layout.addWidget(create_script_button)
+
+        main_layout.addLayout(buttons_layout)
+
         self.setLayout(main_layout)
 
         self.recreate_list()
@@ -56,7 +68,7 @@ class ScriptsListWidget(QWidget):
 
         self.list_widgets.clear()
 
-        for s in self.session.scripts:
+        for s in self.session.all_scripts():
             new_widget = ScriptsList_ScriptWidget(self, self.session, s)
             self.list_widgets.append(new_widget)
 
@@ -72,12 +84,26 @@ class ScriptsListWidget(QWidget):
 
 
     def new_script_LE_return_pressed(self):
+        self.create_script()  # create normal scripts by default
+
+    def on_create_function_clicked(self):
+        self.create_function_script()
+
+    def on_create_script_clicked(self):
+        self.create_script()
+
+    def create_function_script(self):
         title = self.new_script_title_lineedit.text()
 
-        if not self.session.check_new_script_title_validity(title):
-            return
+        if self.session.check_new_script_title_validity(title):
+            self.session.create_func_script(title=title)
 
-        self.session.create_script(title=title)
+    def create_script(self):
+        title = self.new_script_title_lineedit.text()
+
+        if self.session.check_new_script_title_validity(title):
+            self.session.create_script(title=title)
+
 
     def add_new_script(self, script):
         self.recreate_list()

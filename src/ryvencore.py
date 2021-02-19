@@ -1,3 +1,10 @@
+
+# set package path
+import os
+from .GlobalAttributes import Location
+Location.PACKAGE_PATH = os.path.normpath(os.path.dirname(__file__)+'/../')
+
+
 from .Node import Node
 from .NodePort import NodeInput, NodeOutput
 from .Session import Session
@@ -28,8 +35,3 @@ class Retain:
     from .retain import M
     M = M
 
-
-# set package path
-import os
-from .GlobalAttributes import Location
-Location.PACKAGE_PATH = os.path.normpath(os.path.dirname(__file__)+'/../')

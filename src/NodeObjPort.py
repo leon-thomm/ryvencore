@@ -2,6 +2,7 @@ from PySide2.QtCore import QObject, Signal
 
 from .RC import PortObjPos, FlowAlg
 from.tools import serialize
+from .InfoMsgs import InfoMsgs
 
 
 class NodeObjPort(QObject):
@@ -66,6 +67,8 @@ class NodeObjInput(NodeObjPort):
                 'The node item has not been initialized yet.'
             )
 
+        InfoMsgs.write('getting value of input', self.node.inputs.index(self), 'of', self.node.title, 'node')
+
         if len(self.connections) == 0:
             if self.item.widget:
                 return self.item.widget.get_val()
@@ -104,7 +107,8 @@ class NodeObjOutput(NodeObjPort):
             c.activate()
 
     def get_val(self):
-        # InfoMsgs.debug('returning val directly')
+        InfoMsgs.write('getting value in output', self.node.outputs.index(self), 'of', self.node.title, 'node')
+
         if self.node.flow.alg_mode == FlowAlg.EXEC:
             self.node.update()
         return self.val
