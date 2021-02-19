@@ -57,7 +57,7 @@ class Session(QObject):
         QFontDatabase.addApplicationFont(Location.PACKAGE_PATH+'/resources/fonts/asap/Asap-Regular.ttf')
 
 
-    def register_nodes(self, node_classes):
+    def register_nodes(self, node_classes: list):
         """Registers a list of Nodes which you then can access in all scripts"""
 
         for n in node_classes:
@@ -111,7 +111,7 @@ class Session(QObject):
 
 
     def _load_script(self, config: dict):
-        """Loads a script from a project dict"""
+        """Loads a script from a project dict; emits new_script_created"""
 
         script = Script(session=self, config_data=config)
         self.scripts.append(script)
@@ -130,12 +130,15 @@ class Session(QObject):
 
 
     def rename_script(self, script: Script, title: str):
-        """Renames an existing script"""
+        """Renames an existing script; emits script_renamed"""
+
         script.title = title
         self.script_renamed.emit(script)
 
 
     def check_new_script_title_validity(self, title: str) -> bool:
+        """Checks whether a considered title for a new script (i.e. unique) is valid or not"""
+
         if len(title) == 0:
             return False
         for s in self.all_scripts():
@@ -146,7 +149,7 @@ class Session(QObject):
 
 
     def delete_script(self, script: Script):
-        """Deletes an existing script"""
+        """Deletes an existing script; emits script_deleted"""
 
         if isinstance(script, FunctionScript):
             self.unregister_node(script.function_node_class)
@@ -185,7 +188,7 @@ class Session(QObject):
 
 
     def serialize(self) -> dict:
-        """Returns a list with 'config data' of all scripts for saving the project"""
+        """Returns the project as dict to be saved and loaded again using load()"""
 
         data = {}
 
@@ -202,7 +205,7 @@ class Session(QObject):
         return data
 
 
-    def all_nodes(self):
+    def all_nodes(self) -> list:
         """Returns a list containing all Node objects used in any flow which is useful for advanced project analysis"""
 
         nodes = []

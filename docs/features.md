@@ -1,37 +1,41 @@
 # Features
 
-This site gives a little more detailed overview over ryvencore's specific features. I will introduce the major systems here.
+This site gives a slightly more detailed overview over ryvencore's specific features. I will introduce the major systems here.
 
 ## Nodes System
 
-In ryvencore, nodes consist of a `Node` *object* and a `NodeInstance` *subclass*. This enables highly sophisticated NodeInstances and convenient nodes management software like Ryve's NodeManager. You can put any code into a NodeInstance, no limitations.
+In ryvencore, nodes are defined subclasses of ryvencore's `Node` class. Single nodes will be instances of this class and basic properties that equally apply on all those nodes are stored as static attributes. Individually changing properties are inputs and outputs (which can be added and removed at any time), display title, "actions" which are right click operations etc. You can put any code into your Node subclasses, no limitations.
 
-Two rules are important when programming NodeInstances:
+One very important feature is the possibility of defining custom GUI components, i.e. widgets, for your nodes. A node can have a `main_widget` and input widgets, whose classes are stored in the `input_widget_classes` attribute.
 
-- When writing an actual application, you need to give your NodeInstance their own source. They can lie all in the same file or in different files, but you should distinct them from other source code.
+### Special Actions
 
-- Furthermore, if you use custom GUI classes for your NodeInstances (a main widget or custom input widgets), make a clear distinction between functionality that is GUI related and functionaliy that regards the NodeInstance itself. Put everything GUI related into the GUI classes, and everything else into the NodeInstance class.
+Special actions are a very simple way to define right click operations for your nodes. The `special_actions` attribute is a dictionary which you can edit like this
 
-!!! note
-    These two rules allow automatic module-based analysis mechanisms by ryvencore for code generation etc.
+```python
+# creating a new entry
+self.special_actions['add some input'] = {'method': self.add_some_input_action}
 
-!!! note
-    Other than a professional implementation might do it, in ryvencore your NodeInstance does not run in a separete thread yet, it's the same as the GUI so far. This of course has significant performance effects, but, for now, I decided to keep the simple system. Separating it would either make ryvencore's implementation *much* more complicated, or restrict your freedom for programming NodeInstances. If I find a nice way to internally implement it, **I might change that in the future.**
+# with a corresponding method
+def add_some_input_action(self):
+    self.create_input(type_='data', label='new input')
 
-### NodeInstance Special Actions
+# removing an entry
+del self.special_actions['add some input']
 
-....
-
-## Code Generation (coming soon)
-
-Although this is *quite* experimental and might crash in some cases, if the implementations of your NodeInstances follow the rules above, there's a built in code generation mechanism. Code is generated for a script and contains an abstract version of the flow and the script variables in a structure that keeps an API similar to ryvencore itself, such that all NodeInstances should still work.
-
-!!! note
-    **Files might get large!** Because the resulting code has to include this abstract version of the whole internal structure as well as the definitions of used NodeInstances, the resulting code might quickly reach 1000 lines. However, it is quite a strong feature considering you have maximum freedom for programming your NodeInstances.
-
-The resulting code is completely independent, does not have PySide dependencies anymore and can be embedded wherever you need it. There is a function in the code that you can call which creates everything and you will get a list for the NodeInstances and script variables, so you can extract (and even manipulate) the data that you are looking for.
-
-When generating the code, ryvencore runs a dependency analysis of all NodeInstances' sources. Some NodeInstances might just use standard packages and modules (like numpy), while others might include external sources that you want to have included in the generated code, like some functions or classes used by many of your nodes which you therefore keep in their own module/s. ryvencore analyzes normal import statements (not runtime based ones in the code!) and asks you which dependencies' sources should be included. This enables decentralization of your NodeInstance classes (like in Ryven where all NodeInstances have their own file).
+# and storing individual data for multiple actions pointing to the same target method
+# which enables completely dynamic and current state dependent actions
+self.special_actions['add some input at index 0'] = {
+    'method': self.add_some_input_at,
+    'data': 0
+}
+self.special_actions['add some input at index 1'] = {
+    'method': self.add_some_input_at,
+    'data': 1
+}
+def add_some_input_at(self, index):
+    self.create_input(type_='data', label='inserted input', pos=index)
+```
 
 ## Load&Save
 
@@ -39,14 +43,17 @@ The whole load and save process of projects is done by ryvencore, see `Session.s
 
 ## Script Variables
 
-Script variables are a nice way to improve the interface to your data. There is a ridiculously simple but extremely powerful *registration system* that lets you register methods as *receivers* for a variable with a given name. Then, every time the variable's value gets updated, all registered receiver methods are called. The registration process is part of the API of the `NodeInstance` class, so you can easily create highly responsive nodes.
+Script variables are a nice way to improve the interface to your data. There is a ridiculously simple but extremely powerful *registration system* that lets you register methods as *receivers* for a variable with a given name. Then, every time the variable's value gets updated, all registered receiver methods are called. The registration process is part of the API of the `Node` class, so you can easily create highly responsive nodes.
 
 !!! example
-    I made a small *Matrix* node in Ryven where you can just type a few numbers into a small textedit (which is the *main-widget* of the node) and it creates a numpy array out of them. You can also type in the name of a script variable somewhere (instead of a number) which makes the matrix node register as a receiver, so it updates and regenerates the array every time the value of a script variable with that name updated.
+    I made a small *Matrix* node in Ryven where you can just type a few numbers into a small textedit (which is the custom `main_widget` of the node) and it creates a numpy array out of them. But you can also type in the name of a script variable somewhere (instead of a number) which makes the matrix node register as a receiver, so it updates and regenerates the matrix every time the value of a script variable with that name updated.
+    
+!!! note
+    You could also work with default variables, for example, that you always create when creating a new script, by default, which all your nodes use to communicate or transmit data in more complex ways. This illustrates, there is really a bunch of quite ridiculous possibilities for sophisticated optimization with this.
 
 ## Logging
 
-There is a `Logger` class which every script has an attribute of. You can use the logger's [API](../api/#class-logger) to write messages to default logs and to request individual logs and write directly to them. `NodeInstance` already includes methods for requesting individual logs and manages *enable*-and *disalbe*-events according to actions in the flow (like removing NodeInstances), but you can also request logs for anything else.
+There is a `Logger` class which every script has an instance of. You can use the logger's [API](../api/#class-logger) to write messages to default logs and to request custom logs and write directly to them. The `Node`'s API already includes methods for requesting custom logs and manages *enable*-and *disable*-events according to actions in the flow (like removing the Node), but you can also request logs for anything else.
 
 ## Convenience Classes
 
@@ -54,37 +61,94 @@ ryvecore already comes with a few convenience classes for widgets. Those conveni
 
 ## Styling
 
-Of course, design splays a huge role when thinking about *visual* programming. Therefore you have  much freedom in styling your flows.
+Of course, design splays a huge role when thinking about *visual* scripting. Therefore, you have wide freedom in styling.
 
 ### Flow Themes
 
-There is a list of available flow themes (which I want to expand as far as possible). You can choose one via `Session.design.set_flow_theme()`. Currently available flow themes are *dark tron*, *dark std*, *ghostly*, *blender*, *easy*, *peasy*, and *ueli*.
+There is a list of available flow themes (which I want to expand as far as possible). You can choose one via `Session.design.set_flow_theme()`. Currently available flow themes are `Samuel 1d`, `Samuel 1l`, `Samuel 2d`, `Samuel 2l`, `Ueli`, `Blender`, `Simple`, `Toy` and `Tron`. To make sure you can create a look that fits in nicely wherever you might integrate your editor, you can customize the colors for all the above themes using a config json file and passing it to the design using `Sessiong.design.load_from_config(filepath)`. The json file should look like this, for any value you can either write "default" or a specific color in hex format (also compatible with alpha values):
+
+??? note "config file"
+    You can also specify the initial flow theme, the performance mode (`'pretty'` or `'past'`) and animations (which currently don't work I think).
+    ```python
+    {
+      "init flow theme": "Samuel 1l",
+      "init performance mode": "pretty",
+      "init animations enabled": true,
+      "flow themes": {
+        "Ghost": {
+          "nodes color": "default",
+          "small nodes color": "default",
+          "flow background color": "default"
+        },
+        "Blender": {
+          "nodes color": "default",
+          "flow background color": "default"
+        },
+        "Simple": {
+          "nodes background color": "default",
+          "small nodes background color": "default",
+          "flow background color": "default"
+        },
+        "Ueli": {
+          "nodes background color": "default",
+          "small nodes background color": "default",
+          "flow background color": "default"
+        },
+        "Samuel 1d": {
+          "extended node background color": "default",
+          "small node background color": "default",
+          "node title color": "default",
+          "port pin pen color": "default"
+        },
+        "Samuel 1l": {
+          "extended node background color": "default",
+          "small node background color": "default",
+          "node title color": "default",
+          "port pin pen color": "default"
+        }
+      }
+    }
+    ```
+    Also note that the syntax of these configurations might receive some changes in the future.
 
 ### StyleSheets
 
-You can set the stylesheet of the session, which will then be directly accessible by all the custom widgets, via `Session.set_stylesheet()`. I am also working on a feature for conveniently styling of the builtin widgets, such as the node selection dialog widgets of the flow.
+ryvencore itself applies relatively little stylesheets itself, so you can apply your own style and most of the built in widgets should adapt accordingly. You can also store a stylesheet via `Session.set_stylesheet()` which is then accessible in nodes and their widget classes via `Node.session_stylesheet()`. When making a larger editor, you can style the builtin widgets (like the builtin input widgets for nodes) by referencing their class names in your css (aka qss) file.
 
 ## Flow Features
 
-ryvencore's `Flow` class, which is a subclass of `QGraphicsView`, supports some special features such as
+ryvencore's `FlowView` class, which is a subclass of `QGraphicsView`, supports some special features such as
 
 - stylus events for adding simple handwritten notes
-- rendered images of the flow
-- touch events (needs improvement)
-- algorithm modes
+- rendered images of the flow including high res for presentations
+- algorithm modes for the flow (data and exec)
+<!-- - touch events (needs improvement) -->
 <!-- - viewport update modes -->
 
+<!--
 ### Algorithm Mode
 
 Most flow-based visual scripting editors either support data flows or exec flows. In ryvencore I wanted to enable both, so there are two modes for that. A structure like the flow-based paradigm has most potential for pure data flows, I guess. But exec flows can be really useful too, as can be seen in UnrealEngine's blueprint editor for example.
 
-The technical differences only regard connections. In a data flow, you only have data connections, in an exec flow you can have both. In data flows any change of data (which is setting the value of a *data-output-port* of a NodeInstance) is *forward propagated* and leads to update events in all connected node instances. In an exec flow, contrary to exec connections (which just trigger NodeInstances to update, see `input_called` in `NodeInstance.update_event()`), data is not forward propagated, but requested, *backwards*. Meaning that the API call `NodeInstance.input(i)` calls the connected *output* and requests the data which causes *passive NodeInstances* (those without exec ports) to update/recompute completely.  That's the technical version... Usually, one just wants data flows.
+The technical differences only regard connections. In a data flow, you only have data connections, in an exec flow you can have both. In data flows any change of data (which is setting the value of a *data-output-port* of a NodeInstance) is *forward propagated* and leads to update events in all connected node instances. In an exec flow, contrary to exec connections (which just trigger NodeInstances to update, see `input_called` in `NodeInstance.update_event()`), data is not forward propagated, but requested, *backwards*. Meaning that the API call `NodeInstance.input(i)` calls the connected *output* and requests the data which causes *passive NodeInstances* (those without exec ports) to update/recompute completely.  That's the technical version... Usually, one just wants data flows. -->
 
 <!-- ### Viewport Update Mode
 
 There are two *viewport update modes*, `'sync'` and `'async'`. The only difference is that in `sync` mode, any update event that propagates through the flow is finished before the viewport is updated. `async` mode can sometimes be useful for larget data flows, in `async` mode, the flow first updates the scene rectangle of the *main-widgets* of NodeInstances before passing the update event to the next connected NodeInstance (so you can see your flow procedurally execute). -->
 
+## Code Generation [idea]
+
+Now, there currently isn't a code generation mechanism for ryvencore, however I already implemented a prototype for Ryven once and Ryven 3 will probably receive this as an official feature at some point. The requirements for something like this actually only regard the file structure of your node definitions, so it might make sense to add this at some point to ryvencore if it turns out that this file structure usually is pretty much the same. If you are coming from Ryven and want to contribute to the development, this would be something that I'm sure some people using the software are much more capable of implementing than I am.
+
+Continuing is some thoughts for people who want to work on this:
+
+!!! note
+    **Files might get large!** Because the resulting code has to include this abstract version of the whole internal structure as well as the definitions of all used Nodes, the resulting code might quickly reach 1000 lines.
+
+The resulting code should be completely independent without Qt dependencies. When generating the code, Ryven runs a dependency analysis of all Nodes' sources. Some Nodes might just use standard packages and modules (like numpy), while others might include external sources that one wants to have included in the generated code, like some functions or classes used by many of your nodes which that are therefore kept in their own modules. Ryven analyzes normal (module-wide) import statements recursively and includes all sources that are not builtin modules or installed packages or part of an ignore list.
 
 ## Customizing Connections
 
-WIP...
+**WIP**
+
+In the future you will be able to provide your own reimplementations of the connection classes, since this is an excellent point to add domain-specific additional functionality (like 'edge weights') to your editor.

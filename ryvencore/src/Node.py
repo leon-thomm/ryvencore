@@ -27,20 +27,20 @@ class Node(QObject):
     input_removed = Signal(NodeObjInput)
     output_removed = Signal(NodeObjOutput)
 
-    # FIELDS
-    init_inputs: [NodeInput] = []
-    init_outputs: [NodeOutput] = []
-    identifier = None  # set by Session if None
+    # STATIC FIELDS
     title = ''
     type_ = ''
-    description = ''
-    description_html = None
-    main_widget_class = None
-    main_widget_pos = 'below ports'
-    input_widget_classes = {}
-    style = 'extended'
-    color = '#c69a15'
-    icon = None
+    init_inputs: [NodeInput] = []
+    init_outputs: [NodeOutput] = []
+    identifier: str = None  # set by Session if None
+    description: str = ''
+    description_html: str = None
+    main_widget_class: list = None
+    main_widget_pos: str = 'below ports'
+    input_widget_classes: dict = {}
+    style: str = 'extended'
+    color: str = '#c69a15'
+    icon: str = None
 
     class SIGNALS(QObject):
         """A class for defining QT signals to communicate with GUI components safely in threaded environments.

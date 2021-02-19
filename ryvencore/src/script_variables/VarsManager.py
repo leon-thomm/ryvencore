@@ -16,7 +16,7 @@ class VarsManager(QObject):
 
         self.script = script
 
-        self.variables = []
+        self.variables: [Variable] = []
         self.var_receivers = {}
 
         if config is not None:

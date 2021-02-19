@@ -21,9 +21,8 @@ class Flow(QObject):
     connection_request_valid = Signal(bool)
     nodes_created_from_config = Signal(list)
     connections_created_from_config = Signal(list)
-    test_signal = Signal()
 
-    algorithm_mode_changed = Signal(int)
+    algorithm_mode_changed = Signal(str)
 
     def __init__(self, session, script, parent=None):
         super().__init__(parent=parent)
@@ -85,7 +84,7 @@ class Flow(QObject):
 
 
     def create_node(self, node_class, config=None):
-        """Creates, adds and returns a new node object; results a node_added signal"""
+        """Creates, adds and returns a new node object; emits node_added"""
 
         node = node_class((self, self.session, config))
         self.add_node(node)
@@ -113,7 +112,7 @@ class Flow(QObject):
 
 
     def remove_node(self, node: Node):
-        """Removes a node from internal list without deleting it and emits node_removed"""
+        """Removes a node from internal list without deleting it; emits node_removed"""
 
         node.prepare_removal()
         self.nodes.remove(node)

@@ -2,13 +2,13 @@
 
 ## [class] `Session`
 
-A session is the top-most interface to your contents. Usually you will want to create one session per application instance, but you could create multiple ones to have different independent environments in one application.
+A session is the top-most interface to your components. Usually you will want to create one session per application instance, but you could create multiple ones to have different independent environments in one application.
 
 ### Signals
 
-The following signals are useful if you use custom widgets for listing the scripts. You can connect these signals to the corresponding GUI classes to make your GUI adapt.
+The following signals are useful if you use custom widgets for listing the scripts. You can connect these signals to the corresponding GUI classes to make your GUI adapt. These signals equally apply on function-scripts.
 
-| Name                              | Type                                      | Description                               |
+| Name                              | Parameters                                | Description                               |
 | --------------------------------- | ----------------------------------------- | ----------------------------------------- |
 | `new_script_created`              | `Script`                                  | Emitted when a new script is created.     |
 | `script_renamed`                  | `Script`                                  | Emitted when a script has been renamed.   |
@@ -18,9 +18,8 @@ The following signals are useful if you use custom widgets for listing the scrip
 
 | Name                              | Description                               |
 | --------------------------------- | ----------------------------------------- |
-| `scripts`                         | A list of all scripts.                    |
 | `nodes`                           | A list of all registered nodes.           |
-| `design`                          | The session's `Design` object.            |
+| `design`                          | The session's `Design` reference.         |
 
 ### Methods
 
@@ -28,81 +27,101 @@ The following signals are useful if you use custom widgets for listing the scrip
 
 | Parameter                         | Description                               |
 | --------------------------------- | ----------------------------------------- |
-| `flow_performance_mode`           | `'pretty'` or `'fast'` |
-| `animations_enabled`              | NodeInstances blink on update if enabled |
-| `flow_theme_name`                 | The name of the used flow theme. |
-| `flow_data_conn_class`            | (not official yet) You might be able to customize connections in the future (for adding stuff like weights, for instance). |
-| `flow_exec_conn_class`            | (not official yet) You might be able to customize connections in the future (for adding stuff like weights, for instance). |
-| `project`                         | A project config dict for directly causing a `Session.load()` call. |
+| `threaded: bool = False`          | True for threaded applications. |
+| `gui_parent: QObject = None`      | The parent (i.e. MainWindow) for the GUI, only important for threaded applications |
+| `gui_thread: QThread = None`      | The main thread, only important for threaded applications |
+| `flow_theme_name`                 | The name of the flow theme used |
+| `performance_mode`                | `'pretty'` or `'fast'` |
+| `parent: QObject = None`          | The session's parent object. |
 
-#### `register_node(node: Node)`
+This list (and especially the order) might get changed in the future multiple times, so make sure you always use the parameter names.
 
-Before you can use a node in a session's scripts' flows, you need to register them.
+#### `register_node(node)`
+
+Registers a Node which then can be accessed in all scripts,
 
 !!! note
     You can register nodes at any time!
 
-??? example
-    ``` python
-    my_session.register_node(
-        rc.Node(
-            title='Print',
-            description='prints your data.',
-            node_inst_class=PrintNI,
-            inputs=[
-                rc.NodePort('data')
-            ],
-            color='#A9D5EF'
-        )
-    )
-    ```
-    See class `Node`.
-
-#### `register_nodes(nodes: [Node])`
+#### `register_nodes(node_classes: list)`
 
 Convenience class for registering a list of nodes at once.
 
-#### `create_script(title: str, flow_size: list = None, flow_parent=None, create_default_logs=True) -> Script`
+#### `unregister_node(node_class)`
+
+Unregisters a node which will then be removed from the internal list. Existing instances won't be affected.
+
+#### `create_script(title: str, flow_view_size: list = None, create_default_logs=True) -> Script`
 
 | Parameter                         | Description                               |
 | --------------------------------- | ----------------------------------------- |
-| `title`                           | title of the new script                   |
-| `flow_size`                       | the pixel size of the flow in format `[x, y]` |
-| `flow_parent`                     | You usually won't need this, but if you want your flow to be a child of the window or some other widget, pass it here. |
-| `create_default_logs`             | Indicates whether the script's default logs (*Global* and *Errors*) should get created. You can also do this later manually via `my_script.logger.create_default_logs()`. |
+| `title`                           | The title of the new script. Script titles have to be unique. |
+| `flow_view_size`                  | the pixel size of the flow in format `[x, y]`. |
+| `create_default_logs`             | Indicates whether the script's default logs (*Global* and *Errors*) should get created. You can also do this later manually via `Script.logger.create_default_logs()`. |
 
-Creates and returns a script which triggers the `Session.new_script_created` signal.
+Creates and returns a script which triggers the `Session.new_script_created()` signal. By the time the script is returned, all abstract as well as the GUI components have been created.
+
+#### `create_func_script(title: str, flow_view_size: list = None, create_default_logs=True) -> Script`
+
+Same thing as `Session.create_script()` for `FunctionScript`s.
+
+#### `all_scripts() -> list`
+
+Returns a list containing all scripts and function scripts.
+
+#### `check_new_script_title_validity(title: str) -> bool`
+
+Checks whether a considered title for a new script (i.e. unique) is valid or not.
 
 #### `rename_script(script: Script, title: str)`
 
-Renames a script which triggers the `Session.script_renamed` signal.
+Renames an existing script which triggers the `Session.script_renamed` signal.
 
 #### `delete_script(script: Script)`
 
-Deletes a script which triggers the `Session.script_deleted` signal.
+Deletes a script and triggers the `Session.script_deleted` signal.
 
 #### `load(project: dict) -> bool`
 
-Loads a project, which meands creating all scripts saved in the provided project dict and building all their contents including the flows.
+Loads a project, which means creating all scripts saved in the provided project dict and building all their contents including the flows.
 
-#### `serialize() -> list`
+#### `serialize() -> dict`
 
-Returns a list with *config data* of all scripts for saving the project.
+Returns the project as dict to be saved and loaded again using load().
 
-!!! warning
-    Method signature might get changed
+#### `info_messenger()`
 
-#### `all_node_instances() -> [NodeInstance]`
+Returns a reference to the `InfoMsgs` class for printing only if info messages are enabled.
 
-Returns a list of all NodeInstance objects from all flows of the session's scripts, which can be useful for analysis.
+#### `all_nodes() -> list`
+
+Returns a list of all Node **instances** (objects) from all flows of the session's scripts.
 
 #### `set_stylesheet(s: str)`
 
-Sets the session's stylesheet which can be accessed by NodeInstances and their widgets.
+Sets the session's global stylesheet which can be accessed by Nodes and their widgets.
 
-## [class] `Debugger`
+## [class] `InfoMsgs`
 
-The debugger class just provides another way to print, such that the additional info is disabled by default but can be enabled for troubleshooting. No official API *yet* (might follow soon).
+The `InfoMsgs` class just provides a convenient way to print, such that the additional info is disabled by default but can be enabled for troubleshooting.
+
+### Methods
+
+#### `enable()`
+
+Enables the printing.
+
+#### `disable()`
+
+Disables the printing.
+
+#### `write(*args)`
+
+Writes a list of arguments stringified using `str()` in the same format `print()` does.
+
+#### `write_err(*args)`
+
+Same as `write(*args)` but for highlighted errors.
 
 ## [class] `Script`
 
@@ -112,32 +131,29 @@ The debugger class just provides another way to print, such that the additional 
 | --------------------------------- | ----------------------------------------- |
 | `session`                         | a ref to the session                      |
 | `flow`                            | the script's flow                         |
+| `flow view`                       | the script's flow view, which is the GUI representative of the flow |
 | `logger`                          | the script's logger                       |
-| `vars_manager`                    | the script's vars manager managing the script variables |
+| `vars_manager`                    | the script's vars manager for managing the script variables |
 | `title`                           | the script's current tile                 |
 
-### Methods
-
-#### `config_data() -> dict`
-
-(WIP...)
+The `FunctionScript` class used for function scripts extends the `Script`'s functionality by a few things such as input node and output node that get added automatically to the flow.
 
 ## [class] `Logger`
 
-The logger manages all the logs of the script.
+The logger manages all the logs of a script.
 
 ### Signals
 
-| Name                              | Type                                      | Description                               |
+| Name                              | Parameters                                | Description                               |
 | --------------------------------- | ----------------------------------------- | ----------------------------------------- |
-| `new_log_created`                 | `Log`                                     | Emitted when a new Log has been created, either manually through `new_log` or automatically (default logs). |
+| `new_log_created`                 | `Log`                                     | Emitted when a new Log has been created, either manually through `new_log()` or automatically (default logs). |
 
 ### Attributes
 
 | Name                              | Description                               |
 | --------------------------------- | ----------------------------------------- |
-| `script`                          | a ref to the script                       |
-| `logs`                            | a list of all logs registered in the script |
+| `script: Script`                  | A ref to the script.                       |
+| `logs: list`                      | A list of all the logs registered in the script. |
 
 ### Methods
 
@@ -159,33 +175,29 @@ Creates an individual new log which you can use for anything. Emits the `new_log
 
 The following signals are useful if you implement your own log GUI. Connect them to your widget so it catches those events.
 
-| Name                              | Type                                      | Description                               |
+| Name                              | Parameters                                | Description                               |
 | --------------------------------- | ----------------------------------------- | ----------------------------------------- |
-| `enabled`                         | `-`                                       | Emitted when the log has been enabled. For instance when a NodeInstance which requested the log was removed from the flow and has been restored through an undo command, the logs get reenabled. |
-| `disabled`                        | `-`                                       | Emitted when the log has been disabled. For instance when a NodInstance which requested the log has been removed from the flow. |
-| `wrote`                           | `str`                                     | Emitted when someone write a message to the log. (name might change!) |
+| `enabled`                         | `-`                                       | Emitted when the log has been enabled. For instance when a Node which requested the log was removed from the flow and has been restored through an undo command, the logs get 'reenabled'. |
+| `disabled`                        | `-`                                       | Emitted when the log has been disabled. For instance when a Node which requested the log has been removed from the flow. |
+| `wrote`                           | `str`                                     | Emitted when something wrote a message to the log. |
 | `cleared`                         | `-`                                       | Emitted when the log has been cleared. |
 
 ### Attributes
 
 | Name                              | Description                               |
 | --------------------------------- | ----------------------------------------- |
-| `title`                           | the log's title string                    |
-| `lines`                           | a list of all logged strings (doesn't get cleared when the log gets cleared) |
-
+| `title: str`                      | The log's title string.                    |
+| `lines: [str]`                    | A list of all logged strings (doesn't get cleared when the log gets cleared). |
 
 ### Methods
 
 #### `write(*args)`
 
-Writes a list of arguments to the log like python's print function does, converting everything to strings.
+Writes a list of arguments to the log like `print()` does, stringifying everything using `str()`.
 
 #### `clear()`
 
-Clears the log and emits `cleared` signal. This doesn't clear the `lines` attribute!
-
-!!! todo
-    I should maybe add `current_lines` attribute
+Clears the log and emits `cleared`. This doesn't clear the `lines` attribute!
 
 #### `disable()`
 
@@ -197,7 +209,7 @@ Enables the log and emits `enabled`.
 
 #### `save_to_file(fpath: str)`
 
-*planned*
+*coming soon*
 
 ## [class] `VarsManager`
 
@@ -205,25 +217,22 @@ Enables the log and emits `enabled`.
 
 The following signals are useful if you implement your own script vars list GUI.
 
-| Name                              | Type                                      | Description                               |
+| Name                              | Parameters                                | Description                               |
 | --------------------------------- | ----------------------------------------- | ----------------------------------------- |
 | `new_var_created`                 | `Variable`                                | Emitted when a new script variable has been created. |
 | `var_deleted`                     | `Variable`                                | Emitted when a script variable has been deleted. |
-
-!!! todo
-    I should probably implement a signal `var_val_changed` to enable GUI that shows the live value!
 
 #### Attributes
 
 | Name                              | Description                               |
 | --------------------------------- | ----------------------------------------- |
-| `variables`                       | A list of all the variable objects.       |
+| `variables: [Variable]`           | A list of all the managed script vars.    |
 
 ### Methods
 
 #### `check_new_var_name_validity(name: str) -> bool`
 
-Checks whether name is empty or already used and returns `True` if not.
+Checks whether `name` is a valid name for a new script variable.
 
 #### `create_new_var(name: str, val=None) -> Variable`
 
@@ -253,48 +262,50 @@ Registers a var receiver. A registered receiver (method) gets triggered every ti
 
 Unregisters a var receiver.
 
-#### `config_data()`
-
-(WIP...)
-
 ## [class] `Flow`
+
+The `Flow` class represents the abstract flow (no GUI) and stores all the node objects and connections. You can access a script's flow via `Script.flow`.
 
 ### Signals
 
-| Name                              | Type                                      | Description                               |
+| Name                              | Parameters                                | Emitted when...                         |
 | --------------------------------- | ----------------------------------------- | ----------------------------------------- |
-| `node_inst_selection_changed`     | `list`                                    | Emitted when the list of selected NodeInstances in the scene changed. |
-| `algorithm_mode_changed`          | `str`                                     | Emitted when the flow's algorithm mode changed, see `set_algorithm_mode()`. |
-| `viewport_update_mode_changed`    | `str`                                     | Emitted when the flow's viewport update mode changed, see `set_viewport_update_mode()`. |
+| `node_added`                      | `Node`                                    | a node has been added (also happens when a reoved node is restored through an undo). |
+| `node_removed`                    | `Node`                                    | a node has been removed. |
+| `connection_added`                | `Connection`                              | a connection has been added. |
+| `connection_removed`              | `Connection`                              | a connection has been removed. |
+| `algorithm_mode_changed`          | `str`                                     | the flow's algorithm mode changed, see `set_algorithm_mode()`. |
 
 #### Attributes
 
 | Name                              | Description                               |
 | --------------------------------- | ----------------------------------------- |
-| `node_instances`                  | A list of all currently placed NodeInstances. |
-| `connections`                     | A list of all current connections. |
+| `nodes: [Node]`                   | A list of all currently present Nodes. |
+| `connections: [Connection]`       | A list of all current connections. |
 
 ### Methods
 
+#### `create_node(node_class, config=None)`
+
+Creates, adds and returns a new node object; emits node_added.
+
+#### `remove_node(node: Node)`
+
+Removes a node from internal list without deleting it; emits node_removed.
+
 #### `algorithm_mode() -> str`
 
-Returns the flow's current algorithms mode (`exec` for *execution flow* or `data` for *data flow*).
+Returns the flow's current algorithms mode (`data` for *data flow* or `exec` for *execution flow*). By default, flows run in data flow mode.
 
 #### `set_algorithm_mode(mode: str)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
-| `mode`                | `'data'` or `'exec'`                          |
+| `mode`                | `'data'` or `'exec'`                      |
 
-#### `viewport_update_mode() -> str`
+## [class] FlowView
 
-Returns the flow's  viewport update mode (`sync` or `async`).
-
-#### `set_viewport_update_mode(mode: str)`
-
-| Parameter             | Description                               |
-| --------------------- | ----------------------------------------- |
-| `mode`                | `'sync'` or `'async'`                         |
+The `FlowView` is the GUI representative for the `Flow`, i.e. the widget, and is accessible via `Script.flow_view`.
 
 #### `get_viewport_img() -> QImage`
 
@@ -309,93 +320,61 @@ Returns an image of the whole scene, scaled accordingly to current scale factor.
 
 #### `show_framerate(show: bool = True, m_sec_interval: int = 1000)`
 
-(WIP...)
-
-#### `config_data() -> dict`
-
-(WIP...)
+**WIP**
 
 ## [class] `Node`
 
-### Methods
-
-#### `Node(title: str, node_inst_class, inputs: [NodePort] = [], input_widgets: dict = {}, outputs: [NodePort] = [], description: str = '', style: str = 'extended', color: str = '#A9D5EF', widget=None, widget_pos: str = 'below ports', type_: str = '')`
-
-| Parameter             | Description                               |
-| --------------------- | ----------------------------------------- |
-| `title`               | The node's title which will be displayed by the widgets and the NodeInstances. |
-| `node_inst_class`     | A reference to your node's custom NodeInstance subclass.   |
-| `inputs`              | A list of `NodePort`s. |
-| `input_widgets`       | A dict of type `{str : class}`. The string will be the identifier, the class will get instanciated when an input with the identifier given as widget name is instanciated. |
-| `outputs`             | A list of `NodePort`s. Note that outputs can't have widgets. |
-| `description`         | Will be displayed when hovering above the NodeInstance with the mouse. |
-| `style`               | `'extended'` or `'small'` |
-| `color`               | The theme color used by the NodeInstances |
-| `widget`              | A reference to the class for the `main_widget` if used. |
-| `widget_pos`          | `'below ports'` or `'between ports'` |
-| `type_`               | You can use this for grouping your nodes into categories. |
+Nodes are defined by subclasses of `Node`. The individual objects will be instances of the according class. The `Node` class contains the whole API for programming nodes.
 
 ??? example
     ``` python
-    Node(
-        title='Print',
-        description='prints your data.',
-        node_inst_class=PrintNI,
-        inputs=[
-            rc.NodePort('data', widget='std line edit m')
-        ],
-        color='#A9D5EF'
-    )
-    ```
-
-## [class] `NodePort`
-
-### Methods
-
-#### `NodePort(type_: str = 'data', label: str = '', widget: str = None, widget_pos: str = 'besides')`
-
-| Parameter             | Description                               |
-| --------------------- | ----------------------------------------- |
-| `type_`               | `'data'` or `'exec'` |
-| `label`               | Label string displayed by the NodeInstances. Can be empty. |
-| `widget`              | String identifier for an input widget. There are builtin input widgets and you can define your own and use them here if you provided them in `Node.Node(input_widgets=...)`. |
-| `widget_pos`          | `'besides'` or `'below'` means besides or below the port pin. |
-
-??? example
-    ``` python
-    rc.NodePort('data', widget='std line edit m', widget_pos='besides')
-    ```
-    Right now, available builtin widgets are: `std spin box`, `std line edit [s/m/l]` (like shown above), `std line edit [s/m/l] r` additionally resizes horizontally according to content, and `std line edit [s/m/l] r nb` resizes and has an invisible border.
-
-## [class] `NodeInstance`
-
-The `NodeInstance` class gets subclassed for every node.
-
-### Subclassed Methods
-
-#### `NodeInstance(params)`
-
-The constructor can be skipped if it isn't needed in the subclass. Otherwise, you would do something like this:
-
-??? example
-    ``` python
-    class MyNodeInstance(rc.NodeInstance):
+    class PrintNode(rc.Node):
+    
+        title = 'Print'
+        description = 'prints your data'
+        init_inputs = [
+            rc.NodeInput('data')
+        ]
+        init_outputs = []
+        color = '#A9D5EF'
+    
+        # we could also skip the constructor here
         def __init__(self, params):
-            super(MyNodeInstance, self).__init__(params)
-
-            self.special_actions['do something'] = {'method': self.do_sth_method}
-
-            # and some custom attributes ...
-            self.var_name = ''
-            self.temp_var_val = None
+            super().__init__(params)
+    
+        def update_event(self, input_called=-1):
+            data = self.input(0)  # get data from the first input
+            print(data)
     ```
 
-#### `update_event(input_called=-1)`
+### Static Attributes
 
-Triggered when the NodeInstance updates, usually through `NodeInstance.update()`. The node's functionality is defined here.
+Use the following static attributes to define the basic properties of your node.
+
+| Name                              | Description                               |
+| --------------------------------- | ----------------------------------------- |
+| `title: str`                      | The Node's initial title. It doesn't have to be unique.    |
+| `type_: str`                      | Optional way to specify the node.    |
+| `init_inputs: [NodeInput]`        | Initial inputs.    |
+| `init_outputs: [NodeOutput]`      | Initial outputs.    |
+| `identifier: str`                 | A unique identifier string. If nothing is provided, the node's class name will be used. |
+| `description: str`                | A description shown as tool tip when hovering about the node.    |
+| `description_html: str`           | A description in html format.    |
+| `main_widget_class: list`         | A reference to the class of the `main_widget` if used.    |
+| `main_widget_pos: str`            | `'between ports'` or `'below ports'` if a `main_widget` is used. |
+| `input_widget_classes: dict`      | A dict for custom input widgets in format `{name: class}` which can then be used when defining initial data inputs or creating ones at runtime. |
+| `style: str`                      | `'extended'` (default) or `'small'`. Those are the two different design styles for nodes. |
+| `color: str`                      | A color in hex format. |
+| `icon: str`                       | The file path to an icon. |
+
+### Methods
+
+#### [override] `update_event(input_called=-1)`
+
+Triggered when the Node is activated, usually through `Node.update()`.
 
 ??? example
-    A *arr get* NodeInstance's update event could look like this:
+    An *arr get* Node's update event could look like this:
     ``` python
     def update_event(self, input_called=-1):
         arr = self.input(0)
@@ -403,30 +382,28 @@ Triggered when the NodeInstance updates, usually through `NodeInstance.update()`
 		self.set_output_val(0, arr[index])
     ```
 
-#### `get_data()`
+#### [override] `get_data() -> dict`
 
-In this method, you need to provide all your internal data that define's your NodeInstance's current state (if there are different states). Usually you want to create a dict and put all your attributes *in JSON compatible format* in it, return it, and do the reverse in `NodeInstance.set_data(data)` (see below). The reason this method exists is that not all internal, potentially state defining attributes are serializable by something like `pickle` (Qt objects for instance).
-
-Most simpler NodeInstances don't have states.
+In this method, you need to provide all your internal data that defines your Node's current state (if there are different states). The dict will be encoded using `pickle` and `base64` when copying nodes (via ctrl+c) or when saving the project. You do the reverse in `Node.set_data(data)` (see below). 
 
 ??? example
-    Example for a *+* NodeInstance with a dynamic number of inputs, which can be changed by the user.
+    Example for a *+* Node with a dynamic number of inputs, which can be changed by the user.
     ``` python
     def get_data(self):
         data = {'num inputs': self.num_inputs}
         return data
     ```
 
-#### `set_data(data)`
+#### [override] `set_data(data: dict)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
-| `data`                | Holds the exact value you returned in `NodeInstance.get_data()`. |
+| `data`                | Holds the exact value you returned in `Node.get_data()`. |
 
-Here you do the reverse of what you did in `NodeInstance.get_data()`.
+Here you do the reverse of what you did in `Node.get_data()`.
 
 !!! important
-    Note that all ryvencore internal objects, such as the `special_actions` dict, **as well as inputs and outputs** get saved and restored automatically by ryvencore exactly as they were when the flow was saved. So, if you added some inputs for example, don't add them again manually in `set_data()` according to your attribute which indicates how many you added, this happens automatically.
+    Note that all ryvencore internal objects, such as the `special_actions` dict, **as well as inputs and outputs** get saved and restored automatically by ryvencore exactly as they were when the flow was saved. So, if you added some inputs for example, don't add them again manually in `set_data()` according to your attribute which indicates how many you added, this happens automatically. Just update your own internal variables.
 
 ??? example
     ``` python
@@ -434,67 +411,65 @@ Here you do the reverse of what you did in `NodeInstance.get_data()`.
         self.num_inputs = data['num inputs']
     ```
 
-#### `remove_event()`
+#### [override] `place_event()`
 
-Triggered when the NodeInstance is removed from the scene. Note that this action might be undone by an undo operation by the user, in this case the exact NodeInstance object will just be placed in the scene again to not lose any data.
+Triggered when the Node has been added to the flow **and all GUI has been initialized**. Don't try to access GUI components in the constructor, they don't exist yet, use this method instead.
+
+#### [override] `remove_event()`
+
+Triggered when the Node is removed from the flow. You can use this method do stop threads and timers etc. Note that this action might be undone by an undo operation by the user, in this case the exact Node object will just be placed again resulting in a `place_event()`.
 
 ??? example
-    Example from a *clock* NodeInstance running a timer in a separate thread. Of course this thread should get stopped when the NodeInstance is removed.
+    Example from a *clock* Node running a timer.
     ``` python
     def remove_event(self):
         self.timer.stop()
     ```
 
-!!! todo
-    I should add equivalent of remove event for the opposite; `place_event()` or sth.
-
-### Builtin Methods
-
-#### `update(input_called=-1, output_called=-1)`
+#### `update(input_called=-1)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
-| `input_called`        | If the NodeInstance is active (has exec inputs), you might want to pass the input the update is supposed to refer to. |
-| `output_called`       | `output_called` is used to indicate that, in an execution flow, a request for data of an output has been made. You probably won't ever want to use this. |
+| `input_called`        | If the Node is active, living in an exec flow, i.e. if it has exec inputs, you might want to pass the input the update is supposed to refer to. |
 
 Triggers an update event.
 
 #### `input(index: int)`
 
-Returns the data that is at the input with given index. If the input is not connected, the input will return the widget's data (if it has a widget), otherwise it will return the data at the connected output of another NodeInstance. In all other cases, it returns `None`.
+Returns the data that is at the data input with given index. If the input is not connected, the input will return the widget's data (if it has a widget), otherwise it will return the data from the output of the connected Node. In all other cases, it returns `None`.
 
 #### `exec_output(index: int)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
-| `index`               | Total index of the output.  |
+| `index`               | Index of the output. It has to be an exec output. |
 
-For active (exec) nodes. Executes the output with given index.
+Executes the output with given index.
 
 #### `set_output_val(index: int, val)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
-| `index`               | Total index of the output. |
+| `index`               | Index of the output. It has to be a data output. |
 | `val`                 | The data that gets set at the output. This can be anything. |
 
-In dataflows, this causes update events in all connected NodeInstances. This way, change of data is farward propagated through all NodeInstances that depend on it.
+In dataflows, this causes update events in all connected Nodes. This way, change of data is forward propagated through all Nodes that depend on it.
 
 #### `new_log(title: str) -> Log`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
-| `title`               | The log's displayed title. |
+| `title`               | The log's display title. |
 
-Creates and returns a new log, owned by the NodeInstance.
+Creates and returns a new log, owned by the Node.
 
 #### `disable_logs()`
 
-Disables all logs owned by the NodeInstance. The convenience Log widget ryvencore provides then can be hidden. All logs owned by a NodeInstance automatically get disabled when the NodeInstance is removed.
+Disables all logs owned by the Node. The convenience Log widget ryvencore provides then can be hidden. All logs owned by a Node automatically get disabled when the Node is removed.
 
 #### `enable_logs()`
 
-Enabled all logs owned by the NodeInstance. The convenience Log widget ryvencore provides then shows the widget again, in case it has been hidden after it was disabled. All logs owned by a NodeInstance automatically get enabled again when a removed NodeInstance is restored through an undo operation.
+Enables all logs owned by the Node. The convenience Log widget ryvencore provides then shows the widget again, in case it has been hidden after it was disabled. All logs owned by a Node automatically get enabled again when a removed Node is restored through an undo operation.
 
 #### `log_message(msg: str, target: str)`
 
@@ -505,27 +480,23 @@ Enabled all logs owned by the NodeInstance. The convenience Log widget ryvencore
 
 #### `update_shape()`
 
-Causes recompilation of the whole shape.
+Causes recompilation of the whole shape of the GUI item of the node.
 
-#### `create_new_input(type_: str = 'data', label: str = '', widget_name=None, widget_pos='besides', pos=-1)`
+#### `create_input(type_: str = 'data', label: str = '', widget_name=None, widget_pos='besides', pos=-1, ...)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
 | `type_`               | `'data'` or `'exec'` |
 | `label`               | The input's displayed label string. |
-| `widget_name`         | The name an input widget has been registered under. `None` means no widget is used. |
-| `widget_pos`          | `'besides'` or `'below'` |
+| `widget_name`         | The name the input widget has been registered under. `None` means no widget gets used. |
+| `widget_pos`          | `'besides'` or `'below'` the port. |
 | `pos`                 | The index this input should be inserted at. `-1` means appending at the end. |
-<!-- | `config`              | The message as string. | -->
 
 #### `delete_input(i)`
 
 Deletes the input at index `i`. All existing connections get removed automatically.
 
-!!! warning
-    Parameter signature might get changed soon
-
-#### `create_new_output(type_: str = 'data', label: str = '', pos=-1)`
+#### `create_output(type_: str = 'data', label: str = '', pos=-1)`
 
 | Parameter             | Description                               |
 | --------------------- | ----------------------------------------- |
@@ -537,12 +508,9 @@ Deletes the input at index `i`. All existing connections get removed automatical
 
 Deletes the output at index `o`. All existing connections get removed automatically.
 
-!!! warning
-    Parameter signature might get changed soon
-
 #### `session_stylesheet() -> str`
 
-Returns the current session's stylesheet. This should be used for custom widgets to match the window's style. See `Session.register_stylesheet()`.
+Returns the stylesheet registered via `Session.set_stylesheet()`. This can be useful for custom widgets.
 
 #### `get_var_val(name: str)`
 
@@ -580,16 +548,6 @@ Registers a method as receiver for changes of script variable with given name.
 
 #### `unregister_var_receiver(name: str)`
 
-Unregisters a previously registers variable receiver. See `NodeInstance.register_var_receiver()`.
+Unregisters a previously registered variable receiver.
 
-
-
-
-
-
-
-
-
-
-
-<!-- [Edit this page on GitHub](https://github.com/leon-thomm/Ryven){: .md-button } -->
+<!-- [Edit this page on GitHub](https://github.com/leon-thomm/ryvencore){: .md-button } -->
