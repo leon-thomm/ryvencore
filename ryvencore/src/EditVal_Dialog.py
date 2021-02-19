@@ -3,6 +3,7 @@ from PySide2.QtGui import QKeySequence
 
 
 class EditVal_Dialog(QDialog):
+
     def __init__(self, parent, init_val):
         super(EditVal_Dialog, self).__init__(parent)
 

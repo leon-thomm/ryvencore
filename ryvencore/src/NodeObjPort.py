@@ -6,6 +6,7 @@ from .InfoMsgs import InfoMsgs
 
 
 class NodeObjPort(QObject):
+    """The base class for inputs and outputs of nodes with basic functionality."""
 
     has_been_connected = Signal()
     has_been_disconnected = Signal()
@@ -35,13 +36,6 @@ class NodeObjPort(QObject):
         data_dict = {'type': self.type_,
                      'label': self.label_str}
 
-        # has_widget = True if self.item.widget else False
-        # data_dict['has widget'] = has_widget
-        # if has_widget:
-        #     data_dict['widget name'] = self.widget_name
-        #     data_dict['widget data'] = None if self.type_ == 'exec' else self.item.widget.get_data()
-        #     data_dict['widget position'] = self.widget_pos
-
         return data_dict
 
 
@@ -53,7 +47,7 @@ class NodeObjInput(NodeObjPort):
         self.widget_pos = widget_pos
         self.widget_config_data = config_data
 
-        self.item = None  # InputPortItem(self.node, self)
+        self.item = None  # InputPortItem
 
 
     def connected(self):
@@ -115,17 +109,10 @@ class NodeObjOutput(NodeObjPort):
 
     def set_val(self, val):
 
-        # note that val COULD be of object type and therefore already changed (because the original object did)
+        # note that val COULD be of complex type and therefore already changed because the original object might have
         self.val = val
 
-        # if algorithm mode would be exec flow, all data will be required instead of actively forward propagated
-        if self.node.flow.alg_mode == FlowAlg.DATA:  # and \
-                # not self.node.initializing
+        # if algorithm mode is exec flow, all data will be 'required' at outputs instead of actively forward propagated
+        if self.node.flow.alg_mode == FlowAlg.DATA:
             for c in self.connections:
                 c.activate(data=val)
-                # c.queue()
-    #         self.updated_val()
-    #
-    # def updated_val(self):
-    #     for c in self.connections:
-    #         c.activate()

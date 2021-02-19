@@ -5,11 +5,7 @@ from .VarsList_VarWidget import VarsList_VarWidget
 
 
 class VariablesListWidget(QWidget):
-    """This is the list widget you can see on the right side in the editor, showing all existent variables of a script.
-    This class equals ScriptsListWidget by far, but I don't want to put them under the same base class since they
-    actually represent very different things (scripts and variables) and therefore might develop quite differently
-    in the future."""
-
+    """Convenience class for a QWidget to easily manage script variables of a script."""
 
     def __init__(self, vars_manager):
         super(VariablesListWidget, self).__init__()

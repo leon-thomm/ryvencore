@@ -8,7 +8,7 @@ class NodeWidget(QWidget):
     chosen = Signal()
     custom_focused_from_inside = Signal()
 
-    def __init__(self, parent, node):  # , node_image):
+    def __init__(self, parent, node):
         super(NodeWidget, self).__init__(parent)
 
         self.custom_focused = False

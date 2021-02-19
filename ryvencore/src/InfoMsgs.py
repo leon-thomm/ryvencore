@@ -2,6 +2,9 @@ import sys
 
 
 class InfoMsgs:
+    """A few handy static methods for writing different kinds of messages to the output console only if they are
+    enabled."""
+
     enabled = False
 
     @staticmethod

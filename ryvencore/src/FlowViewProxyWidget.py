@@ -2,6 +2,8 @@ from PySide2.QtWidgets import QGraphicsProxyWidget
 
 
 class FlowViewProxyWidget(QGraphicsProxyWidget):
+    """Ensures easy controls event handling for QProxyWidgets in the flow."""
+
     def __init__(self, flow_view, parent=None):
         super(FlowViewProxyWidget, self).__init__(parent)
 

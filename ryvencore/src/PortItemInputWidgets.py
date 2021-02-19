@@ -8,6 +8,7 @@ from .retain import M
 
 
 class RCIW_BUILTIN_SpinBox(QSpinBox, IWB):
+    """Convenience class for using a spin box widget as data input for nodes."""
 
     trigger_update = Signal(int)
 
@@ -21,17 +22,10 @@ class RCIW_BUILTIN_SpinBox(QSpinBox, IWB):
 
         self.setFixedWidth(50)
         self.setFixedHeight(25)
-        # self.setStyleSheet("""
-        #     QSpinBox {
-        #         color: white;
-        #         background: transparent;
-        #     }
-        # """)
         self.setMaximum(1000000)
         self.editingFinished.connect(self.editing_finished)
 
     def editing_finished(self):
-        # self.node.update(self.node.inputs.index(self.input))
         self.trigger_update.emit(self.node.inputs.index(self.input))
 
     def remove_event(self):
@@ -48,6 +42,7 @@ class RCIW_BUILTIN_SpinBox(QSpinBox, IWB):
 
 
 class RCIW_BUILTIN_LineEdit(QLineEdit, IWB):
+    """Convenience class for using input fields (i.e. QLineEdits) as widgets for data inputs of nodes."""
 
     trigger_update = Signal(object)
 

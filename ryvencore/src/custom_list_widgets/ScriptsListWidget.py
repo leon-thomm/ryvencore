@@ -6,12 +6,9 @@ from .ScriptsList_ScriptWidget import ScriptsList_ScriptWidget
 
 
 class ScriptsListWidget(QWidget):
-    """This is the list widget you can see on the left side in the editor, showing all existent scripts.
-    This class equals VariablesListWidget by far, but I don't want to put them under the same base class since they
-    actually represent very different things (scripts and variables) and therefore might develop quite differently
-    in the future."""
+    """Convenience class for a QWidget to easily manage the scripts of a session."""
 
-
+    # TODO: scroll area
 
     def __init__(self, session):
         super(ScriptsListWidget, self).__init__()
@@ -27,14 +24,9 @@ class ScriptsListWidget(QWidget):
 
     def setup_UI(self):
         main_layout = QVBoxLayout()
-        # main_layout.setAlignment(Qt.AlignBottom)
 
         self.list_layout = QVBoxLayout()
         self.list_layout.setAlignment(Qt.AlignTop)
-
-        # le = QLineEdit('test1')
-        # le.setEnabled(False)
-        # self.list_layout.addWidget(le)
 
         main_layout.addLayout(self.list_layout)
 

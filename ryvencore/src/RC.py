@@ -5,6 +5,7 @@ from enum import IntEnum
 
 class FlowAlg(IntEnum):
     """Used for performance"""
+
     DATA = 1
     EXEC = 2
 
@@ -18,6 +19,7 @@ class FlowAlg(IntEnum):
 
 class FlowVPUpdateMode(IntEnum):
     """Used for performance"""
+
     SYNC = 1
     ASYNC = 2
 
@@ -42,6 +44,7 @@ class FlowVPUpdateMode(IntEnum):
 
 class PortObjPos(IntEnum):
     """Used for performance"""
+
     INPUT = 1
     OUTPUT = 2
 

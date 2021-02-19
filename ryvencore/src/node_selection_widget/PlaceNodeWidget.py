@@ -7,7 +7,8 @@ from ..node_selection_widget.NodeWidget import NodeWidget
 
 
 class PlaceNodeWidget(QWidget):
-    # TODO: rename "node" occurrences accordingly to new "node class" system
+    """notice, that 'nodes' refers to node CLASSES here"""
+
     def __init__(self, flow_view, nodes):
         super(PlaceNodeWidget, self).__init__()
 

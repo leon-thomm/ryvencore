@@ -1,5 +1,9 @@
+"""The base classes for node custom widgets for nodes."""
+
+
 class MWB:
     """MainWidgetBase"""
+
     def __init__(self, params):
         self.node, self.node_item = params
 
@@ -19,6 +23,7 @@ class MWB:
 
 class IWB:
     """InputWidgetBase"""
+
     def __init__(self, params):
         self.input, self.input_item, self.node, self.node_item = params
 

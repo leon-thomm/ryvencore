@@ -1,5 +1,6 @@
 """This module should actually rather be part of Ryven, but the retain mechanism is needed in std input widgets,
-so I decided to keep it in the core as a feature for now"""
+so I decided to keep it in the core as a feature for now. Source code editing could become a common feature for
+ryvencore too."""
 
 
 def retain(foo):

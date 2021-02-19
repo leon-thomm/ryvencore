@@ -1,3 +1,5 @@
+"""A collection of useful functions used by different components."""
+
 import base64
 import enum
 import json
@@ -52,6 +54,9 @@ def deserialize(data):
 
 
 def translate_project(filepath: str):
+    """Performs a few minor changes to a project file using the structure from Ryven 2, to make it compatible
+    with the current system"""
+
     f = open(filepath, 'r')
     project_str = f.read()
     f.close()
@@ -82,7 +87,7 @@ def translate_project__repair(obj):
 
 def change_svg_color(filepath: str, color_hex: str):
     """
-    Changes the color of an SVG image and returns a pixmap.
+    Changes the color of an SVG image and returns a QPixmap
 
     https://stackoverflow.com/questions/15123544/change-the-color-of-an-svg-in-qt
     """

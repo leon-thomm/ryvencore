@@ -8,6 +8,8 @@ from .FlowTheme import FlowTheme_Toy, FlowTheme_DarkTron, FlowTheme_Ghost, FlowT
 
 
 class Design(QObject):
+    """Design serves as a container for the stylesheet and flow themes, and sends signals to notify GUI elements
+    on change of the flow theme. A configuration for the flow themes can be loaded from a json file."""
 
     global_stylesheet = ''
 
@@ -76,7 +78,7 @@ class Design(QObject):
         return None
 
     def set_flow_theme(self, theme: FlowTheme = None, name: str = ''):
-        """You can either specify the theme by name, or directly provide a FlowTheme object."""
+        """You can either specify the theme by name, or directly provide a FlowTheme object"""
         if theme:
             self.flow_theme = theme
         elif name and name != '':
@@ -94,7 +96,6 @@ class Design(QObject):
         else:
             self.node_item_shadows_enabled = True
 
-        # the performance mode affects the flow's foreground theme
         self.flow_theme_changed.emit(self.flow_theme)
 
     def set_animations_enabled(self, b: bool):
@@ -102,9 +103,6 @@ class Design(QObject):
 
     def set_node_item_shadows(self, b: bool):
         self.node_item_shadows_enabled = b
-
-    def set_node_choice_stylesheet(self, s: str):
-        self.node_selection_stylesheet = s
 
 
 

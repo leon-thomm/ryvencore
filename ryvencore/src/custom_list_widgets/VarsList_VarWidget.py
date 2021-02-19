@@ -11,8 +11,7 @@ from ..EditVal_Dialog import EditVal_Dialog
 
 
 class VarsList_VarWidget(QWidget):
-    """Single variable representing component for VariablesListWidget.
-    See VariablesListWidget for further info."""
+    """A QWidget representing a single script variable for the VariablesListWidget."""
 
     # name_LE_editing_finished = Signal()
 

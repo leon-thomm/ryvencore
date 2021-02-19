@@ -11,6 +11,8 @@ from .tools import MovementEnum, serialize, deserialize
 
 
 class NodeItem(QGraphicsItem, QObject):
+    """The GUI representative for nodes. Unlike the Node class, this class is not subclassed individually and works
+    the same for every node."""
 
     def __init__(self, node, params):
         QGraphicsItem.__init__(self)
@@ -259,6 +261,8 @@ class NodeItem(QGraphicsItem, QObject):
 
 
     #   PAINTING
+
+
     def paint(self, painter, option, widget=None):
         """All painting is done by NodeItemPainter"""
 
@@ -270,7 +274,7 @@ class NodeItem(QGraphicsItem, QObject):
             # ok, quick notice. Since I am using a NodeItemWidget, calling self.update_design() here (again)
             # leads to a QT crash without error, which is really strange. Calling update_design multiple times
             # principally isn't a problem, but, for some reason, here it leads to a crash in QT. It's not necessary
-            # anymore, so I just removed it.
+            # anymore, so I removed it.
             # self.update_design()
 
             self.update_shape()
@@ -291,12 +295,14 @@ class NodeItem(QGraphicsItem, QObject):
         )
 
 
+        # useful for widget development:
+
         # painter.setBrush(Qt.NoBrush)
         # painter.setPen(QPen(QColor('black')))
         #
-        # # painter.drawRect(
-        # #         self.boundingRect()
-        # # )
+        # painter.drawRect(
+        #         self.boundingRect()
+        # )
         #
         # header_rect = QRectF(
         #         -self.boundingRect().width()/2, -self.boundingRect().height()/2,
@@ -313,6 +319,10 @@ class NodeItem(QGraphicsItem, QObject):
 
 
         self.painted_once = True
+
+
+    # MOUSE INTERACTION
+
 
     def get_context_menu(self):
         menu = QMenu(self.flow_view)
@@ -335,8 +345,8 @@ class NodeItem(QGraphicsItem, QObject):
         return menu
 
     def itemChange(self, change, value):
-        """This method ensures that all connections, selection borders etc. that get drawn in the Flow are constantly
-        redrawn during a NI drag. Also updates the positions of connections"""
+        """Ensures that all connections, selection borders etc. that get drawn in the FlowView get
+        constantly redrawn during a drag of the item"""
 
         if change == QGraphicsItem.ItemPositionChange:
             if self.session_design.performance_mode == 'pretty':
@@ -349,7 +359,8 @@ class NodeItem(QGraphicsItem, QObject):
         return QGraphicsItem.itemChange(self, change, value)
 
     def update_conn_pos(self):
-        """Updates the global positions of connections at outputs"""
+        """Updates the scene positions of connections"""
+
         for o in self.node.outputs:
             for c in o.connections:
                 # c.item.recompute()
@@ -384,7 +395,8 @@ class NodeItem(QGraphicsItem, QObject):
         QGraphicsItem.hoverLeaveEvent(self, event)
 
     def mousePressEvent(self, event):
-        """Used for Moving-Commands in Flow - may be replaced later with a nicer determination of a moving action."""
+        """Used for Moving-Commands in FlowView - may be replaced later by a nicer determination of a moving action."""
+
         self.flow_view.mouse_event_taken = True
 
         if event.button() == Qt.LeftButton:
@@ -393,7 +405,8 @@ class NodeItem(QGraphicsItem, QObject):
         return QGraphicsItem.mousePressEvent(self, event)
 
     def mouseReleaseEvent(self, event):
-        """Used for Moving-Commands in Flow - may be replaced later with a nicer determination of a moving action."""
+        """Used for Moving-Commands in FlowView - may be replaced later by a nicer determination of a moving action."""
+
         self.flow_view.mouse_event_taken = True
 
         if self.movement_state == MovementEnum.position_changed:
@@ -401,7 +414,10 @@ class NodeItem(QGraphicsItem, QObject):
         self.movement_state = None
         return QGraphicsItem.mouseReleaseEvent(self, event)
 
+
     # ACTIONS
+
+
     def get_actions(self, actions_dict, menu):
         actions = []
 
@@ -431,6 +447,10 @@ class NodeItem(QGraphicsItem, QObject):
                 actions.append(action_menu)
 
         return actions
+
+
+    # CONFIG
+
 
     def complete_config(self, node_config):
         # add input widgets config

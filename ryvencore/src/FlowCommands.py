@@ -1,3 +1,20 @@
+"""
+This file contains the implementations of the possible undoable actions for FlowView.
+
+Why not in Flow?
+-> Because there are actions that only regard the GUI and are therefore unnoticed by the Flow but still undoable, like
+adding a DrawingObject.
+
+The main characteristic of these implementations is that they communicate with the Flow only using signals and slots,
+which complicates the process of making changes but enables threading, as in case of the abstract
+components being managed in a separate thread, no direct communication between the FlowCommands from the main thread
+and the Flow are allowed. Usually to make changes to the flow, they emit signals that are temporarily connected
+the the Flow which then causes the FlowView to update accordingly.
+
+These implementations might have quite some potential for improvement.
+"""
+
+
 from PySide2.QtCore import Signal, QObject
 from PySide2.QtWidgets import QUndoCommand
 
@@ -12,7 +29,8 @@ class FlowUndoCommand(QUndoCommand, QObject):
     """
     The main difference to normal QUndoCommands is the activation feature. This allows the flow widget to add the
     undo command to the undo stack before redo() is called. This is important since some of these commands can cause
-    other commands to be added while they are performing redo()
+    other commands to be added while they are performing redo(), so to prevent those commands to be added to the
+    undo stack before the parent command, it is here blocked at first.
     """
 
     def __init__(self, flow_view):
@@ -332,6 +350,7 @@ class Paste_Command(FlowUndoCommand):
     def redo_(self):
         if self.pasted_components is None:
             # create components
+            self.create_drawings()
             self.connect_to_flow()
             self.create_nodes_request.emit(self.data['nodes'])
             # --> nodes_created()

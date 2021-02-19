@@ -9,6 +9,7 @@ from .script_variables.VarsManager import VarsManager
 
 
 class Script(QObject):
+    """A Script consists of a Flow, the corresponding FlowView, a variables manager and a logger."""
 
     create_flow_view_request = Signal(object, tuple)
     generate_flow_view_config_request = Signal(dict)
@@ -27,9 +28,6 @@ class Script(QObject):
         self.init_flow_view_size = flow_view_size
         self.init_flow_view_gui_parent = self.session.gui_parent
         self.tmp_data = None  # used to synchronize threads
-
-        # TODO: move the thumbnail source to the list widget
-        self._thumbnail_source = ''  # URL to the Script's thumbnail picture
 
         self.init_config = config_data
         self.init_flow_config = None
@@ -112,11 +110,8 @@ class Script(QObject):
         abstract_flow_data = self.flow.generate_config_data()
         self.generate_flow_view_config_request.emit(abstract_flow_data)
 
-        # # the flow widget currently creates the whole config
-        # self.flow_view._temp_config_data = None
-        # self.generate_flow_view_config_request.emit()
         while self.flow_view._temp_config_data is None:
-            time.sleep(0.001)  # join threads
+            time.sleep(0.001)  # 'join' threads
         flow_config, flow_view_config = self.flow_view._temp_config_data
 
         script_dict = {

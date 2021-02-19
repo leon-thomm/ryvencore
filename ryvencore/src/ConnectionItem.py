@@ -8,6 +8,10 @@ from .tools import pythagoras, sqrt
 
 
 class ConnectionItem(QGraphicsItem):
+    """The GUI representative for a connection. The classes ExecConnectionItem and DataConnectionItem will be ready
+    for reimplementation later, so users can add GUI for the enhancements of DataConnection and ExecConnection,
+    like input fields for weights."""
+
     def __init__(self, connection, session_design):
         super().__init__()
 
@@ -23,39 +27,38 @@ class ConnectionItem(QGraphicsItem):
         self.recompute()
 
     def boundingRect(self):
-        # return self.connection_path(
-        #     self.out_pos(),
-        #     self.inp_pos()
-        # ).boundingRect()
-
         op = self.out_pos()
         ip = self.inp_pos()
-        top = min(0, (ip-self.pos()).y())
-        left = min(0, (op-self.pos()).x())
-        w = abs(ip.x()-op.x())
-        h = abs(ip.y()-op.y())
         rect = QRectF(
             0 if op.x() < ip.x() else (ip.x() -op.x()),
             0 if op.y() < ip.y() else (ip.y()-op.y()),
             abs(ip.x()-op.x()),
             abs(ip.y()-op.y())
         )
-        return rect  # QRectF(left, top, w, h)
+        return rect
 
 
     def recompute(self):
+        """Updated scene position and recomputes the path"""
+
         self.setPos(self.out_pos())
         self.changed = True
     
     
     def out_pos(self) -> QPointF:
+        """The current global scene position of the pin of the output port"""
+
         return self.out.item.pin.get_scene_center_pos()
     
     def inp_pos(self) -> QPointF:
+        """The current global scene position of the pin of the input port"""
+
         return self.inp.item.pin.get_scene_center_pos()
 
     @staticmethod
     def dist(p1: QPointF, p2: QPointF) -> float:
+        """Returns the diagonal distance between the points using pythagoras"""
+
         dx = p2.x()-p1.x()
         dy = p2.y()-p1.y()
         return sqrt((dx**2) + (dy**2))
@@ -63,6 +66,8 @@ class ConnectionItem(QGraphicsItem):
 
     @staticmethod
     def connection_path(p1: QPointF, p2: QPointF) -> QPainterPath:
+        """Returns the painter path for drawing the connection, using the usual cubic connection path by default"""
+
         return default_cubic_connection_path(p1, p2)
 
 
@@ -193,12 +198,9 @@ class DataConnectionItem(ConnectionItem):
         painter.setPen(pen)
         painter.drawPath(self.path)
 
-    # def mousePressEvent(self, event):
-    #     return QGraphicsItem.mousePressEvent(self, event)
-
 
 def default_cubic_connection_path(p1: QPointF, p2: QPointF):
-    """Returns the nice looking QPainterPath of a connection for two given points."""
+    """Returns the nice looking QPainterPath from p1 to p2"""
 
     path = QPainterPath()
 

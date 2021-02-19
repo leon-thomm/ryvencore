@@ -32,7 +32,9 @@ class NodeItem_Icon(QGraphicsWidget):
 
     def paint(self, painter, option, widget=None):
 
-        # doesn't work: ...
+        # TODO: anti aliasing for node icons
+
+        # this doesn't work: ...
         # painter.setRenderHint(QPainter.Antialiasing, True)
         # painter.setRenderHint(QPainter.HighQualityAntialiasing, True)
         # painter.setRenderHint(QPainter.SmoothPixmapTransform, True)

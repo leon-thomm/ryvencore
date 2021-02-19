@@ -9,6 +9,13 @@ from .tools import serialize, deserialize
 
 
 class Node(QObject):
+    """Base class for all node blueprints. Such a blueprint is defined by its class, which is registered
+    in the session, and actual node objects are instances of it. The static properties are stored using
+    static attributes, which works really well in Python.
+    All the main API for programming nodes, i.e. creating subclasses of this class, is defined here.
+
+    This class will be ready for reimplementation later, so the base Node class used internally when registering
+    new nodes will be customizable to extend the default functionality of all nodes in an editor."""
 
     # SIGNALS
     updated = Signal()
@@ -36,6 +43,8 @@ class Node(QObject):
     icon = None
 
     class SIGNALS(QObject):
+        """A class for defining QT signals to communicate with GUI components safely in threaded environments.
+        I wanted to do it this way to enable Qt independent source code generation in the future."""
         pass
 
     def __init__(self, params):
@@ -54,9 +63,11 @@ class Node(QObject):
         self.init_config = config
         self.initialized = False
 
-        self.item = None  # set by the flow widget
+        self.item = None  # set by the flow view
 
     def finish_initialization(self):
+        """Loads the initial config if it was provided, set up all inputs and outputs, enables the logs and calls
+        self._initialized() for subclasses"""
 
         if self.init_config:
             self.setup_ports(self.init_config['inputs'], self.init_config['outputs'])
@@ -75,6 +86,9 @@ class Node(QObject):
         # self.update()
 
     def load_config_data(self):
+        """Loads the component-specific config data that was returned by get_data() previously; prints an exception
+        if it fails but doesn't crash, as this always happens when developing nodes"""
+
         if self.init_config:
             try:
                 if type(self.init_config['state data']) == dict:  # backwards compatibility
@@ -133,12 +147,13 @@ class Node(QObject):
     #            \__,_/  /_/   \__, /   \____/  /_/     /_/   \__/  /_/ /_/  /_/ /_/ /_/
     #                         /____/
 
+
     def update(self, input_called=-1, output_called=-1):
-        """This is the method used to activate a Node. Note that this signature shadows the update() method from
-        QGraphicsItem used to graphically update a QGraphicsItem which can be accessed via
-        QGraphicsItem.update(self)."""
+        """'Activates' the node, causing an update_event(); prints an exception if something crashed, but prevents
+        the application from crashing in such a case"""
 
         InfoMsgs.write('update in', self.title, 'on input', input_called)
+
         try:
             self.update_event(input_called)
             self.updated.emit()
@@ -146,7 +161,7 @@ class Node(QObject):
             InfoMsgs.write_err('EXCEPTION IN', self.title, 'NI:', e)
 
     def update_event(self, input_called=-1):
-        """Gets called when an input received a signal. This is where the magic begins in subclasses."""
+        """Gets called when an input received a signal or some node requested data of an output in exec mode"""
 
         pass
 
@@ -159,23 +174,29 @@ class Node(QObject):
         return self.inputs[index].get_val()
 
     def input_widget(self, index: int):
+        """Returns a reference to the widget of the corresponding input"""
+
         return self.inputs[index].item.widget
 
     def exec_output(self, index: int):
-        """Executes an execution output, sending a signal to all connected execution inputs causing the connected
-        NIs to update."""
+        """Executes an exec output, causing activation of all connections"""
+
         self.outputs[index].exec()
 
     def set_output_val(self, index, val):
-        """Sets the value of a data output.
-        self.data_outputs_updated() has to be called manually after all values are set."""
+        """Sets the value of a data output causing activation of all connections in data mode"""
 
         self.outputs[index].set_val(val)
 
     def place_event(self):
+        """Called once the GUI item for the node has been created and placed in the scene and therefore all
+        widgets have been created"""
+
         pass
 
     def remove_event(self):
+        """Called when the node is removed from the flow, useful for stopping threads and timers, etc."""
+
         pass
 
     #                                 _
@@ -184,62 +205,76 @@ class Node(QObject):
     #            / /_/ /  / /_/ /  / /
     #            \__,_/  / .___/  /_/
     #                   /_/
-    #
-    # all algorithm-unrelated api methods:
+
 
     def _initialized(self):
-        """Called after the node has been initialized and the item has been created."""
+        """Called after the node has been initialized and the GUI item has been created."""
+
         pass
 
-    #   LOGGING
+
+    # LOGGING
+
+
     def new_log(self, title) -> Log:
-        """Requesting a new personal Log."""
+        """Requesting a new custom Log"""
+
         # new_log = self.script.logger.new_log(self, title)
         new_log = self.script.logger.new_log(title)
         self.logs.append(new_log)
         return new_log
 
     def disable_logs(self):
-        """Disables personal Logs. They remain visible unless the user closes them via the appearing button."""
+        """Disables custom Logs"""
+
         for log in self.logs:
             log.disable()
 
     def enable_logs(self):
-        """Resets personal Logs to normal state (hiding close button, changing style sheet)."""
+        """Enables custom logs"""
+
         for log in self.logs:
             log.enable()
 
     def log_message(self, msg: str, target: str):
-        """Writes a string to a default log with title target"""
+        """Writes a message string to a default script log with title target"""
 
         self.script.logger.log_message(msg, target)
 
+
     # SHAPE
+
+
     def update_shape(self):
-        """Causes recompilation of the whole shape."""
+        """Causes recompilation of the whole shape of the GUI item."""
+
         # self.item.update_shape()
         self.update_shape_triggered.emit()
 
     def hide_unused_ports(self):
+        """Causes the GUI item to hide all unconnected ports"""
+
         del self.default_actions['hide unused ports']
         self.default_actions['show unused ports'] = {'method': self.show_unused_ports}
         self.hide_unused_ports_triggered.emit()
 
     def show_unused_ports(self):
+        """Causes the GUI item to show all unconnected ports that have been hidden previously"""
+
         del self.default_actions['show unused ports']
         self.default_actions['hide unused ports'] = {'method': self.hide_unused_ports}
         self.show_unused_ports_triggered.emit()
 
 
     # PORTS
+
+
     def create_input(self, type_: str = 'data', label: str = '', widget_name=None,
                      widget_pos='besides', pos=-1, config=None):
         """
-        Creates and adds a new input.
-        :widget_pos: 'besides' or 'below'
+        Creates and adds a new input, possible positions for widgets are 'besides' and 'below
         """
         InfoMsgs.write('create_new_input called')
-
 
         # backwards compatibility
         widget_pos = widget_pos if widget_pos != 'under' else 'below'
@@ -263,12 +298,10 @@ class Node(QObject):
         # self.item.add_new_input(inp, pos)
         self.input_added.emit(inp, pos)
 
-        # if self.session.threaded:
-        #     inp.moveToThread(self.flow.worker_thread)
-
 
     def delete_input(self, i):
-        """Disconnects and removes input."""
+        """Disconnects and removes input"""
+
         inp: NodeObjInput = None
         if type(i) == int:
             inp = self.inputs[i]
@@ -285,7 +318,7 @@ class Node(QObject):
 
 
     def create_output(self, type_: str = 'data', label: str = '', pos=-1):
-        """Creates and adds a new output."""
+        """Creates and adds a new output"""
 
         out = NodeObjOutput(
               node=self,
@@ -308,7 +341,8 @@ class Node(QObject):
         #     out.moveToThread(self.flow.worker_thread)
 
     def delete_output(self, o):
-        """Disconnects and removes output. Handy for subclasses."""
+        """Disconnects and removes output"""
+
         out: NodeObjOutput = None
         if type(o) == int:
             out = self.outputs[o]
@@ -325,43 +359,55 @@ class Node(QObject):
 
 
     # GET, SET DATA
-    def get_data(self):
+
+
+    def get_data(self) -> dict:
         """
-        This method gets subclassed and specified. If the NI has states (so, the behavior depends on certain values),
-        all these values must be stored in JSON-able format in a dict here. This dictionary will be used to reload the
-        node's state when loading a project or pasting copied/cut nodes in the Flow (the states get copied too), see
-        self.set_data(self, data) below.
-        Unfortunately, I can't use pickle or something like that due to PySide2 which runs on C++, not Python.
-        :return: Dictionary representing all values necessary to determine the NI's current state
+        Used to store node-specific custom data that needs to be reloaded when loading a project or pasting copied
+        components. All values will be serialized by pickle and base64. The corresponding method for the opposite
+        operation is set_data().
         """
         return {}
 
     def set_data(self, data):
         """
-        If the NI has states, it's state should get reloaded here according to what was previously provided by the same
-        class in get_data(), see above.
-        :param data: Dictionary representing all values necessary to determine the NI's current state
+        Used for reloading node-specific custom data which has been previously returned by get_data()
         """
         pass
 
     def session_stylesheet(self) -> str:
+        """Returns the registered stylesheet of the session"""
+
         return self.session.design.global_stylesheet
+
 
     # VARIABLES
 
+
     def get_vars_manager(self):
+        """Returns a ref to the script's variables manager"""
+
         return self.script.vars_manager
 
     def get_var_val(self, name: str):
+        """Gets the value of a script variable"""
+
         return self.get_vars_manager().get_var_val(name)
 
     def set_var_val(self, name: str, val):
+        """Sets the value of a script variable"""
+
         return self.get_vars_manager().set_var(name, val)
 
     def register_var_receiver(self, name: str, method):
+        """Registers the node with given method as vars receiver in the script's variables manager to catch
+        value changes of any variable with the given name"""
+
         self.get_vars_manager().register_receiver(self, name, method)
 
     def unregister_var_receiver(self, name: str):
+        """Unregisters previously registered node as receiver for value changes of script variables with given name"""
+
         self.get_vars_manager().unregister_receiver(self, name)
 
 

@@ -3,6 +3,9 @@ from .FunctionNodeTypes import FunctionInputNode, FunctionOutputNode, FunctionSc
 
 
 class FunctionScript(Script):
+    """Besides all the properties of a Script, a FunctionScript automatically create an input node and an output node
+    in the Flow, and locally defines a new Node class and registers it in the session."""
+
     def __init__(self, session, title: str = None, config_data: dict = None, flow_view_size: list = None,
                  create_default_logs=True):
 

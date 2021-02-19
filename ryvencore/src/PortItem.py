@@ -10,6 +10,7 @@ from .FlowViewProxyWidget import FlowViewProxyWidget
 
 
 class PortItem(QGraphicsWidget):
+    """The GUI representative for ports of nodes, also handling mouse events for connections."""
 
     def __init__(self, node, node_item, port, flow_view):
         super(PortItem, self).__init__()
@@ -40,9 +41,6 @@ class PortItem(QGraphicsWidget):
         self.prepareGeometryChange()
         QGraphicsLayoutItem.setGeometry(self, rect)
         self.setPos(rect.topLeft())
-
-    # def sizeHint(self, which, constraint=...):
-    #     return self.boundingRect().size()
     # --------------------------------------------
 
     def setup_ui(self):

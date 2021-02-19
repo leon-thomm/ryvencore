@@ -9,12 +9,6 @@ class ListWidget_NameLineEdit(QLineEdit):
     def __init__(self, text, parent):
         super(ListWidget_NameLineEdit, self).__init__(text, parent)
 
-#         self.setStyleSheet('''
-# QLineEdit:disabled {
-#     color: white;
-# }
-#         ''')
-
 
     def focusOutEvent(self, arg__1):
         self.unfocused.emit()

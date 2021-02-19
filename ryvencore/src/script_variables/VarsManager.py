@@ -24,8 +24,7 @@ class VarsManager(QObject):
                 self.create_new_var(name, val=config[name])
 
     def check_new_var_name_validity(self, name: str) -> bool:
-        """Checks if a var name candidate is empty or already used.
-        This is currently not done automatically when creating new vars."""
+        """Checks if a var name candidate is empty or already used"""
 
         if len(name) == 0:
             return False
@@ -37,10 +36,8 @@ class VarsManager(QObject):
 
         return True
 
-
     def create_new_var(self, name: str, val=None) -> Variable:
-        """Creates and returns a new script variable.
-        Notice that this triggers the new_var_created signal."""
+        """Creates and returns a new script variable and emits new_var_created"""
 
         v = Variable(name, val)
         self.variables.append(v)

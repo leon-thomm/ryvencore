@@ -1,8 +1,13 @@
+"""The implementations for the special nodes of functions."""
+
+
 from .Node import Node
 from .GlobalAttributes import Location
 
 
 class FunctionInputNode(Node):
+    """The input node of a function script"""
+
     identifier = 'BUILTIN_FunctionInputNode'
     title = 'input'
 
@@ -56,6 +61,8 @@ class FunctionInputNode(Node):
 
 
 class FunctionOutputNode(Node):
+    """The output node of a function script"""
+
     identifier = 'BUILTIN_FunctionOutputNode'
     title = 'output'
 
@@ -108,6 +115,8 @@ class FunctionOutputNode(Node):
 
 
 class FunctionScriptNode(Node):
+    """The function node of a function script"""
+
     instances = []
     function_script = None
     icon = Location.PACKAGE_PATH+'/resources/pics/function_picture.png'

@@ -12,8 +12,8 @@ from .Design import Design
 
 
 class Session(QObject):
-    """The Session class represents a project and holds all project-level
-    data such as nodes."""
+    """The Session is the top level interface to an editor, it represents a project and manages all project-wide
+    components, i.e. Scripts, FunctionScripts and Nodes."""
 
     new_script_created = Signal(Script)
     script_renamed = Signal(Script)

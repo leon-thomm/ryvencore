@@ -6,6 +6,9 @@ from .tools import get_longest_line
 
 
 class TitleLabel(QGraphicsWidget):
+
+    # TODO: add NodeItem renaming on double click
+
     def __init__(self, node, node_item):
         super(TitleLabel, self).__init__(parent=node_item)
 
@@ -56,15 +59,6 @@ class TitleLabel(QGraphicsWidget):
         self.hovering = hovering
         # self.update_design()
         self.update()
-
-    # def theme_changed(self, new_theme):
-    #     """Gets called from the parent node instance because the order of the different updates matters.""" # not working yet
-    #     self.update_design()
-    #
-    # def update_design(self):
-    #
-    #     self.update()
-
 
     # ANIMATION STUFF
     def get_color(self):

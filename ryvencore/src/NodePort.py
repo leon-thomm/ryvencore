@@ -1,7 +1,7 @@
 class NodePort:
     """
     The NodePorts (NodeInputs and NodeOutputs) are only placeholders for the static init_input and init_outputs of
-    the API.
+    custom Node classes.
     An instantiated Node's actual inputs and outputs will be of type NodeObjPort (NodeObjInput, NodeObjOutput).
     """
 
@@ -10,8 +10,8 @@ class NodePort:
                  label: str = ''):
         """
         :type_: 'data' or 'exec'
-        :label: the displayed name
         """
+
         self.type_: str = type_
         self.label: str = label
 

@@ -4,7 +4,7 @@ from .Log import Log
 
 
 class Logger(QObject):
-    """Manages all logs that belong to the script"""
+    """Manages all logs that belong to the script."""
 
     new_log_created = Signal(Log)
 

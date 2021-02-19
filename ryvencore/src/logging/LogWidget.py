@@ -5,8 +5,9 @@ from ..logging.Log import Log
 
 
 class LogWidget(QWidget):
+    """Convenience class for a QWidget representing a log."""
+
     def __init__(self, log: Log):
-        # super(QWidget, self).__init__()
         super().__init__()
 
         self.log = log
@@ -36,28 +37,6 @@ class LogWidget(QWidget):
 
         self.setLayout(self.main_layout)
 
-        # self.enabled_style_sheet = '''
-        #     QLabel {
-        #         border: None;
-        #     }
-        #     QWidget {
-        #         color: #e9f4fb;
-        #     }
-        # '''
-        # self.disabled_style_sheet = '''
-        #     QLabel {
-        #         border: None;
-        #     }
-        #     QWidget {
-        #         color: #e9f4fb;
-        #     }
-        #     QPlainTextEdit {
-        #         background: black;
-        #         color: grey;
-        #     }
-        # '''
-        # self.setStyleSheet(self.enabled_style_sheet)
-
     def write(self, msg: str):
         self.text_edit.appendPlainText(msg)
 
@@ -66,11 +45,9 @@ class LogWidget(QWidget):
 
     def disable(self):
         self.remove_button.show()
-        # self.setStyleSheet(self.disabled_style_sheet)
 
     def enable(self):
         self.remove_button.hide()
-        # self.setStyleSheet(self.enabled_style_sheet)
         self.show()
 
     def remove_clicked(self):

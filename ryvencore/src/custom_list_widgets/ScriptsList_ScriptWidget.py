@@ -10,10 +10,7 @@ from ..FunctionScript import FunctionScript
 
 
 class ScriptsList_ScriptWidget(QWidget):
-    """Single script representing component for ScriptsListWidget.
-    See ScriptsListWidget for further info."""
-
-    # title_LE_editing_finished = Signal()
+    """A QWidget representing a single Script for the ScriptsListWidget."""
 
     def __init__(self, scripts_list_widget, session, script):
         super(ScriptsList_ScriptWidget, self).__init__()
@@ -61,20 +58,6 @@ class ScriptsList_ScriptWidget(QWidget):
                 return
 
 
-    # TODO: (maybe) Script migration via drag and drop
-    #
-    # def mousePressEvent(self, event):
-    #     if event.button() == Qt.LeftButton:
-    #         drag = QDrag(self)
-    #         mime_data = QMimeData()
-    #         data_text = self.get_drag_data()
-    #         data = QByteArray(bytes(data_text, 'utf-8'))
-    #         mime_data.setData('text/plain', data)
-    #         drag.setMimeData(mime_data)
-    #         drop_action = drag.exec_()
-    #         return
-
-
     def event(self, event):
         if event.type() == QEvent.ToolTip:
             img: QImage = self.script.flow_view.get_viewport_img()
@@ -112,11 +95,11 @@ class ScriptsList_ScriptWidget(QWidget):
 
 
     def get_drag_data(self):
+        """not used so far..."""
         data = {'type': 'script',
                 'title': self.script.title}
         data_text = json.dumps(data)
         return data_text
-
 
 
     def title_line_edit_editing_finished(self):

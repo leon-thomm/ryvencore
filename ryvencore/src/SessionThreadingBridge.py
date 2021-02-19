@@ -5,9 +5,11 @@ from .FlowView import FlowView
 
 class SessionThreadingBridge(QObject):
     """
-    ...
+    A SessionThreadingBridge instance is a session's interface to the main thread to create the GUI, i.e. FlowViews,
+    in the main thread in threaded applications.
     """
 
-    def script_request__create_flow_view(self, script, params):
+    @staticmethod
+    def script_request__create_flow_view(script, params):
         view = FlowView(*params)
         script.tmp_data = view

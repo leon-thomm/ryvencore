@@ -6,6 +6,8 @@ from .tools import MovementEnum
 
 
 class DrawingObject(QGraphicsItem):
+    """GUI implementation for 'drawing objects' in the scene, written by hand using a stylus pen"""
+
     def __init__(self, flow_view, config=None):
         super(DrawingObject, self).__init__()
 
@@ -42,7 +44,7 @@ class DrawingObject(QGraphicsItem):
                     w = p[2]
                     self.points.append(QPointF(x, y))
                     self.stroke_weights.append(w)
-                elif type(p) == dict:  # old signature for older projects
+                elif type(p) == dict:  # backwards compatibility
                     x = p['x']
                     y = p['y']
                     w = p['w']
@@ -91,9 +93,10 @@ class DrawingObject(QGraphicsItem):
         painter.drawPath(self.path)
 
     def append_point(self, posF_in_view: QPointF) -> bool:
-        """Only used for active drawing.
-        Appends a point (floating, in viewport coordinates),
-        if the distance to the last one isn't oo small"""
+        """
+        Only used for active drawing.
+        Appends a point (floating, in viewport coordinates) only if the distance to the last one isn't too small
+        """
 
         p: QPointF = (self.viewport_pos + posF_in_view) - self.pos()
 
@@ -106,7 +109,12 @@ class DrawingObject(QGraphicsItem):
         return True
 
     def finish(self):
-        """correct bounding rect (so far (0,0) is at the start of the line, but it should be in the middle)"""
+        """
+        Computes the correct center position and updates the relative position for all points.
+        """
+
+        # Correct bounding rect (so far (0,0) is at the start of the line, but it should be in the middle)
+
         rect_center = self.get_points_rect_center()
         for p in self.points:
             p.setX(p.x()-rect_center.x())
@@ -118,6 +126,8 @@ class DrawingObject(QGraphicsItem):
         self.finished = True
 
     def get_points_rect(self):
+        """Computes the 'bounding rect' for all points"""
+
         if len(self.points) == 0:
             return QRectF(0, 0, 0, 0)
         x_coords = [p.x() for p in self.points]
@@ -134,6 +144,8 @@ class DrawingObject(QGraphicsItem):
         return rect
 
     def get_points_rect_center(self):
+        """Returns the center point for the 'bounding rect' for all points"""
+
         return self.get_points_rect().center()
 
     def boundingRect(self):
@@ -152,12 +164,14 @@ class DrawingObject(QGraphicsItem):
 
     def mousePressEvent(self, event):
         """Used for Moving-Commands in Flow - may be replaced later with a nicer determination of a move action."""
+
         self.movement_state = MovementEnum.mouse_clicked
         self.movement_pos_from = self.pos()
         return QGraphicsItem.mousePressEvent(self, event)
 
     def mouseReleaseEvent(self, event):
         """Used for Moving-Commands in Flow - may be replaced later with a nicer determination of a move action."""
+
         if self.movement_state == MovementEnum.position_changed:
             self.flow_view.selected_components_moved(self.pos() - self.movement_pos_from)
         self.movement_state = None

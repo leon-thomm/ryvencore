@@ -8,10 +8,10 @@ from .RC import FlowAlg, PortObjPos
 
 class Flow(QObject):
     """
-    The abstract flow holding all abstract objects and implementations for editing.
+    Manages all abstract components (nodes, connections) and includes implementations for editing.
     To enable threading, the communication between the Flow and the FlowView only
     uses signals and slots.
-    Note that undo/redo operations are implemented in the FlowView.
+    Note that undo/redo operations are implemented in the FlowView, not the Flow.
     """
 
     node_added = Signal(Node)
@@ -41,6 +41,8 @@ class Flow(QObject):
 
 
     def load(self, config):
+        """Loading a flow from config data"""
+
         # algorithm mode
         mode = config['algorithm mode']
         if mode == 'data' or mode == 'data flow':
@@ -55,7 +57,7 @@ class Flow(QObject):
 
     def create_nodes_from_config(self, nodes_config: list):
         """
-        Creates Nodes from nodes_config, previously returned by config_data.
+        Creates Nodes from nodes_config, previously returned by config_data
         """
 
         nodes = []
@@ -83,12 +85,16 @@ class Flow(QObject):
 
 
     def create_node(self, node_class, config=None):
+        """Creates, adds and returns a new node object; results a node_added signal"""
+
         node = node_class((self, self.session, config))
         self.add_node(node)
         return node
 
 
     def add_node(self, node: Node):
+        """Stores a node object and emits node_added"""
+
         if not node.initialized:
             node.finish_initialization()
 
@@ -98,7 +104,8 @@ class Flow(QObject):
 
 
     def node_placed(self, node: Node):
-        """Triggered after the FlowWidget added the item to the scene."""
+        """Triggered after the FlowWidget added the item to the scene;
+        the node is finally initialized and updated here"""
 
         node.load_config_data()
         node.place_event()
@@ -106,6 +113,8 @@ class Flow(QObject):
 
 
     def remove_node(self, node: Node):
+        """Removes a node from internal list without deleting it and emits node_removed"""
+
         node.prepare_removal()
         self.nodes.remove(node)
         self.node_removed.emit(node)
@@ -146,9 +155,8 @@ class Flow(QObject):
 
 
     def check_connection_validity(self, p1: NodeObjPort, p2: NodeObjPort, emit=True) -> bool:
-        """
-        Checks whether a considered connect action is legal.
-        """
+        """Checks whether a considered connect action is legal"""
+
         valid = True
 
         if p1.node == p2.node:
@@ -165,9 +173,7 @@ class Flow(QObject):
 
 
     def connect_nodes(self, p1: NodeObjPort, p2: NodeObjPort):
-        """
-        connects or disconnects nodes
-        """
+        """Connects nodes or disconnects them if they are already connected"""
 
         if not self.check_connection_validity(p1, p2, emit=False):
             raise Exception('Illegal connection request. Use check_connection_validity to check if a request is legal.')
@@ -194,6 +200,8 @@ class Flow(QObject):
 
 
     def add_connection(self, c: Connection):
+        """Adds a connection object and emits connection_added"""
+
         c.out.connections.append(c)
         c.inp.connections.append(c)
         c.out.connected()
@@ -203,6 +211,8 @@ class Flow(QObject):
 
 
     def remove_connection(self, c: Connection):
+        """Removes a connection object without deleting it and emits connection_removed"""
+
         c.out.connections.remove(c)
         c.inp.connections.remove(c)
         c.out.disconnected()
@@ -211,20 +221,14 @@ class Flow(QObject):
         self.connection_removed.emit(c)
 
 
-    # def connection_activation_request(self, c: Connection):
-    #     c.activate()
-
-
     def algorithm_mode(self) -> str:
-        """returns the current algorithm mode of the flow as string"""
+        """Returns the current algorithm mode of the flow as string"""
 
         return FlowAlg.stringify(self.alg_mode)
 
 
     def set_algorithm_mode(self, mode: str):
-        """
-        sets the algorithm mode of the flow
-        """
+        """Sets the algorithm mode of the flow, possible values are 'data' and 'exec'"""
 
         if mode == 'data':
             self.alg_mode = FlowAlg.DATA
@@ -236,7 +240,8 @@ class Flow(QObject):
 
     def generate_config_data(self):
         """
-        generates the abstract config data and saves as well as returns it as tuple (flow config, nodes, connections)
+        Generates the abstract config data and saves it before returning it as tuple in format
+        (flow config, nodes config, connections config)
         """
 
         cfg = {'algorithm mode': FlowAlg.stringify(self.alg_mode)}, \

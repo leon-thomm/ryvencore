@@ -10,6 +10,8 @@ from .PortItem import InputPortItem, OutputPortItem
 
 
 class NodeItemWidget(QGraphicsWidget):
+    """The QGraphicsWidget managing all GUI components of a NodeItem in widgets and layouts."""
+
     def __init__(self, node, node_item):
         super().__init__(parent=node_item)
 

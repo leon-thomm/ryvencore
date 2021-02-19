@@ -2,12 +2,9 @@ from ..tools import serialize, deserialize
 
 
 class Variable:
-    """Represents a variable. Unfortunately, I can't accomplish the same with a simple dict ({name: val}) in Script,
-    because I need a ref to an object in VarsList_VarWidget to always show the current value and stuff"""
+    """Implementation of script variables"""
 
     def __init__(self, name='', val=None):
-        # super(Variable, self).__init__()
-
         self.name = name
         self.val = None
         if type(val) != dict:  # backwards compatibility
