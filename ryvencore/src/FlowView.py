@@ -14,7 +14,7 @@ from .FlowSessionThreadInterface import FlowSessionThreadInterface
 from .FlowViewZoomWidget import FlowViewZoomWidget
 from .Node import Node
 from .NodeObjPort import NodeObjPort
-from .node_choice_widget.PlaceNodeWidget import PlaceNodeWidget
+from .node_selection_widget.PlaceNodeWidget import PlaceNodeWidget
 from .NodeItem import NodeItem
 from .PortItem import PortItemPin, PortItem
 from .Connection import Connection, DataConnection
@@ -645,7 +645,7 @@ class FlowView(QGraphicsView):
         self._node_place_pos = self.mapToScene(pos)
         dialog_pos = QPoint(pos.x() + 1, pos.y() + 1)
 
-        # ensure that the node_choice_widget stays in the viewport
+        # ensure that the node_selection_widget stays in the viewport
         if dialog_pos.x() + self._place_node_widget.width() / self._total_scale_div > self.viewport().width():
             dialog_pos.setX(dialog_pos.x() - (
                     dialog_pos.x() + self._place_node_widget.width() / self._total_scale_div - self.viewport().width()))

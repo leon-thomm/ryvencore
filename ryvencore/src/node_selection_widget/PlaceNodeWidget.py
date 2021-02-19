@@ -3,7 +3,7 @@ from PySide2.QtCore import Qt
 from PySide2.QtGui import QFont
 
 from ..InfoMsgs import InfoMsgs
-from ..node_choice_widget.NodeWidget import NodeWidget
+from ..node_selection_widget.NodeWidget import NodeWidget
 
 
 class PlaceNodeWidget(QWidget):

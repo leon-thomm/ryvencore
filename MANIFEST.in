@@ -1,0 +1,6 @@
+recursive-include ryvencore/resources *
+recursive-include ryvencore/resources/pics *
+recursive-include ryvencore/resources/fonts/asap *
+recursive-include ryvencore/resources/fonts/poppins *
+recursive-include ryvencore/resources/fonts/source/source_code_pro *
+recursive-include ryvencore/temp *

@@ -1,9 +1,6 @@
-custom stuff (ignore)/
-ui_stuff/
 .idea/
-notizen.md
 __pycache__/
 venv/
-temp/
-__init__.py
-setup.py
+build/
+dist/
+ryvencore.egg-info/

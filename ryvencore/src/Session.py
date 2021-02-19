@@ -53,7 +53,7 @@ class Session(QObject):
 
     def _register_fonts(self):
         QFontDatabase.addApplicationFont(Location.PACKAGE_PATH+'/resources/fonts/poppins/Poppins-Medium.ttf')
-        QFontDatabase.addApplicationFont(Location.PACKAGE_PATH+'/resources/fonts/source code pro/SourceCodePro-Regular.ttf')
+        QFontDatabase.addApplicationFont(Location.PACKAGE_PATH+'/resources/fonts/source_code_pro/SourceCodePro-Regular.ttf')
         QFontDatabase.addApplicationFont(Location.PACKAGE_PATH+'/resources/fonts/asap/Asap-Regular.ttf')
 
 
