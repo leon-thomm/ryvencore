@@ -1,0 +1,841 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.3">
+    
+    
+      
+        <title>Getting Started - ryvencore</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.3b61ea93.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.39b8e14a.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../extra_style_sheet.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+      
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#getting-started" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href=".." title="ryvencore" class="md-header-nav__button md-logo" aria-label="ryvencore">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            ryvencore
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              Getting Started
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ryvencore" class="md-nav__button md-logo" aria-label="ryvencore">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    ryvencore
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+
+  <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Welcome
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Getting Started
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      Getting Started
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-editor" class="md-nav__link">
+    First Editor
+  </a>
+  
+    <nav class="md-nav" aria-label="First Editor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overall-structure" class="md-nav__link">
+    Overall Structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting-up-a-window" class="md-nav__link">
+    Setting Up a Window
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nodes" class="md-nav__link">
+    Nodes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finishing" class="md-nav__link">
+    Finishing
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#second-editor" class="md-nav__link">
+    Second Editor
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+
+  <li class="md-nav__item">
+    <a href="../features/" class="md-nav__link">
+      Features
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+
+  <li class="md-nav__item">
+    <a href="../conv_gui/" class="md-nav__link">
+      Convenience GUI
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+
+  <li class="md-nav__item">
+    <a href="../api/" class="md-nav__link">
+      API Reference
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-editor" class="md-nav__link">
+    First Editor
+  </a>
+  
+    <nav class="md-nav" aria-label="First Editor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overall-structure" class="md-nav__link">
+    Overall Structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting-up-a-window" class="md-nav__link">
+    Setting Up a Window
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nodes" class="md-nav__link">
+    Nodes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finishing" class="md-nav__link">
+    Finishing
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#second-editor" class="md-nav__link">
+    Second Editor
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <h1 id="getting-started">Getting Started</h1>
+<h2 id="installation">Installation</h2>
+<p><code>pip install ryvencore</code></p>
+<p>Python 3.8+ recommended</p>
+<h2 id="first-editor">First Editor</h2>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can copy the full example code at the bottom of this page.</p>
+</div>
+<p>Let's build our first editor. First thing is importing ryvencore</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">ryvencore</span> <span class="k">as</span> <span class="nn">rc</span>
+</code></pre></div>
+</td></tr></table>
+<h3 id="overall-structure">Overall Structure</h3>
+<p>Your main interface to the current project is the <strong>Session</strong>, which you usually want to create one instance of per application (but you can create more). The constructor already gives options for configurations, but we can leave everything as default for now.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="n">my_session</span> <span class="o">=</span> <span class="n">rc</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+</code></pre></div>
+</td></tr></table>
+<p>Now we want to create a flow, which is part of a <strong>Script</strong>, besides the <strong>script variables</strong> and the <strong>logs</strong>. The scripts are managed by the session, so we just call</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="n">script</span> <span class="o">=</span> <span class="n">my_session</span><span class="o">.</span><span class="n">create_script</span><span class="p">(</span><span class="s1">&#39;hello world&#39;</span><span class="p">,</span> <span class="n">flow_view_size</span><span class="o">=</span><span class="p">[</span><span class="mi">800</span><span class="p">,</span> <span class="mi">500</span><span class="p">])</span>
+</code></pre></div>
+</td></tr></table>
+<p>With the <code>flow_view_size</code> you can set the pixel size of the flow view that will be created and which you can access via <code>script.flow_view</code>. The flow itself is a <code>QGraphicsView</code> subclass, which is a GUI class of Qt, so you can directly embed it into your window.</p>
+<h3 id="setting-up-a-window">Setting Up a Window</h3>
+<p>This is not a complete tutorial on getting started with Qt for Python, but setting up a basic GUI structure is quite simple.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">ryvencore</span> <span class="k">as</span> <span class="nn">rc</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">PySide2.QtWidgets</span> <span class="kn">import</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QApplication</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># create a QApplication and a MainWindow</span>
+    <span class="c1"># we&#39;ll subclass QMainWindow later</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QApplication</span><span class="p">()</span>
+    <span class="n">mw</span> <span class="o">=</span> <span class="n">QMainWindow</span><span class="p">()</span>
+
+    <span class="c1"># creating the session</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">rc</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+
+    <span class="c1"># creating a script</span>
+    <span class="n">script</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">create_script</span><span class="p">(</span><span class="s1">&#39;hello world&#39;</span><span class="p">,</span> <span class="n">flow_view_size</span><span class="o">=</span><span class="p">[</span><span class="mi">800</span><span class="p">,</span> <span class="mi">500</span><span class="p">])</span>
+
+    <span class="c1"># and setting the flow view as the window&#39;s central widget</span>
+    <span class="n">mw</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="n">script</span><span class="o">.</span><span class="n">flow_view</span><span class="p">)</span>
+
+    <span class="n">mw</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
+</code></pre></div>
+</td></tr></table>
+<p>And there we go, that's it. You can left click into the scene to see a node selection widget pop up. Well, there isn't any content yet to use, so let's add that.</p>
+<h3 id="nodes">Nodes</h3>
+<p>In ryvencore the nodes system works like this:</p>
+<p>A node's blueprint is defined by its class, making heavy use of Pythons static attributes system. As the accessible nodes are managed by the session, you need to register the <em>classes</em> of the nodes you want to use like this:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="n">session</span><span class="o">.</span><span class="n">register_nodes</span><span class="p">(</span> <span class="n">list_of_nodes</span> <span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+<div class="admonition important">
+<p class="admonition-title">Notice</p>
+<p>You can put any code into your Node subclass, no limits! You can define additional classes, use external packages, basically everything you can do in a python class.</p>
+</div>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>You can register (and unregister) nodes at any time! This enables dynamic import mechanisms as implemented in Ryven for example.</p>
+</div>
+<p>Now let's define a simple node. For a detailed description of the members, take a look into the <a href="../api/#class-node">API reference</a>. We'll just create a very simple print node, which prints data provided at an input every time the node is activated.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">PrintNode</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+
+    <span class="c1"># all basic properties</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Print&#39;</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;prints your data&#39;</span>
+    <span class="c1"># there is also description_html</span>
+    <span class="n">init_inputs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">rc</span><span class="o">.</span><span class="n">NodeInput</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">init_outputs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;#A9D5EF&#39;</span>
+    <span class="c1"># see API doc for a full list of all properties</span>
+
+    <span class="c1"># we could also skip the constructor here</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_called</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># get data from the first input</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+<p>Make your class derive from <code>rc.Node</code> and then enhance it the way you like. The <code>update_event</code> is the important part, it gets triggered every time the node is supposed to update.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>While most flow-based visual scripting software out there implements either the approach of <em>execution-flows</em> or <em>data-flows</em>, ryvencore implements them both. That's what the <code>input_called</code>-parameter is for, you use it when creating active nodes for execution-flows. Generally, data flows are more flexible and powerful, but there are cases where exec flows make more sense, so I wanted to leave it as an option.</p>
+</div>
+<p>And let's add another node which generates a random number in a given range, so we have something to print.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">random</span>
+
+<span class="k">class</span> <span class="nc">RandNode</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+
+    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Rand&#39;</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;generates random float&#39;</span>
+    <span class="n">init_inputs</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">rc</span><span class="o">.</span><span class="n">NodeInput</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="s1">&#39;std line edit&#39;</span><span class="p">,</span> <span class="n">widget_pos</span><span class="o">=</span><span class="s1">&#39;besides&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">init_outputs</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">rc</span><span class="o">.</span><span class="n">NodeOutput</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#fcba03&#39;</span>
+
+    <span class="k">def</span> <span class="nf">update_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_called</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># random num between 0 and value at input</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">random</span><span class="p">()</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># setting the value of the first output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_output_val</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+<p>Note the <code>widget</code>-and <code>widget_pos</code>-parameters in the NodePort which I explain in the following section.</p>
+<h4>Input Widgets</h4>
+<p>Data inputs can have widgets, more specifically a <em>QWidget</em> (which is a GUI class of Qt) or a subclass. Custom input widget classes can be registered for a node by listing them in the Node's static field <code>input_widget_classes</code> (see <a href="../api/#class-node">API</a>). However, ryvencore also provides you with a few builtin convenience classes (the list will grow in the future). For example the following code creates an input with an input field of the builtin type <em>std line edit</em>.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>    <span class="n">init_inputs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">rc</span><span class="o">.</span><span class="n">NodeInput</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="s1">&#39;std line edit&#39;</span><span class="p">,</span> <span class="n">widget_pos</span><span class="o">=</span><span class="s1">&#39;besides&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+</code></pre></div>
+</td></tr></table>
+<h3 id="finishing">Finishing</h3>
+<p>Now you can run this and if everything works you already have a small editor with all major features. You can place the two nodes, connect them by mouse, type something into the random node's input field and hit enter to trigger the update. It will then update and the <code>self.set_output_val(...)</code> call will trigger the connected print node to update and print.</p>
+<p>Of course there is much more you can do. For example you can change the flow theme.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="n">session</span> <span class="o">=</span> <span class="n">rc</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">flow_theme_name</span><span class="o">=</span><span class="s1">&#39;Samuel 1l&#39;</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+<p>Currently available flow themes are <code>Samuel 1d</code>, <code>Samuel 1l</code>, <code>Samuel 2d</code>, <code>Samuel 2l</code>, <code>Ueli</code>, <code>Blender</code>, <code>Simple</code>, <code>Toy</code> and <code>Tron</code>. And if that's not enough, you can configure the theme colors for those using a json config file, so you'll definitely be able to give your flows a look that fits in the application environment it's going to be a part of. </p>
+<p>You can also change the performance mode to <em>fast</em> which results in some changes in rendering.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="n">session</span> <span class="o">=</span> <span class="n">rc</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span>
+    <span class="n">flow_theme_name</span><span class="o">=</span><span class="s1">&#39;Ueli&#39;</span><span class="p">,</span> 
+    <span class="n">performance_mode</span><span class="o">=</span><span class="s1">&#39;fast&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+<details class="note"><summary>CODE</summary><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">ryvencore</span> <span class="k">as</span> <span class="nn">rc</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">PySide2.QtWidgets</span> <span class="kn">import</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QApplication</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">random</span>
+
+
+<span class="k">class</span> <span class="nc">PrintNode</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+
+    <span class="c1"># all basic properties</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Print&#39;</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;prints your data&#39;</span>
+    <span class="c1"># there is also description_html</span>
+    <span class="n">init_inputs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">rc</span><span class="o">.</span><span class="n">NodeInput</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">init_outputs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;#A9D5EF&#39;</span>
+    <span class="c1"># see API doc for a full list of all properties</span>
+
+    <span class="c1"># we could also skip the constructor here</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_called</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># get data from the first input</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">RandNode</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+
+    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Rand&#39;</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;generates random float&#39;</span>
+    <span class="n">init_inputs</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">rc</span><span class="o">.</span><span class="n">NodeInput</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="s1">&#39;std line edit&#39;</span><span class="p">,</span> <span class="n">widget_pos</span><span class="o">=</span><span class="s1">&#39;besides&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">init_outputs</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">rc</span><span class="o">.</span><span class="n">NodeOutput</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#fcba03&#39;</span>
+
+    <span class="k">def</span> <span class="nf">update_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_called</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># random num between 0 and value at input</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">random</span><span class="p">()</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># setting the value of the first output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_output_val</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># create a QApplication and a MainWindow</span>
+    <span class="c1"># the QMainWindow will be subclassed later</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QApplication</span><span class="p">()</span>
+    <span class="n">mw</span> <span class="o">=</span> <span class="n">QMainWindow</span><span class="p">()</span>
+
+    <span class="c1"># creating the session</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">rc</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">flow_theme_name</span><span class="o">=</span><span class="s1">&#39;Samuel 1l&#39;</span><span class="p">)</span>
+
+    <span class="c1"># registering one node</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">register_nodes</span><span class="p">([</span><span class="n">PrintNode</span><span class="p">,</span> <span class="n">RandNode</span><span class="p">])</span>
+
+    <span class="c1"># creating a script</span>
+    <span class="n">script</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">create_script</span><span class="p">(</span><span class="s1">&#39;hello world&#39;</span><span class="p">,</span> <span class="n">flow_view_size</span><span class="o">=</span><span class="p">[</span><span class="mi">800</span><span class="p">,</span> <span class="mi">500</span><span class="p">])</span>
+
+    <span class="c1"># and setting the flow widget as the windows central widget</span>
+    <span class="n">mw</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="n">script</span><span class="o">.</span><span class="n">flow_view</span><span class="p">)</span>
+
+    <span class="n">mw</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
+</code></pre></div>
+</td></tr></table>
+</details>
+<h2 id="second-editor">Second Editor</h2>
+<p><strong>[coming soon]</strong> Here I will just throw at you the commented code for another editor that demonstrates how larger ryvencore editors will generally be structured. It was a first prototype I made for a software to simulate flows of logic gates to playfully learn how the very basic components of a computer work.</p>
+<details class="note"><summary>CODE</summary><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="o">...</span>
+</code></pre></div>
+</td></tr></table>
+</details>
+<div class="admonition success">
+<p>Congrats, you are now good to go to create much more advanced editors and optimize them. ryvencore has much more features than I showed here. For that, see the <a href="../features/">Features</a> section where you will find more detailed descriptions of all the internal systems, from save&amp;load over stylus-and touch-support to execution flows. The world is yours, have fun!</p>
+</div>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href=".." class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Welcome
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../features/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Features
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.08c56446.min.js"></script>
+      <script src="../assets/javascripts/bundle.6ced434e.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: ['navigation.instant', 'navigation.sections', 'navigation.expand'],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.8c7e0a7e.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>

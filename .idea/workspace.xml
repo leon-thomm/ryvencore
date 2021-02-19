@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2fdce2c3-7160-4c9c-be8c-49d4ce36f562" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/docs/ryvencore_screenshot1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/api.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/api.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/conv_gui.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/conv_gui.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/features.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/features.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/getting_started.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/getting_started.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ryvencore/src/Flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/ryvencore/src/Flow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ryvencore/src/Node.py" beforeDir="false" afterPath="$PROJECT_DIR$/ryvencore/src/Node.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ryvencore/src/Session.py" beforeDir="false" afterPath="$PROJECT_DIR$/ryvencore/src/Session.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ryvencore/src/script_variables/VarsManager.py" beforeDir="false" afterPath="$PROJECT_DIR$/ryvencore/src/script_variables/VarsManager.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1lw6JvMFMQgEeGyMTE9aomN6cn2" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/ryvencore/temp" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+    <property name="settings.editor.selected.configurable" value="preferences.editor" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\nutri\OneDrive - ETH Zurich\projects\ryvencore\ryvencore\ryvencore\temp" />
+      <recent name="C:\Users\nutri\OneDrive - ETH Zurich\projects\ryvencore\ryvencore\ryvencore\resources\fonts\asap" />
+      <recent name="C:\Users\nutri\OneDrive - ETH Zurich\projects\ryvencore\ryvencore\ryvencore\resources\fonts\poppins" />
+      <recent name="C:\Users\nutri\OneDrive - ETH Zurich\projects\ryvencore\ryvencore\ryvencore\resources\fonts\source code pro" />
+      <recent name="C:\Users\nutri\OneDrive - ETH Zurich\projects\ryvencore\ryvencore\ryvencore\resources\fonts" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\nutri\OneDrive - ETH Zurich\projects\ryvencore\ryvencore\docs" />
+      <recent name="C:\Users\nutri\OneDrive - ETH Zurich\projects\ryvencore\ryvencore\ryvencore" />
+      <recent name="C:\Users\nutri\OneDrive - ETH Zurich\projects\ryvencore\ryvencore\src" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2fdce2c3-7160-4c9c-be8c-49d4ce36f562" name="Default Changelist" comment="" />
+      <created>1608495737812</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1608495737812</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="requirements.txt" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="711" y="321" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1613747847132">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="711" y="321" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1613747847132" />
+    <state x="516" y="267" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1608579916599">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="516" y="267" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.1536.824@0.0.1536.824" timestamp="1608579916599" />
+    <state x="346" y="72" key="SettingsEditor" timestamp="1613753098046">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="277" y="57" key="SettingsEditor/0.0.1536.824@0.0.1536.824" timestamp="1608579903436" />
+    <state x="346" y="72" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1613753098046" />
+    <state x="414" y="13" width="1313" height="965" key="find.popup" timestamp="1613760656764">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="331" y="10" width="1050" height="764" key="find.popup/0.0.1536.824@0.0.1536.824" timestamp="1608669071569" />
+    <state x="414" y="13" width="1313" height="965" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1613760656764" />
+    <state x="539" y="183" width="840" height="856" key="search.everywhere.popup" timestamp="1613753089715">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1608579907880" />
+    <state x="539" y="183" width="840" height="856" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1613753089715" />
+  </component>
+</project>
