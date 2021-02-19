@@ -25,8 +25,7 @@ class FunctionScript(Script):
         self.input_node, self.output_node = None, None
         self.parameters: [dict] = []
         self.returns: [dict] = []
-        # self.current_caller: FunctionScriptNode = None
-        self.caller_stack: [FunctionScriptNode] = []
+        self.caller_stack: [FunctionScriptNode] = []  # used by input, output and function nodes
 
 
     def initialize(self):
@@ -75,23 +74,6 @@ class FunctionScript(Script):
         for fn in self.function_node_class.instances:
             fn: FunctionScriptNode
             fn.delete_output(index)
-
-    def exec_input(self, index: int, caller: FunctionScriptNode):
-        self.caller_stack.append(caller)
-
-        if self.parameters[index]['type'] == 'data':
-            self.input_node.set_output_val(index, caller.input(index))
-        else:
-            self.input_node.exec_output(index)
-
-        self.caller_stack.pop()
-
-    def exec_return(self, index: int):
-        if self.returns[index]['type'] == 'data':
-            self.caller_stack[-1].set_output_val(index, self.output_node.input(index))
-        else:
-            self.self.caller_stack[-1].exec_output(index)
-
 
     def serialize(self) -> dict:
         script_dict = super().serialize()

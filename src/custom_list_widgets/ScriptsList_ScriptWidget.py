@@ -22,7 +22,7 @@ class ScriptsList_ScriptWidget(QWidget):
         self.script = script
         self.scripts_list_widget = scripts_list_widget
         self.previous_script_title = ''
-
+        self._thumbnail_source = ''
         self.ignore_title_line_edit_signal = False
 
 
@@ -77,10 +77,10 @@ class ScriptsList_ScriptWidget(QWidget):
 
     def event(self, event):
         if event.type() == QEvent.ToolTip:
-            img: QImage = self.script.flow.get_viewport_img()
-            self.script._thumbnail_source = 'temp/script_' + self.script.title + '_thumbnail.png'
-            img.save(self.script._thumbnail_source)
-            self.setToolTip('<img height=100 src="' + self.script._thumbnail_source + '"/>')
+            img: QImage = self.script.flow_view.get_viewport_img()
+            self._thumbnail_source = Location.PACKAGE_PATH+'/temp/script_' + self.script.title + '_thumbnail.png'
+            img.save(self._thumbnail_source)
+            self.setToolTip('<img height=100 src="' + self._thumbnail_source + '"/>')
 
         return QWidget.event(self, event)
 

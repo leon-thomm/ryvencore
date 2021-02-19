@@ -267,7 +267,7 @@ class FlowView(QGraphicsView):
         self.viewport().update()
 
     def mousePressEvent(self, event):
-        InfoMsgs.write('mouse press event received, point:', event.pos())
+        # InfoMsgs.write('mouse press event received, point:', event.pos())
 
         # to catch tablet events (for some reason, it results in a mousePrEv too)
         if self.mouse_event_taken:
@@ -322,6 +322,7 @@ class FlowView(QGraphicsView):
 
         if self.mouse_event_taken:
             self.mouse_event_taken = False
+            self.viewport().repaint()
             return
 
         elif self._panning:
@@ -504,7 +505,7 @@ class FlowView(QGraphicsView):
 
         if self.session.design.performance_mode == 'pretty':
             theme = self.session.design.flow_theme
-            if theme.flow_background_grid:
+            if theme.flow_background_grid and self._current_scale >= 0.7:
                 if theme.flow_background_grid[0] == 'points':
                     color = theme.flow_background_grid[1]
                     pen_width = theme.flow_background_grid[2]

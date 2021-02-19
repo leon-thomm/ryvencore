@@ -31,26 +31,20 @@ class FunctionInputNode(Node):
 
     def remove_function_param(self, index):
         self.delete_output(index)
-        del self.special_actions['remove parameter'][str(index+1)]
-
-        # decrease all higher indices
-        actions = self.special_actions['remove parameter']
-        i = 0
-        visited = []
-        while i < len(actions.keys()):
-            k = list(actions.keys())[i]
-            v: dict = actions[k]
-            if int(k) > index and int(k) not in visited:
-                v['data'] = v['data'] - 1
-                new_val = str(int(k)-1)
-                actions[new_val] = v
-                visited.append(int(new_val))
-                del actions[k]
-                i -= 1
-            i += 1
-
+        self.rebuild_remove_actions()
         self.script.remove_parameter(index)
 
+    def rebuild_remove_actions(self):
+        del self.special_actions['remove parameter']
+        self.special_actions['remove parameter'] = {
+            str(o+1): {'method': self.remove_function_param, 'data': o} for o in range(len(self.outputs))
+        }
+
+    def update_event(self, input_called=-1):
+        if input_called == -1:  # for exec flows
+            caller = self.script.caller_stack[-1]
+            for i in range(len(caller.inputs)):
+                self.set_output_val(i, caller.input(i))
 
     def get_data(self):
         return {
@@ -90,28 +84,27 @@ class FunctionOutputNode(Node):
 
     def remove_function_return(self, index):
         self.delete_input(index)
-        del self.special_actions['remove return'][str(index+1)]
-
-        # decrease all higher indices
-        actions = self.special_actions['remove return']
-        i = 0
-        visited = []
-        while i < len(actions.keys()):
-            k = list(actions.keys())[i]
-            v: dict = actions[k]
-            if int(k) > index and int(k) not in visited:
-                v['data'] = v['data'] - 1
-                new_val = str(int(k)-1)
-                actions[new_val] = v
-                visited.append(int(new_val))
-                del actions[k]
-                i -= 1
-            i += 1
-
+        self.rebuild_remove_actions()
         self.script.remove_return(index)
 
+    def rebuild_remove_actions(self):
+        del self.special_actions['remove return']
+        self.special_actions['remove return'] = {
+            str(i+1): {'method': self.remove_function_return, 'data': i} for i in range(len(self.inputs))
+        }
+
     def update_event(self, input_called=-1):
-        self.script.exec_return(input_called)
+        caller = self.script.caller_stack[-1]
+
+        if input_called == -1:
+            for i in range(len(self.inputs)):
+                caller.set_output_val(i, self.input(i))
+
+        else:
+            if self.inputs[input_called].type_ == 'data':
+                caller.set_output_val(input_called, self.input(input_called))
+            else:
+                caller.exec_output(input_called)
 
 
 class FunctionScriptNode(Node):
@@ -133,10 +126,18 @@ class FunctionScriptNode(Node):
 
     def update_event(self, input_called=-1):
         if input_called != -1:
+
             self.function_script.caller_stack.append(self)
-            self.function_script.exec_input(input_called, self)
+            if self.inputs[input_called].type_ == 'data':
+                self.function_script.input_node.set_output_val(input_called, self.input(input_called))
+            else:
+                self.function_script.input_node.exec_output(input_called)
+            self.function_script.caller_stack.pop()
+
         else:
-            self.function_script.output_node.update(-1)
+            self.function_script.caller_stack.append(self)
+            self.function_script.output_node.update()
+            self.function_script.caller_stack.pop()
 
     def get_data(self):
         data = self.function_script.title
