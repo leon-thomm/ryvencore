@@ -117,8 +117,6 @@ class FunctionOutputNode(Node):
 class FunctionScriptNode(Node):
     """The function node of a function script"""
 
-    instances = []
-    function_script = None
     icon = Location.PACKAGE_PATH+'/resources/pics/function_picture.png'
 
     def __init__(self, params):

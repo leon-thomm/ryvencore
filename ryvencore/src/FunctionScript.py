@@ -13,14 +13,20 @@ class FunctionScript(Script):
                          False)  # initialization blocked here!
 
 
+        _self = self
+
         class CustomFunctionScriptNode(FunctionScriptNode):
-            identifier = 'FUNCTION_NODE_'+self.title
+
+            identifier = 'FUNCTION_NODE_'+_self.title
             # notice that script titles have to be unique!
             # and the script's title has already been set in Script.__init__
 
-            title = self.title
-            function_script = self
+            title = _self.title
 
+            # it is important that these two static attributes are defined here ant NOT in FunctionScriptNode
+            # otherwise they would result in the same for ALL FunctionScriptNodes
+            function_script = _self
+            instances = []
 
         self.function_node_class = CustomFunctionScriptNode
         self.session.register_node(self.function_node_class)

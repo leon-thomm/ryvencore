@@ -15,7 +15,7 @@ These implementations might have quite some potential for improvement.
 """
 
 
-from PySide2.QtCore import Signal, QObject
+from PySide2.QtCore import Signal, QObject, QPointF
 from PySide2.QtWidgets import QUndoCommand
 
 from .DrawingObject import DrawingObject
@@ -349,6 +349,8 @@ class Paste_Command(FlowUndoCommand):
 
     def redo_(self):
         if self.pasted_components is None:
+            self.pasted_components = {}
+
             # create components
             self.create_drawings()
             self.connect_to_flow()
@@ -356,6 +358,15 @@ class Paste_Command(FlowUndoCommand):
             # --> nodes_created()
         else:
             self.add_existing_components()
+
+        self.flow_view.clear_selection()
+        for d in self.pasted_components['drawings']:
+            d: DrawingObject
+            d.setSelected(True)
+        for n in self.pasted_components['nodes']:
+            n: NodeItem
+            ni: NodeItem = self.flow_view.node_items[n]
+            ni.setSelected(True)
 
     def undo_(self):
         # remove components and their items from flow
@@ -378,7 +389,7 @@ class Paste_Command(FlowUndoCommand):
 
 
     def nodes_created(self, nodes):
-        self.pasted_components = {'nodes': nodes}
+        self.pasted_components['nodes'] = nodes
         self.create_connections_request.emit(nodes, self.data['connections'])
         # --> connections_created()
 
@@ -391,5 +402,7 @@ class Paste_Command(FlowUndoCommand):
     def create_drawings(self):
         drawings = []
         for d in self.data['drawings']:
-            self.flow_view.create_drawing(d)
+            new_drawing = self.flow_view.create_drawing(d)
+            self.flow_view.add_drawing(new_drawing, posF=QPointF(d['pos x'], d['pos y']))
+            drawings.append(new_drawing)
         self.pasted_components['drawings'] = drawings

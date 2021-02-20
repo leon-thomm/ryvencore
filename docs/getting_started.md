@@ -4,6 +4,14 @@
 
 `pip install ryvencore`
 
+or from sources
+
+```
+git clone https://github.com/leon-thomm/ryvencore
+cd ryvencore
+python setup.py install
+```
+
 Python 3.8+ recommended
 
 ## First Editor

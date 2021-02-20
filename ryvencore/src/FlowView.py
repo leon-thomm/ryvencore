@@ -905,9 +905,11 @@ class FlowView(QGraphicsView):
         for d in drawings:
             self.add_drawing(d)
 
-    def remove_drawing(self, drawing):
+    def remove_drawing(self, drawing: DrawingObject):
         """Removes a drawing from the scene."""
 
+        # TODO https://github.com/leon-thomm/ryvencore/issues/4
+        
         self.scene().removeItem(drawing)
         self.drawings.remove(drawing)
 

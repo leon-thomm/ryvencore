@@ -4,3 +4,4 @@ venv/
 build/
 dist/
 ryvencore.egg-info/
+reinstall.bat

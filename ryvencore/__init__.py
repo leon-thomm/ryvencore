@@ -28,4 +28,3 @@ class GUI:
 
 class Retain:
     from .src.retain import M
-    M = M

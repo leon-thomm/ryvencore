@@ -68,7 +68,7 @@ Of course, design splays a huge role when thinking about *visual* scripting. The
 There is a list of available flow themes (which I want to expand as far as possible). You can choose one via `Session.design.set_flow_theme()`. Currently available flow themes are `Samuel 1d`, `Samuel 1l`, `Samuel 2d`, `Samuel 2l`, `Ueli`, `Blender`, `Simple`, `Toy` and `Tron`. To make sure you can create a look that fits in nicely wherever you might integrate your editor, you can customize the colors for all the above themes using a config json file and passing it to the design using `Sessiong.design.load_from_config(filepath)`. The json file should look like this, for any value you can either write "default" or a specific color in hex format (also compatible with alpha values):
 
 ??? note "config file"
-    You can also specify the initial flow theme, the performance mode (`'pretty'` or `'past'`) and animations (which currently don't work I think).
+    You can also specify the initial flow theme, the performance mode (`'pretty'` or `'fast'`) and animations (which currently don't work I think).
     ```python
     {
       "init flow theme": "Samuel 1l",
@@ -124,6 +124,9 @@ ryvencore's `FlowView` class, which is a subclass of `QGraphicsView`, supports s
 - algorithm modes for the flow (data and exec)
 <!-- - touch events (needs improvement) -->
 <!-- - viewport update modes -->
+
+!!! bug "Bug (help pls)"
+    After pasting drawings in the scene, when undoing (ctrl+z), it doesn't work and this seems so point to a bigger issue, which I described in the issues section on GitHub. I'm a bit lost about this, so please take a look if you think you could help with solving this.
 
 <!--
 ### Algorithm Mode
