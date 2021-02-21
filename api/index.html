@@ -10,7 +10,7 @@
       
       
       <link rel="shortcut icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.3">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
     
     
       
@@ -18,7 +18,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.3b61ea93.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.cb6bc1d0.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.39b8e14a.min.css">
@@ -168,79 +168,88 @@
       
       
 
-
-
-  <li class="md-nav__item">
-    <a href=".." class="md-nav__link">
-      Welcome
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
-
-  <li class="md-nav__item">
-    <a href="../getting_started/" class="md-nav__link">
-      Getting Started
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
-
-  <li class="md-nav__item">
-    <a href="../features/" class="md-nav__link">
-      Features
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
-
-  <li class="md-nav__item">
-    <a href="../conv_gui/" class="md-nav__link">
-      Convenience GUI
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Welcome
+      </a>
+    </li>
   
 
+    
+      
+      
+      
 
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
     
       
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/" class="md-nav__link">
+        Features
+      </a>
+    </li>
+  
+
     
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conv_gui/" class="md-nav__link">
+        Convenience GUI
+      </a>
+    </li>
+  
+
     
-      <label class="md-nav__link md-nav__link--active" for="__toc">
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          API Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         API Reference
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-    
-    <a href="./" class="md-nav__link md-nav__link--active">
-      API Reference
-    </a>
-    
+      </a>
       
+        
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -486,8 +495,9 @@
     </ul>
   
 </nav>
-    
-  </li>
+      
+    </li>
+  
 
     
   </ul>
@@ -1205,23 +1215,23 @@
 <p><strong>WIP</strong></p>
 <h2 id="class-node">[class] <code>Node</code></h2>
 <p>Nodes are defined by subclasses of <code>Node</code>. The individual objects will be instances of the according class. The <code>Node</code> class contains the whole API for programming nodes.</p>
-<details class="example"><summary>Example</summary><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">PrintNode</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+<details class="example"><summary>Example</summary><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">PrintNode</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
 
     <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Print&#39;</span>
     <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;prints your data&#39;</span>
@@ -1309,10 +1319,10 @@
 <h4>[override] <code>update_event(input_called=-1)</code></h4>
 <p>Triggered when the Node is activated, usually through <code>Node.update()</code>.</p>
 <details class="example"><summary>Example</summary><p>An <em>arr get</em> Node's update event could look like this:
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2
-3
-4</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">update_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_called</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">update_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_called</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">set_output_val</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">arr</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
@@ -1322,9 +1332,9 @@
 <h4>[override] <code>get_data() -&gt; dict</code></h4>
 <p>In this method, you need to provide all your internal data that defines your Node's current state (if there are different states). The dict will be encoded using <code>pickle</code> and <code>base64</code> when copying nodes (via ctrl+c) or when saving the project. You do the reverse in <code>Node.set_data(data)</code> (see below). </p>
 <details class="example"><summary>Example</summary><p>Example for a <em>+</em> Node with a dynamic number of inputs, which can be changed by the user.
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2
-3</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;num inputs&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_inputs</span><span class="p">}</span>
     <span class="k">return</span> <span class="n">data</span>
 </code></pre></div>
@@ -1350,8 +1360,8 @@
 <p class="admonition-title">Important</p>
 <p>Note that all ryvencore internal objects, such as the <code>special_actions</code> dict, <strong>as well as inputs and outputs</strong> get saved and restored automatically by ryvencore exactly as they were when the flow was saved. So, if you added some inputs for example, don't add them again manually in <code>set_data()</code> according to your attribute which indicates how many you added, this happens automatically. Just update your own internal variables.</p>
 </div>
-<details class="example"><summary>Example</summary><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<details class="example"><summary>Example</summary><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">num_inputs</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;num inputs&#39;</span><span class="p">]</span>
 </code></pre></div>
 </td></tr></table>
@@ -1361,8 +1371,8 @@
 <h4>[override] <code>remove_event()</code></h4>
 <p>Triggered when the Node is removed from the flow. You can use this method do stop threads and timers etc. Note that this action might be undone by an undo operation by the user, in this case the exact Node object will just be placed again resulting in a <code>place_event()</code>.</p>
 <details class="example"><summary>Example</summary><p>Example from a <em>clock</em> Node running a timer.
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">remove_event</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">remove_event</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 </code></pre></div>
 </td></tr></table></p>
@@ -1578,10 +1588,10 @@
 </tbody>
 </table>
 <p>Registers a method as receiver for changes of script variable with given name.</p>
-<details class="example"><summary>Example</summary><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2
-3
-4</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="c1"># connect to variable changes</span>
+<details class="example"><summary>Example</summary><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="c1"># connect to variable changes</span>
 <span class="c1"># self.var_val_updated refers to the receiver method</span>
 <span class="bp">self</span><span class="o">.</span><span class="n">register_var_receiver</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_val_updated</span><span class="p">)</span>
 <span class="bp">self</span><span class="o">.</span><span class="n">used_variable_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
@@ -1643,15 +1653,15 @@
       
     </div>
     
-      <script src="../assets/javascripts/vendor.08c56446.min.js"></script>
-      <script src="../assets/javascripts/bundle.6ced434e.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../assets/javascripts/vendor.18f0862e.min.js"></script>
+      <script src="../assets/javascripts/bundle.994580cf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({
           base: "..",
           features: ['navigation.instant', 'navigation.sections', 'navigation.expand'],
           search: Object.assign({
-            worker: "../assets/javascripts/worker/search.8c7e0a7e.min.js"
+            worker: "../assets/javascripts/worker/search.9c0e82ba.min.js"
           }, typeof search !== "undefined" && search)
         })
       </script>

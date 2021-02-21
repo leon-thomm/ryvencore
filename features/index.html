@@ -10,7 +10,7 @@
       
       
       <link rel="shortcut icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.3">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
     
     
       
@@ -18,7 +18,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.3b61ea93.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.cb6bc1d0.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.39b8e14a.min.css">
@@ -168,53 +168,58 @@
       
       
 
-
-
-  <li class="md-nav__item">
-    <a href=".." class="md-nav__link">
-      Welcome
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
-
-  <li class="md-nav__item">
-    <a href="../getting_started/" class="md-nav__link">
-      Getting Started
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Welcome
+      </a>
+    </li>
   
 
+    
+      
+      
+      
 
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
     
       
+      
+      
+
+  
+  
     
-    
-      <label class="md-nav__link md-nav__link--active" for="__toc">
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Features
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Features
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-    
-    <a href="./" class="md-nav__link md-nav__link--active">
-      Features
-    </a>
-    
+      </a>
       
+        
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -326,34 +331,39 @@
     </ul>
   
 </nav>
-    
-  </li>
-
-    
       
-      
-      
-
-
-
-  <li class="md-nav__item">
-    <a href="../conv_gui/" class="md-nav__link">
-      Convenience GUI
-    </a>
-  </li>
+    </li>
+  
 
     
       
       
       
 
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conv_gui/" class="md-nav__link">
+        Convenience GUI
+      </a>
+    </li>
+  
 
+    
+      
+      
+      
 
-  <li class="md-nav__item">
-    <a href="../api/" class="md-nav__link">
-      API Reference
-    </a>
-  </li>
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        API Reference
+      </a>
+    </li>
+  
 
     
   </ul>
@@ -496,28 +506,28 @@
 <p>One very important feature is the possibility of defining custom GUI components, i.e. widgets, for your nodes. A node can have a <code>main_widget</code> and input widgets, whose classes are stored in the <code>input_widget_classes</code> attribute.</p>
 <h3 id="special-actions">Special Actions</h3>
 <p>Special actions are a very simple way to define right click operations for your nodes. The <code>special_actions</code> attribute is a dictionary which you can edit like this</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="c1"># creating a new entry</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="c1"># creating a new entry</span>
 <span class="bp">self</span><span class="o">.</span><span class="n">special_actions</span><span class="p">[</span><span class="s1">&#39;add some input&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_some_input_action</span><span class="p">}</span>
 
 <span class="c1"># with a corresponding method</span>
@@ -561,45 +571,45 @@
 <p>Of course, design splays a huge role when thinking about <em>visual</em> scripting. Therefore, you have wide freedom in styling.</p>
 <h3 id="flow-themes">Flow Themes</h3>
 <p>There is a list of available flow themes (which I want to expand as far as possible). You can choose one via <code>Session.design.set_flow_theme()</code>. Currently available flow themes are <code>Samuel 1d</code>, <code>Samuel 1l</code>, <code>Samuel 2d</code>, <code>Samuel 2l</code>, <code>Ueli</code>, <code>Blender</code>, <code>Simple</code>, <code>Toy</code> and <code>Tron</code>. To make sure you can create a look that fits in nicely wherever you might integrate your editor, you can customize the colors for all the above themes using a config json file and passing it to the design using <code>Sessiong.design.load_from_config(filepath)</code>. The json file should look like this, for any value you can either write "default" or a specific color in hex format (also compatible with alpha values):</p>
-<details class="note"><summary>config file</summary><p>You can also specify the initial flow theme, the performance mode (<code>'pretty'</code> or <code>'past'</code>) and animations (which currently don't work I think).
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="p">{</span>
+<details class="note"><summary>config file</summary><p>You can also specify the initial flow theme, the performance mode (<code>'pretty'</code> or <code>'fast'</code>) and animations (which currently don't work I think).
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="p">{</span>
   <span class="s2">&quot;init flow theme&quot;</span><span class="p">:</span> <span class="s2">&quot;Samuel 1l&quot;</span><span class="p">,</span>
   <span class="s2">&quot;init performance mode&quot;</span><span class="p">:</span> <span class="s2">&quot;pretty&quot;</span><span class="p">,</span>
   <span class="s2">&quot;init animations enabled&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
@@ -653,6 +663,10 @@ Also note that the syntax of these configurations might receive some changes in 
 <!-- - touch events (needs improvement) -->
 <!-- - viewport update modes -->
 
+<div class="admonition bug">
+<p class="admonition-title">Bug (help pls)</p>
+<p>After pasting drawings in the scene, when undoing (ctrl+z), it doesn't work and this seems so point to a bigger issue, which I described in the issues section on GitHub. I'm a bit lost about this, so please take a look if you think you could help with solving this.</p>
+</div>
 <!--
 ### Algorithm Mode
 
@@ -741,15 +755,15 @@ There are two *viewport update modes*, `'sync'` and `'async'`. The only differen
       
     </div>
     
-      <script src="../assets/javascripts/vendor.08c56446.min.js"></script>
-      <script src="../assets/javascripts/bundle.6ced434e.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../assets/javascripts/vendor.18f0862e.min.js"></script>
+      <script src="../assets/javascripts/bundle.994580cf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({
           base: "..",
           features: ['navigation.instant', 'navigation.sections', 'navigation.expand'],
           search: Object.assign({
-            worker: "../assets/javascripts/worker/search.8c7e0a7e.min.js"
+            worker: "../assets/javascripts/worker/search.9c0e82ba.min.js"
           }, typeof search !== "undefined" && search)
         })
       </script>
