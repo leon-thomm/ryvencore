@@ -369,7 +369,7 @@ class Node(QObject):
         """
         return {}
 
-    def set_data(self, data):
+    def set_data(self, data: dict):
         """
         Used for reloading node-specific custom data which has been previously returned by get_data()
         """

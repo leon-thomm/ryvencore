@@ -34,11 +34,14 @@ class RCIW_BUILTIN_SpinBox(QSpinBox, IWB):
     def get_val(self):
         return self.value()
 
-    def get_data(self):
-        return self.value()
+    def get_data(self) -> dict:
+        return {'val': self.value()}
 
     def set_data(self, data):
-        self.setValue(data)
+        if type(data) == dict:
+            self.setValue(data['val'])
+        else:  # backwards compatibility
+            self.setValue(data)
 
 
 class RCIW_BUILTIN_LineEdit(QLineEdit, IWB):
@@ -99,12 +102,14 @@ class RCIW_BUILTIN_LineEdit(QLineEdit, IWB):
             val = self.text()
         return val
 
-    def get_data(self):
-        return self.text()
+    def get_data(self) -> dict:
+        return {'text': self.text()}
 
     def set_data(self, data):
-        if type(data) == str:
+        if type(data) == str:  # backwards compatibility
             self.setText(data)
+        elif type(data) == dict:
+            self.setText(data['text'])
 
     def val_update_event(self, val):
         self.setText(str(val))

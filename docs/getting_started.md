@@ -254,12 +254,288 @@ session = rc.Session(
 
 ## Second Editor
 
-**[coming soon]** Here I will just throw at you the commented code for another editor that demonstrates how larger ryvencore editors will generally be structured. It was a first prototype I made for a software to simulate flows of logic gates to playfully learn how the very basic components of a computer work.
+Here I will just throw at you the commented code for another editor that demonstrates how larger ryvencore editors will generally be structured. It was a first prototype I made for a software to simulate flows of logic gates to playfully learn how the very basic components of a computer work.
 
 ??? note "CODE"
+    `main.py`
     ``` python
-    ...
+    import ryvencore as rc
+    import sys
+    from PySide2.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QWidget
+    
+    # nodes.py is defined below
+    from nodes import SignalNode, ANDGateNode, ORGateNode, NANDGateNode, NORGateNode, NOTGateNode, XORGateNode, LEDNode, \
+        NodeBase
+    
+    
+    class MainWindow(QMainWindow):
+        def __init__(self):
+            super().__init__()
+    
+            NodeBase.main_window = self
+    
+            self.session = rc.Session(
+                flow_theme_name='Samuel 1l',
+                performance_mode='pretty',
+                parent=self
+            )
+    
+            # registering all our nodes
+            self.session.register_nodes(
+                [
+                    SignalNode,
+                    ANDGateNode,
+                    ORGateNode,
+                    NANDGateNode,
+                    NORGateNode,
+                    NOTGateNode,
+                    XORGateNode,
+                    LEDNode,
+                ]
+            )
+            self.script = self.session.create_script(title='main')
+    
+            # creating a widget and adding the flow view of the script
+            w = QWidget()
+            w.setLayout(QHBoxLayout())
+            w.layout().addWidget(self.script.flow_view)
+    
+            self.setCentralWidget(w)
+            self.resize(1500, 800)  # resizing the window
+    
+    
+    if __name__ == '__main__':
+        app = QApplication()
+    
+        mw = MainWindow()
+        mw.show()
+    
+        sys.exit(app.exec_())
     ```
+    `nodes.py`
+    ``` python
+    import ryvencore as rc
+    
+    # some Qt imports...
+    from PySide2.QtGui import Qt
+    from PySide2.QtWidgets import QCheckBox, QPushButton
+    
+    
+    class NodeBase(rc.Node):
+        """Base class for the nodes in this application"""
+    
+        # static rc.Node properties
+        style = 'small'
+        color = '#cc7777'
+    
+        # custom static fields
+        main_window = None  # set by MainWindow
+    
+        def __init__(self, params):
+            super().__init__(params)
+    
+    
+    class SignalNode_MainWidget(rc.MWB, QCheckBox):
+        """Custom MainWidget for the signal node, just a simple check box for now.
+        Note that QCheckBox is a QWidget. Also note that we must derive rc.MWB."""
+    
+        def __init__(self, params):
+            rc.MWB.__init__(self, params)
+            QCheckBox.__init__(self)
+    
+            self.setStyleSheet('''
+    QCheckBox {
+        spacing: 10px;
+        color: red;
+        background-color: transparent;
+    }
+            ''')
+            self.stateChanged.connect(self.node.update_signal)
+    
+        def get_data(self) -> dict:
+            # saving the checked state
+            return {
+                'checked': self.checkState()
+            }
+    
+        def set_data(self, data: dict):
+            # reloading the checked state
+            self.setChecked(data['checked'])
+    
+    
+    class SignalNode(NodeBase):
+        """A node for generating either high or low (voltage) signals."""
+    
+        title = 'signal'
+        description = 'creates a signal, 1 or 0'
+        init_inputs = []
+        init_outputs = [
+            rc.NodeOutput('data')
+        ]
+        main_widget_class = SignalNode_MainWidget
+        main_widget_pos = 'between ports'
+        style = 'extended'
+    
+        def __init__(self, params):
+            super().__init__(params)
+            self.signal_high = False
+    
+        def update_signal(self, state):
+            self.signal_high = True if state == Qt.Checked else False
+            self.update()
+    
+        def update_event(self, input_called=-1):
+            self.set_output_val(0, int(self.signal_high))
+            # note that 1 and 0 can be interpreted as True and False
+            # by all the logical operators that the nodes below use
+    
+        def get_data(self) -> dict:
+            # saving signal state
+            return {
+                'signal high': self.signal_high
+            }
+    
+        def set_data(self, data):
+            # reloading signal state
+            self.signal_high = data['signal high']
+    
+    
+    class ANDGateNode(NodeBase):
+        title = 'AND'
+        description = '1 <=> both inputs are 1'
+        init_inputs = [
+            rc.NodeInput('data'),
+            rc.NodeInput('data'),
+        ]
+        init_outputs = [
+            rc.NodeOutput('data'),
+        ]
+        
+        # I'd add icons here later...
+        # icon = './...svg'
+    
+        def update_event(self, input_called=-1):
+            self.set_output_val(0, int(self.input(0) and self.input(1)))
+    
+    
+    class ORGateNode(NodeBase):
+        title = 'OR'
+        description = '1 <=> at least one input is 1'
+        init_inputs = [
+            rc.NodeInput('data'),
+            rc.NodeInput('data'),
+        ]
+        init_outputs = [
+            rc.NodeOutput('data'),
+        ]
+    
+        def update_event(self, input_called=-1):
+            self.set_output_val(0, int(self.input(0) or self.input(1)))
+    
+    
+    class XORGateNode(NodeBase):
+        title = 'XOR'
+        description = '1 <=> exactly one input is 1'
+        init_inputs = [
+            rc.NodeInput('data'),
+            rc.NodeInput('data'),
+        ]
+        init_outputs = [
+            rc.NodeOutput('data'),
+        ]
+    
+        def update_event(self, input_called=-1):
+            self.set_output_val(0, int(self.input(0) != self.input(1)))
+    
+    
+    class NOTGateNode(NodeBase):
+        title = 'NOT'
+        description = 'negates the signal'
+        init_inputs = [
+            rc.NodeInput('data'),
+        ]
+        init_outputs = [
+            rc.NodeOutput('data'),
+        ]
+    
+        def update_event(self, input_called=-1):
+            self.set_output_val(0, int(not self.input(0)))
+    
+    
+    class NANDGateNode(NodeBase):
+        title = 'NAND'
+        description = 'NOT AND'
+        init_inputs = [
+            rc.NodeInput('data'),
+            rc.NodeInput('data'),
+        ]
+        init_outputs = [
+            rc.NodeOutput('data'),
+        ]
+    
+        def update_event(self, input_called=-1):
+            self.set_output_val(0, int(not (self.input(0) and self.input(1))))
+    
+    
+    class NORGateNode(NodeBase):
+        title = 'NOR'
+        description = 'NOT OR'
+        init_inputs = [
+            rc.NodeInput('data'),
+            rc.NodeInput('data'),
+        ]
+        init_outputs = [
+            rc.NodeOutput('data'),
+        ]
+    
+        def update_event(self, input_called=-1):
+            self.set_output_val(0, int(not (self.input(0) or self.input(1))))
+    
+    
+    class LED_MainWidget(rc.MWB, QPushButton):
+        """LED widget for the LED node, for now just a simple disabled button"""
+    
+        def __init__(self, params):
+            rc.MWB.__init__(self, params)
+            QPushButton.__init__(self)
+    
+            self.setEnabled(False)
+            self.setFixedSize(50, 50)
+            self.setStyleSheet(self.gen_style_sheet(False))
+    
+        def gen_style_sheet(self, high_potential: bool):
+            # generate stylesheet with red background if signal is 1
+            # and black if signal is 0
+    
+            return '''
+    QPushButton {
+        border: 1px solid black;
+        background: ''' + ('red' if high_potential else 'black') + ''';
+    }'''
+    
+        def potential_updated(self, high_potential: bool):
+            # called from self.node
+            self.setStyleSheet(self.gen_style_sheet(high_potential))
+    
+    
+    class LEDNode(NodeBase):
+        title = 'LED'
+        description = 'shows red if signal is 1, black if it is 0'
+        init_inputs = [
+            rc.NodeInput('data')
+        ]
+        init_outputs = []
+        main_widget_class = LED_MainWidget
+        main_widget_pos = 'between ports'
+    
+        def update_event(self, input_called=-1):
+            self.main_widget().potential_updated(bool(self.input(0)))
+
+    ```
+    And now we have a basic little editor to play around with logic gates, yayy!
+    ![](logic_editor_screenshot1.png)
+    ![](logic_editor_screenshot2.png)
+    ![](logic_editor_screenshot3.png) 
 
 !!! success ""
     Congrats, you are now good to go to create much more advanced editors and optimize them. ryvencore has much more features than I showed here. For that, see the [Features](../features/) section where you will find more detailed descriptions of all the internal systems, from save&load over stylus-and touch-support to execution flows. The world is yours, have fun!

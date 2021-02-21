@@ -7,11 +7,11 @@ class MWB:
     def __init__(self, params):
         self.node, self.node_item = params
 
-    def get_data(self):
+    def get_data(self) -> dict:
         data = {}
         return data
 
-    def set_data(self, data):
+    def set_data(self, data: dict):
         pass
 
     def remove_event(self):
@@ -27,11 +27,11 @@ class IWB:
     def __init__(self, params):
         self.input, self.input_item, self.node, self.node_item = params
 
-    def get_data(self):
+    def get_data(self) -> dict:
         data = {}
         return data
 
-    def set_data(self, data):
+    def set_data(self, data: dict):
         pass
 
     def remove_event(self):

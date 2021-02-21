@@ -51,12 +51,12 @@ class FunctionInputNode(Node):
             for i in range(len(caller.inputs)):
                 self.set_output_val(i, caller.input(i))
 
-    def get_data(self):
+    def get_data(self) -> dict:
         return {
 
         }
 
-    def set_data(self, data):
+    def set_data(self, data: dict):
         pass
 
 
@@ -147,12 +147,12 @@ class FunctionScriptNode(Node):
             self.function_script.caller_stack.pop()
 
     def get_data(self):
-        data = self.function_script.title
+        data = {'title': self.function_script.title}
         return data
 
-    def set_data(self, data):
-        # find parent function script
+    def set_data(self, data: dict):
+        # find parent function script by unique title
         for fs in self.session.function_scripts:
-            if fs.title == data:
+            if fs.title == data['title']:
                 self.function_script = fs
                 break
