@@ -19,10 +19,14 @@
     <select />
   </component>
   <component name="ChangeListManager">
+<<<<<<< Updated upstream
     <list default="true" id="2fdce2c3-7160-4c9c-be8c-49d4ce36f562" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/docs/features.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/features.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ryvencore/src/FlowTheme.py" beforeDir="false" afterPath="$PROJECT_DIR$/ryvencore/src/FlowTheme.py" afterDir="false" />
     </list>
+=======
+    <list default="true" id="2fdce2c3-7160-4c9c-be8c-49d4ce36f562" name="Default Changelist" comment="" />
+>>>>>>> Stashed changes
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

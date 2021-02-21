@@ -1,2 +1,7 @@
 
 *.pyc
+<<<<<<< Updated upstream
+=======
+*.egg
+reinstall.bat
+>>>>>>> Stashed changes
