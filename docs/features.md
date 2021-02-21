@@ -65,42 +65,104 @@ Of course, design splays a huge role when thinking about *visual* scripting. The
 
 ### Flow Themes
 
-There is a list of available flow themes (which I want to expand as far as possible). You can choose one via `Session.design.set_flow_theme()`. Currently available flow themes are `Samuel 1d`, `Samuel 1l`, `Samuel 2d`, `Samuel 2l`, `Ueli`, `Blender`, `Simple`, `Toy` and `Tron`. To make sure you can create a look that fits in nicely wherever you might integrate your editor, you can customize the colors for all the above themes using a config json file and passing it to the design using `Sessiong.design.load_from_config(filepath)`. The json file should look like this, for any value you can either write "default" or a specific color in hex format (also compatible with alpha values):
+There is a list of available flow themes (which I want to expand as far as possible). You can choose one via `Session.design.set_flow_theme()`. Currently available flow themes are `Samuel 1d`, `Samuel 1l`, `Samuel 2d`, `Samuel 2l`, `Ueli`, `Blender`, `Simple`, `Toy` and `Tron`. To make sure you can create a look that fits in nicely wherever you might integrate your editor, you can customize the colors for all the above themes using a config json file and passing it to the design using `Sessiong.design.load_from_config(filepath)`. The json file should look like this, for any value you can either write "default" or specify a specific setting according to the instructions in the info box.
 
 ??? note "config file"
-    You can also specify the initial flow theme, the performance mode (`'pretty'` or `'fast'`) and animations (which currently don't work I think).
+    You can also specify the initial flow theme, the performance mode (`'pretty'` or `'fast'`) and animations (which currently don't work I think). You can just copy the following json, save it in a file and specify.
     ```python
     {
       "init flow theme": "Samuel 1l",
       "init performance mode": "pretty",
       "init animations enabled": true,
       "flow themes": {
-        "Ghost": {
-          "nodes color": "default",
-          "small nodes color": "default",
+        "Toy": {
+          "exec connection color": "default",
+          "exec connection width": "default",
+          "exec connection pen style": "default",
+          "data connection color": "default",
+          "data connection width": "default",
+          "data connection pen style": "default",
           "flow background color": "default"
+        },
+        "Tron": {
+          "exec connection color": "default",
+          "exec connection width": "default",
+          "exec connection pen style": "default",
+          "data connection color": "default",
+          "data connection width": "default",
+          "data connection pen style": "default",
+          "flow background color": "default"
+        },
+        "Ghost": {
+          "exec connection color": "default",
+          "exec connection width": "default",
+          "exec connection pen style": "default",
+          "data connection color": "default",
+          "data connection width": "default",
+          "data connection pen style": "default",
+          "flow background color": "default",
+    
+          "nodes color": "default",
+          "small nodes color": "default"
         },
         "Blender": {
-          "nodes color": "default",
-          "flow background color": "default"
+          "exec connection color": "default",
+          "exec connection width": "default",
+          "exec connection pen style": "default",
+          "data connection color": "default",
+          "data connection width": "default",
+          "data connection pen style": "default",
+          "flow background color": "default",
+    
+          "nodes color": "default"
         },
         "Simple": {
+          "exec connection color": "default",
+          "exec connection width": "default",
+          "exec connection pen style": "default",
+          "data connection color": "default",
+          "data connection width": "default",
+          "data connection pen style": "default",
+          "flow background color": "default",
+    
           "nodes background color": "default",
-          "small nodes background color": "default",
-          "flow background color": "default"
+          "small nodes background color": "default"
         },
         "Ueli": {
+          "exec connection color": "default",
+          "exec connection width": "default",
+          "exec connection pen style": "default",
+          "data connection color": "default",
+          "data connection width": "default",
+          "data connection pen style": "default",
+          "flow background color": "default",
+    
           "nodes background color": "default",
-          "small nodes background color": "default",
-          "flow background color": "default"
+          "small nodes background color": "default"
         },
         "Samuel 1d": {
+          "exec connection color": "default",
+          "exec connection width": "default",
+          "exec connection pen style": "default",
+          "data connection color": "default",
+          "data connection width": "default",
+          "data connection pen style": "default",
+          "flow background color": "default",
+    
           "extended node background color": "default",
           "small node background color": "default",
           "node title color": "default",
           "port pin pen color": "default"
         },
         "Samuel 1l": {
+          "exec connection color": "default",
+          "exec connection width": "default",
+          "exec connection pen style": "default",
+          "data connection color": "default",
+          "data connection width": "default",
+          "data connection pen style": "default",
+          "flow background color": "default",
+    
           "extended node background color": "default",
           "small node background color": "default",
           "node title color": "default",
@@ -109,7 +171,7 @@ There is a list of available flow themes (which I want to expand as far as possi
       }
     }
     ```
-    Also note that the syntax of these configurations might receive some changes in the future.
+    Also note that the syntax of these configurations might receive some changes in the future. Give non-default values for widths in number format, not `str`. Possible values for pen styles are `solid line`, `dash line`, `dash dot line`, `dash dot dot line` and `dot line`. Give color as string in hex format (also compatible with alpha values like `#aabb4499`).
 
 ### StyleSheets
 

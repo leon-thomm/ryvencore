@@ -570,76 +570,200 @@
 <h2 id="styling">Styling</h2>
 <p>Of course, design splays a huge role when thinking about <em>visual</em> scripting. Therefore, you have wide freedom in styling.</p>
 <h3 id="flow-themes">Flow Themes</h3>
-<p>There is a list of available flow themes (which I want to expand as far as possible). You can choose one via <code>Session.design.set_flow_theme()</code>. Currently available flow themes are <code>Samuel 1d</code>, <code>Samuel 1l</code>, <code>Samuel 2d</code>, <code>Samuel 2l</code>, <code>Ueli</code>, <code>Blender</code>, <code>Simple</code>, <code>Toy</code> and <code>Tron</code>. To make sure you can create a look that fits in nicely wherever you might integrate your editor, you can customize the colors for all the above themes using a config json file and passing it to the design using <code>Sessiong.design.load_from_config(filepath)</code>. The json file should look like this, for any value you can either write "default" or a specific color in hex format (also compatible with alpha values):</p>
-<details class="note"><summary>config file</summary><p>You can also specify the initial flow theme, the performance mode (<code>'pretty'</code> or <code>'fast'</code>) and animations (which currently don't work I think).
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="p">{</span>
+<p>There is a list of available flow themes (which I want to expand as far as possible). You can choose one via <code>Session.design.set_flow_theme()</code>. Currently available flow themes are <code>Samuel 1d</code>, <code>Samuel 1l</code>, <code>Samuel 2d</code>, <code>Samuel 2l</code>, <code>Ueli</code>, <code>Blender</code>, <code>Simple</code>, <code>Toy</code> and <code>Tron</code>. To make sure you can create a look that fits in nicely wherever you might integrate your editor, you can customize the colors for all the above themes using a config json file and passing it to the design using <code>Sessiong.design.load_from_config(filepath)</code>. The json file should look like this, for any value you can either write "default" or specify a specific setting according to the instructions in the info box.</p>
+<details class="note"><summary>config file</summary><p>You can also specify the initial flow theme, the performance mode (<code>'pretty'</code> or <code>'fast'</code>) and animations (which currently don't work I think). You can just copy the following json, save it in a file and specify.
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">  1</span>
+<span class="normal">  2</span>
+<span class="normal">  3</span>
+<span class="normal">  4</span>
+<span class="normal">  5</span>
+<span class="normal">  6</span>
+<span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="p">{</span>
   <span class="s2">&quot;init flow theme&quot;</span><span class="p">:</span> <span class="s2">&quot;Samuel 1l&quot;</span><span class="p">,</span>
   <span class="s2">&quot;init performance mode&quot;</span><span class="p">:</span> <span class="s2">&quot;pretty&quot;</span><span class="p">,</span>
   <span class="s2">&quot;init animations enabled&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
   <span class="s2">&quot;flow themes&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s2">&quot;Ghost&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;nodes color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;small nodes color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Toy&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;exec connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
       <span class="s2">&quot;flow background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;Tron&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;exec connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;flow background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;Ghost&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;exec connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;flow background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+
+      <span class="s2">&quot;nodes color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;small nodes color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
     <span class="p">},</span>
     <span class="s2">&quot;Blender&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;nodes color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;flow background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
+      <span class="s2">&quot;exec connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;flow background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+
+      <span class="s2">&quot;nodes color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
     <span class="p">},</span>
     <span class="s2">&quot;Simple&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;exec connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;flow background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+
       <span class="s2">&quot;nodes background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;small nodes background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;flow background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
+      <span class="s2">&quot;small nodes background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
     <span class="p">},</span>
     <span class="s2">&quot;Ueli&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;exec connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;flow background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+
       <span class="s2">&quot;nodes background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;small nodes background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;flow background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
+      <span class="s2">&quot;small nodes background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
     <span class="p">},</span>
     <span class="s2">&quot;Samuel 1d&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;exec connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;flow background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+
       <span class="s2">&quot;extended node background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
       <span class="s2">&quot;small node background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
       <span class="s2">&quot;node title color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
       <span class="s2">&quot;port pin pen color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
     <span class="p">},</span>
     <span class="s2">&quot;Samuel 1l&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;exec connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;exec connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection width&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data connection pen style&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;flow background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+
       <span class="s2">&quot;extended node background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
       <span class="s2">&quot;small node background color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
       <span class="s2">&quot;node title color&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
@@ -649,7 +773,7 @@
 <span class="p">}</span>
 </code></pre></div>
 </td></tr></table>
-Also note that the syntax of these configurations might receive some changes in the future.</p>
+Also note that the syntax of these configurations might receive some changes in the future. Give non-default values for widths in number format, not <code>str</code>. Possible values for pen styles are <code>solid line</code>, <code>dash line</code>, <code>dash dot line</code>, <code>dash dot dot line</code> and <code>dot line</code>. Give color as string in hex format (also compatible with alpha values like <code>#aabb4499</code>).</p>
 </details>
 <h3 id="stylesheets">StyleSheets</h3>
 <p>ryvencore itself applies relatively little stylesheets itself, so you can apply your own style and most of the built in widgets should adapt accordingly. You can also store a stylesheet via <code>Session.set_stylesheet()</code> which is then accessible in nodes and their widget classes via <code>Node.session_stylesheet()</code>. When making a larger editor, you can style the builtin widgets (like the builtin input widgets for nodes) by referencing their class names in your css (aka qss) file.</p>

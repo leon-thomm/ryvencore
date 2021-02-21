@@ -40,7 +40,24 @@ class FlowTheme:
             self._load(imported)
 
     def _load(self, imported: dict):
-        pass
+        for k, v in imported.items():
+
+            if k == 'exec connection color':
+                self.exec_conn_color = self.hex_to_col(v)
+            elif k == 'exec connection width':
+                self.exec_conn_width = v
+            elif k == 'exec connection pen style':
+                self.exec_conn_pen_style = self._parse_pen_style(v)
+
+            elif k == 'data connection color':
+                self.data_conn_color = self.hex_to_col(v)
+            elif k == 'data connection width':
+                self.data_conn_width = v
+            elif k == 'data connection pen style':
+                self.data_conn_pen_style = self._parse_pen_style(v)
+
+            elif k == 'flow background color':
+                self.flow_background_brush.setColor(self.hex_to_col(v))
 
     def paint_NI_title_label(self, node, painter: QPainter, option: QStyleOption, hovering: bool, node_style: str, 
                              node_title: str, node_color: QColor, node_item_bounding_rect):
@@ -147,6 +164,19 @@ class FlowTheme:
             return QColor(r, g, b, a)
 
         return None
+
+    @staticmethod
+    def _parse_pen_style(s: str):
+        if s == 'solid line':
+            return Qt.SolidLine
+        elif s == 'dash line':
+            return Qt.DashLine
+        elif s == 'dash dot line':
+            return Qt.DashDotLine
+        elif s == 'dash dot dot line':
+            return Qt.DashDotDotLine
+        elif s == 'dot line':
+            return Qt.DotLine
 
 
 class FlowTheme_Toy(FlowTheme):
@@ -448,6 +478,8 @@ class FlowTheme_Ghost(FlowTheme):
 
 
     def _load(self, imported: dict):
+        super()._load(imported)
+
         for k, v in imported.items():
             if k == 'nodes color':
                 self.node_color = self.hex_to_col(v)
@@ -611,6 +643,8 @@ class FlowTheme_Blender(FlowTheme):
 
 
     def _load(self, imported: dict):
+        super()._load(imported)
+
         for k, v in imported.items():
             if k == 'nodes color':
                 self.node_color = self.hex_to_col(v)
@@ -733,6 +767,8 @@ class FlowTheme_Simple(FlowTheme):
 
 
     def _load(self, imported: dict):
+        super()._load(imported)
+
         for k, v in imported.items():
             if k == 'nodes background color':
                 self.node_background_color = self.hex_to_col(v)
@@ -868,6 +904,8 @@ class FlowTheme_Ueli(FlowTheme):
 
 
     def _load(self, imported: dict):
+        super()._load(imported)
+
         for k, v in imported.items():
             if k == 'nodes background color':
                 c = self.hex_to_col(v)
@@ -1007,6 +1045,8 @@ class FlowTheme_Samuel1(FlowTheme):
 
 
     def _load(self, imported: dict):
+        super()._load(imported)
+
         for k, v in imported.items():
             if k == 'extended node background color':
                 self.node_ext_background_color = self.hex_to_col(v)
@@ -1144,6 +1184,8 @@ class FlowTheme_Samuel2(FlowTheme):
 
 
     def _load(self, imported: dict):
+        super()._load(imported)
+
         for k, v in imported.items():
             if k == 'node title color':
                 self.node_title_color = self.hex_to_col(v)
