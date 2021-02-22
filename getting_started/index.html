@@ -724,18 +724,18 @@ python setup.py install
 
 <span class="k">class</span> <span class="nc">RandNode</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
 
-    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Rand&#39;</span>
-    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;generates random float&#39;</span>
-    <span class="n">init_inputs</span><span class="o">=</span><span class="p">[</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Rand&#39;</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;generates random float&#39;</span>
+    <span class="n">init_inputs</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">rc</span><span class="o">.</span><span class="n">NodeInput</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="s1">&#39;std line edit&#39;</span><span class="p">,</span> <span class="n">widget_pos</span><span class="o">=</span><span class="s1">&#39;besides&#39;</span><span class="p">)</span>
     <span class="p">]</span>
-    <span class="n">init_outputs</span><span class="o">=</span><span class="p">[</span>
+    <span class="n">init_outputs</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">rc</span><span class="o">.</span><span class="n">NodeOutput</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
     <span class="p">]</span>
-    <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#fcba03&#39;</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;#fcba03&#39;</span>
 
     <span class="k">def</span> <span class="nf">update_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_called</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
-        <span class="c1"># random num between 0 and value at input</span>
+        <span class="c1"># random float between 0 and value at input</span>
         <span class="n">val</span> <span class="o">=</span> <span class="n">random</span><span class="p">()</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="c1"># setting the value of the first output</span>
