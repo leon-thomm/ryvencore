@@ -24,6 +24,77 @@ pip install ryvencore
 - **rendering flow images**
 - **THREADING READY** [extremely experimental though]
 
-Threading ready means that all internal communication between the abstract components and the GUI of the flows is implemented in a somewhat thread save way, so, while still having an intuitive API, it is compatible with applications that keep their abstract components in a separate thread. While this is currently a very experimental feature whose implementation will experience improvement in the future, the basic structure is already there and successful tests have been made. A lot of work went into this and I think it's of crucial importance since this opens the door to the world of realtime data processing.
+Threading ready means that all internal communication between the abstract components and the GUI of the flows is implemented in a somewhat thread save way, so, while still providing an intuitive API, ryvencore is compatible with applications that keep their abstract components in a separate thread. While this is currently a very experimental feature whose implementation will experience improvement in the future, the basic structure is already there and successful tests have been made. A lot of work went into this and I think it's of crucial importance since this opens the door to the world of realtime data processing.
 
-I am very excited about this, but there is of course still room for improvement, currently especially regarding convenience GUI classes and touch support. For a more detailed overview visit the [docs page](https://leon-thomm.github.io/ryvencore/).
+### Usage
+
+Following is a short example for a simple editor with a random number generator node and a print node. The example can also be found in the docs linked below.
+
+``` python
+import sys
+from random import random
+import ryvencore as rc
+from PySide2.QtWidgets import QMainWindow, QApplication
+
+
+class PrintNode(rc.Node):
+
+    # all basic properties
+    title = 'Print'
+    description = 'prints your data'
+    # there is also description_html
+    init_inputs = [
+        rc.NodeInput('data')
+    ]
+    init_outputs = []
+    color = '#A9D5EF'
+    # see API doc for a full list of all properties
+
+    # we could also skip the constructor here
+    def __init__(self, params):
+        super().__init__(params)
+
+    def update_event(self, input_called=-1):
+        data = self.input(0)  # get data from the first input
+        print(data)
+
+
+class RandNode(rc.Node):
+    
+    title = 'Rand'
+    description = 'generates random float'
+    init_inputs = [
+        rc.NodeInput('data', widget='std line edit', widget_pos='besides')
+    ]
+    init_outputs = [
+        rc.NodeOutput('data')
+    ]
+    color = '#fcba03'
+
+    def update_event(self, input_called=-1):
+        # random float between 0 and value at input
+        val = random()*self.input(0)
+
+        # setting the value of the first output
+        self.set_output_val(0, val)
+
+
+if __name__ == "__main__":
+
+    # creating the application and a window
+    app = QApplication()
+    mw = QMainWindow()
+
+    # creating the session, registering, creating script
+    session = rc.Session(flow_theme_name='Samuel 1l')
+    session.register_nodes([PrintNode, RandNode])
+    script = session.create_script('hello world', flow_view_size=[800, 500])
+
+    # and setting the flow widget as the windows central widget
+    mw.setCentralWidget(script.flow_view)
+
+    mw.show()
+    sys.exit(app.exec_())
+```
+
+I am excited about this, biggest room for improvement currently regards convenience GUI classes and touch support. For a more detailed overview visit the [docs page](https://leon-thomm.github.io/ryvencore/).

@@ -210,18 +210,18 @@ session = rc.Session(
     
     class RandNode(rc.Node):
         
-        title='Rand'
-        description='generates random float'
-        init_inputs=[
+        title = 'Rand'
+        description = 'generates random float'
+        init_inputs = [
             rc.NodeInput('data', widget='std line edit', widget_pos='besides')
         ]
-        init_outputs=[
+        init_outputs = [
             rc.NodeOutput('data')
         ]
-        color='#fcba03'
+        color = '#fcba03'
     
         def update_event(self, input_called=-1):
-            # random num between 0 and value at input
+            # random float between 0 and value at input
             val = random()*self.input(0)
     
             # setting the value of the first output
