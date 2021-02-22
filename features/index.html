@@ -308,6 +308,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#customizing-connections" class="md-nav__link">
+    Customizing Connections
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#flow-features" class="md-nav__link">
     Flow Features
   </a>
@@ -317,13 +324,6 @@
         <li class="md-nav__item">
   <a href="#code-generation-idea" class="md-nav__link">
     Code Generation [idea]
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#customizing-connections" class="md-nav__link">
-    Customizing Connections
   </a>
   
 </li>
@@ -466,6 +466,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#customizing-connections" class="md-nav__link">
+    Customizing Connections
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#flow-features" class="md-nav__link">
     Flow Features
   </a>
@@ -475,13 +482,6 @@
         <li class="md-nav__item">
   <a href="#code-generation-idea" class="md-nav__link">
     Code Generation [idea]
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#customizing-connections" class="md-nav__link">
-    Customizing Connections
   </a>
   
 </li>
@@ -777,20 +777,23 @@ Also note that the syntax of these configurations might receive some changes in 
 </details>
 <h3 id="stylesheets">StyleSheets</h3>
 <p>ryvencore itself applies relatively little stylesheets itself, so you can apply your own style and most of the built in widgets should adapt accordingly. You can also store a stylesheet via <code>Session.set_stylesheet()</code> which is then accessible in nodes and their widget classes via <code>Node.session_stylesheet()</code>. When making a larger editor, you can style the builtin widgets (like the builtin input widgets for nodes) by referencing their class names in your css (aka qss) file.</p>
+<h2 id="customizing-connections">Customizing Connections</h2>
+<p>You can provide your own reimplementations of the connection classes, since this is an excellent point to add domain-specific additional functionality (like 'edge weights') to your editor. There are no detailed instructions on that in the docs yet, but you can take a look at the implementations, and then pass your implementations of the classes you want to enhance to the <code>Session</code>'s constructor, see <a href="../api/#class-session">API</a>.</p>
 <h2 id="flow-features">Flow Features</h2>
 <p>ryvencore's <code>FlowView</code> class, which is a subclass of <code>QGraphicsView</code>, supports some special features such as</p>
 <ul>
-<li>stylus events for adding simple handwritten notes</li>
+<li>stylus support for adding simple handwritten notes</li>
 <li>rendered images of the flow including high res for presentations</li>
 <li>algorithm modes for the flow (data and exec)</li>
 </ul>
 <!-- - touch events (needs improvement) -->
 <!-- - viewport update modes -->
 
-<div class="admonition bug">
-<p class="admonition-title">Bug (help pls)</p>
-<p>After pasting drawings in the scene, when undoing (ctrl+z), it doesn't work and this seems so point to a bigger issue, which I described in the issues section on GitHub. I'm a bit lost about this, so please take a look if you think you could help with solving this.</p>
-</div>
+<!--
+!!! bug "Bug (help pls)"
+    After pasting drawings in the scene, when undoing (ctrl+z), it doesn't work and this seems so point to a bigger issue, which I described in the issues section on GitHub. I'm a bit lost about this, so please take a look if you think you could help with solving this.
+-->
+
 <!--
 ### Algorithm Mode
 
@@ -807,12 +810,9 @@ There are two *viewport update modes*, `'sync'` and `'async'`. The only differen
 <p>Continuing is some thoughts for people who want to work on this:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><strong>Files might get large!</strong> Because the resulting code has to include this abstract version of the whole internal structure as well as the definitions of all used Nodes, the resulting code might quickly reach 1000 lines.</p>
+<p><strong>Files might get large!</strong> Because the resulting code has to include this abstract version of the whole internal structure as well as the definitions of all used nodes, the resulting code might quickly reach 1000 lines.</p>
 </div>
-<p>The resulting code should be completely independent without Qt dependencies. When generating the code, Ryven runs a dependency analysis of all Nodes' sources. Some Nodes might just use standard packages and modules (like numpy), while others might include external sources that one wants to have included in the generated code, like some functions or classes used by many of your nodes which that are therefore kept in their own modules. Ryven analyzes normal (module-wide) import statements recursively and includes all sources that are not builtin modules or installed packages or part of an ignore list.</p>
-<h2 id="customizing-connections">Customizing Connections</h2>
-<p><strong>WIP</strong></p>
-<p>In the future you will be able to provide your own reimplementations of the connection classes, since this is an excellent point to add domain-specific additional functionality (like 'edge weights') to your editor.</p>
+<p>The resulting code should be completely independent without Qt dependencies. When generating the code, Ryven runs a dependency analysis of all nodes' sources. Some nodes might just use standard packages and modules (like numpy), while others might include external sources that one wants to have included in the generated code, like some functions or classes used by many of your nodes which are therefore kept in their own modules. Ryven analyzes normal (module-wide) import statements recursively and includes all sources that are not builtin modules or installed packages or part of an ignore list.</p>
                 
               
               
