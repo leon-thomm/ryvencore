@@ -23,13 +23,12 @@ The following signals are useful if you use custom widgets for listing the scrip
 
 ### Methods
 
-#### `Session(flow_performance_mode: str = 'pretty', animations_enabled: bool = True, flow_theme_name: str = 'ueli', flow_data_conn_class=DataConnection, flow_exec_conn_class=ExecConnection, project: dict = None)`
+#### `Session(threaded: bool = False, gui_parent: QWidget = None, flow_theme_name=None, performance_mode=None, data_conn_class=None, data_conn_item_class=None, exec_conn_class=None, exec_conn_item_class=None, parent: QObject = None)`
 
 | Parameter                         | Description                               |
 | --------------------------------- | ----------------------------------------- |
 | `threaded: bool = False`          | True for threaded applications. |
 | `gui_parent: QObject = None`      | The parent (i.e. MainWindow) for the GUI, only important for threaded applications |
-| `gui_thread: QThread = None`      | The main thread, only important for threaded applications |
 | `flow_theme_name`                 | The name of the flow theme used |
 | `performance_mode`                | `'pretty'` or `'fast'` |
 | `data_conn_class=None`            | A ref to your custom implementation of `DataConnection` if you want to provide one. |
