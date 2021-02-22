@@ -1,6 +1,4 @@
-**ryvencore is not 100% ready yet, there's still some work to do**
-
-Salut! rvencore is a Qt based framework for building flow-based visual scripting editors for Python. It comes from the Ryven project and will be the foundation for future Ryven versions amongst other editors. ryvencore lets you create Ryven-like editors which you then can optimize for specific domains.
+rvencore is a framework for building flow-based visual scripting editors for Python. It comes from the Ryven project and will be the foundation for future Ryven versions amongst other editors. ryvencore lets you create Ryven-like editors which you then can optimize for specific domains. It provides a backend structure that enables a range of useful features and the GUI for the flows.
 
 ### Installation
 
@@ -13,7 +11,7 @@ pip install ryvencore
 - **load & save**
 - **variables system** with registration mechanism to build nodes that automatically adapt to change of data
 - **built in logging**
-- **simple nodes system**
+- **simple nodes system** (see Usage below)
 - **dynamic nodes registration mechanism** to register and unregister nodes at runtime
 - **right click operations system for nodes**
 - **you can add any Qt widgets to your nodes** (hence you could also embed your Python-Qt applications with GUI)
@@ -24,7 +22,7 @@ pip install ryvencore
 - **rendering flow images**
 - **THREADING READY** [extremely experimental though]
 
-Threading ready means that all internal communication between the abstract components and the GUI of the flows is implemented in a somewhat thread save way, so, while still providing an intuitive API, ryvencore is compatible with applications that keep their abstract components in a separate thread. While this is currently a very experimental feature whose implementation will experience improvement in the future, the basic structure is already there and successful tests have been made. A lot of work went into this and I think it's of crucial importance since this opens the door to the world of realtime data processing.
+Threading ready means that all internal communication between the abstract components and the GUI of the flows is implemented in a somewhat thread save way, so, while still providing an intuitive API, ryvencore is compatible with applications that keep their abstract components in a separate thread. While this is currently a very experimental feature whose implementation will experience improvement in the future, all the foundation is there and successful tests have been made. A lot of work went into this and I think it's of crucial importance as this opens the door to the world of realtime data processing.
 
 ### Usage
 
