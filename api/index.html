@@ -818,7 +818,7 @@
 </tbody>
 </table>
 <h3 id="methods">Methods</h3>
-<h4><code>Session(flow_performance_mode: str = 'pretty', animations_enabled: bool = True, flow_theme_name: str = 'ueli', flow_data_conn_class=DataConnection, flow_exec_conn_class=ExecConnection, project: dict = None)</code></h4>
+<h4><code>Session(threaded: bool = False, gui_parent: QWidget = None, flow_theme_name=None, performance_mode=None, data_conn_class=None, data_conn_item_class=None, exec_conn_class=None, exec_conn_item_class=None, parent: QObject = None)</code></h4>
 <table>
 <thead>
 <tr>
@@ -834,10 +834,6 @@
 <tr>
 <td><code>gui_parent: QObject = None</code></td>
 <td>The parent (i.e. MainWindow) for the GUI, only important for threaded applications</td>
-</tr>
-<tr>
-<td><code>gui_thread: QThread = None</code></td>
-<td>The main thread, only important for threaded applications</td>
 </tr>
 <tr>
 <td><code>flow_theme_name</code></td>
