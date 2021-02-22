@@ -847,9 +847,9 @@ class FlowView(QGraphicsView):
 
         else:
             if isinstance(c, DataConnection):
-                item = DataConnectionItem(c, self.session.design)
+                item = self.session.DataConnItemClass(c, self.session.design)
             else:
-                item = ExecConnectionItem(c, self.session.design)
+                item = self.session.ExecConnItemClass(c, self.session.design)
 
 
 

@@ -6,8 +6,9 @@ from .InfoMsgs import InfoMsgs
 class Connection(QObject):
     """
     The base class for both types of abstract connections. All data is transmitted through a connection from an output
-    port to some connected input port. The classes ExecConnection and DataConnection will be ready for reimplementation
-    later, so users can add additional functionality to connections (like "weights").
+    port to some connected input port. The classes ExecConnection and DataConnection are ready for reimplementation,
+    so users can add additional functionality to connections (like "weights"). As the Session manages the class
+    references, custom reimplementations must be given in the Session constructor.
     """
 
     def __init__(self, params):

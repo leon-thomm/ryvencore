@@ -1,6 +1,9 @@
 from PySide2.QtCore import QObject, Signal, QThread
 from PySide2.QtGui import QFontDatabase
 from PySide2.QtWidgets import QWidget
+from ryvencore.src.ConnectionItem import DataConnectionItem, ExecConnectionItem
+
+from ryvencore.src.Connection import DataConnection, ExecConnection
 
 from .GlobalAttributes import Location
 from .Script import Script
@@ -24,19 +27,41 @@ class Session(QObject):
             self,
             threaded: bool = False,
             gui_parent: QWidget = None,
-            gui_thread: QThread = None,
             flow_theme_name=None,
             performance_mode=None,
+            data_conn_class=None,
+            data_conn_item_class=None,
+            exec_conn_class=None,
+            exec_conn_item_class=None,
             parent: QObject = None
     ):
         super().__init__(parent=parent)
 
         self._register_fonts()
 
+        # BASE CLASSES
+        self.DataConnClass = DataConnection
+        self.DataConnItemClass = DataConnectionItem
+        self.ExecConnClass = ExecConnection
+        self.ExecConnItemClass = ExecConnectionItem
+
+        if data_conn_class:
+            self.DataConnClass = data_conn_class
+        if data_conn_item_class:
+            self.DataConnItemClass = data_conn_item_class
+        if exec_conn_class:
+            self.ExecConnClass = exec_conn_class
+        if exec_conn_item_class:
+            self.ExecConnItemClass = exec_conn_item_class
+
+
+        # ATTRIBUTES
         self.scripts: [Script] = []
         self.function_scripts: [FunctionScript] = []
         self.nodes = []  # list of node CLASSES
-        self.invisible_nodes = [FunctionInputNode, FunctionOutputNode]
+        self.invisible_nodes = [FunctionInputNode, FunctionOutputNode]  # might change that system in the future
+
+        #   threading
         self.threaded = threaded
         self.threading_bridge = None
         self.gui_parent = gui_parent
@@ -44,6 +69,7 @@ class Session(QObject):
             self.threading_bridge = SessionThreadingBridge()
             self.threading_bridge.moveToThread(gui_parent.thread())
 
+        #   design
         self.design = Design()
         if flow_theme_name:
             self.design.set_flow_theme(name=flow_theme_name)

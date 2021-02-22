@@ -3,8 +3,6 @@ from PySide2.QtCore import QObject, Signal
 
 class Log(QObject):
 
-    # TODO: add methods for saving data to a file
-
     enabled = Signal()
     disabled = Signal()
     wrote = Signal(str)
@@ -15,6 +13,7 @@ class Log(QObject):
 
         self.title: str = title
         self.lines: [str] = []
+        self.current_lines: [str] = []
         self.enabled_: bool = True
 
     def write(self, *args):
@@ -25,9 +24,11 @@ class Log(QObject):
         for arg in args:
             s += ' '+str(arg)
         self.lines.append(s)
+        self.current_lines.append(s)
         self.wrote.emit(s)
 
     def clear(self):
+        self.current_lines.clear()
         self.cleared.emit()
 
     def disable(self):
@@ -37,3 +38,9 @@ class Log(QObject):
     def enable(self):
         self.enabled_ = True
         self.enabled.emit()
+
+    def save_to_file(self, filepath: str, all_lines=True):
+        """Saves the log data to a file. If all_lines is false, it only saves the current (not cleared) lines."""
+        f = open(filepath)
+        f.write(('\n'.join(self.lines)) if all_lines else ('\n'.join(self.current_lines)))
+        f.close()

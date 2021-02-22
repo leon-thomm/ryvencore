@@ -69,12 +69,16 @@ class NodeObjInput(NodeObjPort):
             else:
                 return None
         else:
-            return self.connections[0].get_val()
+            if self.node.flow.alg_mode == FlowAlg.DATA and self.val is not None:
+                return self.val
+            else:
+                return self.connections[0].get_val()
 
     def update(self, data=None):
         """called from another node or from connected()"""
         if self.type_ == 'data':
             self.val = data  # self.get_val()
+            InfoMsgs.write('Data in input set to', data)
             if self.item:
                 self.item.updated_val()
 

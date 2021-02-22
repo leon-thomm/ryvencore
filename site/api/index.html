@@ -848,12 +848,28 @@
 <td><code>'pretty'</code> or <code>'fast'</code></td>
 </tr>
 <tr>
+<td><code>data_conn_class=None</code></td>
+<td>A ref to your custom implementation of <code>DataConnection</code> if you want to provide one.</td>
+</tr>
+<tr>
+<td><code>data_conn_item_class=None</code></td>
+<td>A ref to your custom implementation of <code>DataConnectionItem</code> if you want to provide one.</td>
+</tr>
+<tr>
+<td><code>exec_conn_class=None</code></td>
+<td>A ref to your custom implementation of <code>ExecConnection</code> if you want to provide one.</td>
+</tr>
+<tr>
+<td><code>exec_conn_item_class=None</code></td>
+<td>A ref to your custom implementation of <code>ExecConnectionItem</code> if you want to provide one.</td>
+</tr>
+<tr>
 <td><code>parent: QObject = None</code></td>
 <td>The session's parent object.</td>
 </tr>
 </tbody>
 </table>
-<p>This list (and especially the order) might get changed in the future multiple times, so make sure you always use the parameter names.</p>
+<p>This list (and especially the order) might get changed in the future multiple times, so make sure you always use the parameter names. Also, while I think subclassing the connection classes is a great feature, the default class's implementations are young and might receive changes in the future.</p>
 <h4><code>register_node(node)</code></h4>
 <p>Registers a Node which then can be accessed in all scripts,</p>
 <div class="admonition note">
@@ -907,7 +923,7 @@
 <h4><code>all_nodes() -&gt; list</code></h4>
 <p>Returns a list of all Node <strong>instances</strong> (objects) from all flows of the session's scripts.</p>
 <h4><code>set_stylesheet(s: str)</code></h4>
-<p>Sets the session's global stylesheet which can be accessed by Nodes and their widgets.</p>
+<p>Sets the session's global stylesheet which can be accessed by nodes and their widgets.</p>
 <h2 id="class-infomsgs">[class] <code>InfoMsgs</code></h2>
 <p>The <code>InfoMsgs</code> class just provides a convenient way to print, such that the additional info is disabled by default but can be enabled for troubleshooting.</p>
 <h3 id="methods_1">Methods</h3>
@@ -1052,6 +1068,10 @@
 <td><code>lines: [str]</code></td>
 <td>A list of all logged strings (doesn't get cleared when the log gets cleared).</td>
 </tr>
+<tr>
+<td><code>current_lines: [str]</code></td>
+<td>All <em>current</em> <code>lines</code>, i.e. the ones that haven't been cleared.</td>
+</tr>
 </tbody>
 </table>
 <h3 id="methods_3">Methods</h3>
@@ -1063,8 +1083,8 @@
 <p>Disables the log and emits <code>disabled</code>. A disabled log does not <code>write</code> anymore.</p>
 <h4><code>enable()</code></h4>
 <p>Enables the log and emits <code>enabled</code>.</p>
-<h4><code>save_to_file(fpath: str)</code></h4>
-<p><em>coming soon</em></p>
+<h4><code>save_to_file(filepath: str, all_lines=True)</code></h4>
+<p>Saves <code>lines</code> to a file. If <code>all_lines</code> is <code>False</code> it only saves <code>current_lines</code>.</p>
 <h2 id="class-varsmanager">[class] <code>VarsManager</code></h2>
 <h3 id="signals_3">Signals</h3>
 <p>The following signals are useful if you implement your own script vars list GUI.</p>
@@ -1086,6 +1106,11 @@
 <td><code>var_deleted</code></td>
 <td><code>Variable</code></td>
 <td>Emitted when a script variable has been deleted.</td>
+</tr>
+<tr>
+<td><code>var_val_changed</code></td>
+<td><code>Variable, object</code></td>
+<td>Emitted when a script variable's value has been changed.</td>
 </tr>
 </tbody>
 </table>
@@ -1171,7 +1196,7 @@
 <tbody>
 <tr>
 <td><code>nodes: [Node]</code></td>
-<td>A list of all currently present Nodes.</td>
+<td>A list of all currently present nodes.</td>
 </tr>
 <tr>
 <td><code>connections: [Connection]</code></td>
@@ -1430,7 +1455,7 @@
 </tr>
 </tbody>
 </table>
-<p>In dataflows, this causes update events in all connected Nodes. This way, change of data is forward propagated through all Nodes that depend on it.</p>
+<p>In dataflows, this causes update events in all connected nodes. This way, change of data is forward propagated through all nodes that depend on it.</p>
 <h4><code>new_log(title: str) -&gt; Log</code></h4>
 <table>
 <thead>

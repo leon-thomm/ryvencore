@@ -10,6 +10,7 @@ class VarsManager(QObject):
 
     new_var_created = Signal(Variable)
     var_deleted = Signal(Variable)
+    var_val_changed = Signal(Variable, object)
 
     def __init__(self, script, config=None):
         super().__init__()
@@ -68,7 +69,9 @@ class VarsManager(QObject):
         if var_index is None:
             return False
 
-        self.variables[var_index].val = val
+        var = self.variables[var_index]
+        var.val = val
+        self.var_val_changed.emit(var, var.val)
 
         # update all variable usages by calling all registered object's methods on updated variable with the new val
         for receiver, var_name in self.var_receivers.keys():

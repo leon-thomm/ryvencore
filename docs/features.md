@@ -177,18 +177,24 @@ There is a list of available flow themes (which I want to expand as far as possi
 
 ryvencore itself applies relatively little stylesheets itself, so you can apply your own style and most of the built in widgets should adapt accordingly. You can also store a stylesheet via `Session.set_stylesheet()` which is then accessible in nodes and their widget classes via `Node.session_stylesheet()`. When making a larger editor, you can style the builtin widgets (like the builtin input widgets for nodes) by referencing their class names in your css (aka qss) file.
 
+## Customizing Connections
+
+You can provide your own reimplementations of the connection classes, since this is an excellent point to add domain-specific additional functionality (like 'edge weights') to your editor. There are no detailed instructions on that in the docs yet, but you can take a look at the implementations, and then pass your implementations of the classes you want to enhance to the `Session`'s constructor, see [API](../api/#class-session).
+
 ## Flow Features
 
 ryvencore's `FlowView` class, which is a subclass of `QGraphicsView`, supports some special features such as
 
-- stylus events for adding simple handwritten notes
+- stylus support for adding simple handwritten notes
 - rendered images of the flow including high res for presentations
 - algorithm modes for the flow (data and exec)
 <!-- - touch events (needs improvement) -->
 <!-- - viewport update modes -->
 
+<!--
 !!! bug "Bug (help pls)"
     After pasting drawings in the scene, when undoing (ctrl+z), it doesn't work and this seems so point to a bigger issue, which I described in the issues section on GitHub. I'm a bit lost about this, so please take a look if you think you could help with solving this.
+-->
 
 <!--
 ### Algorithm Mode
@@ -208,12 +214,6 @@ Now, there currently isn't a code generation mechanism for ryvencore, however I 
 Continuing is some thoughts for people who want to work on this:
 
 !!! note
-    **Files might get large!** Because the resulting code has to include this abstract version of the whole internal structure as well as the definitions of all used Nodes, the resulting code might quickly reach 1000 lines.
+    **Files might get large!** Because the resulting code has to include this abstract version of the whole internal structure as well as the definitions of all used nodes, the resulting code might quickly reach 1000 lines.
 
-The resulting code should be completely independent without Qt dependencies. When generating the code, Ryven runs a dependency analysis of all Nodes' sources. Some Nodes might just use standard packages and modules (like numpy), while others might include external sources that one wants to have included in the generated code, like some functions or classes used by many of your nodes which that are therefore kept in their own modules. Ryven analyzes normal (module-wide) import statements recursively and includes all sources that are not builtin modules or installed packages or part of an ignore list.
-
-## Customizing Connections
-
-**WIP**
-
-In the future you will be able to provide your own reimplementations of the connection classes, since this is an excellent point to add domain-specific additional functionality (like 'edge weights') to your editor.
+The resulting code should be completely independent without Qt dependencies. When generating the code, Ryven runs a dependency analysis of all nodes' sources. Some nodes might just use standard packages and modules (like numpy), while others might include external sources that one wants to have included in the generated code, like some functions or classes used by many of your nodes which are therefore kept in their own modules. Ryven analyzes normal (module-wide) import statements recursively and includes all sources that are not builtin modules or installed packages or part of an ignore list.

@@ -12,10 +12,7 @@ class Node(QObject):
     """Base class for all node blueprints. Such a blueprint is defined by its class, which is registered
     in the session, and actual node objects are instances of it. The static properties are stored using
     static attributes, which works really well in Python.
-    All the main API for programming nodes, i.e. creating subclasses of this class, is defined here.
-
-    This class will be ready for reimplementation later, so the base Node class used internally when registering
-    new nodes will be customizable to extend the default functionality of all nodes in an editor."""
+    All the main API for programming nodes, i.e. creating subclasses of this class, is defined here."""
 
     # SIGNALS
     updated = Signal()
@@ -29,6 +26,7 @@ class Node(QObject):
 
     # STATIC FIELDS
     title = ''
+    # display_title = ''  TODO: Node display_title
     type_ = ''
     init_inputs: [NodeInput] = []
     init_outputs: [NodeOutput] = []
@@ -59,6 +57,7 @@ class Node(QObject):
         self.special_actions = {}
         self.logs = []
         self.signals = self.SIGNALS()
+        # self.display_title = self.title
 
         self.init_config = config
         self.initialized = False

@@ -32,9 +32,13 @@ The following signals are useful if you use custom widgets for listing the scrip
 | `gui_thread: QThread = None`      | The main thread, only important for threaded applications |
 | `flow_theme_name`                 | The name of the flow theme used |
 | `performance_mode`                | `'pretty'` or `'fast'` |
+| `data_conn_class=None`            | A ref to your custom implementation of `DataConnection` if you want to provide one. |
+| `data_conn_item_class=None`       | A ref to your custom implementation of `DataConnectionItem` if you want to provide one. |
+| `exec_conn_class=None`            | A ref to your custom implementation of `ExecConnection` if you want to provide one. |
+| `exec_conn_item_class=None`       | A ref to your custom implementation of `ExecConnectionItem` if you want to provide one. |
 | `parent: QObject = None`          | The session's parent object. |
 
-This list (and especially the order) might get changed in the future multiple times, so make sure you always use the parameter names.
+This list (and especially the order) might get changed in the future multiple times, so make sure you always use the parameter names. Also, while I think subclassing the connection classes is a great feature, the default class's implementations are young and might receive changes in the future.
 
 #### `register_node(node)`
 
@@ -99,7 +103,7 @@ Returns a list of all Node **instances** (objects) from all flows of the session
 
 #### `set_stylesheet(s: str)`
 
-Sets the session's global stylesheet which can be accessed by Nodes and their widgets.
+Sets the session's global stylesheet which can be accessed by nodes and their widgets.
 
 ## [class] `InfoMsgs`
 
@@ -188,6 +192,7 @@ The following signals are useful if you implement your own log GUI. Connect them
 | --------------------------------- | ----------------------------------------- |
 | `title: str`                      | The log's title string.                    |
 | `lines: [str]`                    | A list of all logged strings (doesn't get cleared when the log gets cleared). |
+| `current_lines: [str]`            | All *current* `lines`, i.e. the ones that haven't been cleared. |
 
 ### Methods
 
@@ -207,9 +212,9 @@ Disables the log and emits `disabled`. A disabled log does not `write` anymore.
 
 Enables the log and emits `enabled`.
 
-#### `save_to_file(fpath: str)`
+#### `save_to_file(filepath: str, all_lines=True)`
 
-*coming soon*
+Saves `lines` to a file. If `all_lines` is `False` it only saves `current_lines`.
 
 ## [class] `VarsManager`
 
@@ -221,6 +226,7 @@ The following signals are useful if you implement your own script vars list GUI.
 | --------------------------------- | ----------------------------------------- | ----------------------------------------- |
 | `new_var_created`                 | `Variable`                                | Emitted when a new script variable has been created. |
 | `var_deleted`                     | `Variable`                                | Emitted when a script variable has been deleted. |
+| `var_val_changed`                 | `Variable, object`                        | Emitted when a script variable's value has been changed. |
 
 #### Attributes
 
@@ -280,7 +286,7 @@ The `Flow` class represents the abstract flow (no GUI) and stores all the node o
 
 | Name                              | Description                               |
 | --------------------------------- | ----------------------------------------- |
-| `nodes: [Node]`                   | A list of all currently present Nodes. |
+| `nodes: [Node]`                   | A list of all currently present nodes. |
 | `connections: [Connection]`       | A list of all current connections. |
 
 ### Methods
@@ -453,7 +459,7 @@ Executes the output with given index.
 | `index`               | Index of the output. It has to be a data output. |
 | `val`                 | The data that gets set at the output. This can be anything. |
 
-In dataflows, this causes update events in all connected Nodes. This way, change of data is forward propagated through all Nodes that depend on it.
+In dataflows, this causes update events in all connected nodes. This way, change of data is forward propagated through all nodes that depend on it.
 
 #### `new_log(title: str) -> Log`
 

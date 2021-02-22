@@ -192,7 +192,8 @@ class Flow(QObject):
         #     for c in inp.connections:
         #         self.remove_connection(c)
 
-        c = DataConnection((out, inp, self)) if out.type_ == 'data' else ExecConnection((out, inp, self))
+        c = self.session.DataConnClass((out, inp, self)) if out.type_ == 'data' else \
+            self.session.ExecConnClass((out, inp, self))
         self.add_connection(c)
 
         return c
