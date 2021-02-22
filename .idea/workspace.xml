@@ -32,6 +32,7 @@
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/api.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/api.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/features.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/features.md" afterDir="false" />
+<<<<<<< Updated upstream
       <change beforePath="$PROJECT_DIR$/ryvencore/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ryvencore/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ryvencore/src/Connection.py" beforeDir="false" afterPath="$PROJECT_DIR$/ryvencore/src/Connection.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ryvencore/src/Flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/ryvencore/src/Flow.py" afterDir="false" />
@@ -41,6 +42,12 @@
       <change beforePath="$PROJECT_DIR$/ryvencore/src/Session.py" beforeDir="false" afterPath="$PROJECT_DIR$/ryvencore/src/Session.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ryvencore/src/logging/Log.py" beforeDir="false" afterPath="$PROJECT_DIR$/ryvencore/src/logging/Log.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ryvencore/src/script_variables/VarsManager.py" beforeDir="false" afterPath="$PROJECT_DIR$/ryvencore/src/script_variables/VarsManager.py" afterDir="false" />
+=======
+      <change beforePath="$PROJECT_DIR$/ryvencore/src/FlowTheme.py" beforeDir="false" afterPath="$PROJECT_DIR$/ryvencore/src/FlowTheme.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/site/features/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/site/features/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/site/search/search_index.json" beforeDir="false" afterPath="$PROJECT_DIR$/site/search/search_index.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/site/sitemap.xml.gz" beforeDir="false" afterPath="$PROJECT_DIR$/site/sitemap.xml.gz" afterDir="false" />
+>>>>>>> Stashed changes
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
