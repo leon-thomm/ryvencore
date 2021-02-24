@@ -207,13 +207,17 @@ The technical differences only regard connections. In a data flow, you only have
 
 There are two *viewport update modes*, `'sync'` and `'async'`. The only difference is that in `sync` mode, any update event that propagates through the flow is finished before the viewport is updated. `async` mode can sometimes be useful for larget data flows, in `async` mode, the flow first updates the scene rectangle of the *main-widgets* of NodeInstances before passing the update event to the next connected NodeInstance (so you can see your flow procedurally execute). -->
 
+## Threading
+
+See page [Threading](../threading/).
+
 ## Code Generation [idea]
 
-Now, there currently isn't a code generation mechanism for ryvencore, however I already implemented a prototype for Ryven once and Ryven 3 will probably receive this as an official feature at some point. The requirements for something like this actually only regard the file structure of your node definitions, so it might make sense to add this at some point to ryvencore if it turns out that this file structure usually is pretty much the same. If you are coming from Ryven and want to contribute to the development, this would be something that I'm sure some people using the software are much more capable of implementing than I am.
+Now, there currently isn't a code generation mechanism for ryvencore, however I already implemented a prototype for Ryven once and Ryven 3 will probably receive this as an official feature at some point. I think the requirements for something like this only regard the file structure of your node definitions. If you are coming from Ryven and want to contribute to the development, this would be something that I'm sure some people using the software are much more capable of implementing than I am. On the dev branch in the Ryven repo you can find the basic idea that I followed for creating the source code implemented, there are just still a few (quite solvable) issues regarding the recursive module imports.
 
 Continuing is some thoughts for people who want to work on this:
 
 !!! note
-    **Files might get large!** Because the resulting code has to include this abstract version of the whole internal structure as well as the definitions of all used nodes, the resulting code might quickly reach 1000 lines.
+    **Files might get large!** Because the resulting code has to include implementations of the basic abstract components (ideally just the ryvencore classes) as well as the definitions of all used nodes, the resulting code might quickly reach 1000 lines.
 
 The resulting code should be completely independent without Qt dependencies. When generating the code, Ryven runs a dependency analysis of all nodes' sources. Some nodes might just use standard packages and modules (like numpy), while others might include external sources that one wants to have included in the generated code, like some functions or classes used by many of your nodes which are therefore kept in their own modules. Ryven analyzes normal (module-wide) import statements recursively and includes all sources that are not builtin modules or installed packages or part of an ignore list.

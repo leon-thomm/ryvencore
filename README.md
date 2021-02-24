@@ -13,6 +13,7 @@ pip install ryvencore
 - **built in logging**
 - **simple nodes system** (see Usage below)
 - **dynamic nodes registration mechanism** to register and unregister nodes at runtime
+- **function nodes/subgraphs**
 - **right click operations system for nodes**
 - **you can add any Qt widgets to your nodes** (hence you could also embed your Python-Qt applications with GUI)
 - **convenience GUI classes**
@@ -96,3 +97,9 @@ if __name__ == "__main__":
 ```
 
 I am excited about this, biggest room for improvement currently regards convenience GUI classes and touch support. For a more detailed overview visit the [docs page](https://leon-thomm.github.io/ryvencore/).
+
+### Contributing
+
+Contributions are *very* welcome. Due to my study, I myself will not have the time to work on this a lot during the next months. I did my best to create an internal structure that is a good foundation for further development. I think the project would especially benefit from development regarding the threading system, better convenience GUI widgets, even more flow designs and stuff like that.
+
+For discussing general ideas, notice there is a *Discussions* area.

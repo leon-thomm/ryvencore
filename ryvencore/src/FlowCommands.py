@@ -359,15 +359,6 @@ class Paste_Command(FlowUndoCommand):
         else:
             self.add_existing_components()
 
-        self.flow_view.clear_selection()
-        for d in self.pasted_components['drawings']:
-            d: DrawingObject
-            d.setSelected(True)
-        for n in self.pasted_components['nodes']:
-            n: NodeItem
-            ni: NodeItem = self.flow_view.node_items[n]
-            ni.setSelected(True)
-
     def undo_(self):
         # remove components and their items from flow
         for n in self.pasted_components['nodes']:
@@ -386,6 +377,19 @@ class Paste_Command(FlowUndoCommand):
         for d in self.pasted_components['drawings']:
             self.flow_view.add_drawing(d)
 
+        self.select_new_components_in_view()
+
+    def select_new_components_in_view(self):
+        self.flow_view.clear_selection()
+        for d in self.pasted_components['drawings']:
+            d: DrawingObject
+            d.setSelected(True)
+        for n in self.pasted_components['nodes']:
+            n: NodeItem
+            ni: NodeItem = self.flow_view.node_items[n]
+            ni.setSelected(True)
+
+
 
 
     def nodes_created(self, nodes):
@@ -397,7 +401,8 @@ class Paste_Command(FlowUndoCommand):
         self.disconnect_from_flow()
         self.pasted_components['connections'] = connections
 
-        self.create_drawings()
+        # self.create_drawings()
+        self.select_new_components_in_view()
 
     def create_drawings(self):
         drawings = []

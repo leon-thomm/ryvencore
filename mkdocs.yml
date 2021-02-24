@@ -12,7 +12,8 @@ nav:
   - Welcome: index.md
   - Getting Started: getting_started.md
   - Features: features.md
-  - Convenience GUI: conv_gui.md
+  - GUI: gui.md
+  - Threading: threading.md
   - API Reference: api.md
 
 markdown_extensions:

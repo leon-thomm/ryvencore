@@ -9,7 +9,7 @@ class SessionThreadingBridge(QObject):
     in the main thread in threaded applications.
     """
 
-    @staticmethod
-    def script_request__create_flow_view(script, params):
+    # @staticmethod
+    def script_request__create_flow_view(self, script, params):
         view = FlowView(*params)
         script.tmp_data = view
