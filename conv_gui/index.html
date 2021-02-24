@@ -275,10 +275,52 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#writing-your-own-gui" class="md-nav__link">
+    Writing your own GUI
+  </a>
+  
+    <nav class="md-nav" aria-label="Writing your own GUI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#main-widget" class="md-nav__link">
+    Main Widget
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-widget" class="md-nav__link">
+    Input Widget
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../threading/" class="md-nav__link">
+        Threading
+      </a>
     </li>
   
 
@@ -350,6 +392,33 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#writing-your-own-gui" class="md-nav__link">
+    Writing your own GUI
+  </a>
+  
+    <nav class="md-nav" aria-label="Writing your own GUI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#main-widget" class="md-nav__link">
+    Main Widget
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-widget" class="md-nav__link">
+    Input Widget
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -378,6 +447,37 @@
 </ul>
 <p>For styling those, refer to thir classes <code>RCIW_BUILTIN_LineEdit</code>, <code>RCIW_BUILTIN_SpinBox</code>.</p>
 <p>I really would like to add many more widgets to this list in the future.</p>
+<h2 id="writing-your-own-gui">Writing your own GUI</h2>
+<p>All custom widgets must be QWidgets and subclass one of ryvencore's widget base classes. Both classes have similar functionality for serialization and loading as <code>Node</code>. They have methods <code>get_data() -&gt; dict</code> and <code>set_data(data: dict)</code> (and also a <code>remove_event()</code> right now) to subclass.</p>
+<h3 id="main-widget">Main Widget</h3>
+<p>A main widget must additionally subclass ryvencore's <code>MWB</code> (MainWidgetBase) class.</p>
+<details class="note"><summary>Example</summary><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">ryvencore</span> <span class="k">as</span> <span class="nn">rc</span>
+
+
+<span class="k">class</span> <span class="nc">MyMainWidget</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">MWB</span><span class="p">,</span> <span class="n">QPushButton</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="n">rc</span><span class="o">.</span><span class="n">MWB</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="n">QPushButton</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># then do your stuff like</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">update</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+</details>
+<p>After <code>rc.MWB.__init__(self, params)</code>, you have access to the node object via <code>self.node</code>. A custom main widget class must be referenced in the node's class definition in <code>Node.main_widget_class</code>.</p>
+<h3 id="input-widget">Input Widget</h3>
+<p>An input widget must additionally subclass ryvencore's <code>IWB</code> (InputWidgetBase) class. The initialization process is exactly the same as with <code>MWB</code> shown in the example above. After the <code>IWB</code> constructor the refs <code>self.node</code> to the node object and <code>self.input</code> for the node's input port object which contains the widget are available. Custom input widget classes, together with the names that should be used to refer to them node internally, must be referenced in the node's class definition in <code>Node.input_widget_classes</code>.</p>
                 
               
               
@@ -411,13 +511,13 @@
           </a>
         
         
-          <a href="../api/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../threading/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-footer-nav__title">
               <div class="md-ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                API Reference
+                Threading
               </div>
             </div>
             <div class="md-footer-nav__button md-icon">
