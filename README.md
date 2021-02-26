@@ -98,8 +98,18 @@ if __name__ == "__main__":
 
 I am excited about this, biggest room for improvement currently regards convenience GUI classes and touch support. For a more detailed overview visit the [docs page](https://leon-thomm.github.io/ryvencore/).
 
+### Future
+
+#### Qt Dependency
+
+ryvencore could probably easily be modified to run without any GUI (it probably only needs a simple dummy `FlowView` class for `Script`). However, all the abstract internal components are QObjects to use Qt's signals and slots system, which is really nice when embedding a ryvencore editor into another Qt application. However, it means that the abstract components are not Qt independent. And it might make much more sense to soon introduce another system for simple communication that does not depend on Qt.
+
+#### Code Generation
+
+I already made a working code generation prototype for Ryven 2. For Ryven 3 I made a new one, which currently has a (quite solvable) issue in the recursive module import when loading modules that are part of the current package (see this). For ryvencore, it might be possible to add the code generation algorithm for use under a few conditions regarding the file structure of the nodes that are used. In the end this, however, will probably also depend on how the *Qt Dependency* thing described above will evolve.
+
 ### Contributing
 
-Contributions are *very* welcome. Due to my study, I myself will not have the time to work on this a lot during the next months. I did my best to create an internal structure that is a good foundation for further development. I think the project would especially benefit from development regarding the threading system, better convenience GUI widgets, even more flow designs and stuff like that.
+Contributions are very welcome. Due to my study, I myself will not have the time to work on this a lot during the next months. I did my best to create an internal structure that is a good foundation for further development.
 
 For discussing general ideas, notice there is a *Discussions* area.
