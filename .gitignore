@@ -1,7 +1,7 @@
 .idea/
 __pycache__/
 venv/
-
+build/
 dist/
 ryvencore.egg-info/
 site/

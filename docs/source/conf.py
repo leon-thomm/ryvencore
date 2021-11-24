@@ -35,6 +35,7 @@ version = release
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
+    'sphinx.ext.githubpages'
 ]
 
 add_module_names = False
