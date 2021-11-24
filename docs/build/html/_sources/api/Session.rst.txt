@@ -1,0 +1,7 @@
+Session
+===================
+
+The `Session` is the topmost interface object to a project.
+
+.. autoclass:: ryvencore.Session
+   :members:
