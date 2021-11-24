@@ -6,6 +6,8 @@ other environments.
 This list may grow significantly over time.
 """
 
+from typing import List as t_List, Dict as t_Dict
+
 
 class DType:
     def __init__(self, default, bounds: tuple = None, doc: str = "", _load_state=None):
@@ -89,14 +91,14 @@ class String(DType):
 
 
 class Choice(DType):
-    def __init__(self, default=None, items: list = [], doc: str = "", _load_state=None):
+    def __init__(self, default=None, items: t_List = [], doc: str = "", _load_state=None):
         self.items = items
         super().__init__(default=default, doc=doc, _load_state=_load_state)
         self.add_data('items')
 
 
 class List(DType):
-    def __init__(self, default: list = [], doc: str = "", _load_state=None):
+    def __init__(self, default: t_List = [], doc: str = "", _load_state=None):
         super().__init__(default=default, doc=doc, _load_state=_load_state)
 
 

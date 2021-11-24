@@ -5,6 +5,7 @@ from .Node import Node
 from .NodePort import NodePort
 from .RC import FlowAlg, PortObjPos
 from .utils import node_from_identifier
+from typing import List, Dict, Optional
 
 
 class Flow(Base):
@@ -77,7 +78,7 @@ class Flow(Base):
             node.block_updates = False
 
 
-    def create_nodes_from_data(self, nodes_data: list):
+    def create_nodes_from_data(self, nodes_data: List):
         """Creates Nodes from nodes_data, previously returned by data()"""
 
         nodes = []
@@ -139,7 +140,7 @@ class Flow(Base):
         self.node_removed.emit(node)
 
 
-    def connect_nodes_from_data(self, nodes: [Node], data: list):
+    def connect_nodes_from_data(self, nodes: List[Node], data: List):
         connections = []
 
         for c in data:
@@ -299,11 +300,11 @@ class Flow(Base):
         }
 
 
-    def gen_nodes_data(self, nodes: [Node]) -> [dict]:
+    def gen_nodes_data(self, nodes: List[Node]) -> List[dict]:
         return [n.data() for n in nodes]
 
 
-    def gen_conns_data(self, nodes: [Node]) -> [dict]:
+    def gen_conns_data(self, nodes: List[Node]) -> List[dict]:
         # notice that this is intentionally not part of Connection, because connection data
         # is generated always for a specific set of nodes (like all currently selected ones)
         # and the data dict therefore has the refer to the indices of the nodes in the nodes list

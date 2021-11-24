@@ -2,6 +2,7 @@
 
 import base64
 import pickle
+from typing import List
 
 
 def serialize(data) -> str:
@@ -12,7 +13,7 @@ def deserialize(data):
     return pickle.loads(base64.b64decode(data))
 
 
-def node_from_identifier(identifier: str, nodes: list):
+def node_from_identifier(identifier: str, nodes: List):
 
     for nc in nodes:
         if nc.identifier == identifier:

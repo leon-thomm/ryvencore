@@ -1,5 +1,6 @@
 import logging
 import traceback
+from typing import List, Dict
 
 from . import FlowAlg
 from .Base import Base
@@ -17,19 +18,32 @@ class Node(Base):
     Base class for all node blueprints. Such a blueprint is made by subclassing this class and registering that subclass
     in the session. Actual node objects are instances of it. The node's static properties are static attributes,
     which works really well in Python.
+
+    Attributes:
+        static title: the node's title
+        static type_: conditional type field
+        static tags: a list of tag strings, usually for searching
+        static version: version tag, use it!
+        static init_inputs: initial inputs list. the type BP in NodeInputBP stands for 'blueprint', as they only
+            serve as containers, the actual input objects will be created later
+        static init_outputs: initial outputs list, see init_inputs
+        static identifier: unique node identifier string. if not given, the session will set it to the class name
+            on register
+        static identifier_comp: a list of compatible identifiers, useful if you change the class name (and hence
+            the identifier) to provide backward compatibility to older projects
     """
 
     title = ''
     type_ = ''
-    tags: [str] = []
+    tags: List[str] = []
     version: str = None  # None means `undefined` and should be avoided
     visible: bool = True  # useful field for frontends to indicate invisible nodes which cannot be manually placed
     
-    init_inputs: [NodeInputBP] = []
-    init_outputs: [NodeOutputBP] = []
+    init_inputs: List[NodeInputBP] = []
+    init_outputs: List[NodeOutputBP] = []
 
     identifier: str = None  # set by Session if None
-    identifier_comp: [str] = []  # identifier (backwards) compatibility, useful when node class name changes
+    identifier_comp: List[str] = []  # identifier (backwards) compatibility, useful when node class name changes
     identifier_prefix: str = None  # becomes part of identifier if set, often useful
 
     """
@@ -58,8 +72,8 @@ class Node(Base):
 
         self.flow, self.session, self.init_data = params
         self.script = self.flow.script
-        self.inputs: [NodeInput] = []
-        self.outputs: [NodeOutput] = []
+        self.inputs: List[NodeInput] = []
+        self.outputs: List[NodeOutput] = []
         self.loggers = []
 
         self.initialized = False

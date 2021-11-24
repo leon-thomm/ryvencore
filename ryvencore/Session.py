@@ -5,6 +5,8 @@ from .Script import Script
 from .InfoMsgs import InfoMsgs
 from .Node import Node
 
+from typing import List, Dict
+
 
 class Session(Base):
     """
@@ -74,7 +76,7 @@ class Session(Base):
     #         self.CLASSES['flow'] = Flow
 
 
-    def register_nodes(self, node_classes: list):
+    def register_nodes(self, node_classes: List):
         """Registers a list of Nodes which you then can access in all scripts"""
 
         for n in node_classes:
@@ -97,7 +99,7 @@ class Session(Base):
         self.nodes.remove(node_class)
 
 
-    def all_node_objects(self) -> list:
+    def all_node_objects(self) -> List:
         """Returns a list containing all Node objects used in any flow which is useful for advanced project analysis"""
 
         nodes = []
@@ -166,7 +168,7 @@ class Session(Base):
         return InfoMsgs
 
 
-    def load(self, project: dict) -> [Script]:
+    def load(self, project: Dict) -> List[Script]:
         """Loads a project and raises an exception if required nodes are missing"""
 
         if 'scripts' not in project:
