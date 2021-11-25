@@ -5,7 +5,7 @@
 
 Python backend for graph-based processing, designed for flow-based/node-based visual scripting editors. It is the backbone of the [Ryven](https://github.com/leon-thomm/Ryven) project but it can be used for other applications as well.
 
-If you are not already familiar with flow-based visual scripting and are looking for a specification, see [docs]().
+If you are not already familiar with flow-based visual scripting and are looking for a specification, see the docs of [ryvencore-qt](https://leon-thomm.github.io/ryvencore-qt/#/features) (I will move this here soon).
 
 ### Installation
 
@@ -63,8 +63,6 @@ if __name__ == '__main__':
 
 ### Main Features
 
-`ryvencore` is rather small but already does some work for you
-
 - **load & save**
 - **variables system** with registration mechanism to build nodes that automatically adapt to change of data
 - **built in logging**
@@ -73,4 +71,4 @@ if __name__ == '__main__':
 - **actions system for nodes**
 - **data *and* exec flow support**
 
-For a more detailed overview, see the [docs]().
+For a more detailed overview, see the [docs](https://leon-thomm.github.io/ryvencore-qt/#/features).
