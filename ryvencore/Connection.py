@@ -9,22 +9,22 @@ class Connection(Base):
     port to some connected input port.
     """
 
-    activated = Event()
+    activated = Event(object)
 
     def __init__(self, params):
         Base.__init__(self)
 
         self.out, self.inp, self.flow = params
 
-    def activate(self):
+    def activate(self, data=None):
         """Causes forward propagation of information"""
 
-        self.activated.emit()
+        self.activated.emit(data)
 
 
 class ExecConnection(Connection):
 
-    def activate(self):
+    def activate(self, data=None):
         """Causes an update in the input port"""
         InfoMsgs.write('exec connection activated')
         super().activate()
@@ -51,7 +51,7 @@ class DataConnection(Connection):
     def activate(self, data=None):
         """Passes data to the input port and causes update"""
         InfoMsgs.write('data connection activated')
-        super().activate()
+        super().activate(data)
 
         # store data
         self.data = data

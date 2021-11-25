@@ -26,7 +26,8 @@ class LogsManager(Base):
             self.default_loggers[name] = self.new_logger(title=name.title())
 
     def new_logger(self, title: str) -> Logger:
-        logger = self.session.CLASSES['logger'](name=title)
+        # logger = self.session.CLASSES['logger'](name=title)
+        logger = Logger(name=title)
         self.loggers.append(logger)
         self.new_logger_created.emit(logger)
         return logger

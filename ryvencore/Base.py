@@ -19,7 +19,7 @@ class Event:
 
     def emit(self, *args):
         for cb in self._slots:
-            cb(args)
+            cb(*args)
 
 
 class Base:

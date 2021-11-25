@@ -11,6 +11,9 @@ class Logger(Base, PyLogger):
     sig_enabled = Event()
     sig_disabled = Event()
 
+    def __init__(self, *args, **kwargs):
+        Base.__init__(self)
+        PyLogger.__init__(self, *args, **kwargs)
 
     def enable(self):
         self.sig_enabled.emit()

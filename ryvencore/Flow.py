@@ -1,5 +1,5 @@
 from .Base import Base, Event
-from .Connection import Connection
+from .Connection import Connection, DataConnection, ExecConnection
 from .FlowExecutor import DataFlowOptimized, FlowExecutor
 from .Node import Node
 from .NodePort import NodePort
@@ -133,7 +133,7 @@ class Flow(Base):
 
         node.prepare_removal()
         self.nodes.remove(node)
-        del self.node_successors[node]
+        # del self.node_successors[node]
         self.flow_changed()
 
         # self.emit_event('node removed', (node,))    # ALPHA
@@ -196,8 +196,11 @@ class Flow(Base):
                 self.remove_connection(c)
                 return None
 
-        c = self.session.CLASSES['data conn']((out, inp, self)) if out.type_ == 'data' else \
-            self.session.CLASSES['exec conn']((out, inp, self))
+        # c = self.session.CLASSES['data conn']((out, inp, self)) if out.type_ == 'data' else \
+        #     self.session.CLASSES['exec conn']((out, inp, self))
+        c = DataConnection((out, inp, self)) if out.type_ == 'data' else \
+            ExecConnection((out, inp, self))
+
         self.add_connection(c)
 
         return c
@@ -268,7 +271,7 @@ class Flow(Base):
     def flow_changed(self):
         self.executor_data_opt.flow_changed = True
 
-        self.emit_event('changed')    # ALPHA
+        # self.emit_event('changed')    # ALPHA
 
 
     # def on(self, event_type: str, func) -> bool:    # ALPHA

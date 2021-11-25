@@ -1,4 +1,7 @@
 from .Base import Base
+from .logging import LogsManager
+from .script_variables import VarsManager
+from .Flow import Flow
 
 
 class Script(Base):
@@ -28,13 +31,16 @@ class Script(Base):
             self.init_vars_manager_data = load_data['variables']
 
         # logging
-        self.logs_manager = self.session.CLASSES['logs manager'](self, self._create_default_logs)
+        # self.logs_manager = self.session.CLASSES['logs manager'](self, self._create_default_logs)
+        self.logs_manager = LogsManager(self, self._create_default_logs)
 
         # vars manager
-        self.vars_manager = self.session.CLASSES['vars manager'](self, self.init_vars_manager_data)
+        # self.vars_manager = self.session.CLASSES['vars manager'](self, self.init_vars_manager_data)
+        self.vars_manager = VarsManager(self, self.init_vars_manager_data)
 
         # flow
-        self.flow = self.session.CLASSES['flow'](self.session, self)
+        # self.flow = self.session.CLASSES['flow'](self.session, self)
+        self.flow = Flow(self.session, self)
 
 
     def load_flow(self):
