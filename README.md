@@ -3,7 +3,7 @@
   <img src="./docs/img/logo.png" alt="drawing" width="70%"/>
 </p>
 
-Python backend for graph-based processing, designed for flow-based/node-based visual scripting editors. It is the backbone of the [Ryven](https://github.com/leon-thomm/Ryven) project but it can be used for other applications as well.
+Python backend for graph-based processing, designed for flow-based/node-based visual scripting editors. It is the backbone of the [Ryven](https://github.com/leon-thomm/Ryven) project, but it can be used for other applications as well.
 
 If you are not already familiar with flow-based visual scripting and are looking for a specification, see the docs of [ryvencore-qt](https://leon-thomm.github.io/ryvencore-qt/#/features) (I will move this here soon).
 
@@ -41,10 +41,10 @@ if __name__ == '__main__':
         sys.exit('please provide a project file path')
     fpath = sys.argv[1]
     try:
-        f = open(sys.argv[1])
+        f = open(fpath)
         f.close()
     except FileNotFoundError:
-        sys.exit('could not open file '+fpath)
+        sys.exit(f'could not open file {fpath}')
     
     # read project file
     with open(fpath, 'r') as f:
@@ -60,6 +60,8 @@ if __name__ == '__main__':
     my_node = flow1.nodes[-1]
     my_node.update()
 ```
+
+You can also use `ryvencore` for other purposes. A mostly auto-generated documentation is available [here](https://leon-thomm.github.io/ryvencore/).
 
 ### Main Features
 
