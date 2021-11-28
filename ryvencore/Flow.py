@@ -44,16 +44,6 @@ class Flow(Base):
         #   additional data structures for executors
         self.node_successors = {}
 
-        # #   ALPHA!
-        # # custom event handling
-        # self.event_receivers = {
-        #     'changed': [],
-        #     'connection added': [],
-        #     'connection removed': [],
-        #     'node added': [],
-        #     'node removed': [],
-        # }
-
 
     def load(self, data):
         """Loading a flow from data"""
@@ -275,28 +265,6 @@ class Flow(Base):
     def flow_changed(self):
         self.executor_data_opt.flow_changed = True
 
-        # self.emit_event('changed')    # ALPHA
-
-
-    # def on(self, event_type: str, func) -> bool:    # ALPHA
-    #     if event_type not in list(self.event_receivers.keys()):
-    #         return False
-    #     self.event_receivers[event_type].append(func)
-    #     return True
-    #
-    # def off(self, event_type: str, func) -> bool:    # ALPHA
-    #     if event_type not in list(self.event_receivers.keys()):
-    #         return False
-    #     if func not in self.event_receivers[event_type]:
-    #         return False
-    #     self.event_receivers[event_type].remove(func)
-    #     return True
-    #
-    # def emit_event(self, event_type: str, params: tuple = ()):    # ALPHA
-    #     # notice: don't rename this to `event` as it weirdly causes it to be called when emitting Qt events of the flow
-    #     for func in self.event_receivers[event_type]:
-    #         func(*params)
-
 
     def data(self) -> dict:
         return {
@@ -308,10 +276,14 @@ class Flow(Base):
 
 
     def gen_nodes_data(self, nodes: List[Node]) -> List[dict]:
+        """Returns the data dicts of the nodes given"""
+
         return [n.data() for n in nodes]
 
 
     def gen_conns_data(self, nodes: List[Node]) -> List[dict]:
+        """Generates the connections data between and relative to the nodes passed"""
+
         # notice that this is intentionally not part of Connection, because connection data
         # is generated always for a specific set of nodes (like all currently selected ones)
         # and the data dict therefore has the refer to the indices of the nodes in the nodes list

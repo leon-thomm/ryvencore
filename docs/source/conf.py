@@ -15,7 +15,7 @@ import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
 from ryvencore import *
-from ryvencore import VERSION as RC_VERSION
+from importlib.metadata import metadata
 
 # -- Project information -----------------------------------------------------
 
@@ -24,7 +24,7 @@ copyright = '2021, Leon Thomm'
 author = 'Leon Thomm'
 
 # The full version, including alpha/beta/rc tags
-release = f'{RC_VERSION}'
+release = f"v{ metadata('ryvencore')['version'] }"
 version = release
 
 # -- General configuration ---------------------------------------------------

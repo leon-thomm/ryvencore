@@ -5,7 +5,7 @@ from .Flow import Flow
 
 
 class Script(Base):
-    """A Script consists of a Flow, the corresponding FlowView, a variables manager and a logger."""
+    """A Script consists of a Flow, a VarsManager and a Logger object."""
 
     def __init__(self, session, title: str = None, load_data: dict = None, create_default_logs=True):
         Base.__init__(self)
@@ -25,21 +25,18 @@ class Script(Base):
         self.init_flow_data = None
         self.init_vars_manager_data = None
 
-        # saving data
+        # loading from saved data
         if load_data:
             self.init_flow_data = load_data['flow'] if load_data else None
             self.init_vars_manager_data = load_data['variables']
 
         # logging
-        # self.logs_manager = self.session.CLASSES['logs manager'](self, self._create_default_logs)
         self.logs_manager = LogsManager(self, self._create_default_logs)
 
         # vars manager
-        # self.vars_manager = self.session.CLASSES['vars manager'](self, self.init_vars_manager_data)
         self.vars_manager = VarsManager(self, self.init_vars_manager_data)
 
         # flow
-        # self.flow = self.session.CLASSES['flow'](self.session, self)
         self.flow = Flow(self.session, self)
 
 

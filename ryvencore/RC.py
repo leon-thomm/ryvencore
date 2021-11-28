@@ -4,7 +4,7 @@ from enum import IntEnum
 
 
 class FlowAlg(IntEnum):
-    """Used for performance"""
+    """Used for performance reasons"""
 
     DATA = 1
     EXEC = 2
@@ -36,7 +36,7 @@ class FlowAlg(IntEnum):
 
 
 class PortObjPos(IntEnum):
-    """Used for performance"""
+    """Used for performance reasons"""
 
     INPUT = 1
     OUTPUT = 2

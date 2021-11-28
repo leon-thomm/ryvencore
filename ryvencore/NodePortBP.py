@@ -3,7 +3,7 @@ from .dtypes import DType
 # TODO: make this a dataclass
 class NodePortBP:
     """
-    The NodePortBPs (NodeInputs and NodeOutputs) are only placeholders (BluePrints) for the static init_input and
+    The NodePortBP classes are only placeholders (BP = BluePrint) for the static init_input and
     init_outputs of custom Node classes.
     An instantiated Node's actual inputs and outputs will be of type NodeObjPort (NodeObjInput, NodeObjOutput).
     """

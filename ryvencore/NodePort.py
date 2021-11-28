@@ -7,7 +7,7 @@ from .InfoMsgs import InfoMsgs
 
 
 class NodePort(Base):
-    """The base class for inputs and outputs of nodes with basic functionality."""
+    """Base class for inputs and outputs of nodes"""
 
     def __init__(self, node, io_pos, type_, label_str):
         Base.__init__(self)
@@ -18,7 +18,6 @@ class NodePort(Base):
         self.type_ = type_
         self.label_str = label_str
         self.connections = []
-
 
     def get_val(self):
         pass

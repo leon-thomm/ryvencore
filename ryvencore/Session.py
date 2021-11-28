@@ -3,21 +3,19 @@ from .Base import Base, Event
 
 from .Script import Script
 from .InfoMsgs import InfoMsgs
-from .Node import Node
 
 from typing import List, Dict
 
 
 class Session(Base):
     """
-    The Session is the top level interface to an editor, it represents a project and manages all project-wide
-    components.
+    The Session is the top level interface to your project. It mainly manages Scripts and registered nodes, and
+    provides methods for serialization and deserialization of the project.
     """
 
     def __init__(
             self,
             gui: bool = False,
-            # custom_classes: dict = None,
     ):
         Base.__init__(self)
 
@@ -25,13 +23,6 @@ class Session(Base):
         self.new_script_created = Event(Script)
         self.script_renamed = Event(Script)
         self.script_deleted = Event(Script)
-
-        # if custom_classes is None:
-        #     custom_classes = {}
-        #
-        # # registry for custom class implementations
-        # self.CLASSES = custom_classes
-        # self.register_default_classes()
 
         # ATTRIBUTES
         self.scripts: [Script] = []
@@ -41,51 +32,15 @@ class Session(Base):
         self.init_data = None
 
 
-    # def register_default_classes(self):
-    #     """
-    #     Registers the default ryvencore-internal implementations of all exposed classes that COULD have been
-    #     extended externally, in which case it won't set the class.
-    #     So, if the a class like Node was extended externally, CLASSES['node base'] will be set to this custom Node
-    #     class, so we leave it as it is then.
-    #     """
-    #
-    #     if 'node base' not in self.CLASSES:
-    #         self.CLASSES['node base'] = Node
-    #
-    #     if 'data conn' not in self.CLASSES:
-    #         from .Connection import DataConnection
-    #         self.CLASSES['data conn'] = DataConnection
-    #
-    #     if 'exec conn' not in self.CLASSES:
-    #         from .Connection import ExecConnection
-    #         self.CLASSES['exec conn'] = ExecConnection
-    #
-    #     if 'logs manager' not in self.CLASSES:
-    #         from .logging import LogsManager
-    #         self.CLASSES['logs manager'] = LogsManager
-    #
-    #     if 'logger' not in self.CLASSES:
-    #         from .logging import Logger
-    #         self.CLASSES['logger'] = Logger
-    #
-    #     if 'vars manager' not in self.CLASSES:
-    #         from .script_variables import VarsManager
-    #         self.CLASSES['vars manager'] = VarsManager
-    #
-    #     if 'flow' not in self.CLASSES:
-    #         from .Flow import Flow
-    #         self.CLASSES['flow'] = Flow
-
-
     def register_nodes(self, node_classes: List):
-        """Registers a list of Nodes which you then can access in all scripts"""
+        """Registers a list of Nodes which then become available in the flows"""
 
         for n in node_classes:
             self.register_node(n)
 
 
     def register_node(self, node_class):
-        """Registers a Node which then can be accessed in all scripts"""
+        """Registers a single Node which then becomes available in the flows"""
 
         # build node class identifier
         node_class.build_identifier()
@@ -101,7 +56,7 @@ class Session(Base):
 
 
     def all_node_objects(self) -> List:
-        """Returns a list containing all Node objects used in any flow which is useful for advanced project analysis"""
+        """Returns a list of all Node objects instantiated in any flow"""
 
         nodes = []
         for s in self.scripts:
@@ -111,8 +66,7 @@ class Session(Base):
 
 
     def create_script(self, title: str = None, create_default_logs=True,
-                      data: dict = None) -> Script:
-
+                      data: Dict = None) -> Script:
         """Creates and returns a new script.
         If data is provided the title parameter will be ignored."""
 
@@ -130,7 +84,7 @@ class Session(Base):
 
 
     def rename_script(self, script: Script, title: str) -> bool:
-        """Renames an existing script"""
+        """Renames an existing script and returns success boolean"""
 
         success = False
 

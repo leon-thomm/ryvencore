@@ -8,6 +8,3 @@ from .Node import Node
 from .NodePortBP import NodeInputBP, NodeOutputBP
 from .Connection import DataConnection, ExecConnection
 from .utils import serialize, deserialize
-
-from .pkg_info import __version__ as VERSION
-from .pkg_info import __license__ as LICENSE
