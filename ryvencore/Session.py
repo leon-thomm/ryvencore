@@ -14,16 +14,17 @@ class Session(Base):
     components.
     """
 
-    new_script_created = Event(Script)
-    script_renamed = Event(Script)
-    script_deleted = Event(Script)
-
     def __init__(
             self,
             gui: bool = False,
             # custom_classes: dict = None,
     ):
         Base.__init__(self)
+
+        # events
+        self.new_script_created = Event(Script)
+        self.script_renamed = Event(Script)
+        self.script_deleted = Event(Script)
 
         # if custom_classes is None:
         #     custom_classes = {}

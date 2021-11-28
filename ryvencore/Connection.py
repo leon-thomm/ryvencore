@@ -9,10 +9,10 @@ class Connection(Base):
     port to some connected input port.
     """
 
-    activated = Event(object)
-
     def __init__(self, params):
         Base.__init__(self)
+
+        self.activated = Event(object)
 
         self.out, self.inp, self.flow = params
 

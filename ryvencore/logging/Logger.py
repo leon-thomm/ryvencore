@@ -8,12 +8,13 @@ class Logger(Base, PyLogger):
     Reimplemented as wrapper by the frontend with according implementations of the below methods.
     """
 
-    sig_enabled = Event()
-    sig_disabled = Event()
-
     def __init__(self, *args, **kwargs):
         Base.__init__(self)
         PyLogger.__init__(self, *args, **kwargs)
+
+        # events
+        self.sig_enabled = Event()
+        self.sig_disabled = Event()
 
     def enable(self):
         self.sig_enabled.emit()

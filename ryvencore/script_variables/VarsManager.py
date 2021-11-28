@@ -6,12 +6,14 @@ from ..InfoMsgs import InfoMsgs
 class VarsManager(Base):
     """Manages script variables and triggers receivers when values of variables change"""
 
-    new_var_created = Event(Variable)
-    var_deleted = Event(Variable)
-    var_val_changed = Event(Variable, object)
-
     def __init__(self, script, load_data=None):
         Base.__init__(self)
+
+        # events
+        self.new_var_created = Event(Variable)
+        self.var_deleted = Event(Variable)
+        self.var_val_changed = Event(Variable, object)
+
 
         self.script = script
         self.variables: [Variable] = []

@@ -13,20 +13,22 @@ class Flow(Base):
     Manages all abstract flow components (nodes, connections) and includes implementations for editing.
     """
 
-    node_added = Event(Node)
-    node_removed = Event(Node)
-    connection_added = Event(Connection)
-    connection_removed = Event(Connection)
-
-    connection_request_valid = Event(bool)
-    nodes_created_from_data = Event(list)
-    connections_created_from_data = Event(list)
-
-    algorithm_mode_changed = Event(str)
-
     def __init__(self, session, script):
         Base.__init__(self)
 
+        # events
+        self.node_added = Event(Node)
+        self.node_removed = Event(Node)
+        self.connection_added = Event(Connection)
+        self.connection_removed = Event(Connection)
+
+        self.connection_request_valid = Event(bool)
+        self.nodes_created_from_data = Event(list)
+        self.connections_created_from_data = Event(list)
+
+        self.algorithm_mode_changed = Event(str)
+
+        # general attributes
         self.session = session
         self.script = script
         self.nodes: [Node] = []

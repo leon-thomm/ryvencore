@@ -5,10 +5,11 @@ from .Logger import Logger
 class LogsManager(Base):
     """Manages all logs/loggers that belong to the script."""
 
-    new_logger_created = Event(Logger)
-
     def __init__(self, script, create_default_logs=True):
         Base.__init__(self)
+
+        # events
+        self.new_logger_created = Event(Logger)
 
         self.script = script
         self.session = self.script.session
