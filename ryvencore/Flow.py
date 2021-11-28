@@ -62,6 +62,8 @@ class Flow(Base):
         mode = data['algorithm mode']
         if mode == 'data' or mode == 'data flow':
             self.set_algorithm_mode('data')
+        elif mode == 'data opt':
+            self.set_algorithm_mode('data opt')
         elif mode == 'exec' or mode == 'exec flow':
             self.set_algorithm_mode('exec')
 
