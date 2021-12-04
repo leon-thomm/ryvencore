@@ -24,7 +24,7 @@ pip install .
 
 None! `ryvencore` runs completely on standard python modules, no additional libraries required, which makes it very compatible.
 
-*I am therefore thinking about extending the implementation to compile with Cython. While the overhead produced by the internal graph representation compared to only executing python code specified in the nodes' `update_event` does not dominate, efficient Cython support might lead to speedup of another ~20%-40%.*
+<!-- *I am therefore thinking about extending the implementation to compile with Cython. While the overhead produced by the internal graph representation compared to only executing python code specified in the nodes' `update_event` does not dominate, efficient Cython support might lead to speedup of another ~20%-40%.* -->
 
 ### Usage
 
