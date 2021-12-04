@@ -13,7 +13,7 @@ If you are not already familiar with flow-based visual scripting and are looking
 pip install ryvencore
 ```
 
-from sources:
+or from sources:
 ```
 git clone https://github.com/leon-thomm/ryvencore
 cd ryvencore
@@ -65,12 +65,12 @@ You can also use `ryvencore` for other purposes. A mostly auto-generated documen
 
 ### Main Features
 
-- **load & save**
+- **load & save** into and from JSON-compatible dictionaries
 - **variables system** with registration mechanism to build nodes that automatically adapt to change of data
-- **built in logging**
-- **simple nodes system**
+- **built in logging** based on python's `logging` module
+- **powerful nodes system** which lets you do anything, simple and unrestricted
 - **dynamic nodes registration mechanism** to register and unregister nodes at runtime
 - **actions system for nodes**
-- **data *and* exec flow support**
+- **data *and* exec flow support** - unlike lots of other solutions out there, ryvencore supports exec flows
 
 For a more detailed overview, see the [docs](https://leon-thomm.github.io/ryvencore-qt/#/features).
