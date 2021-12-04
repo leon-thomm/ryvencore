@@ -5,7 +5,7 @@
 
 Python backend for graph-based processing, designed for flow-based/node-based visual scripting editors. It is the backbone of the [Ryven](https://github.com/leon-thomm/Ryven) project, but it can be used for other applications as well.
 
-If you are not already familiar with flow-based visual scripting and are looking for a specification, see the docs of [ryvencore-qt](https://leon-thomm.github.io/ryvencore-qt/#/features) (I will move this here soon).
+If you are not already familiar with flow-based visual scripting and are looking for a specification, see [here](https://leon-thomm.github.io/ryvencore-qt/#/features) (I will move this somewhere here soon).
 
 ### Installation
 
@@ -22,13 +22,13 @@ pip install .
 
 ### Dependencies
 
-None! `ryvencore` runs completely on standard python modules, no additional libraries required, which makes it very compatible.
+None! ryvencore runs completely on standard python modules, no additional libraries required, which makes it very compatible.
 
 <!-- *I am therefore thinking about extending the implementation to compile with Cython. While the overhead produced by the internal graph representation compared to only executing python code specified in the nodes' `update_event` does not dominate, efficient Cython support might lead to speedup of another ~20%-40%.* -->
 
 ### Usage
 
-Using `ryvencore` directly to run projects made with `ryvencore`-based editors, the following code example gives some intuition about the process:
+Using ryvencore directly to run projects made with ryvencore-based editors, the following code example gives some intuition about the process:
 
 ```python
 import ryvencore as rc
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     my_node.update()
 ```
 
-You can also use `ryvencore` for other purposes. A mostly auto-generated documentation is available [here](https://leon-thomm.github.io/ryvencore/).
+You can also use it for other purposes. A mostly auto-generated documentation is available [here](https://leon-thomm.github.io/ryvencore/).
 
 ### Main Features
 
