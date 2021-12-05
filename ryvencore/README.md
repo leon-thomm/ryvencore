@@ -9,7 +9,7 @@
 **flows**
 
 - `Flow.py` defines flows, see comments in code.
-- `Connection.py` defines connection (aka edges) between nodes. There are two types of connections for the two respective types of ports: `data` and `exec`. While usually `data` connections are more common and more general, `exec` flows (or also `exec` connection functionality in `data` flows) can make more sense in some cases.
+- `Connection.py` defines connections (aka edges) between nodes. There are two types of connections for the two respective types of ports: `data` and `exec`. While usually pure `data` flows are more common and more general, `exec` flows where you have both types of connections (or sometimes also both types but in `data` flows) can make more sense in some cases.
 - `FlowExecutor.py` defines custom flow executor classes which provide sophisticated flow execution. These algorithms target specific types of flows to provide more efficient flow execution based on those assumptions and related graph analysis.
 - `Node.py` defines nodes, see comments in code.
 - `NodePort.py` defines node ports (inputs & outputs), see comments in code.

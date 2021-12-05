@@ -126,8 +126,7 @@ class Session(Base):
     def load(self, project: Dict) -> List[Script]:
         """Loads a project and raises an exception if required nodes are missing"""
 
-        if 'scripts' not in project:
-            raise Exception('not a valid project dict')
+        # TODO: perform validity checks
 
         self.init_data = project
 

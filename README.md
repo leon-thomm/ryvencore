@@ -66,7 +66,7 @@ You can also use it for other purposes. A mostly auto-generated documentation is
 ### Main Features
 
 - **load & save** into and from JSON-compatible dictionaries
-- **variables system** with registration mechanism to build nodes that automatically adapt to change of data
+- **variables system** with update mechanism to build nodes that automatically adapt to change of data
 - **built in logging** based on python's `logging` module
 - **powerful nodes system** which lets you do anything, simple and unrestricted
 - **dynamic nodes registration mechanism** to register and unregister nodes at runtime
