@@ -5,7 +5,7 @@
 
 Python backend for graph-based processing, designed for flow-based/node-based visual scripting editors. It is the backbone of the [Ryven](https://github.com/leon-thomm/Ryven) project, but it can be used for other applications as well.
 
-If you are not already familiar with flow-based visual scripting and are looking for a specification, see [here](https://leon-thomm.github.io/ryvencore-qt/#/features) (I will move this somewhere here soon).
+If you are not already familiar with flow-based visual scripting and are looking for a specification, see [here](https://leon-thomm.github.io/ryvencore-qt/).
 
 ### Installation
 
