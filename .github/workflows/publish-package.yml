@@ -1,4 +1,4 @@
-name: Publish package distributiosn to TestPyPi and PyPi
+name: Publish package distribution to TestPyPi and PyPi
 on:
   push:
     branches:
