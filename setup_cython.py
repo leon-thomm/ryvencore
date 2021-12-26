@@ -1,15 +1,23 @@
 """
 This setup file can be used to manually compile ryvencore to a C extension using Cython, behavior should be the same.
-To compile ryvencore from sources on your system, from the top level 'ryvencore' directory run:
+
+COMPILE INSTRUCTIONS
+
+Run all commands from the top level 'ryvencore' directory, and remember to remove any old ryvencore version initially
+$ pip uninstall ryvencore
+The below instructions show how to compile the sources on your system. Note that you will need Cython and an according
+C compiler for this.
+
+    COMPILE EVERY SINGLE MODULE
 
 $ python -m setup_cython build_ext --inplace
 $ python setup_cython.py sdist bdist_wheel
 $ pip install ./dist/ryvencore-<version>-<platform>.whl
 
-remember to remove any old ryvencore version before
-$ pip uninstall ryvencore
-
-This will compile the sources on your system. note that you will need Cython and an according C compiler.
+NOTE: if you don't want to keep the source files (.py and compiled .c) in the installed package
+(only the compiled .so files), simply comment out the line
+packages = find:
+in setup.cfg.
 
 To verify that the package successfully runs from the compiled c extension modules you can check whether
 the imported ryvencore package shows the __init__.so file and not __init__.py, and you can manually remove
