@@ -27,7 +27,7 @@ and check whether you can successfully load the package from Python.
 
 
 from setuptools import setup
-from Cython.Build import cythonize
+from Cython.Build import cythonize, build_ext
 import os
 
 
@@ -53,8 +53,10 @@ def get_ext_paths(root_dir, exclude_files=[], recursive=True):
 
 
 setup(
+    cmaclass={'build_ext': build_ext},
     ext_modules=cythonize(
         get_ext_paths('ryvencore'),
-        compiler_directives={'language_level': 3}
+        compiler_directives={'language_level': 3},
+        annotate=True,
     )
 )
