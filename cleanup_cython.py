@@ -40,9 +40,9 @@ def cleanup():
 
     os.chdir(os.path.dirname(__file__))
 
-    print('UNINSTALLING RYVENCORE')
-
-    os.system('pip uninstall ryvencore --yes')
+    # print('UNINSTALLING RYVENCORE')
+    #
+    # os.system('pip uninstall ryvencore --yes')
 
     remove_files = get_generated_files('./ryvencore/')
 
