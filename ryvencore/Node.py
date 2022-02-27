@@ -196,7 +196,10 @@ class Node(Base):
             try:
                 self.update_event(inp)
             except Exception as e:
-                InfoMsgs.write_err('EXCEPTION in', self.title, '\n', traceback.format_exc())
+                self.update_error(e)
+
+    def update_error(self, e):
+        InfoMsgs.write_err('EXCEPTION in', self.title, '\n', traceback.format_exc())
 
     def input(self, index: int):
         """Returns the value of a data input.
