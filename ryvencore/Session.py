@@ -26,8 +26,8 @@ class Session(Base):
 
         # ATTRIBUTES
         self.scripts: [Script] = []
-        self.nodes = []  # list of node CLASSES
-        self.invisible_nodes = []
+        self.nodes = set()  # list of node CLASSES
+        self.invisible_nodes = set()
         self.gui: bool = gui
         self.init_data = None
 
@@ -45,7 +45,7 @@ class Session(Base):
         # build node class identifier
         node_class.build_identifier()
 
-        self.nodes.append(node_class)
+        self.nodes.add(node_class)
 
 
     def unregister_node(self, node_class):

@@ -82,7 +82,7 @@ class Flow(Base):
             # find class
             node_class = node_from_identifier(
                 n_c['identifier'],
-                self.session.nodes + self.session.invisible_nodes
+                self.session.nodes.union(self.session.invisible_nodes)
             )
 
             node = self.create_node(node_class, n_c)
