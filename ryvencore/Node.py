@@ -47,13 +47,16 @@ class Node(Base):
     identifier_prefix: str = None  # becomes part of identifier if set, often useful
 
     """
-    INITIALIZATION -----------------------------------------------------------------------------------------------------
+    
+    INITIALIZATION
+    
     """
 
     @classmethod
     def build_identifier(cls):
         """
-        sets the identifier to class name if it's not set, and adds the identifier prefix
+        Sets the identifier to the class name and prepends f"{identifier_prefix}." if
+        the identifier prefix is set.
         """
 
         prefix = ''
@@ -65,7 +68,7 @@ class Node(Base):
 
         cls.identifier = prefix + cls.identifier
 
-        # notice that we do not touch the identifier compatibility fields
+        # notice that we do not touch the legacy identifier fields
 
     def __init__(self, params):
         Base.__init__(self)
@@ -83,9 +86,15 @@ class Node(Base):
 
     def initialize(self):
         """
-        Loads all default properties from initial data if it was provided,
-        sets up inputs and outputs, enables the logs, and loads user_data (doesn't crash on exception here
-        as this is not uncommon when developing nodes).
+        This method
+
+        - loads all default properties from initial data if it was provided
+        - sets up inputs and outputs
+        - enables the logs
+        - loads user_data
+
+        It does not crash on exception when loading user_data,
+        as this is not uncommon when developing nodes.
         """
 
         # enable logs
@@ -150,11 +159,11 @@ class Node(Base):
                 else:
                     self.create_input(label=inp['label'], type_=inp['type'], add_data=inp)
 
-                if 'val' in inp:
-                    # this means the input is 'data' and did not have any connections,
-                    # so we saved its value which was probably represented by some widget
-                    # in the front end which has probably overridden the Node.input() method
-                    self.inputs[-1].val = deserialize(inp['val'])
+                # if 'val' in inp:
+                #     # this means the input is 'data' and did not have any connections,
+                #     # so we saved its value which was probably represented by some widget
+                #     # in the front end which has probably overridden the Node.input() method
+                #     self.inputs[-1].val = deserialize(inp['val'])
 
             for out in outputs_data:
                 self.create_output(out['label'], out['type'])
@@ -172,7 +181,9 @@ class Node(Base):
         self.disable_loggers()
 
     """
-    ALGORITHM ----------------------------------------------------------------------------------------------------------
+    
+    ALGORITHM
+    
     """
 
     # notice that all the below methods check whether the flow currently 'runs with an executor', which means
@@ -180,8 +191,12 @@ class Node(Base):
     # handled by the according executor
 
     def update(self, inp=-1):  # , output_called=-1):
-        """'Activates' the node, causing an update_event(); prints an exception if something crashed, but prevents
-        the application from crashing in such a case"""
+        """
+        Activates the node, causing an update_event() if block_updates is not set.
+        For performance-, simplicity-, and maintainability-reasons activation is now
+        fully handed over to the operating FlowExecutor, and not managed decentralized
+        in Node, NodePort, and Connection anymore.
+        """
 
         if self.block_updates:
             InfoMsgs.write('update blocked in', self.title, 'node')
@@ -190,45 +205,40 @@ class Node(Base):
         InfoMsgs.write('update in', self.title, 'node on input', inp)
 
         # invoke update_event
-        if self.flow.running_with_executor:
-            self.flow.executor.update_node(self, inp)
-        else:
-            try:
-                self.update_event(inp)
-            except Exception as e:
-                self.update_error(e)
+        self.flow.executor.update_node(self, inp)
 
     def update_error(self, e):
         InfoMsgs.write_err('EXCEPTION in', self.title, '\n', traceback.format_exc())
 
     def input(self, index: int):
-        """Returns the value of a data input.
-        If the input is connected, the value of the connected output is used:
-        If not, the value of the widget is used."""
+        """
+        Returns the value of a data input.
+        """
 
-        InfoMsgs.write('input called in', self.title, 'Node:', index)
+        InfoMsgs.write('input called in', self.title, ':', index)
 
-        if self.flow.running_with_executor:
-            return self.flow.executor.input(self, index)
-        else:
-            return self.inputs[index].get_val()
+        return self.flow.executor.input(self, index)
 
     def exec_output(self, index: int):
         """Executes an exec output, causing activation of all connections"""
-        if self.flow.running_with_executor:
-            self.flow.executor.exec_output(self, index)
-        else:
-            self.outputs[index].exec()
+
+        InfoMsgs.write('executing output', index, 'in:', self.title)
+
+        self.flow.executor.exec_output(self, index)
 
     def set_output_val(self, index, val):
-        """Sets the value of a data output causing activation of all connections in data mode"""
-        if self.flow.running_with_executor:
-            self.flow.executor.set_output_val(self, index, val)
-        else:
-            self.outputs[index].set_val(val)
+        """
+        Sets the value of a data output causing activation of all connections in data mode.
+        """
+
+        InfoMsgs.write('setting output', index, 'in', self.title)
+
+        self.flow.executor.set_output_val(self, index, val)
 
     """
-    EVENTS -------------------------------------------------------------------------------------------------------------
+    
+    EVENT SLOTS
+    
     """
 
     # these methods get implemented by node implementations
@@ -299,7 +309,9 @@ class Node(Base):
         pass
 
     """
-    API ----------------------------------------------------------------------------------------------------------------
+    
+    API
+    
     """
 
     #   LOGGING
@@ -369,8 +381,11 @@ class Node(Base):
         inp: NodeInput = self.inputs[index]
 
         # break all connections
-        for c in inp.connections:
-            self.flow.connect_nodes(c.out, inp)
+        for other in self.flow.graph_adjacency[inp]:
+            self.flow.connect_nodes(other, inp)
+
+        # for c in inp.connections:
+        #     self.flow.connect_nodes(c.out, inp)
 
         self.inputs.remove(inp)
 
@@ -397,8 +412,11 @@ class Node(Base):
         out: NodeOutput = self.outputs[index]
 
         # break all connections
-        for c in out.connections:
-            self.flow.connect_nodes(out, c.inp)
+        for other in self.flow.graph_adjacency[out]:
+            self.flow.connect_nodes(out, other)
+
+        # for c in out.connections:
+        #     self.flow.connect_nodes(out, c.inp)
 
         self.outputs.remove(out)
 
@@ -431,7 +449,9 @@ class Node(Base):
         self.get_vars_manager().unregister_receiver(self, name, method)
 
     """
-    --------------------------------------------------------------------------------------------------------------------
+    
+    UTILITY METHODS
+    
     """
 
     def is_active(self):
@@ -445,6 +465,12 @@ class Node(Base):
 
     def flow_in_data_opt_mode(self):
         return self.flow.alg_mode == FlowAlg.DATA_OPT
+
+    """
+    
+    SERIALIZATION
+    
+    """
 
     def data(self) -> dict:
         """

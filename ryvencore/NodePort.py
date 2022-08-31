@@ -12,24 +12,23 @@ class NodePort(Base):
     def __init__(self, node, io_pos, type_, label_str):
         Base.__init__(self)
 
-        self.val = None
         self.node = node
         self.io_pos = io_pos
         self.type_ = type_
         self.label_str = label_str
-        self.connections = []
+        # self.connections = []
 
-    def get_val(self):
-        pass
+    # def get_val(self):
+    #     pass
 
-    def connected(self):
-        pass
+    # def connected(self):
+    #     pass
 
-    def disconnected(self):
-        pass
+    # def disconnected(self):
+    #     pass
 
-    def flow_alg_data_mode(self):
-        return self.node.flow.alg_mode in (FlowAlg.DATA, FlowAlg.DATA_OPT)
+    # def flow_alg_data_mode(self):
+    #     return self.node.flow.alg_mode in (FlowAlg.DATA, FlowAlg.DATA_OPT)
 
     def data(self) -> dict:
         return {
@@ -50,39 +49,39 @@ class NodeInput(NodePort):
         # optional dtype
         self.dtype: DType = dtype
 
-    def connected(self):
-        super().connected()
-        if self.type_ == 'data':
-            self.val = self.connections[0].get_val()
-            if self.flow_alg_data_mode():
-                self.node.update(self.node.inputs.index(self))
+    # def connected(self):
+    #     super().connected()
+    #     if self.type_ == 'data':
+    #         self.val = self.connections[0].get_val()
+    #         if self.flow_alg_data_mode():
+    #             self.node.update(self.node.inputs.index(self))
 
-    def disconnected(self):
-        super().disconnected()
-        if self.type_ == 'data' and self.flow_alg_data_mode():
-            self.node.update(self.node.inputs.index(self))
+    # def disconnected(self):
+    #     super().disconnected()
+    #     if self.type_ == 'data' and self.flow_alg_data_mode():
+    #         self.node.update(self.node.inputs.index(self))
 
-    def get_val(self):
-        InfoMsgs.write('getting value of node input')
+    # def get_val(self):
+    #     InfoMsgs.write('getting value of node input')
+    #
+    #     if self.flow_alg_data_mode() or len(self.connections) == 0:
+    #         return self.val
+    #     else:  # len(self.connections) > 0:
+    #         return self.connections[0].get_val()
 
-        if self.flow_alg_data_mode() or len(self.connections) == 0:
-            return self.val
-        else:  # len(self.connections) > 0:
-            return self.connections[0].get_val()
-
-    def update(self, data=None):
-        """called from another node or from connected()"""
-        if self.type_ == 'data':
-            self.val = data  # self.get_val()
-            InfoMsgs.write('Data in input set to', data)
-
-        self.node.update(inp=self.node.inputs.index(self))
+    # def update(self, data=None):
+    #     """called from another node or from connected()"""
+    #     if self.type_ == 'data':
+    #         self.val = data  # self.get_val()
+    #         InfoMsgs.write('Data in input set to', data)
+    #
+    #     self.node.update(inp=self.node.inputs.index(self))
 
     def data(self) -> dict:
         data = super().data()
 
-        if len(self.connections) == 0:
-            data['val'] = serialize(self.get_val())
+        # if len(self.connections) == 0:
+        #     data['val'] = serialize(self.get_val())
 
         if self.dtype:
             data['dtype'] = str(self.dtype)
@@ -96,26 +95,28 @@ class NodeOutput(NodePort):
     def __init__(self, node, type_, label_str=''):
         super().__init__(node, PortObjPos.OUTPUT, type_, label_str)
 
-    def exec(self):
-        for c in self.connections:
-            c.activate()
+        self.val = None
 
-    def get_val(self):
-        InfoMsgs.write('getting value in node output')
+    # def exec(self):
+    #     for c in self.connections:
+    #         c.activate()
 
-        if self.node.flow.alg_mode == FlowAlg.EXEC:
-            self.node.update()
+    # def get_val(self):
+    #     InfoMsgs.write('getting value in node output')
+    #
+    #     if self.node.flow.alg_mode == FlowAlg.EXEC:
+    #         self.node.update()
+    #
+    #     return self.val
 
-        return self.val
-
-    def set_val(self, val):
-        InfoMsgs.write('setting value in node output')
-
-        self.val = val
-
-        if self.flow_alg_data_mode():
-            for c in self.connections:
-                c.activate(data=val)
+    # def set_val(self, val):
+    #     InfoMsgs.write('setting value in node output')
+    #
+    #     self.val = val
+    #
+    #     if self.flow_alg_data_mode():
+    #         for c in self.connections:
+    #             c.activate(data=val)
 
     # def connected(self):
     #     super().connected()

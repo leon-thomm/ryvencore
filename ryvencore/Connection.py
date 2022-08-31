@@ -1,3 +1,7 @@
+"""
+deprecated and now unused
+"""
+
 from .Base import Base, Event
 
 from .InfoMsgs import InfoMsgs
@@ -12,24 +16,25 @@ class Connection(Base):
     def __init__(self, params):
         Base.__init__(self)
 
-        self.activated = Event(object)
+        self.activated = Event(object)  # TODO: connections are not activated anymore
 
         self.out, self.inp, self.flow = params
 
-    def activate(self, data=None):
-        """Causes forward propagation of information"""
-
-        self.activated.emit(data)
+    # def activate(self, data=None):
+    #     """Causes forward propagation of information"""
+    #
+    #     self.activated.emit(data)
 
 
 class ExecConnection(Connection):
+    pass
 
-    def activate(self, data=None):
-        """Causes an update in the input port"""
-        InfoMsgs.write('exec connection activated')
-        super().activate()
-
-        self.inp.update()
+    # def activate(self, data=None):
+    #     """Causes an update in the input port"""
+    #     InfoMsgs.write('exec connection activated')
+    #     super().activate()
+    #
+    #     self.inp.update()
 
 
 class DataConnection(Connection):
@@ -39,22 +44,16 @@ class DataConnection(Connection):
 
         self.data = None
 
-    def get_val(self):
-        """Gets the value of the output port -- only used in exec mode flows"""
-        InfoMsgs.write('data connection getting value')
+    # def get_val(self):
+    #     """Gets the value of the output port -- only used in exec mode flows"""
+    #     InfoMsgs.write('data connection getting value')
+    #
+    #     return self.out.get_val()
 
-        # request data backwards
-        self.data = self.out.get_val()
-
-        return self.data
-
-    def activate(self, data=None):
-        """Passes data to the input port and causes update"""
-        InfoMsgs.write('data connection activated')
-        super().activate(data)
-
-        # store data
-        self.data = data
-
-        # propagate data forward
-        self.inp.update(data)
+    # def activate(self, data=None):
+    #     """Passes data to the input port and causes update"""
+    #     InfoMsgs.write('data connection activated')
+    #     super().activate(data)
+    #
+    #     # propagate data forward
+    #     self.inp.update(data)
