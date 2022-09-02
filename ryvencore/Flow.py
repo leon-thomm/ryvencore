@@ -35,7 +35,8 @@ class Flow(Base):
         # self.connections: [Connection] = []
 
         self.node_successors = {}   # additional data structure for executors
-        self.graph_adjacency = {}   # adjacency list only relating node ports; bidirectional
+        self.graph_adj = {}         # directed adjacency list relating node ports
+        self.graph_adj_rev = {}     # reverse adjacency; reverse of graph_adj
 
         self.alg_mode = FlowAlg.DATA
         self.executor: FlowExecutor = executor_from_flow_alg(self.alg_mode)(self)
@@ -106,9 +107,9 @@ class Flow(Base):
 
         self.node_successors[node] = []
         for out in node.outputs:
-            self.graph_adjacency[out] = []
+            self.graph_adj[out] = []
         for inp in node.inputs:
-            self.graph_adjacency[inp] = None
+            self.graph_adj_rev[inp] = None
 
         node.after_placement()
         self.flow_changed()
@@ -131,9 +132,9 @@ class Flow(Base):
 
         del self.node_successors[node]
         for out in node.outputs:
-            del self.graph_adjacency[out]
+            del self.graph_adj[out]
         for inp in node.inputs:
-            del self.graph_adjacency[inp]
+            del self.graph_adj_rev[inp]
 
         self.flow_changed()
 
@@ -155,11 +156,11 @@ class Flow(Base):
                 parent_node = nodes[c_parent_node_index]
                 connected_node = nodes[c_connected_node_index]
 
-                c = self.connect_nodes(parent_node.outputs[c_output_port_index],
-                                       connected_node.inputs[c_connected_input_port_index])
-
-                connections.append(c)
-                self.graph_adjacency[c[0]] = c[1]
+                connections.append(
+                    self.connect_nodes(
+                        parent_node.outputs[c_output_port_index],
+                        connected_node.inputs[c_connected_input_port_index]
+                ))
 
         self.connections_created_from_data.emit(connections)
 
@@ -193,7 +194,7 @@ class Flow(Base):
         if out.io_pos == PortObjPos.INPUT:
             out, inp = inp, out
 
-        if inp in self.graph_adjacency[out]:
+        if inp in self.graph_adj[out]:
             # disconnect
             self.remove_connection(out, inp)
             return None
@@ -213,8 +214,8 @@ class Flow(Base):
     def add_connection(self, out: NodePort, inp: NodePort):
         """Adds a connection object"""
 
-        self.graph_adjacency[out].append(inp)
-        self.graph_adjacency[inp] = out
+        self.graph_adj[out].append(inp)
+        self.graph_adj_rev[inp] = out
 
         # c.out.connections.append(c)
         # c.inp.connections.append(c)
@@ -234,8 +235,8 @@ class Flow(Base):
     def remove_connection(self, out: NodePort, inp: NodePort):
         """Removes a connection object without deleting it"""
 
-        self.graph_adjacency[out].remove(inp)
-        self.graph_adjacency[inp] = None
+        self.graph_adj[out].remove(inp)
+        self.graph_adj_rev[inp] = None
 
         # c.out.connections.remove(c)
         # c.inp.connections.remove(c)
@@ -301,7 +302,7 @@ class Flow(Base):
         data = []
         for i, n in enumerate(nodes):
             for j, out in enumerate(n.outputs):
-                for inp in self.graph_adjacency[out]:
+                for inp in self.graph_adj[out]:
                     if inp.node in nodes:
                         data.append({
                             'parent node index': i,

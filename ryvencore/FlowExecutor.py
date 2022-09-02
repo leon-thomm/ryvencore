@@ -21,7 +21,8 @@ class FlowExecutor:
     def __init__(self, flow):
         self.flow = flow
         self.flow_changed = True
-        self.graph = self.flow.graph_adjacency
+        self.graph = self.flow.graph_adj
+        self.graph_rev = self.flow.graph_adj_rev
 
         # self.flow.connection_added.connect(self.conn_added)
         # self.flow.connection_removed.connect(self.conn_removed)
@@ -344,7 +345,7 @@ class ExecFlowNaive(FlowExecutor):
     # Node.input() =>
     def input(self, node, index):
         inp = node.inputs[index]
-        out = self.graph[inp]
+        out = self.graph_rev[inp]
         if out:
             n = out.node
             if n not in self.updated_nodes:

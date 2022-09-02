@@ -381,7 +381,7 @@ class Node(Base):
         inp: NodeInput = self.inputs[index]
 
         # break all connections
-        for other in self.flow.graph_adjacency[inp]:
+        for other in self.flow.graph_adj_rev[inp]:
             self.flow.connect_nodes(other, inp)
 
         # for c in inp.connections:
@@ -412,7 +412,7 @@ class Node(Base):
         out: NodeOutput = self.outputs[index]
 
         # break all connections
-        for other in self.flow.graph_adjacency[out]:
+        for other in self.flow.graph_adj[out]:
             self.flow.connect_nodes(out, other)
 
         # for c in out.connections:
@@ -465,6 +465,9 @@ class Node(Base):
 
     def flow_in_data_opt_mode(self):
         return self.flow.alg_mode == FlowAlg.DATA_OPT
+
+    def inp_connected(self, index):
+        return self.flow.graph_adj_rev[self.inputs[index]] is not None
 
     """
     
