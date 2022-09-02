@@ -381,8 +381,9 @@ class Node(Base):
         inp: NodeInput = self.inputs[index]
 
         # break all connections
-        for other in self.flow.graph_adj_rev[inp]:
-            self.flow.connect_nodes(other, inp)
+        out = self.flow.connected_output(inp)
+        if out is not None:
+            self.flow.connect_nodes(out, inp)
 
         # for c in inp.connections:
         #     self.flow.connect_nodes(c.out, inp)
@@ -412,8 +413,8 @@ class Node(Base):
         out: NodeOutput = self.outputs[index]
 
         # break all connections
-        for other in self.flow.graph_adj[out]:
-            self.flow.connect_nodes(out, other)
+        for inp in self.flow.connected_inputs(out):
+            self.flow.connect_nodes(out, inp)
 
         # for c in out.connections:
         #     self.flow.connect_nodes(out, c.inp)
@@ -467,7 +468,7 @@ class Node(Base):
         return self.flow.alg_mode == FlowAlg.DATA_OPT
 
     def inp_connected(self, index):
-        return self.flow.graph_adj_rev[self.inputs[index]] is not None
+        return self.flow.connected_output(self.inputs[index]) is not None
 
     """
     

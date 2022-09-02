@@ -196,7 +196,7 @@ class Flow(Base):
 
         if inp in self.graph_adj[out]:
             # disconnect
-            self.remove_connection(out, inp)
+            self.remove_connection((out, inp))
             return None
 
         # c = self.session.CLASSES['data conn']((out, inp, self)) if out.type_ == 'data' else \
@@ -206,13 +206,15 @@ class Flow(Base):
         #
         # self.add_connection(c)
 
-        self.add_connection(out, inp)
+        self.add_connection((out, inp))
 
         return out, inp
 
 
-    def add_connection(self, out: NodePort, inp: NodePort):
+    def add_connection(self, c: Tuple[NodePort, NodePort]):
         """Adds a connection object"""
+
+        out, inp = c
 
         self.graph_adj[out].append(inp)
         self.graph_adj_rev[inp] = out
@@ -232,8 +234,10 @@ class Flow(Base):
         self.connection_added.emit(out, inp)
 
 
-    def remove_connection(self, out: NodePort, inp: NodePort):
+    def remove_connection(self, c: Tuple[NodePort, NodePort]):
         """Removes a connection object without deleting it"""
+
+        out, inp = c
 
         self.graph_adj[out].remove(inp)
         self.graph_adj_rev[inp] = None
@@ -251,6 +255,14 @@ class Flow(Base):
 
         # self.emit_event('connection removed', (c,))    # ALPHA
         self.connection_removed.emit(out, inp)
+
+
+    def connected_inputs(self, out: NodePort) -> List[NodePort]:
+        return self.graph_adj[out]
+
+
+    def connected_output(self, inp: NodePort) -> Optional[NodePort]:
+        return self.graph_adj_rev[inp]
 
 
     def algorithm_mode(self) -> str:
