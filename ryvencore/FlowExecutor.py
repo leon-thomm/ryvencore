@@ -76,7 +76,7 @@ class DataFlowNaive(FlowExecutor):
         # return node.inputs[index].get_val()
 
         inp = node.inputs[index]
-        conn_out = self.graph[inp]
+        conn_out = self.graph_rev[inp]
 
         if conn_out:
             return conn_out.val

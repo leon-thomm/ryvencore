@@ -19,8 +19,8 @@ class Flow(Base):
         # events
         self.node_added = Event(Node)
         self.node_removed = Event(Node)
-        self.connection_added = Event(NodePort, NodePort)        # Event(Connection)
-        self.connection_removed = Event(NodePort, NodePort)      # Event (Connection)
+        self.connection_added = Event((NodePort, NodePort))        # Event(Connection)
+        self.connection_removed = Event((NodePort, NodePort))      # Event (Connection)
 
         self.connection_request_valid = Event(bool)
         self.nodes_created_from_data = Event(list)
@@ -42,16 +42,10 @@ class Flow(Base):
         self.executor: FlowExecutor = executor_from_flow_alg(self.alg_mode)(self)
 
     def load(self, data):
-        """Loading a flow from data"""
+        """Loading a flow from data as previously returned by data()"""
 
-        # algorithm mode
-        mode = data['algorithm mode']
-        if mode == 'data' or mode == 'data flow':
-            self.set_algorithm_mode('data')
-        elif mode == 'data opt':
-            self.set_algorithm_mode('data opt')
-        elif mode == 'exec' or mode == 'exec flow':
-            self.set_algorithm_mode('exec')
+        # set algorithm mode
+        self.alg_mode = FlowAlg.from_str(data['algorithm mode'])
 
         # build flow
 
@@ -69,7 +63,7 @@ class Flow(Base):
 
 
     def create_nodes_from_data(self, nodes_data: List):
-        """Creates Nodes from nodes_data, previously returned by data()"""
+        """create nodes from nodes_data as previously returned by data()"""
 
         nodes = []
 
@@ -231,7 +225,7 @@ class Flow(Base):
         self.executor.conn_added(out, inp)
 
         # self.emit_event('connection added', (c,))    # ALPHA
-        self.connection_added.emit(out, inp)
+        self.connection_added.emit((out, inp))
 
 
     def remove_connection(self, c: Tuple[NodePort, NodePort]):
@@ -254,7 +248,7 @@ class Flow(Base):
         self.executor.conn_removed(out, inp)
 
         # self.emit_event('connection removed', (c,))    # ALPHA
-        self.connection_removed.emit(out, inp)
+        self.connection_removed.emit((out, inp))
 
 
     def connected_inputs(self, out: NodePort) -> List[NodePort]:
