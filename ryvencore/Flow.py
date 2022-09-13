@@ -1,5 +1,4 @@
 from .Base import Base, Event
-# from .Connection import Connection, DataConnection, ExecConnection
 from .FlowExecutor import DataFlowNaive, DataFlowOptimized, FlowExecutor, executor_from_flow_alg
 from .Node import Node
 from .NodePort import NodePort
@@ -32,7 +31,6 @@ class Flow(Base):
         self.session = session
         self.script = script
         self.nodes: [Node] = []
-        # self.connections: [Connection] = []
 
         self.node_successors = {}   # additional data structure for executors
         self.graph_adj = {}         # directed adjacency list relating node ports
@@ -87,8 +85,6 @@ class Flow(Base):
         """Creates, adds and returns a new node object"""
 
         node = node_class((self, self.session, data))
-        # node.finish_initialization()
-        # node.load_user_data()  # --> Node.set_state()
         node.initialize()
         self.add_node(node)
         return node
@@ -108,7 +104,6 @@ class Flow(Base):
         node.after_placement()
         self.flow_changed()
 
-        # self.emit_event('node added', (node,))    # ALPHA
         self.node_added.emit(node)
 
 
@@ -132,7 +127,6 @@ class Flow(Base):
 
         self.flow_changed()
 
-        # self.emit_event('node removed', (node,))    # ALPHA
         self.node_removed.emit(node)
 
 
@@ -193,13 +187,6 @@ class Flow(Base):
             self.remove_connection((out, inp))
             return None
 
-        # c = self.session.CLASSES['data conn']((out, inp, self)) if out.type_ == 'data' else \
-        #     self.session.CLASSES['exec conn']((out, inp, self))
-        # c = DataConnection((out, inp, self)) if out.type_ == 'data' else \
-        #     ExecConnection((out, inp, self))
-        #
-        # self.add_connection(c)
-
         self.add_connection((out, inp))
 
         return out, inp
@@ -212,12 +199,6 @@ class Flow(Base):
 
         self.graph_adj[out].append(inp)
         self.graph_adj_rev[inp] = out
-
-        # c.out.connections.append(c)
-        # c.inp.connections.append(c)
-        # c.out.connected()
-        # c.inp.connected()
-        # self.connections.append(c)
 
         self.node_successors[out.node].append(inp.node)
         self.flow_changed()
@@ -235,12 +216,6 @@ class Flow(Base):
 
         self.graph_adj[out].remove(inp)
         self.graph_adj_rev[inp] = None
-
-        # c.out.connections.remove(c)
-        # c.inp.connections.remove(c)
-        # c.out.disconnected()
-        # c.inp.disconnected()
-        # self.connections.remove(c)
 
         self.node_successors[out.node].remove(inp.node)
         self.flow_changed()

@@ -385,9 +385,6 @@ class Node(Base):
         if out is not None:
             self.flow.connect_nodes(out, inp)
 
-        # for c in inp.connections:
-        #     self.flow.connect_nodes(c.out, inp)
-
         self.inputs.remove(inp)
 
     def create_output(self, label: str = '', type_: str = 'data', insert: int = None):
@@ -415,9 +412,6 @@ class Node(Base):
         # break all connections
         for inp in self.flow.connected_inputs(out):
             self.flow.connect_nodes(out, inp)
-
-        # for c in out.connections:
-        #     self.flow.connect_nodes(out, c.inp)
 
         self.outputs.remove(out)
 

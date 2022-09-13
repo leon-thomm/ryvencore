@@ -24,9 +24,6 @@ class FlowExecutor:
         self.graph = self.flow.graph_adj
         self.graph_rev = self.flow.graph_adj_rev
 
-        # self.flow.connection_added.connect(self.conn_added)
-        # self.flow.connection_removed.connect(self.conn_removed)
-
     # Node.update() =>
     def update_node(self, node, inp):
         pass
@@ -61,9 +58,6 @@ class DataFlowNaive(FlowExecutor):
     - no non-terminating feedback loops
     """
 
-    # def __int__(self, flow):
-    #     super().__init__(flow)
-
     # Node.update() =>
     def update_node(self, node, inp):
         try:
@@ -73,8 +67,6 @@ class DataFlowNaive(FlowExecutor):
 
     # Node.input() =>
     def input(self, node, index):
-        # return node.inputs[index].get_val()
-
         inp = node.inputs[index]
         conn_out = self.graph_rev[inp]
 
@@ -85,8 +77,6 @@ class DataFlowNaive(FlowExecutor):
 
     # Node.set_output_val() =>
     def set_output_val(self, node, index, val):
-        # node.outputs[index].set_val(val)
-
         out = node.outputs[index]
         if not out.type_ == 'data':
             return
