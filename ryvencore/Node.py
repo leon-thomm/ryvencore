@@ -2,11 +2,12 @@ import logging
 import traceback
 from typing import List, Dict
 
-from . import FlowAlg
 from .Base import Base
 
 from .NodePort import NodeInput, NodeOutput
 from .NodePortBP import NodeInputBP, NodeOutputBP
+from .RC import FlowAlg
+from .Data import Data
 from .dtypes import DType
 from .InfoMsgs import InfoMsgs
 from .logging import Logger
@@ -210,7 +211,7 @@ class Node(Base):
     def update_error(self, e):
         InfoMsgs.write_err('EXCEPTION in', self.title, '\n', traceback.format_exc())
 
-    def input(self, index: int):
+    def input(self, index: int) -> Data:
         """
         Returns the value of a data input.
         """
@@ -226,10 +227,11 @@ class Node(Base):
 
         self.flow.executor.exec_output(self, index)
 
-    def set_output_val(self, index, val):
+    def set_output_val(self, index, val: Data):
         """
         Sets the value of a data output causing activation of all connections in data mode.
         """
+        assert isinstance(val, Data), "Output value must be of type ryvencore.Data"
 
         InfoMsgs.write('setting output', index, 'in', self.title)
 

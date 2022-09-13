@@ -2,6 +2,7 @@
 The flow executors are responsible for executing the flow. They have access to
 the flow as well as the nodes' internals and are able to perform optimizations.
 """
+from .Data import Data
 from .RC import FlowAlg
 
 
@@ -40,7 +41,7 @@ class FlowExecutor:
     def exec_output(self, node, index):
         pass
 
-    def conn_added(self, out, inp):
+    def conn_added(self, out, inp, silent=False):
         pass
 
     def conn_removed(self, out, inp):
@@ -94,9 +95,10 @@ class DataFlowNaive(FlowExecutor):
         for inp in self.graph[out]:
             inp.node.update(inp=inp.node.inputs.index(inp))
 
-    def conn_added(self, out, inp):
-        # update input
-        inp.node.update(inp=inp.node.inputs.index(inp))
+    def conn_added(self, out, inp, silent=False):
+        if not silent:
+            # update input
+            inp.node.update(inp=inp.node.inputs.index(inp))
 
     def conn_removed(self, out, inp):
         # update input

@@ -1,4 +1,5 @@
 from .Base import Base, Event
+from .Data import Data
 from .FlowExecutor import DataFlowNaive, DataFlowOptimized, FlowExecutor, executor_from_flow_alg
 from .Node import Node
 from .NodePort import NodePort
@@ -49,15 +50,9 @@ class Flow(Base):
 
         new_nodes = self.create_nodes_from_data(data['nodes'])
 
-        #   the following connections should not cause updates in sequential nodes
-        blocked_nodes = filter(lambda n: n.block_init_updates, new_nodes)
-        for node in blocked_nodes:
-            node.block_updates = True
+        self.set_output_values_from_data(new_nodes, data['output data'])
 
         self.connect_nodes_from_data(new_nodes, data['connections'])
-
-        for node in blocked_nodes:
-            node.block_updates = False
 
 
     def create_nodes_from_data(self, nodes_data: List):
@@ -79,6 +74,15 @@ class Flow(Base):
         self.nodes_created_from_data.emit(nodes)
 
         return nodes
+
+
+    def set_output_values_from_data(self, nodes: List[Node], data: List):
+        for d in data:
+            indices = d['dependent node outputs']
+            indices_paired = zip(indices[0::2], indices[1::2])
+            for node_index, output_index in indices_paired:
+                nodes[node_index].outputs[output_index].val = \
+                    Data(deserialize_from=d['data'])
 
 
     def create_node(self, node_class, data=None):
@@ -147,8 +151,9 @@ class Flow(Base):
                 connections.append(
                     self.connect_nodes(
                         parent_node.outputs[c_output_port_index],
-                        connected_node.inputs[c_connected_input_port_index]
-                ))
+                        connected_node.inputs[c_connected_input_port_index],
+                        silent=True
+                    ))
 
         self.connections_created_from_data.emit(connections)
 
@@ -171,7 +176,7 @@ class Flow(Base):
         return valid
 
 
-    def connect_nodes(self, p1: NodePort, p2: NodePort) -> Optional[Tuple[NodePort, NodePort]]:
+    def connect_nodes(self, p1: NodePort, p2: NodePort, silent: bool = False) -> Optional[Tuple[NodePort, NodePort]]:
         """Connects nodes or disconnects them if they are already connected"""
 
         if not self.check_connection_validity(p1, p2):
@@ -187,12 +192,12 @@ class Flow(Base):
             self.remove_connection((out, inp))
             return None
 
-        self.add_connection((out, inp))
+        self.add_connection((out, inp), silent=silent)
 
         return out, inp
 
 
-    def add_connection(self, c: Tuple[NodePort, NodePort]):
+    def add_connection(self, c: Tuple[NodePort, NodePort], silent: bool = False):
         """Adds a connection object"""
 
         out, inp = c
@@ -203,9 +208,9 @@ class Flow(Base):
         self.node_successors[out.node].append(inp.node)
         self.flow_changed()
 
-        self.executor.conn_added(out, inp)
 
-        # self.emit_event('connection added', (c,))    # ALPHA
+        self.executor.conn_added(out, inp, silent=silent)
+
         self.connection_added.emit((out, inp))
 
 
@@ -221,8 +226,7 @@ class Flow(Base):
         self.flow_changed()
 
         self.executor.conn_removed(out, inp)
-
-        # self.emit_event('connection removed', (c,))    # ALPHA
+#
         self.connection_removed.emit((out, inp))
 
 
@@ -259,10 +263,12 @@ class Flow(Base):
 
 
     def data(self) -> dict:
+        """Returns a dictionary containing all data of the flow"""
         return {
             'algorithm mode': FlowAlg.str(self.alg_mode),
             'nodes': self.gen_nodes_data(self.nodes),
             'connections': self.gen_conns_data(self.nodes),
+            'output data': self.gen_output_data(self.nodes),
             'GID': self.GLOBAL_ID,
         }
 
@@ -293,3 +299,22 @@ class Flow(Base):
                         })
 
         return data
+
+
+    def gen_output_data(self, nodes: List[Node]) -> List[Dict]:
+        """Serializes output data of the nodes"""
+
+        outputs_data = {}
+
+        for i_n, n in enumerate(nodes):
+            for i_o, out in enumerate(n.outputs):
+                d = out.val
+                if isinstance(d, Data) and d not in outputs_data:
+                    outputs_data[d] = {
+                        'data': d.serialize(),
+                        'dependent node outputs': [i_n, i_o],
+                    }
+                elif isinstance(d, Data):
+                    outputs_data[d]['dependent node outputs'] += [i_n, i_o]
+
+        return list(outputs_data.values())
