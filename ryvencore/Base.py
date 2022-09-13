@@ -1,8 +1,17 @@
+"""
+This module defines features and behavior that applies to most internal
+components. It defines the Base (parent) class featuring events, automatic and
+custom ID assignments, serialization, and customizable extension of serialization.
+"""
+
+
 def complete_data(data: dict) -> dict:
-    """Default implementation for completing data with frontend properties.
-    When running with a frontend that needs to store additional information about
-    components (e.g. current position and color of a node), this frontend then
-    overrode this exact function to add whatever is necessary for adding this data."""
+    """
+    Default implementation for supplementing data with additional (e.g. frontend)
+    information. For example, a frontend can store additional information like
+    current position, color of a node, etc. by replacing this function by an
+    according custom handler.
+    """
     return data
 
 
@@ -12,12 +21,26 @@ class Event:
         self._slots = []
 
     def connect(self, callback):
+        """
+        Registers a callback function. The callback must accept compatible arguments.
+        """
         self._slots.append(callback)
 
     def disconnect(self, callback):
+        """
+        De-registers a callback function. The function must have been added previously.
+        """
         self._slots.remove(callback)
 
     def emit(self, *args):
+        """
+        Emits an event by calling all registered callback functions in the order they
+        were registered, with parameters given by *args.
+        """
+
+        # I am assuming that the for-each loop keeps the overhead small in case
+        # there are no slots registered, but one might want to profile that.
+
         for cb in self._slots:
             cb(*args)
 
@@ -29,6 +52,10 @@ class Base:
     """
 
     class IDCtr:
+        """
+        A simple ascending integer counter.
+        """
+
         def __init__(self):
             self.ctr = -1
 
@@ -53,7 +80,7 @@ class Base:
 
     # events
     events = {}
-    # format: {event_name : tuple_of_arguments}
+    # format: {event_name : tuple_of_argument_types}
     # the arguments tuple only serves documentation purposes
 
     def __init__(self):
@@ -68,10 +95,15 @@ class Base:
             for ev in self.events
         }
 
-    # CUSTOM DATA ------------------------------------
+    """
+    
+    CUSTOM DATA
+    
+    """
 
-    # this can be set to another function by the frontend to implement adding frontend information to the data dict
-    complete_data_function = lambda data: data
+    # this can be conveniently set to another function by the host to implement
+    # adding additional (e.g. frontend-related) information to the data dict
+    complete_data_function = complete_data
 
     def data(self) -> dict:
         """converts the object to a JSON compatible dict for serialization"""
@@ -80,7 +112,11 @@ class Base:
     def complete_data(self, data: dict) -> data:
         return Base.complete_data_function(data)
 
-    # EVENTS ------------------------------------
+    """
+    
+    EVENTS
+    
+    """
 
     def on(self, ev: Event, callback):
         # self._slots[ev].append(callback)

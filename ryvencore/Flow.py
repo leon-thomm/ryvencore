@@ -1,11 +1,10 @@
 from .Base import Base, Event
-from .Connection import Connection, DataConnection, ExecConnection
-from .FlowExecutor import DataFlowOptimized, FlowExecutor
+from .FlowExecutor import DataFlowNaive, DataFlowOptimized, FlowExecutor, executor_from_flow_alg
 from .Node import Node
 from .NodePort import NodePort
 from .RC import FlowAlg, PortObjPos
 from .utils import node_from_identifier
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 
 
 class Flow(Base):
@@ -19,8 +18,8 @@ class Flow(Base):
         # events
         self.node_added = Event(Node)
         self.node_removed = Event(Node)
-        self.connection_added = Event(Connection)
-        self.connection_removed = Event(Connection)
+        self.connection_added = Event((NodePort, NodePort))        # Event(Connection)
+        self.connection_removed = Event((NodePort, NodePort))      # Event (Connection)
 
         self.connection_request_valid = Event(bool)
         self.nodes_created_from_data = Event(list)
@@ -32,30 +31,19 @@ class Flow(Base):
         self.session = session
         self.script = script
         self.nodes: [Node] = []
-        self.connections: [Connection] = []
+
+        self.node_successors = {}   # additional data structure for executors
+        self.graph_adj = {}         # directed adjacency list relating node ports
+        self.graph_adj_rev = {}     # reverse adjacency; reverse of graph_adj
 
         self.alg_mode = FlowAlg.DATA
-
-        # special executors
-        self.executor_data_opt = DataFlowOptimized(self)
-        self.executor: FlowExecutor = None
-        self.running_with_executor = False
-        self._update_running_with_executor()
-        #   additional data structures for executors
-        self.node_successors = {}
-
+        self.executor: FlowExecutor = executor_from_flow_alg(self.alg_mode)(self)
 
     def load(self, data):
-        """Loading a flow from data"""
+        """Loading a flow from data as previously returned by data()"""
 
-        # algorithm mode
-        mode = data['algorithm mode']
-        if mode == 'data' or mode == 'data flow':
-            self.set_algorithm_mode('data')
-        elif mode == 'data opt':
-            self.set_algorithm_mode('data opt')
-        elif mode == 'exec' or mode == 'exec flow':
-            self.set_algorithm_mode('exec')
+        # set algorithm mode
+        self.alg_mode = FlowAlg.from_str(data['algorithm mode'])
 
         # build flow
 
@@ -73,7 +61,7 @@ class Flow(Base):
 
 
     def create_nodes_from_data(self, nodes_data: List):
-        """Creates Nodes from nodes_data, previously returned by data()"""
+        """create nodes from nodes_data as previously returned by data()"""
 
         nodes = []
 
@@ -97,8 +85,6 @@ class Flow(Base):
         """Creates, adds and returns a new node object"""
 
         node = node_class((self, self.session, data))
-        # node.finish_initialization()
-        # node.load_user_data()  # --> Node.set_state()
         node.initialize()
         self.add_node(node)
         return node
@@ -108,11 +94,16 @@ class Flow(Base):
         """Stores a node object and causes the node's place_event()"""
 
         self.nodes.append(node)
+
         self.node_successors[node] = []
+        for out in node.outputs:
+            self.graph_adj[out] = []
+        for inp in node.inputs:
+            self.graph_adj_rev[inp] = None
+
         node.after_placement()
         self.flow_changed()
 
-        # self.emit_event('node added', (node,))    # ALPHA
         self.node_added.emit(node)
 
 
@@ -127,10 +118,15 @@ class Flow(Base):
 
         node.prepare_removal()
         self.nodes.remove(node)
-        # del self.node_successors[node]
+
+        del self.node_successors[node]
+        for out in node.outputs:
+            del self.graph_adj[out]
+        for inp in node.inputs:
+            del self.graph_adj_rev[inp]
+
         self.flow_changed()
 
-        # self.emit_event('node removed', (node,))    # ALPHA
         self.node_removed.emit(node)
 
 
@@ -148,9 +144,11 @@ class Flow(Base):
                 parent_node = nodes[c_parent_node_index]
                 connected_node = nodes[c_connected_node_index]
 
-                c = self.connect_nodes(parent_node.outputs[c_output_port_index],
-                                       connected_node.inputs[c_connected_input_port_index])
-                connections.append(c)
+                connections.append(
+                    self.connect_nodes(
+                        parent_node.outputs[c_output_port_index],
+                        connected_node.inputs[c_connected_input_port_index]
+                ))
 
         self.connections_created_from_data.emit(connections)
 
@@ -173,7 +171,7 @@ class Flow(Base):
         return valid
 
 
-    def connect_nodes(self, p1: NodePort, p2: NodePort) -> Connection:
+    def connect_nodes(self, p1: NodePort, p2: NodePort) -> Optional[Tuple[NodePort, NodePort]]:
         """Connects nodes or disconnects them if they are already connected"""
 
         if not self.check_connection_validity(p1, p2):
@@ -184,52 +182,56 @@ class Flow(Base):
         if out.io_pos == PortObjPos.INPUT:
             out, inp = inp, out
 
-        for c in out.connections:
-            if c.inp == inp:
-                # DISCONNECT
-                self.remove_connection(c)
-                return None
+        if inp in self.graph_adj[out]:
+            # disconnect
+            self.remove_connection((out, inp))
+            return None
 
-        # c = self.session.CLASSES['data conn']((out, inp, self)) if out.type_ == 'data' else \
-        #     self.session.CLASSES['exec conn']((out, inp, self))
-        c = DataConnection((out, inp, self)) if out.type_ == 'data' else \
-            ExecConnection((out, inp, self))
+        self.add_connection((out, inp))
 
-        self.add_connection(c)
-
-        return c
+        return out, inp
 
 
-    def add_connection(self, c: Connection):
+    def add_connection(self, c: Tuple[NodePort, NodePort]):
         """Adds a connection object"""
 
-        c.out.connections.append(c)
-        c.inp.connections.append(c)
-        c.out.connected()
-        c.inp.connected()
-        self.connections.append(c)
+        out, inp = c
 
-        self.node_successors[c.out.node].append(c.inp.node)
+        self.graph_adj[out].append(inp)
+        self.graph_adj_rev[inp] = out
+
+        self.node_successors[out.node].append(inp.node)
         self.flow_changed()
+
+        self.executor.conn_added(out, inp)
 
         # self.emit_event('connection added', (c,))    # ALPHA
-        self.connection_added.emit(c)
+        self.connection_added.emit((out, inp))
 
 
-    def remove_connection(self, c: Connection):
+    def remove_connection(self, c: Tuple[NodePort, NodePort]):
         """Removes a connection object without deleting it"""
 
-        c.out.connections.remove(c)
-        c.inp.connections.remove(c)
-        c.out.disconnected()
-        c.inp.disconnected()
-        self.connections.remove(c)
+        out, inp = c
 
-        self.node_successors[c.out.node].remove(c.inp.node)
+        self.graph_adj[out].remove(inp)
+        self.graph_adj_rev[inp] = None
+
+        self.node_successors[out.node].remove(inp.node)
         self.flow_changed()
 
+        self.executor.conn_removed(out, inp)
+
         # self.emit_event('connection removed', (c,))    # ALPHA
-        self.connection_removed.emit(c)
+        self.connection_removed.emit((out, inp))
+
+
+    def connected_inputs(self, out: NodePort) -> List[NodePort]:
+        return self.graph_adj[out]
+
+
+    def connected_output(self, inp: NodePort) -> Optional[NodePort]:
+        return self.graph_adj_rev[inp]
 
 
     def algorithm_mode(self) -> str:
@@ -245,25 +247,15 @@ class Flow(Base):
         if new_alg_mode is None:
             return False
 
+        self.executor = executor_from_flow_alg(new_alg_mode)(self)
         self.alg_mode = new_alg_mode
-        self._update_running_with_executor()
         self.algorithm_mode_changed.emit(self.algorithm_mode())
 
         return True
 
 
-    def _update_running_with_executor(self):
-        self.running_with_executor = self.alg_mode in (FlowAlg.DATA_OPT, )
-
-        if self.running_with_executor:
-            if self.alg_mode == FlowAlg.DATA_OPT:
-                self.executor = self.executor_data_opt
-        else:
-            self.executor = None
-
-
     def flow_changed(self):
-        self.executor_data_opt.flow_changed = True
+        self.executor.flow_changed = True
 
 
     def data(self) -> dict:
@@ -289,24 +281,15 @@ class Flow(Base):
         # and the data dict therefore has the refer to the indices of the nodes in the nodes list
 
         data = []
-        for i in range(len(nodes)):
-            n = nodes[i]
-            for j in range(len(n.outputs)):
-                out = n.outputs[j]
-                for c in out.connections:
-                    connected_port = c.inp
-                    connected_node = connected_port.node
-
-                    # ignore connections connecting to nodes not in the list
-                    if connected_node not in nodes:
-                        continue
-
-                    data.append({
-                        'GID': c.GLOBAL_ID,
-                        'parent node index': i,
-                        'output port index': j,
-                        'connected node': nodes.index(connected_node),
-                        'connected input port index': connected_node.inputs.index(connected_port)
-                    })
+        for i, n in enumerate(nodes):
+            for j, out in enumerate(n.outputs):
+                for inp in self.graph_adj[out]:
+                    if inp.node in nodes:
+                        data.append({
+                            'parent node index': i,
+                            'output port index': j,
+                            'connected node': nodes.index(inp.node),
+                            'connected input port index': inp.node.inputs.index(inp),
+                        })
 
         return data

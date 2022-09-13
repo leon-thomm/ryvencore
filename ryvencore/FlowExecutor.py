@@ -1,7 +1,15 @@
 """
-While standard flow execution (data-flow or exec-flow) is implemented inside the classes (like Node),
-this module provides special FlowExecutors which take over most of the work and implement more
-sophisticated and optimized flow execution.
+The flow executors are responsible for executing the flow. They have access to
+the flow as well as the nodes' internals and are able to perform optimizations.
+"""
+from .RC import FlowAlg
+
+
+"""
+graph_adjacency = {
+    node_output: [node_input],    
+    node_input:  node_output | None
+}
 """
 
 
@@ -12,6 +20,9 @@ class FlowExecutor:
 
     def __init__(self, flow):
         self.flow = flow
+        self.flow_changed = True
+        self.graph = self.flow.graph_adj
+        self.graph_rev = self.flow.graph_adj_rev
 
     # Node.update() =>
     def update_node(self, node, inp):
@@ -29,8 +40,70 @@ class FlowExecutor:
     def exec_output(self, node, index):
         pass
 
+    def conn_added(self, out, inp):
+        pass
 
-class DataFlowOptimized(FlowExecutor):
+    def conn_removed(self, out, inp):
+        pass
+
+
+class DataFlowNaive(FlowExecutor):
+    """
+    The naive implementation of data-flow execution. Naive meaning setting a node output
+    leads to an immediate update in all successors consecutively. No runtime optimization
+    if performed, and some types of graphs can run really slow here, especially if they
+    include "diamonds".
+
+    Assumptions for the graph:
+    - no non-terminating feedback loops
+    """
+
+    # Node.update() =>
+    def update_node(self, node, inp):
+        try:
+            node.update_event(inp)
+        except Exception as e:
+            node.update_error(e)
+
+    # Node.input() =>
+    def input(self, node, index):
+        inp = node.inputs[index]
+        conn_out = self.graph_rev[inp]
+
+        if conn_out:
+            return conn_out.val
+        else:
+            return None
+
+    # Node.set_output_val() =>
+    def set_output_val(self, node, index, val):
+        out = node.outputs[index]
+        if not out.type_ == 'data':
+            return
+        out.val = val
+
+        for inp in self.graph[out]:
+            inp.node.update(inp=inp.node.inputs.index(inp))
+
+    # Node.exec_output() =>
+    def exec_output(self, node, index):
+        out = node.outputs[index]
+        if not out.type_ == 'exec':
+            return
+
+        for inp in self.graph[out]:
+            inp.node.update(inp=inp.node.inputs.index(inp))
+
+    def conn_added(self, out, inp):
+        # update input
+        inp.node.update(inp=inp.node.inputs.index(inp))
+
+    def conn_removed(self, out, inp):
+        # update input
+        inp.node.update(inp=inp.node.inputs.index(inp))
+
+
+class DataFlowOptimized(DataFlowNaive):
     """
     A special flow executor which implements some node functions to optimise flow execution.
     Whenever a new execution is invoked somewhere (some node or output is updated), it
@@ -45,6 +118,10 @@ class DataFlowOptimized(FlowExecutor):
     execution where any two executed branches which merge again in the future result in two
     complete executions of everything that comes after the merge, which quickly produces
     exponential performance issues.
+
+    Assumptions for the graph:
+
+    - no feedback loops
     """
 
     def __init__(self, flow):
@@ -57,7 +134,6 @@ class DataFlowOptimized(FlowExecutor):
         self.last_execution_root = None     # for reuse when a same execution is invoked many times consecutively
         self.execution_root = None          # can be Node or NodeOutput
         self.execution_root_node = None     # the updated Node or the updated NodeOutput's Node
-        self.flow_changed = True
 
     # NODE FUNCTIONS
 
@@ -72,8 +148,7 @@ class DataFlowOptimized(FlowExecutor):
             self.invoke_node_update_event(node, inp)
 
     # Node.input() =>
-    def input(self, node, index):
-        return node.inputs[index].get_val()
+    #   DataFlowNative.input(node, index)
 
     # Node.set_output_val() =>
     def set_output_val(self, node, index, val):
@@ -96,15 +171,16 @@ class DataFlowOptimized(FlowExecutor):
                 # there are other possible solutions to this, including running
                 # a new execution analysis of this graph here
 
-                out.set_val(val)
+                super().set_output_val(node, index, val)
 
             else:
                 out.val = val
                 self.output_updated[out] = True
 
-
     # Node.exec_output() =>
     def exec_output(self, node, index):
+        # rudimentary exec support also in data flows
+
         out = node.outputs[index]
 
         if self.execution_root_node is None:  # execution starter!
@@ -118,7 +194,11 @@ class DataFlowOptimized(FlowExecutor):
         else:
             self.output_updated[out] = True
 
-    # ----------------------------------------------------------
+    """
+    
+    Helper methods
+    
+    """
 
     def start_execution(self, root_node=None, root_output=None):
 
@@ -166,9 +246,10 @@ class DataFlowOptimized(FlowExecutor):
         # BC
         if root_node is not None:
             successors.add(root_node)
+
         elif root_output is not None:
-            for c in root_output.connections:
-                connected_node = c.inp.node
+            for inp in self.graph[root_output]:
+                connected_node = inp.node
                 self.num_conns_from_predecessors[connected_node] += 1
                 successors.add(connected_node)
 
@@ -188,10 +269,7 @@ class DataFlowOptimized(FlowExecutor):
         return self.num_conns_from_predecessors.copy()
 
     def invoke_node_update_event(self, node, inp):
-        try:
-            node.update_event(inp)
-        except Exception:
-            pass
+        super().update_node(node, inp)
 
     def decrease_wait(self, node):
         """decreases the wait count of the node;
@@ -212,15 +290,76 @@ class DataFlowOptimized(FlowExecutor):
         """pushes an output's value to successors if it has been changed in the execution"""
 
         if self.output_updated[out]:
-
-            if out.type_ == 'data':         # data output updated
-                for c in out.connections:
-                    c.activate(out.val)
-
-            else:                           # exec output executed
-                for c in out.connections:
-                    c.activate()
+            # same procedure for data and exec connections
+            for inp in self.graph[out]:
+                inp.node.update(inp=inp.node.inputs.index(inp))
 
         # decrease wait count of successors
-        for c in out.connections:
-            self.decrease_wait(c.inp.node)
+        for inp in self.graph[out]:
+            self.decrease_wait(inp.node)
+
+
+class ExecFlowNaive(FlowExecutor):
+    """
+    ...
+    """
+
+    def __init__(self, flow):
+        super().__init__(flow)
+
+        # all the nodes currently updating because of an output data request
+        # used to prevent redundant predecessor updates during the update
+        # of a single successor
+        self.updated_nodes = None
+
+    # Node.update() = >
+    def update_node(self, node, inp):
+        if inp != -1 and node.inputs[inp].type_ == 'data':
+            return
+
+        execution_starter = self.updated_nodes is None
+
+        if execution_starter:
+            self.updated_nodes = {node}
+        else:
+            self.updated_nodes.add(node)
+
+        try:
+            node.update_event(inp)
+        except Exception as e:
+            node.update_error(e)
+
+        if execution_starter:
+            self.updated_nodes = None
+
+    # Node.input() =>
+    def input(self, node, index):
+        inp = node.inputs[index]
+        out = self.graph_rev[inp]
+        if out:
+            n = out.node
+            if n not in self.updated_nodes:
+                n.update(-1)
+
+            return out.val
+        else:
+            return None
+
+    # Node.set_output_val() =>
+    def set_output_val(self, node, index, val):
+        out = node.outputs[index]
+        out.val = val
+
+    # Node.exec_output() =>
+    def exec_output(self, node, index):
+        for inp in self.graph[node.outputs[index]]:
+            inp.node.update(inp.node.inputs.index(inp))
+
+
+def executor_from_flow_alg(algorithm: FlowAlg):
+    if algorithm == FlowAlg.DATA:
+        return DataFlowNaive
+    if algorithm == FlowAlg.DATA_OPT:
+        return DataFlowOptimized
+    if algorithm == FlowAlg.EXEC:
+        return ExecFlowNaive
