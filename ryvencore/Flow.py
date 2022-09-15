@@ -1,11 +1,10 @@
-from . import serialize, deserialize
 from .Base import Base, Event
 from .Data import Data
 from .FlowExecutor import DataFlowNaive, DataFlowOptimized, FlowExecutor, executor_from_flow_alg
 from .Node import Node
 from .NodePort import NodePort
 from .RC import FlowAlg, PortObjPos
-from .utils import node_from_identifier
+from .utils import node_from_identifier, serialize, deserialize
 from typing import List, Dict, Optional, Tuple
 
 

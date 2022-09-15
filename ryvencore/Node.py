@@ -420,8 +420,8 @@ class Node(Base):
 
     def get_vars_manager(self):
         """Returns a ref to the script's variables manager"""
-
-        return self.script.vars_manager
+        return None
+        # return self.script.vars_manager
 
     def get_var_val(self, name: str):
         """Gets the value of a script variable"""

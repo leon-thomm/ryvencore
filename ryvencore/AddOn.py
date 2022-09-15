@@ -28,6 +28,12 @@ class AddOn(Base):
     version = ''
     description = ''
 
+    def register(self, session):
+        """
+        Called when the addon is registered with a session.
+        """
+        self.session = session
+
     def get_state(self) -> dict:
         """
         Return the state of the addon as JSON-compatible a dict.

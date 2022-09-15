@@ -1,6 +1,6 @@
 from .Base import Base
-from ryvencore.addons.default.logging import LogsManager
-from ryvencore.addons.default.variables import VarsManager
+from .addons.default.logging import LogsManager
+# from .addons.default import Variables
 from .Flow import Flow
 
 
@@ -34,7 +34,7 @@ class Script(Base):
         self.logs_manager = LogsManager(self, self._create_default_logs)
 
         # vars manager
-        self.vars_manager = VarsManager(self, self.init_vars_manager_data)
+        # self.vars_manager = VarsManager(self, self.init_vars_manager_data)
 
         # flow
         self.flow = Flow(self.session, self)
@@ -48,7 +48,7 @@ class Script(Base):
     def data(self) -> dict:
         return {
             'title': self.title,
-            'variables': self.vars_manager.data(),
+            # 'variables': self.vars_manager.data(),
             'flow': self.flow.data(),
             'GID': self.GLOBAL_ID,
         }

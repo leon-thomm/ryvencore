@@ -3,7 +3,7 @@ from typing import Optional
 from ryvencore import Node
 from ryvencore.Base import Base, Event
 from ryvencore.utils import serialize, deserialize
-from ryvencore.addons import AddOn
+from ryvencore import AddOn
 
 
 
@@ -168,3 +168,6 @@ class VarsAddon(AddOn):
                 for prev_node_id, cb_name in var['subscriptions'].items():
                     node = Base.obj_from_prev_id(prev_node_id)
                     self.subscribe(node, name, getattr(node, cb_name))
+
+
+addon = VarsAddon()
