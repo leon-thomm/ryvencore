@@ -1,19 +1,17 @@
 """
 This file defines the Data type, which must be used to pass data between nodes.
-It is subclassed by the nodes to define the data type they work with.
-It's primary purpose is to provide serialization and deserialization methods of the data.
-Refer to my notes about graph state and serialization.
+It should be subclassed to define custom data types. In particular, serialization
+and deserialization must be implemented for each respective type. Types that are
+pickle serializable by default can be used without subclassing (``Data(my_data)``).
 """
 
 
 class Data:
     """
     Base class for data objects.
-    Subclass this class to send data to other nodes. You can directly extend the class
-    to provide a common interface for your types, but you must implement serialization
-    and deserialization accordingly.
-    As data that is ready for sharing between nodes through the graph is part of the
-    state of the graph, it must be serializable and deserializable.
+
+    Subclass this class and implement serialization and deserialization accordingly
+    to send data to other nodes.
 
     In case of large data sets being shared, you might want to leave serialization
     empty, which means the graph will not enter the same state when you reload it,
@@ -22,25 +20,26 @@ class Data:
 
     Be careful with nodes built for sharing complex output data over multiple outputs.
     Refer to python's object referencing rules. In particular, if you share data object
-    D with successor nodes N1 and N2, and N1 changes D, then N2 will also see the change.
-    To avoid this you might want to make sure to copy D once it's consumed for the second
-    time, which you can also conveniently implement in your Data class.
+    `D` with successor nodes `N1` and `N2`, and `N1` changes `D`, then `N2` will also
+    see the change.
+    To avoid this you might want to make sure to copy `D` once it's consumed for the
+    second time, which you can also conveniently implement in your ``Data`` class.
     """
 
-    def __init__(self, value=None, deserialize_from=None):
-        if deserialize_from is not None:
-            self.deserialize(deserialize_from)
+    def __init__(self, value=None, load_from=None):
+        if load_from is not None:
+            self.set_data(load_from)
         else:
-            self.value = value
+            self.payload = value
 
-    def serialize(self) -> dict:
+    def get_data(self):
         """
-        Serialize the data object to a JSON-compatible dict.
+        Transform the data object to a ``pickle``serializable object.
         """
-        return {'value': self.value}
+        return self.payload
 
-    def deserialize(self, data):
+    def set_data(self, data):
         """
-        Deserialize the data object from a dict.
+        Deserialize the data object from the dict created in ``serialize()``.
         """
-        self.value = data['value']
+        self.payload = data
