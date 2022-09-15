@@ -227,15 +227,15 @@ class Node(Base):
 
         self.flow.executor.exec_output(self, index)
 
-    def set_output_val(self, index, val: Data):
+    def set_output_val(self, index, data: Data):
         """
         Sets the value of a data output causing activation of all connections in data mode.
         """
-        assert isinstance(val, Data), "Output value must be of type ryvencore.Data"
+        assert isinstance(data, Data), "Output value must be of type ryvencore.Data"
 
         InfoMsgs.write('setting output', index, 'in', self.title)
 
-        self.flow.executor.set_output_val(self, index, val)
+        self.flow.executor.set_output_val(self, index, data)
 
     """
     
