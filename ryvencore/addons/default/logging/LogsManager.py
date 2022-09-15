@@ -1,4 +1,4 @@
-from ..Base import Base, Event
+from ryvencore.Base import Base, Event
 from .Logger import Logger
 
 

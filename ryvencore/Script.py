@@ -1,6 +1,6 @@
 from .Base import Base
-from .logging import LogsManager
-from .script_variables import VarsManager
+from ryvencore.addons.default.logging import LogsManager
+from ryvencore.addons.default.variables import VarsManager
 from .Flow import Flow
 
 

@@ -1,5 +1,5 @@
 from logging import Logger as PyLogger
-from ..Base import Base, Event
+from ryvencore.Base import Base, Event
 
 
 class Logger(Base, PyLogger):

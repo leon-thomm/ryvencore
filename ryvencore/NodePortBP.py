@@ -1,4 +1,4 @@
-from .dtypes import DType
+from ryvencore.addons.default.dtypes import DType
 
 # TODO: make this a dataclass
 class NodePortBP:
