@@ -77,7 +77,7 @@ class DataFlowNaive(FlowExecutor):
             return None
 
     # Node.set_output_val() =>
-    def set_output_val(self, node, index, val):
+    def set_output_val(self, node, index, data):
         out = node.outputs[index]
         if not out.type_ == 'data':
             return
