@@ -1,3 +1,4 @@
+from . import serialize, deserialize
 from .Base import Base, Event
 from .Data import Data
 from .FlowExecutor import DataFlowNaive, DataFlowOptimized, FlowExecutor, executor_from_flow_alg
@@ -40,8 +41,9 @@ class Flow(Base):
         self.alg_mode = FlowAlg.DATA
         self.executor: FlowExecutor = executor_from_flow_alg(self.alg_mode)(self)
 
-    def load(self, data):
+    def load(self, data: dict):
         """Loading a flow from data as previously returned by data()"""
+        super().load(data)
 
         # set algorithm mode
         self.alg_mode = FlowAlg.from_str(data['algorithm mode'])
