@@ -85,6 +85,16 @@ class Base:
     # all abstract components have a global ID
     _global_id_ctr = IDCtr()
 
+    # TODO: this produces a memory leak, because the objects are never removed
+    #  from the dict. It shouldn't be a problem as long as PREF_GLOBAL_ID is
+    #  only used for loading.
+    _prev_id_objs = {}
+
+    @classmethod
+    def obj_from_prev_id(cls, prev_id: int):
+        """returns the object with the given previous id"""
+        return cls._prev_id_objs.get(prev_id)
+
     def __init__(self):
         self.GLOBAL_ID = self._global_id_ctr.count()
         self.PREV_GLOBAL_ID = None
@@ -110,3 +120,4 @@ class Base:
         """recreate the object from the data dict returned by data()"""
         if dict is not None:
             self.PREV_GLOBAL_ID = data['GLOBAL_ID']
+            self._prev_id_objs[self.PREV_GLOBAL_ID] = self
