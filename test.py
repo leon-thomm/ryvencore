@@ -1,5 +1,6 @@
 import unittest
 import ryvencore as rc
+from ryvencore import Data
 
 
 class DataFlowBasic(unittest.TestCase):
@@ -10,8 +11,8 @@ class DataFlowBasic(unittest.TestCase):
         init_outputs = [rc.NodeOutputBP(type_='data'), rc.NodeOutputBP(type_='data')]
 
         def update_event(self, inp=-1):
-            self.set_output_val(0, 'Hello, World!')
-            self.set_output_val(1, 42)
+            self.set_output_val(0, Data('Hello, World!'))
+            self.set_output_val(1, Data(42))
             print('finished')
 
     class Node2(rc.Node):
@@ -33,13 +34,13 @@ class DataFlowBasic(unittest.TestCase):
         f.connect_nodes(n1.outputs[0], n2.inputs[0])
         f.connect_nodes(n1.outputs[1], n3.inputs[0])
 
-        self.assertEqual(n1.outputs[0].val, None)
-        self.assertEqual(n1.outputs[1].val, None)
+        self.assertEqual(n1.outputs[0].data, None)
+        self.assertEqual(n1.outputs[1].data, None)
 
         n1.update()
 
-        self.assertEqual(n1.outputs[0].val, 'Hello, World!')
-        self.assertEqual(n1.outputs[1].val, 42)
+        self.assertEqual(n1.outputs[0].data, 'Hello, World!')
+        self.assertEqual(n1.outputs[1].data, 42)
 
 
 class ExecFlowBasic(unittest.TestCase):
@@ -50,7 +51,7 @@ class ExecFlowBasic(unittest.TestCase):
         init_outputs = [rc.NodeOutputBP(type_='exec'), rc.NodeOutputBP(type_='data')]
 
         def update_event(self, inp=-1):
-            self.set_output_val(1, 'Hello, World!')
+            self.set_output_val(1, Data('Hello, World!'))
             self.exec_output(0)
             print('finished')
 
@@ -70,6 +71,7 @@ class ExecFlowBasic(unittest.TestCase):
 
 
     def runTest(self):
+        # rc.InfoMsgs.enable(True)
         s = rc.Session()
         f = s.create_script('main').flow
         f.set_algorithm_mode('exec')
@@ -83,11 +85,11 @@ class ExecFlowBasic(unittest.TestCase):
         f.connect_nodes(n1.outputs[0], n3.inputs[0])
         # f.connect_nodes(n1.outputs[1], n3.inputs[1])
 
-        self.assertEqual(n1.outputs[0].val, None)
-        self.assertEqual(n1.outputs[1].val, None)
+        self.assertEqual(n1.outputs[0].data, None)
+        self.assertEqual(n1.outputs[1].data, None)
 
         n1.update()
 
-        self.assertEqual(n1.outputs[1].val, 'Hello, World!')
-        self.assertEqual(n2.data, 'Hello, World!')
+        self.assertEqual(n1.outputs[1].data.payload, 'Hello, World!')
+        self.assertEqual(n2.data.payload, 'Hello, World!')
         self.assertEqual(n3.data, None)
