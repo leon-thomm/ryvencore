@@ -6,6 +6,7 @@ from .Base import Base, Event
 from .Script import Script
 from .InfoMsgs import InfoMsgs
 from .utils import pkg_path, load_from_file
+from .Node import Node
 
 
 class Session(Base):
@@ -49,9 +50,15 @@ class Session(Base):
             # extract 'addon' object from module
             addon, = load_from_file(path, ['addon'])
 
+            if addon is None:
+                continue
+
             # register addon
             modname = path.split('/')[-1][:-3]
             self.addons[modname] = addon
+
+            addon.register(self)
+            setattr(Node, addon.name, addon)
 
 
     def register_nodes(self, node_classes: List):

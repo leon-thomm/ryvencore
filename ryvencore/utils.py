@@ -4,7 +4,7 @@ import base64
 import importlib.util
 import pickle
 from os.path import dirname, abspath, join, basename
-from typing import List
+from typing import List, Tuple
 
 
 def serialize(data) -> str:
@@ -44,7 +44,7 @@ def pkg_path(subpath: str = None):
     return abspath(p)
 
 
-def load_from_file(file: str, comps: List[str]) -> tuple:
+def load_from_file(file: str, comps: List[str]) -> Tuple:
     """
     Imports components with name in ``comps`` from a python module.
     """
@@ -58,4 +58,10 @@ def load_from_file(file: str, comps: List[str]) -> tuple:
     # because exec_module() somehow then registers it as "built-in"
     # which is wrong and e.g. prevents inspect from parsing the source
 
-    return tuple([getattr(mod, c) for c in comps])
+    def get_comp(c):
+        try:
+            return getattr(mod, c)
+        except AttributeError:
+            raise None
+
+    return tuple([get_comp(c) for c in comps])
