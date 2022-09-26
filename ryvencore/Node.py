@@ -9,7 +9,6 @@ from .RC import FlowAlg
 from .Data import Data
 from ryvencore.addons.default.dtypes import DType
 from .InfoMsgs import InfoMsgs
-from ryvencore.addons.default.logging import Logger
 from .utils import serialize, deserialize
 
 
@@ -77,7 +76,6 @@ class Node(Base):
         self.script = self.flow.script
         self.inputs: List[NodeInput] = []
         self.outputs: List[NodeOutput] = []
-        self.loggers = []
 
         self.initialized = False
 
@@ -90,15 +88,11 @@ class Node(Base):
 
         - loads all default properties from initial data if it was provided
         - sets up inputs and outputs
-        - enables the logs
         - loads user_data
 
         It does not crash on exception when loading user_data,
         as this is not uncommon when developing nodes.
         """
-
-        # enable logs
-        self.enable_loggers()
 
         if self.init_data:  # load from data
             # setup ports
@@ -171,14 +165,12 @@ class Node(Base):
     def after_placement(self):
         """Called from Flow when the nodes gets added"""
 
-        self.enable_loggers()
         self.place_event()
 
     def prepare_removal(self):
         """Called from Flow when the node gets removed"""
 
         self.remove_event()
-        self.disable_loggers()
 
     """
     
@@ -314,29 +306,6 @@ class Node(Base):
     API
     
     """
-
-    #   LOGGING
-
-    def new_logger(self, title) -> Logger:
-        """Requesting a new custom Log"""
-
-        logger = self.script.logs_manager.new_logger(title)
-        self.loggers.append(logger)
-        return logger
-
-    def disable_loggers(self):
-        """Disables custom logs"""
-
-        for logger in self.loggers:
-            logger.disable()
-            # logger.disabled = True
-
-    def enable_loggers(self):
-        """Enables custom logs"""
-
-        for logger in self.loggers:
-            logger.enable()
-            # logger.enabled = True
 
     #   PORTS
 
