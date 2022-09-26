@@ -140,15 +140,36 @@ class VarsAddon(AddOn):
 
         self.flow_variables[node.flow][name]['subscriptions'].remove((node, callback))
 
+    def _extend_node_data(self, node, data: dict):
+        """
+        Extends the node data with the variable subscriptions.
+        """
+
+        data['Variables'] = {
+            'subscriptions': {
+                name: cb.__name__
+                for name, var in self.flow_variables[node.flow].items()
+                for (n, cb) in var['subscriptions']
+                if node == n
+            }
+        }
+
+        if data['Variables']['subscriptions'] == {}:
+            del data['Variables']
+
+    def _on_node_created(self, flow, node):
+        """
+        Reconstruction of subscriptions.
+        """
+        if 'Variables' in node.init_data:
+            for name, cb_name in node.init_data['Variables']['subscriptions'].items():
+                self.subscribe(node, name, getattr(node, cb_name))
+
     def get_state(self) -> dict:
         return {
             f.GLOBAL_ID: {
                 name: {
-                    'serialized': var['var'].serialize(),
-                    'subscriptions': {
-                        node.GLOBAL_ID: cb.__name__
-                        for (node, cb) in var['subscriptions']
-                    }
+                    'serialized': var['var'].serialize()
                 }
                 for name, var in self.flow_variables[f].items()
             }
@@ -163,11 +184,6 @@ class VarsAddon(AddOn):
             # recreate variables
             for name, var in variables.items():
                 self.create_var(f, name, deserialize(var['serialized']))
-
-                # restore variable subscriptions
-                for prev_node_id, cb_name in var['subscriptions'].items():
-                    node = Base.obj_from_prev_id(prev_node_id)
-                    self.subscribe(node, name, getattr(node, cb_name))
 
 
 addon = VarsAddon()
