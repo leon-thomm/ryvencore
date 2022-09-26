@@ -420,7 +420,7 @@ class Node(Base):
         Used to rebuild the Flow when loading a project or pasting components.
         """
 
-        return {
+        data = {
             'identifier': self.identifier,
             'version': self.version,
 
@@ -432,3 +432,10 @@ class Node(Base):
 
             'GID': self.GLOBAL_ID,
         }
+
+        # extend with data from addons
+        for name, addon in self.session.addons.items():
+            # addons can modify anything, there is no isolation enforcement
+            addon._extend_node_data(self, data)
+
+        return data
