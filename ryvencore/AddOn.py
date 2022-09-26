@@ -34,6 +34,45 @@ class AddOn(Base):
         """
         self.session = session
 
+    def _on_node_created(self, flow, node):
+        """
+        Called when a node is created. This happens only once, whereas
+        a node can be added and removed multiple times, see
+        on_node_added() and
+        on_node_removed().
+        """
+        pass
+
+    def _on_node_added(self, flow, node):
+        """
+        Called when a node is added to a flow.
+        """
+        pass
+
+    def _on_node_removed(self, flow, node):
+        """
+        Called when a node is removed from a flow.
+        """
+        pass
+
+    def _extend_node_data(self, node, data: dict):
+        """
+        Extend the node data dict with additional addon-related data.
+        """
+        pass
+
+    # def _extend_flow_data(self, flow, data: dict):
+    #     """
+    #     Extend the flow data dict with additional addon-related data.
+    #     """
+    #     pass
+    #
+    # def _extend_session_data(self, data: dict):
+    #     """
+    #     Extend the session data dict with additional addon-related data.
+    #     """
+    #     pass
+
     def get_state(self) -> dict:
         """
         Return the state of the addon as JSON-compatible a dict.
