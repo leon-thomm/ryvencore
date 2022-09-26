@@ -1,8 +1,6 @@
 from .Base import Base
 
 from .RC import PortObjPos
-from ryvencore.addons.default.dtypes import DType
-from .utils import serialize
 
 
 class NodePort(Base):
@@ -26,24 +24,16 @@ class NodePort(Base):
 
 class NodeInput(NodePort):
 
-    def __init__(self, node, type_, label_str='', add_data=None, dtype: DType = None):
+    def __init__(self, node, type_, label_str='', add_data=None):
         super().__init__(node, PortObjPos.INPUT, type_, label_str)
 
         # data can be used to store additional data for enhanced data input ports
         self.add_data = add_data
 
-        # optional dtype
-        self.dtype: DType = dtype
-
     def data(self) -> dict:
         data = super().data()
 
-        if self.dtype:
-            data['dtype'] = str(self.dtype)
-            data['dtype state'] = serialize(self.dtype.get_state())
-
         return data
-
 
 
 class NodeOutput(NodePort):

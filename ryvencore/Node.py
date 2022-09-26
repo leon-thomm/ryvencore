@@ -7,7 +7,6 @@ from .NodePort import NodeInput, NodeOutput
 from .NodePortBP import NodeInputBP, NodeOutputBP
 from .RC import FlowAlg
 from .Data import Data
-from ryvencore.addons.default.dtypes import DType
 from .InfoMsgs import InfoMsgs
 from .utils import serialize, deserialize
 
@@ -132,11 +131,7 @@ class Node(Base):
             for i in range(len(self.init_inputs)):
                 inp = self.init_inputs[i]
 
-                if inp.dtype:
-                    self.create_input_dt(dtype=inp.dtype, label=inp.label, add_data=inp.add_data)
-
-                else:
-                    self.create_input(inp.label, inp.type_, add_data=self.init_inputs[i].add_data)
+                self.create_input(inp.label, inp.type_, add_data=self.init_inputs[i].add_data)
 
             for o in range(len(self.init_outputs)):
                 out = self.init_outputs[o]
@@ -147,11 +142,7 @@ class Node(Base):
             # initial ports specifications are irrelevant then
 
             for inp in inputs_data:
-                if 'dtype' in inp:
-                    self.create_input_dt(dtype=DType.from_str(inp['dtype'])(
-                        _load_state=deserialize(inp['dtype state'])), label=inp['label'], add_data=inp)
-                else:
-                    self.create_input(label=inp['label'], type_=inp['type'], add_data=inp)
+                self.create_input(label=inp['label'], type_=inp['type'], add_data=inp)
 
                 # if 'val' in inp:
                 #     # this means the input is 'data' and did not have any connections,
@@ -317,23 +308,6 @@ class Node(Base):
             node=self,
             type_=type_,
             label_str=label,
-            add_data=add_data,
-        )
-
-        if insert is not None:
-            self.inputs.insert(insert, inp)
-        else:
-            self.inputs.append(inp)
-
-    def create_input_dt(self, dtype: DType, label: str = '', add_data={}, insert: int = None):
-        """Creates and adds a new data input with a DType"""
-        # InfoMsgs.write('create_input called')
-
-        inp = NodeInput(
-            node=self,
-            type_='data',
-            label_str=label,
-            dtype=dtype,
             add_data=add_data,
         )
 

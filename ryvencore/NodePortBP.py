@@ -1,4 +1,3 @@
-from ryvencore.addons.default.dtypes import DType
 
 # TODO: make this a dataclass
 class NodePortBP:
@@ -15,10 +14,9 @@ class NodePortBP:
 
 
 class NodeInputBP(NodePortBP):
-    def __init__(self, label: str = '', type_: str = 'data', dtype: DType = None, add_data={}):
+    def __init__(self, label: str = '', type_: str = 'data', add_data={}):
         super().__init__(label, type_)
 
-        self.dtype = dtype
         self.add_data = add_data
 
 
