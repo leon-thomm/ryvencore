@@ -2,6 +2,7 @@
 The flow executors are responsible for executing the flow. They have access to
 the flow as well as the nodes' internals and are able to perform optimizations.
 """
+from .Data import Data
 from .RC import FlowAlg
 
 
@@ -40,7 +41,7 @@ class FlowExecutor:
     def exec_output(self, node, index):
         pass
 
-    def conn_added(self, out, inp):
+    def conn_added(self, out, inp, silent=False):
         pass
 
     def conn_removed(self, out, inp):
@@ -71,16 +72,16 @@ class DataFlowNaive(FlowExecutor):
         conn_out = self.graph_rev[inp]
 
         if conn_out:
-            return conn_out.val
+            return conn_out.data
         else:
             return None
 
     # Node.set_output_val() =>
-    def set_output_val(self, node, index, val):
+    def set_output_val(self, node, index, data):
         out = node.outputs[index]
         if not out.type_ == 'data':
             return
-        out.val = val
+        out.data = data
 
         for inp in self.graph[out]:
             inp.node.update(inp=inp.node.inputs.index(inp))
@@ -94,9 +95,10 @@ class DataFlowNaive(FlowExecutor):
         for inp in self.graph[out]:
             inp.node.update(inp=inp.node.inputs.index(inp))
 
-    def conn_added(self, out, inp):
-        # update input
-        inp.node.update(inp=inp.node.inputs.index(inp))
+    def conn_added(self, out, inp, silent=False):
+        if not silent:
+            # update input
+            inp.node.update(inp=inp.node.inputs.index(inp))
 
     def conn_removed(self, out, inp):
         # update input
@@ -151,13 +153,13 @@ class DataFlowOptimized(DataFlowNaive):
     #   DataFlowNative.input(node, index)
 
     # Node.set_output_val() =>
-    def set_output_val(self, node, index, val):
+    def set_output_val(self, node, index, data):
         out = node.outputs[index]
 
         if self.execution_root_node is None:  # execution starter!
             self.start_execution(root_output=out)
 
-            out.val = val
+            out.data = data
             self.output_updated[out] = True
             self.propagate_output(out)
 
@@ -171,10 +173,10 @@ class DataFlowOptimized(DataFlowNaive):
                 # there are other possible solutions to this, including running
                 # a new execution analysis of this graph here
 
-                super().set_output_val(node, index, val)
+                super().set_output_val(node, index, data)
 
             else:
-                out.val = val
+                out.data = data
                 self.output_updated[out] = True
 
     # Node.exec_output() =>
@@ -341,14 +343,14 @@ class ExecFlowNaive(FlowExecutor):
             if n not in self.updated_nodes:
                 n.update(-1)
 
-            return out.val
+            return out.data
         else:
             return None
 
     # Node.set_output_val() =>
-    def set_output_val(self, node, index, val):
+    def set_output_val(self, node, index, data):
         out = node.outputs[index]
-        out.val = val
+        out.data = data
 
     # Node.exec_output() =>
     def exec_output(self, node, index):

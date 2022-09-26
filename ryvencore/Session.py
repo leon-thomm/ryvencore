@@ -26,8 +26,8 @@ class Session(Base):
 
         # ATTRIBUTES
         self.scripts: [Script] = []
-        self.nodes = []  # list of node CLASSES
-        self.invisible_nodes = []
+        self.nodes = set()  # list of node CLASSES
+        self.invisible_nodes = set()
         self.gui: bool = gui
         self.init_data = None
 
@@ -45,7 +45,7 @@ class Session(Base):
         # build node class identifier
         node_class.build_identifier()
 
-        self.nodes.append(node_class)
+        self.nodes.add(node_class)
 
 
     def unregister_node(self, node_class):
@@ -123,15 +123,16 @@ class Session(Base):
         return InfoMsgs
 
 
-    def load(self, project: Dict) -> List[Script]:
+    def load(self, data: Dict) -> List[Script]:
         """Loads a project and raises an exception if required nodes are missing"""
+        super().load(data)
 
         # TODO: perform validity checks
 
-        self.init_data = project
+        self.init_data = data
 
         new_scripts = []
-        for sc in project['scripts']:
+        for sc in data['scripts']:
             new_scripts.append(self.create_script(data=sc))
 
         return new_scripts
