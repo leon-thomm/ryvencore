@@ -4,7 +4,7 @@ from typing import List
 from .Base import Base
 
 from .NodePort import NodeInput, NodeOutput
-from .NodePortBP import NodeInputBP, NodeOutputBP
+from .NodePortType import NodeInputType, NodeOutputType
 from .RC import FlowAlg
 from .Data import Data
 from .InfoMsgs import InfoMsgs
@@ -37,8 +37,8 @@ class Node(Base):
     version: str = None  # None means `undefined` and should be avoided
     visible: bool = True  # useful field for frontends to indicate invisible nodes which cannot be manually placed
     
-    init_inputs: List[NodeInputBP] = []
-    init_outputs: List[NodeOutputBP] = []
+    init_inputs: List[NodeInputType] = []
+    init_outputs: List[NodeOutputType] = []
 
     identifier: str = None  # set by Session if None
     identifier_comp: List[str] = []  # identifier (backwards) compatibility, useful when node class name changes

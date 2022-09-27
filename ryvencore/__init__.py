@@ -6,6 +6,6 @@ from .Flow import Flow
 from .Data import Data
 from .AddOn import AddOn
 from .Node import Node
-from .NodePortBP import NodeInputBP, NodeOutputBP
+from .NodePortType import NodeInputType, NodeOutputType
 from .Connection import DataConnection, ExecConnection
 from .utils import serialize, deserialize
