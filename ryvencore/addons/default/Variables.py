@@ -8,7 +8,7 @@ from ryvencore import AddOn
 
 
 class Variable:
-    """Implementation of script variables"""
+    """Implementation of flow variables"""
 
     def __init__(self, addon, flow, name='', val=None, data=None):
         self.addon = addon
@@ -78,7 +78,7 @@ class VarsAddon(AddOn):
 
     def create_var(self, flow, name: str, val=None, data=None) -> Optional[Variable]:
         """
-        Creates and returns a new script variable and None if the name isn't valid.
+        Creates and returns a new variable and None if the name isn't valid.
         """
 
         if flow not in self.flow_variables:

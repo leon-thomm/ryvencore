@@ -34,24 +34,23 @@ import sys
 if __name__ == '__main__':
     # project file path
     fpath = sys.args[1]
-    
+
     # read project file
     with open(fpath, 'r') as f:
         project: dict = json.loads(f.read())
-    
+
     # run ryvencore
     session = rc.Session()
     session.load(project)
 
     # now we can access all components, for example:
-    
+
     # get the first flow
-    scripts = session.scripts
-    flow1 = scripts[0].flow
-    
+    f = session.flows[0]
+
     # and the last node that was created
-    my_node = flow1.nodes[-1]
-    
+    my_node = f.nodes[-1]
+
     # and execute it
     my_node.update()
 ```

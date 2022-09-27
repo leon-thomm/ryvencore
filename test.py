@@ -66,7 +66,7 @@ class DataFlowBasic(unittest.TestCase):
         s = rc.Session()
         s.register_nodes([Node1, Node2])
 
-        f = s.create_script('main').flow
+        f = s.create_flow('main')
 
         n1 = f.create_node(Node1)
         n2 = f.create_node(Node2)
@@ -108,7 +108,7 @@ class DataFlowBasic(unittest.TestCase):
 
         vars = s2.addons.get('Variables')
 
-        f2 = s2.scripts[0].flow
+        f2 = s2.flows[0]
         assert vars.var(f2, 'var1').get() == 42
 
         n1_2, n2_2, n3_2, n4_2 = f2.nodes
@@ -154,7 +154,7 @@ class ExecFlowBasic(unittest.TestCase):
     def runTest(self):
         # rc.InfoMsgs.enable(True)
         s = rc.Session()
-        f = s.create_script('main').flow
+        f = s.create_flow('main').flow
         f.set_algorithm_mode('exec')
 
         n1 = f.create_node(Node1)

@@ -3,7 +3,7 @@ import glob
 from typing import List, Dict
 
 from .Base import Base, Event
-from .Script import Script
+from .Flow import Flow
 from .InfoMsgs import InfoMsgs
 from .utils import pkg_path, load_from_file
 from .Node import Node
@@ -11,7 +11,7 @@ from .Node import Node
 
 class Session(Base):
     """
-    The Session is the top level interface to your project. It mainly manages Scripts and registered nodes, and
+    The Session is the top level interface to your project. It mainly manages flows and registered nodes, and
     provides methods for serialization and deserialization of the project.
     """
 
@@ -22,13 +22,13 @@ class Session(Base):
         Base.__init__(self)
 
         # events
-        self.new_script_created = Event(Script)
-        self.script_renamed = Event(Script)
-        self.script_deleted = Event(Script)
+        self.new_flow_created = Event(Flow)
+        self.flow_renamed = Event(Flow)
+        self.flow_deleted = Event(Flow)
 
         # ATTRIBUTES
         self.addons = {}
-        self.scripts: [Script] = []
+        self.flows: [Flow] = []
         self.nodes = set()  # list of node CLASSES
         self.invisible_nodes = set()
         self.gui: bool = gui
@@ -88,62 +88,59 @@ class Session(Base):
         """Returns a list of all Node objects instantiated in any flow"""
 
         nodes = []
-        for s in self.scripts:
+        for s in self.flows:
             for n in s.flow.nodes:
                 nodes.append(n)
         return nodes
 
 
-    def create_script(self, title: str = None, create_default_logs=True,
-                      data: Dict = None) -> Script:
-        """Creates and returns a new script.
+    def create_flow(self, title: str = None, data: Dict = None) -> Flow:
+        """Creates and returns a new flow.
         If data is provided the title parameter will be ignored."""
 
-        script = Script(
-            session=self, title=title, create_default_logs=create_default_logs,
-            load_data=data
-        )
+        flow = Flow(session=self, title=title)
+        self.flows.append(flow)
 
-        self.scripts.append(script)
-        script.load_flow()
+        if data:
+            flow.load(data)
 
-        self.new_script_created.emit(script)
+        self.new_flow_created.emit(flow)
 
-        return script
+        return flow
 
 
-    def rename_script(self, script: Script, title: str) -> bool:
-        """Renames an existing script and returns success boolean"""
+    def rename_flow(self, flow: Flow, title: str) -> bool:
+        """Renames an existing flow and returns success boolean"""
 
         success = False
 
-        if self.script_title_valid(title):
-            script.title = title
+        if self.flow_title_valid(title):
+            flow.title = title
             success = True
 
-        self.script_renamed.emit(script)
+        self.flow_renamed.emit(flow)
 
         return success
 
 
-    def script_title_valid(self, title: str) -> bool:
-        """Checks whether a considered title for a new script is valid (unique) or not"""
+    def flow_title_valid(self, title: str) -> bool:
+        """Checks whether a considered title for a new flow is valid (unique) or not"""
 
         if len(title) == 0:
             return False
-        for s in self.scripts:
+        for s in self.flows:
             if s.title == title:
                 return False
 
         return True
 
 
-    def delete_script(self, script: Script):
-        """Removes an existing script."""
+    def delete_flow(self, flow: Flow):
+        """Removes an existing flow."""
 
-        self.scripts.remove(script)
+        self.flows.remove(flow)
 
-        self.script_deleted.emit(script)
+        self.flow_deleted.emit(flow)
 
 
     def info_messenger(self):
@@ -152,16 +149,26 @@ class Session(Base):
         return InfoMsgs
 
 
-    def load(self, data: Dict) -> List[Script]:
+    def load(self, data: Dict) -> List[Flow]:
         """Loads a project and raises an exception if required nodes are missing"""
         super().load(data)
 
         self.init_data = data
 
-        # load scripts
-        new_scripts = []
-        for sc in data['scripts']:
-            new_scripts.append(self.create_script(data=sc))
+        # load flows
+        new_flows = []
+
+        #   backward compatibility
+        if 'scripts' in data:
+            flows_data = {
+                title: script_data['flow']
+                for title, script_data in data['scripts'].items()
+            }
+        else:
+            flows_data = data['flows']
+
+        for fd in flows_data:
+            new_flows.append(self.create_flow(data=fd))
 
         # load addons
         for name, addon_data in data['addons'].items():
@@ -170,7 +177,7 @@ class Session(Base):
             else:
                 print(f'found missing addon: {name}; attempting to load anyway')
 
-        return new_scripts
+        return new_flows
 
     def serialize(self):
         """Returns the project as JSON compatible dict to be saved and loaded again using load()"""
@@ -181,8 +188,8 @@ class Session(Base):
     def data(self) -> dict:
         d = super().data()
         d.update({
-            'scripts': [
-                s.data() for s in self.scripts
+            'flows': [
+                s.data() for s in self.flows
             ],
             'addons': {
                 name: addon.get_state() for name, addon in self.addons.items()

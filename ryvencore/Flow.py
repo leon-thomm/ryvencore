@@ -13,7 +13,7 @@ class Flow(Base):
     Manages all abstract flow components (nodes, connections) and includes implementations for editing.
     """
 
-    def __init__(self, session, script):
+    def __init__(self, session, title):
         Base.__init__(self)
 
         # events
@@ -30,7 +30,7 @@ class Flow(Base):
 
         # general attributes
         self.session = session
-        self.script = script
+        self.title = title
         self.nodes: [Node] = []
 
         self.node_successors = {}   # additional data structure for executors
