@@ -72,7 +72,6 @@ class Node(Base):
         Base.__init__(self)
 
         self.flow, self.session, self.init_data = params
-        self.script = self.flow.script
         self.inputs: List[NodeInput] = []
         self.outputs: List[NodeOutput] = []
 
@@ -370,32 +369,6 @@ class Node(Base):
         Returns an add-on registered in the session, or None if it wasn't found.
         """
         return self.session.addons.get(name)
-
-    def get_vars_manager(self):
-        """Returns a ref to the script's variables manager"""
-        return None
-        # return self.script.vars_manager
-
-    def get_var_val(self, name: str):
-        """Gets the value of a script variable"""
-
-        return self.get_vars_manager().get_var_val(name)
-
-    def set_var_val(self, name: str, val):
-        """Sets the value of a script variable"""
-
-        return self.get_vars_manager().set_var(name, val)
-
-    def register_var_receiver(self, name: str, method):
-        """Registers the node with given method as vars receiver in the script's variables manager to catch
-        value changes of any variable with the given name"""
-
-        self.get_vars_manager().register_receiver(self, name, method)
-
-    def unregister_var_receiver(self, name: str, method):
-        """Unregisters previously registered node as receiver for value changes of script variables with given name"""
-
-        self.get_vars_manager().unregister_receiver(self, name, method)
 
     """
     
