@@ -316,6 +316,8 @@ class Node(Base):
         else:
             self.inputs.append(inp)
 
+        return inp
+
     def rename_input(self, index: int, label: str):
         self.inputs[index].label_str = label
 
@@ -344,6 +346,8 @@ class Node(Base):
             self.outputs.insert(insert, out)
         else:
             self.outputs.append(out)
+
+        return out
 
     def rename_output(self, index: int, label: str):
         self.outputs[index].label_str = label
