@@ -1,112 +1,101 @@
-'''
-
---------------------------------------------    LOGGER    --------------------------------------------
-
 from logging import Logger as PyLogger
-from ryvencore.Base import Base, Event
-
-
-class Logger(Base, PyLogger):
-    """
-    A small wrapper template for the python loggers to add functionality on node events.
-    Reimplemented as wrapper by the frontend with according implementations of the below methods.
-    """
-
-    def __init__(self, *args, **kwargs):
-        Base.__init__(self)
-        PyLogger.__init__(self, *args, **kwargs)
-
-        # events
-        self.sig_enabled = Event()
-        self.sig_disabled = Event()
-
-    def enable(self):
-        self.sig_enabled.emit()
-
-    def disable(self):
-        self.sig_disabled.emit()
-
-
---------------------------------------------    LOGS MANAGER    --------------------------------------------
-
-from ryvencore.Base import Base, Event
-from .Logger import Logger
-
-
-class LogsManager(Base):
-    """Manages all logs/loggers that belong to the script."""
-
-    def __init__(self, script, create_default_logs=True):
-        Base.__init__(self)
-
-        # events
-        self.new_logger_created = Event(Logger)
-
-        self.script = script
-        self.session = self.script.session
-        self.loggers: [Logger] = []
-        self.default_loggers = {
-            'global': None,
-            'errors': None,
-        }
-
-        if create_default_logs:
-            self.create_default_loggers()
-
-    def create_default_loggers(self):
-        for name in self.default_loggers.keys():
-            self.default_loggers[name] = self.new_logger(title=name.title())
-
-    def new_logger(self, title: str) -> Logger:
-        # logger = self.session.CLASSES['logger'](name=title)
-        logger = Logger(name=title)
-        self.loggers.append(logger)
-        self.new_logger_created.emit(logger)
-        return logger
-
-'''
+from typing import Optional
 
 from ryvencore.AddOn import AddOn
 
-class Logger:
-    pass
+
+class Logger(PyLogger):
+
+    def __init__(self, *args, **kwargs):
+        PyLogger.__init__(self, *args, **kwargs)
+    #     # events
+    #     self.sig_enabled = Event()
+    #     self.sig_disabled = Event()
+    #
+    # def enable(self):
+    #     self.sig_enabled.emit()
+    #
+    # def disable(self):
+    #     self.sig_disabled.emit()
+
 
 class LoggingAddon(AddOn):
     """
-    This addon implements some logging functionality for nodes.
+    This addon implements very basic some logging functionality.
 
-    It provides an API to create and delete loggers, either owned by a node,
-    or owned by a flow.
+    It provides an API to create and delete loggers that are owned
+    by a particular node. The logger gets enabled/disabled
+    automatically when the owning node is added to/removed from
+    the flow.
+
+    Ownership might eventually be expanded to any component that
+    preserves its global ID throughout save and load.
+
+    The contents of logs are currently not preserved. If a log's
+    content should be preserved, it should be saved in a file.
+
+    Refer to Python's logging module documentation.
     """
 
     name = 'Logging'
     version = '0.0.1'
 
-    class NodeExtensions(...):
-
-        @staticmethod
-        def after_placement(node):
-            ...
-
-        @staticmethod
-        def prepare_removal(node):
-            ...
-
-
-
-
     def __init__(self):
         super().__init__()
 
-        # self.loggers = ...
+        # logger_created = Event(Logger)
 
+        self.loggers = {}   # {Node: {name: Logger}}
 
-    # def new_logger(self, title) -> Logger:
-    #     """Requesting a new custom Log"""
-    #
-    #     logger = self.script.logs_manager.new_logger(title)
-    #     self.loggers.append(logger)
-    #     return logger
+    def new_logger(self, node, title: str) -> Optional[Logger]:
+        """
+        Creates a new logger owned by the node, returns None if
+        one with the given name already exists.
+        """
 
+        if not self._node_is_registered(node):
+            self.loggers[node] = {}
 
-# TODO: Logging.py
+        elif title in self.loggers[node]:
+            return None
+
+        logger = Logger(name=title)
+        self.loggers[node][title] = logger
+        # self.logger_created.emit(logger)
+        return logger
+
+    def _on_node_created(self, flow, node):
+        if 'Logging' in node.init_data:
+            for title in node.init_data['Logging']['loggers']:
+                self.new_logger(node, title)
+                # in case the node already created the logger,
+                # new_logger() will have no effect
+
+    def _node_is_registered(self, node):
+        return node in self.loggers
+
+    def _on_node_added(self, flow, node):
+        if not self._node_is_registered(node):
+            return
+
+        # enable the node's loggers
+        for logger in self.loggers[node].values():
+            logger.enable()
+
+    def _on_node_removed(self, flow, node):
+        if not self._node_is_registered(node):
+            return
+
+        # disable the node's loggers
+        for logger in self.loggers[node].values():
+            logger.disable()
+
+    def _extend_node_data(self, node, data: dict):
+        if not self._node_is_registered(node):
+            return
+
+        data['Logging'] = {
+            'loggers': [name for name in self.loggers[node].keys()]
+        }
+
+addon = LoggingAddon()
