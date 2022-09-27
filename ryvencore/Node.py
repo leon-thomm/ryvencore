@@ -1,6 +1,5 @@
-import logging
 import traceback
-from typing import List, Dict
+from typing import List
 
 from .Base import Base
 
@@ -8,9 +7,7 @@ from .NodePort import NodeInput, NodeOutput
 from .NodePortBP import NodeInputBP, NodeOutputBP
 from .RC import FlowAlg
 from .Data import Data
-from .dtypes import DType
 from .InfoMsgs import InfoMsgs
-from .logging import Logger
 from .utils import serialize, deserialize
 
 
@@ -78,7 +75,6 @@ class Node(Base):
         self.script = self.flow.script
         self.inputs: List[NodeInput] = []
         self.outputs: List[NodeOutput] = []
-        self.loggers = []
 
         self.initialized = False
 
@@ -91,15 +87,11 @@ class Node(Base):
 
         - loads all default properties from initial data if it was provided
         - sets up inputs and outputs
-        - enables the logs
         - loads user_data
 
         It does not crash on exception when loading user_data,
         as this is not uncommon when developing nodes.
         """
-
-        # enable logs
-        self.enable_loggers()
 
         if self.init_data:  # load from data
             # setup ports
@@ -139,11 +131,7 @@ class Node(Base):
             for i in range(len(self.init_inputs)):
                 inp = self.init_inputs[i]
 
-                if inp.dtype:
-                    self.create_input_dt(dtype=inp.dtype, label=inp.label, add_data=inp.add_data)
-
-                else:
-                    self.create_input(inp.label, inp.type_, add_data=self.init_inputs[i].add_data)
+                self.create_input(inp.label, inp.type_, add_data=self.init_inputs[i].add_data)
 
             for o in range(len(self.init_outputs)):
                 out = self.init_outputs[o]
@@ -154,11 +142,7 @@ class Node(Base):
             # initial ports specifications are irrelevant then
 
             for inp in inputs_data:
-                if 'dtype' in inp:
-                    self.create_input_dt(dtype=DType.from_str(inp['dtype'])(
-                        _load_state=deserialize(inp['dtype state'])), label=inp['label'], add_data=inp)
-                else:
-                    self.create_input(label=inp['label'], type_=inp['type'], add_data=inp)
+                self.create_input(label=inp['label'], type_=inp['type'], add_data=inp)
 
                 # if 'val' in inp:
                 #     # this means the input is 'data' and did not have any connections,
@@ -172,14 +156,12 @@ class Node(Base):
     def after_placement(self):
         """Called from Flow when the nodes gets added"""
 
-        self.enable_loggers()
         self.place_event()
 
     def prepare_removal(self):
         """Called from Flow when the node gets removed"""
 
         self.remove_event()
-        self.disable_loggers()
 
     """
     
@@ -316,29 +298,6 @@ class Node(Base):
     
     """
 
-    #   LOGGING
-
-    def new_logger(self, title) -> Logger:
-        """Requesting a new custom Log"""
-
-        logger = self.script.logs_manager.new_logger(title)
-        self.loggers.append(logger)
-        return logger
-
-    def disable_loggers(self):
-        """Disables custom logs"""
-
-        for logger in self.loggers:
-            logger.disable()
-            # logger.disabled = True
-
-    def enable_loggers(self):
-        """Enables custom logs"""
-
-        for logger in self.loggers:
-            logger.enable()
-            # logger.enabled = True
-
     #   PORTS
 
     def create_input(self, label: str = '', type_: str = 'data', add_data={}, insert: int = None):
@@ -349,23 +308,6 @@ class Node(Base):
             node=self,
             type_=type_,
             label_str=label,
-            add_data=add_data,
-        )
-
-        if insert is not None:
-            self.inputs.insert(insert, inp)
-        else:
-            self.inputs.append(inp)
-
-    def create_input_dt(self, dtype: DType, label: str = '', add_data={}, insert: int = None):
-        """Creates and adds a new data input with a DType"""
-        # InfoMsgs.write('create_input called')
-
-        inp = NodeInput(
-            node=self,
-            type_='data',
-            label_str=label,
-            dtype=dtype,
             add_data=add_data,
         )
 
@@ -419,10 +361,16 @@ class Node(Base):
 
     #   VARIABLES
 
+    def get_addon(self, name: str):
+        """
+        Returns an add-on registered in the session, or None if it wasn't found.
+        """
+        return self.session.addons.get(name)
+
     def get_vars_manager(self):
         """Returns a ref to the script's variables manager"""
-
-        return self.script.vars_manager
+        return None
+        # return self.script.vars_manager
 
     def get_var_val(self, name: str):
         """Gets the value of a script variable"""
@@ -478,7 +426,8 @@ class Node(Base):
         Used to rebuild the Flow when loading a project or pasting components.
         """
 
-        return {
+        d = super().data()
+        d.update({
             'identifier': self.identifier,
             'version': self.version,
 
@@ -487,6 +436,11 @@ class Node(Base):
 
             'inputs': [i.data() for i in self.inputs],
             'outputs': [o.data() for o in self.outputs],
+        })
 
-            'GID': self.GLOBAL_ID,
-        }
+        # extend with data from addons
+        for name, addon in self.session.addons.items():
+            # addons can modify anything, there is no isolation enforcement
+            addon._extend_node_data(self, d)
+
+        return d

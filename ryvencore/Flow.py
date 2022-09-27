@@ -1,11 +1,10 @@
-from . import serialize, deserialize
 from .Base import Base, Event
 from .Data import Data
 from .FlowExecutor import DataFlowNaive, DataFlowOptimized, FlowExecutor, executor_from_flow_alg
 from .Node import Node
 from .NodePort import NodePort
 from .RC import FlowAlg, PortObjPos
-from .utils import node_from_identifier
+from .utils import node_from_identifier, serialize, deserialize
 from typing import List, Dict, Optional, Tuple
 
 
@@ -83,7 +82,7 @@ class Flow(Base):
             indices = d['dependent node outputs']
             indices_paired = zip(indices[0::2], indices[1::2])
             for node_index, output_index in indices_paired:
-                nodes[node_index].outputs[output_index].data = \
+                nodes[node_index].outputs[output_index].val = \
                     Data(load_from=deserialize(d['data']))
 
 
@@ -266,13 +265,14 @@ class Flow(Base):
 
     def data(self) -> dict:
         """Returns a dictionary containing all data of the flow"""
-        return {
+        d = super().data()
+        d.update({
             'algorithm mode': FlowAlg.str(self.alg_mode),
             'nodes': self.gen_nodes_data(self.nodes),
             'connections': self.gen_conns_data(self.nodes),
             'output data': self.gen_output_data(self.nodes),
-            'GID': self.GLOBAL_ID,
-        }
+        })
+        return d
 
 
     def gen_nodes_data(self, nodes: List[Node]) -> List[dict]:
@@ -310,7 +310,7 @@ class Flow(Base):
 
         for i_n, n in enumerate(nodes):
             for i_o, out in enumerate(n.outputs):
-                d = out.data
+                d = out.val
                 if isinstance(d, Data) and d not in outputs_data:
                     outputs_data[d] = {
                         'data': serialize(d.get_data()),
