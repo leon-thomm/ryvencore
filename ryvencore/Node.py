@@ -361,6 +361,12 @@ class Node(Base):
 
     #   VARIABLES
 
+    def get_addon(self, name: str):
+        """
+        Returns an add-on registered in the session, or None if it wasn't found.
+        """
+        return self.session.addons.get(name)
+
     def get_vars_manager(self):
         """Returns a ref to the script's variables manager"""
         return None
@@ -431,8 +437,6 @@ class Node(Base):
             'inputs': [i.data() for i in self.inputs],
             'outputs': [o.data() for o in self.outputs],
         })
-            'GID': self.GLOBAL_ID,
-        }
 
         # extend with data from addons
         for name, addon in self.session.addons.items():

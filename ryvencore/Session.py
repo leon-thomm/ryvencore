@@ -160,9 +160,17 @@ class Session(Base):
 
         self.init_data = data
 
+        # load scripts
         new_scripts = []
         for sc in data['scripts']:
             new_scripts.append(self.create_script(data=sc))
+
+        # load addons
+        for name, addon_data in data['addons'].items():
+            if name in self.addons:
+                self.addons[name].set_state(addon_data)
+            else:
+                print(f'found missing addon: {name}; attempting to load anyway')
 
         return new_scripts
 
@@ -178,6 +186,8 @@ class Session(Base):
             'scripts': [
                 s.data() for s in self.scripts
             ],
-        }
+            'addons': {
+                name: addon.get_state() for name, addon in self.addons.items()
+            }
         })
         return d

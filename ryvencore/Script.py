@@ -1,5 +1,5 @@
 from .Base import Base
-from .addons.default.logging import LogsManager
+# from .addons.default.logging import LogsManager
 # from .addons.default import Variables
 from .Flow import Flow
 
@@ -28,10 +28,10 @@ class Script(Base):
         # loading from saved data
         if load_data:
             self.init_flow_data = load_data['flow'] if load_data else None
-            self.init_vars_manager_data = load_data['variables']
+            # self.init_vars_manager_data = load_data['variables']
 
-        # logging
-        self.logs_manager = LogsManager(self, self._create_default_logs)
+        # # logging
+        # self.logs_manager = LogsManager(self, self._create_default_logs)
 
         # vars manager
         # self.vars_manager = VarsManager(self, self.init_vars_manager_data)
