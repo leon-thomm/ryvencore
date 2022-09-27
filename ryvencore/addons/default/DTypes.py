@@ -230,4 +230,4 @@ class DtypesAddon(AddOn):
                     'state': self.dtype_inputs[inp].get_state(),
                 }
 
-addon = DtypesAddon()
+# addon = DtypesAddon()
