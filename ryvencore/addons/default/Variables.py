@@ -164,7 +164,7 @@ class VarsAddon(AddOn):
         """
         Reconstruction of subscriptions.
         """
-        if 'Variables' in node.init_data:
+        if node.init_data and 'Variables' in node.init_data:
             for name, cb_name in node.init_data['Variables']['subscriptions'].items():
                 self.subscribe(node, name, getattr(node, cb_name))
 

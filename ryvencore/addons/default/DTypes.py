@@ -1,17 +1,15 @@
-'''
-
-
-dtypes.py
-
 """
-This module contains definitions of declarative types which can be conveniently used for data inputs.
-For each of the exposed types, the frontend can define some prebuilt widgets, which makes nodes
-from other frontends that use those types to determine input widgets automatically compatible in
-other environments.
+This module defines dtypes, definitions of declarative types which can be conveniently used for
+data inputs, and an add-on for those.
+
+These dtypes only store some information which might be used by the nodes, or by a frontend, etc.
+There is currently no type checking or something like that implemented, but might be added
+optionally in the future.
+
 This list may grow significantly over time.
 """
 
-from typing import List as t_List, Dict as t_Dict
+from typing import Dict as t_Dict, List as t_List
 
 
 class DType:
@@ -123,18 +121,11 @@ class Range(DType):
     ...
 
 
-dtypes = [Data, Integer, Float, Boolean, Char, String, Choice, List]
+# dtypes = [Data, Integer, Float, Boolean, Char, String, Choice, List]
 
 
 
-
-
-
-
-
-
-
-
+'''
 
 Node: ...
 
@@ -164,12 +155,79 @@ NodePort.data(): ...
 '''
 
 from ryvencore import AddOn
+from ryvencore import NodeInputType
+
 
 class DtypesAddon(AddOn):
+    """
+    An add-on that adds the ability to create data inputs with a DType.
+    A DType simply holds some information about the data supposed to be
+    processed at the respective input, but does not perform any typechecks.
 
-    name = 'dtypes'
+    Currently, DType inputs can only be created dynamically through
+    ``DTypes.create_dtype_input(self, ...)``, not in ``init_inputs``. This
+    might change once we found a way of communicating the DType information
+    back to the add-on when node inputs are built from ``init_inputs``,
+    which currently isn't easily possible.
+    """
+
+    name = 'DTypes'
     version = '0.0.1'
 
-    # TODO:
-    #  - complement Node data by dtype information
-    #  - on load, store dtype information locally so it can be accessed later
+    Data = Data
+    Integer = Integer
+    Float = Float
+    Boolean = Boolean
+    Char = Char
+    String = String
+    Choice = Choice
+    List = List
+
+    class NodeInputType(NodeInputType):
+        def __init__(self, dtype=None, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+            self.dtype = dtype
+
+    def __init__(self):
+        super().__init__()
+
+        self.dtype_inputs = {}  # {NodeInput: DType}
+        self.creating_dtype_input = False
+
+    def create_dtype_input(self, node, dtype, *args, **kwargs):
+        """
+        Dynamically creates a new input and assigns the given dtype.
+        """
+
+        self.creating_dtype_input = True
+        inp = node.create_input(*args, **kwargs)
+        self.creating_dtype_input = False
+
+        # dtypes are only on data inputs allowed
+        if inp.type_ != 'data':
+            node.delete_input(node.inputs.index(inp))
+            return
+
+        self.dtype_inputs[inp] = dtype
+
+    def _on_node_created(self, flow, node):
+        """
+        Restores the node's dtypes.
+        """
+
+        for i, inp in enumerate(node.inputs):
+            if inp.type_ == 'data' and 'dtype' in node.init_data['inputs'][i]:
+                dtype = DType.from_str(node.init_data['inputs'][i]['dtype'])
+                dtype.set_state(node.init_data['inputs'][i]['dtype']['state'])
+                self.dtype_inputs[inp] = dtype
+
+    def _extend_node_data(self, node, data: dict):
+        for i, inp in enumerate(node.inputs):
+            if inp in self.dtype_inputs:
+                data['inputs'][i]['dtype'] = {
+                    'type': str(self.dtype_inputs[inp]),
+                    'state': self.dtype_inputs[inp].get_state(),
+                }
+
+# addon = DtypesAddon()

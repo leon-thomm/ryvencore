@@ -11,12 +11,14 @@ class Logger(PyLogger):
     #     # events
     #     self.sig_enabled = Event()
     #     self.sig_disabled = Event()
-    #
-    # def enable(self):
-    #     self.sig_enabled.emit()
-    #
-    # def disable(self):
-    #     self.sig_disabled.emit()
+
+    def enable(self):
+        # self.sig_enabled.emit()
+        pass
+
+    def disable(self):
+        # self.sig_disabled.emit()
+        pass
 
 
 class LoggingAddon(AddOn):
@@ -65,7 +67,7 @@ class LoggingAddon(AddOn):
         return logger
 
     def _on_node_created(self, flow, node):
-        if 'Logging' in node.init_data:
+        if node.init_data and 'Logging' in node.init_data:
             for title in node.init_data['Logging']['loggers']:
                 self.new_logger(node, title)
                 # in case the node already created the logger,
