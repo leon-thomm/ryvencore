@@ -3,6 +3,7 @@ import unittest
 import ryvencore as rc
 from ryvencore import Data
 from ryvencore.addons.default.Variables import addon as VarsAddon
+from ryvencore.addons.default.Logging import addon as LogsAddon
 
 
 class NodeBase(rc.Node):
@@ -11,6 +12,7 @@ class NodeBase(rc.Node):
         super().__init__(params)
 
         self.Vars: VarsAddon = self.get_addon('Variables')
+        self.Logging: LoggingAddon = self.get_addon('Logging')
 
     def place_event(self):
         if not self.Vars._var_exists(self.flow, 'var1'):
@@ -26,6 +28,9 @@ class Node1(NodeBase):
         super().__init__(params)
 
         self.var_val = None
+
+        self.log1 = self.Logging.new_logger(self, 'log1')
+        self.log2 = self.Logging.new_logger(self, 'log2')
 
     def place_event(self):
         super().place_event()
