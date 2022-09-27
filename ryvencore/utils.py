@@ -62,6 +62,6 @@ def load_from_file(file: str, comps: List[str]) -> Tuple:
         try:
             return getattr(mod, c)
         except AttributeError:
-            raise None
+            return None
 
     return tuple([get_comp(c) for c in comps])
