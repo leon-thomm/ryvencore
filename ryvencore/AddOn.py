@@ -1,23 +1,23 @@
 """
-This module defines a simple addon system to extend node ryvencore's functionalities.
-Some default addons are provided in the addons.default package, and additional addons
-can be added by the user.
+This module defines a simple add-on system to extend ryvencore's functionalities.
+Some default add-ons are provided in the add-ons.default package, and additional add-ons
+can be added and registered in the Session.
 
-An addon
-    - has a name, a version, a description
-    - is session-specific
-        - not per-flow
-        - but you can of course implement per-flow functionality
-    - manages its own state
-        - in particular get_data() and set_data()
-    - will be accessible by nodes as attribute (self.addon_name in the node)
-        - during loading, addon access is blocked, so nodes should not access any
-        addons in set_data(). This prevents inconsistent states. Nodes are loaded
-        first, then the addons. Therefore, the addon should be sufficiently
-        isolated and self-contained.
+An add-on
 
-To define a custom addon you need to subclass the Addon class, and register you addon
-with Session.register_addon(YourAddon()).
+- has a name, a version, a description
+- is session-local, not flow-local (but you can of course implement per-flow functionality)  
+- manages its own state (in particular ``get_state()`` and ``set_state()``)
+- will be accessible by nodes as attribute (self.add-on_name in the node)
+
+Add-on access is blocked during loading, so nodes should not access any add-ons in set_data(). 
+This prevents inconsistent states. Nodes are loaded first, then the add-ons. 
+Therefore, the add-on should be sufficiently isolated and self-contained.
+
+To define a custom add-on you need to subclass the ``AddOn`` class in its own module,
+instantiate it into a top module level variable ``addon`` (``addon = YourAddon()``),
+and put the module into an add-on directory. See ``Session.register_addon`` and
+see ``ryvencore.addons.default`` for examples.
 """
 
 from ryvencore.Base import Base
@@ -30,7 +30,7 @@ class AddOn(Base):
 
     def register(self, session):
         """
-        Called when the addon is registered with a session.
+        Called when the add-on is registered with a session.
         """
         self.session = session
 
@@ -57,30 +57,30 @@ class AddOn(Base):
 
     def _extend_node_data(self, node, data: dict):
         """
-        Extend the node data dict with additional addon-related data.
+        Extend the node data dict with additional add-on-related data.
         """
         pass
 
     # def _extend_flow_data(self, flow, data: dict):
     #     """
-    #     Extend the flow data dict with additional addon-related data.
+    #     Extend the flow data dict with additional add-on-related data.
     #     """
     #     pass
     #
     # def _extend_session_data(self, data: dict):
     #     """
-    #     Extend the session data dict with additional addon-related data.
+    #     Extend the session data dict with additional add-on-related data.
     #     """
     #     pass
 
     def get_state(self) -> dict:
         """
-        Return the state of the addon as JSON-compatible a dict.
+        Return the state of the add-on as JSON-compatible a dict.
         """
         return {}
 
     def set_state(self, state: dict):
         """
-        Set the state of the addon from the dict generated in get_state().
+        Set the state of the add-on from the dict generated in get_state().
         """
         pass

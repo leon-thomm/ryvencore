@@ -92,6 +92,11 @@ class Flow(Base):
         node = node_class((self, self.session, data))
         node.initialize()
         self.add_node(node)
+
+        # notify addons
+        for addon in self.session.addons.values():
+            addon._on_node_created(self, node)
+
         return node
 
 
@@ -108,6 +113,10 @@ class Flow(Base):
 
         node.after_placement()
         self.flow_changed()
+
+        # notify addons
+        for addon in self.session.addons.values():
+            addon._on_node_added(self, node)
 
         self.node_added.emit(node)
 
@@ -131,6 +140,10 @@ class Flow(Base):
             del self.graph_adj_rev[inp]
 
         self.flow_changed()
+
+        # notify addons
+        for addon in self.session.addons.values():
+            addon._on_node_removed(self, node)
 
         self.node_removed.emit(node)
 

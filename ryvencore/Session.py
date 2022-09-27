@@ -156,8 +156,6 @@ class Session(Base):
         """Loads a project and raises an exception if required nodes are missing"""
         super().load(data)
 
-        # TODO: perform validity checks
-
         self.init_data = data
 
         # load scripts

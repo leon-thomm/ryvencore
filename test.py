@@ -2,8 +2,8 @@ import json
 import unittest
 import ryvencore as rc
 from ryvencore import Data
-from ryvencore.addons.default.Variables import addon as VarsAddon
-from ryvencore.addons.default.Logging import addon as LogsAddon
+from ryvencore.addons.default.Variables import addon as Variables
+from ryvencore.addons.default.Logging import addon as Logging
 
 
 class NodeBase(rc.Node):
@@ -11,8 +11,8 @@ class NodeBase(rc.Node):
     def __init__(self, params):
         super().__init__(params)
 
-        self.Vars: VarsAddon = self.get_addon('Variables')
-        self.Logging: LoggingAddon = self.get_addon('Logging')
+        self.Vars: Variables = self.get_addon('Variables')
+        self.Logging: Logging = self.get_addon('Logging')
 
     def place_event(self):
         if not self.Vars._var_exists(self.flow, 'var1'):
@@ -22,7 +22,7 @@ class NodeBase(rc.Node):
 class Node1(NodeBase):
     title = 'node 1'
     init_inputs = []
-    init_outputs = [rc.NodeOutputBP(type_='data'), rc.NodeOutputBP(type_='data')]
+    init_outputs = [rc.NodeOutputType(type_='data'), rc.NodeOutputType(type_='data')]
 
     def __init__(self, params):
         super().__init__(params)
@@ -32,9 +32,7 @@ class Node1(NodeBase):
         self.log1 = self.Logging.new_logger(self, 'log1')
         self.log2 = self.Logging.new_logger(self, 'log2')
 
-    def place_event(self):
-        super().place_event()
-
+    def subscribe_to_var1(self):
         self.Vars.subscribe(self, 'var1', self.var1_changed)
         self.var_val = self.Vars.var(self.flow, 'var1').get()
 
@@ -51,7 +49,7 @@ class Node1(NodeBase):
 
 class Node2(NodeBase):
     title = 'node 2'
-    init_inputs = [rc.NodeInputBP('data')]
+    init_inputs = [rc.NodeInputType()]
     init_outputs = []
 
     def update_event(self, inp=-1):
@@ -92,6 +90,7 @@ class DataFlowBasic(unittest.TestCase):
 
         # test variables addon
 
+        n1.subscribe_to_var1()
         n2.update_var1(42)
         assert n1.var_val == 42
 
@@ -130,7 +129,7 @@ class ExecFlowBasic(unittest.TestCase):
     class Node1(rc.Node):
         title = 'node 1'
         init_inputs = []
-        init_outputs = [rc.NodeOutputBP(type_='exec'), rc.NodeOutputBP(type_='data')]
+        init_outputs = [rc.NodeOutputType(type_='exec'), rc.NodeOutputType(type_='data')]
 
         def update_event(self, inp=-1):
             self.set_output_val(1, Data('Hello, World!'))
@@ -139,7 +138,7 @@ class ExecFlowBasic(unittest.TestCase):
 
     class Node2(rc.Node):
         title = 'node 2'
-        init_inputs = [rc.NodeInputBP(type_='exec'), rc.NodeInputBP(type_='data')]
+        init_inputs = [rc.NodeInputType(type_='exec'), rc.NodeInputType(type_='data')]
         init_outputs = []
 
         def __init__(self, params):
