@@ -1,9 +1,9 @@
+from typing import Optional
+
+from .Data import Data
 from .Base import Base
 
-from .RC import PortObjPos, FlowAlg
-from .dtypes import DType
-from .utils import serialize
-from .InfoMsgs import InfoMsgs
+from .RC import PortObjPos
 
 
 class NodePort(Base):
@@ -18,37 +18,36 @@ class NodePort(Base):
         self.label_str = label_str
 
     def data(self) -> dict:
-        return {
+        d = super().data()
+        d.update({
             'type': self.type_,
             'label': self.label_str,
-            'GID': self.GLOBAL_ID,
-        }
+        })
+        return d
 
 
 class NodeInput(NodePort):
 
-    def __init__(self, node, type_, label_str='', add_data=None, dtype: DType = None):
+    def __init__(self, node, type_, label_str='', add_data=None):
         super().__init__(node, PortObjPos.INPUT, type_, label_str)
 
         # data can be used to store additional data for enhanced data input ports
         self.add_data = add_data
 
-        # optional dtype
-        self.dtype: DType = dtype
-
     def data(self) -> dict:
-        data = super().data()
-
-        if self.dtype:
-            data['dtype'] = str(self.dtype)
-            data['dtype state'] = serialize(self.dtype.get_state())
-
-        return data
-
+        d = super().data()
+        return d
 
 
 class NodeOutput(NodePort):
     def __init__(self, node, type_, label_str=''):
         super().__init__(node, PortObjPos.OUTPUT, type_, label_str)
 
-        self.data = None
+        self.val: Optional[Data] = None
+
+    # def data(self) -> dict:
+    #     data = super().data()
+    #
+    #     data['val'] = self.val if self.val is None else self.val.get_data()
+    #
+    #     return data

@@ -1,3 +1,8 @@
+'''
+
+
+dtypes.py
+
 """
 This module contains definitions of declarative types which can be conveniently used for data inputs.
 For each of the exposed types, the frontend can define some prebuilt widgets, which makes nodes
@@ -119,3 +124,52 @@ class Range(DType):
 
 
 dtypes = [Data, Integer, Float, Boolean, Char, String, Choice, List]
+
+
+
+
+
+
+
+
+
+
+
+
+Node: ...
+
+    def create_input_dt(self, dtype: DType, label: str = '', add_data={}, insert: int = None):
+        """Creates and adds a new data input with a DType"""
+        # InfoMsgs.write('create_input called')
+
+        inp = NodeInput(
+            node=self,
+            type_='data',
+            label_str=label,
+            dtype=dtype,
+            add_data=add_data,
+        )
+
+        if insert is not None:
+            self.inputs.insert(insert, inp)
+        else:
+            self.inputs.append(inp)
+
+
+NodePort.data(): ...
+
+        if self.dtype:
+            data['dtype'] = str(self.dtype)
+            data['dtype state'] = serialize(self.dtype.get_state())
+'''
+
+from ryvencore import AddOn
+
+class DtypesAddon(AddOn):
+
+    name = 'dtypes'
+    version = '0.0.1'
+
+    # TODO:
+    #  - complement Node data by dtype information
+    #  - on load, store dtype information locally so it can be accessed later

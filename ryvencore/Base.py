@@ -111,7 +111,7 @@ class Base:
 
     def data(self) -> dict:
         """converts the object to a JSON compatible dict for serialization"""
-        return None
+        return {'GID': self.GLOBAL_ID}
 
     def complete_data(self, data: dict) -> data:
         return Base.complete_data_function(data)
@@ -119,5 +119,5 @@ class Base:
     def load(self, data: dict):
         """recreate the object from the data dict returned by data()"""
         if dict is not None:
-            self.PREV_GLOBAL_ID = data['GLOBAL_ID']
+            self.PREV_GLOBAL_ID = data['GID']
             self._prev_id_objs[self.PREV_GLOBAL_ID] = self

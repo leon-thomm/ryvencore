@@ -1,6 +1,6 @@
 from .Base import Base
-from .logging import LogsManager
-from .script_variables import VarsManager
+# from .addons.default.logging import LogsManager
+# from .addons.default import Variables
 from .Flow import Flow
 
 
@@ -28,13 +28,13 @@ class Script(Base):
         # loading from saved data
         if load_data:
             self.init_flow_data = load_data['flow'] if load_data else None
-            self.init_vars_manager_data = load_data['variables']
+            # self.init_vars_manager_data = load_data['variables']
 
-        # logging
-        self.logs_manager = LogsManager(self, self._create_default_logs)
+        # # logging
+        # self.logs_manager = LogsManager(self, self._create_default_logs)
 
         # vars manager
-        self.vars_manager = VarsManager(self, self.init_vars_manager_data)
+        # self.vars_manager = VarsManager(self, self.init_vars_manager_data)
 
         # flow
         self.flow = Flow(self.session, self)
@@ -46,9 +46,11 @@ class Script(Base):
 
 
     def data(self) -> dict:
-        return {
+        d = super().data()
+        d.update({
             'title': self.title,
-            'variables': self.vars_manager.data(),
+            # 'variables': self.vars_manager.data(),
             'flow': self.flow.data(),
             'GID': self.GLOBAL_ID,
-        }
+        })
+        return d
