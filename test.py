@@ -32,9 +32,7 @@ class Node1(NodeBase):
         self.log1 = self.Logging.new_logger(self, 'log1')
         self.log2 = self.Logging.new_logger(self, 'log2')
 
-    def place_event(self):
-        super().place_event()
-
+    def subscribe_to_var1(self):
         self.Vars.subscribe(self, 'var1', self.var1_changed)
         self.var_val = self.Vars.var(self.flow, 'var1').get()
 
@@ -92,6 +90,7 @@ class DataFlowBasic(unittest.TestCase):
 
         # test variables addon
 
+        n1.subscribe_to_var1()
         n2.update_var1(42)
         assert n1.var_val == 42
 
