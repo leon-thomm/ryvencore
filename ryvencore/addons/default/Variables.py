@@ -55,7 +55,7 @@ class VarsAddon(AddOn):
     """
 
     name = 'Variables'
-    version = '0.0.2'
+    version = '0.0.3'
 
     def __init__(self):
         AddOn.__init__(self)
@@ -186,7 +186,10 @@ class VarsAddon(AddOn):
 
             # recreate variables
             for name, var in variables.items():
-                self.create_var(f, name, data=var)
+                if self._var_exists(f, name):
+                    self.var(f, name).set(deserialize(var['serialized']))
+                else:
+                    self.create_var(f, name, data=var)
 
 
 addon = VarsAddon()

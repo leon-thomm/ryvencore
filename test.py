@@ -3,6 +3,7 @@ import unittest
 import ryvencore as rc
 from ryvencore import Data
 from ryvencore.addons.default.Variables import addon as VarsAddon
+from ryvencore.addons.default.Logging import addon as LogsAddon
 
 
 class NodeBase(rc.Node):
@@ -11,6 +12,7 @@ class NodeBase(rc.Node):
         super().__init__(params)
 
         self.Vars: VarsAddon = self.get_addon('Variables')
+        self.Logging: LoggingAddon = self.get_addon('Logging')
 
     def place_event(self):
         if not self.Vars._var_exists(self.flow, 'var1'):
@@ -27,10 +29,14 @@ class Node1(NodeBase):
 
         self.var_val = None
 
+        self.log1 = self.Logging.new_logger(self, 'log1')
+        self.log2 = self.Logging.new_logger(self, 'log2')
+
     def place_event(self):
         super().place_event()
 
         self.Vars.subscribe(self, 'var1', self.var1_changed)
+        self.var_val = self.Vars.var(self.flow, 'var1').get()
 
     def update_event(self, inp=-1):
         self.set_output_val(0, Data('Hello, World!'))
@@ -100,10 +106,23 @@ class DataFlowBasic(unittest.TestCase):
         s2 = rc.Session()
         s2.register_nodes([Node1, Node2])
         s2.load(project)
+
+        vars = s2.addons.get('Variables')
+
         f2 = s2.scripts[0].flow
+        assert vars.var(f2, 'var1').get() == 42
+
         n1_2, n2_2, n3_2, n4_2 = f2.nodes
+
+        assert n1_2.var_val == 42
+        assert n2_2.input(0).payload == 'Hello, World!'
+        assert n3_2.input(0).payload == 42
+        assert n4_2.input(0).payload == 42
+
         n1_2.update()
         n2_2.update_var1(43)
+
+        assert n1_2.var_val == 43
 
 
 class ExecFlowBasic(unittest.TestCase):
