@@ -10,14 +10,14 @@ from ryvencore import AddOn
 class Variable:
     """Implementation of script variables"""
 
-    def __init__(self, addon, flow, name='', val=None):
+    def __init__(self, addon, flow, name='', val=None, data=None):
         self.addon = addon
         self.flow = flow
         self.name = name
-        self.val = None
+        self.val = val
 
-        if val and 'serialized' in val.keys():
-            self.val = deserialize(val['serialized'])
+        if data and 'serialized' in data.keys():
+            self.val = deserialize(data['serialized'])
 
     def get(self):
         """
@@ -30,7 +30,7 @@ class Variable:
         Sets the value of the variable
         """
         self.val = val
-        self.addon._var_updated(self, self.flow, self.name)
+        self.addon._var_updated(self.flow, self.name)
 
     def serialize(self):
         return serialize(self.val)
@@ -51,11 +51,11 @@ class VarsAddon(AddOn):
     This way nodes can react to changes of data and non-trivial data-flow is introduced,
     meaning that data dependencies are determined also by variable subscriptions and not
     purely by the edges in the graph anymore. This can be useful, but it can also prevent
-    optimization. Variables are per-flow.
+    optimization. Variables are flow-local.
     """
 
     name = 'Variables'
-    version = '0.0.1'
+    version = '0.0.2'
 
     def __init__(self):
         AddOn.__init__(self)
@@ -76,7 +76,7 @@ class VarsAddon(AddOn):
 
         return name.isidentifier() and not self._var_exists(flow, name)
 
-    def create_var(self, flow, name: str, val=None) -> Optional[Variable]:
+    def create_var(self, flow, name: str, val=None, data=None) -> Optional[Variable]:
         """
         Creates and returns a new script variable and None if the name isn't valid.
         """
@@ -85,8 +85,11 @@ class VarsAddon(AddOn):
             self.flow_variables[flow] = {}
 
         if self.var_name_valid(flow, name):
-            v = Variable(self, name, val)
-            self.flow_variables[flow][name]['var'] = v
+            v = Variable(self, flow, name, val, data)
+            self.flow_variables[flow][name] = {
+                'var': v,
+                'subscriptions': []
+            }
             return v
         else:
             return None
@@ -183,7 +186,7 @@ class VarsAddon(AddOn):
 
             # recreate variables
             for name, var in variables.items():
-                self.create_var(f, name, deserialize(var['serialized']))
+                self.create_var(f, name, data=var)
 
 
 addon = VarsAddon()
