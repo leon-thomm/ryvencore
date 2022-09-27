@@ -1,3 +1,6 @@
+from typing import Optional
+
+from .Data import Data
 from .Base import Base
 
 from .RC import PortObjPos
@@ -34,11 +37,17 @@ class NodeInput(NodePort):
     def data(self) -> dict:
         d = super().data()
         return d
-        return data
 
 
 class NodeOutput(NodePort):
     def __init__(self, node, type_, label_str=''):
         super().__init__(node, PortObjPos.OUTPUT, type_, label_str)
 
-        self.data = None
+        self.val: Optional[Data] = None
+
+    # def data(self) -> dict:
+    #     data = super().data()
+    #
+    #     data['val'] = self.val if self.val is None else self.val.get_data()
+    #
+    #     return data

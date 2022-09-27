@@ -82,7 +82,7 @@ class Flow(Base):
             indices = d['dependent node outputs']
             indices_paired = zip(indices[0::2], indices[1::2])
             for node_index, output_index in indices_paired:
-                nodes[node_index].outputs[output_index].data = \
+                nodes[node_index].outputs[output_index].val = \
                     Data(load_from=deserialize(d['data']))
 
 
@@ -310,7 +310,7 @@ class Flow(Base):
 
         for i_n, n in enumerate(nodes):
             for i_o, out in enumerate(n.outputs):
-                d = out.data
+                d = out.val
                 if isinstance(d, Data) and d not in outputs_data:
                     outputs_data[d] = {
                         'data': serialize(d.get_data()),

@@ -72,7 +72,7 @@ class DataFlowNaive(FlowExecutor):
         conn_out = self.graph_rev[inp]
 
         if conn_out:
-            return conn_out.data
+            return conn_out.val
         else:
             return None
 
@@ -81,7 +81,7 @@ class DataFlowNaive(FlowExecutor):
         out = node.outputs[index]
         if not out.type_ == 'data':
             return
-        out.data = data
+        out.val = data
 
         for inp in self.graph[out]:
             inp.node.update(inp=inp.node.inputs.index(inp))
@@ -159,7 +159,7 @@ class DataFlowOptimized(DataFlowNaive):
         if self.execution_root_node is None:  # execution starter!
             self.start_execution(root_output=out)
 
-            out.data = data
+            out.val = data
             self.output_updated[out] = True
             self.propagate_output(out)
 
@@ -176,7 +176,7 @@ class DataFlowOptimized(DataFlowNaive):
                 super().set_output_val(node, index, data)
 
             else:
-                out.data = data
+                out.val = data
                 self.output_updated[out] = True
 
     # Node.exec_output() =>
@@ -343,14 +343,14 @@ class ExecFlowNaive(FlowExecutor):
             if n not in self.updated_nodes:
                 n.update(-1)
 
-            return out.data
+            return out.val
         else:
             return None
 
     # Node.set_output_val() =>
     def set_output_val(self, node, index, data):
         out = node.outputs[index]
-        out.data = data
+        out.val = data
 
     # Node.exec_output() =>
     def exec_output(self, node, index):
