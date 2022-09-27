@@ -186,7 +186,10 @@ class VarsAddon(AddOn):
 
             # recreate variables
             for name, var in variables.items():
-                self.create_var(f, name, data=var)
+                if self._var_exists(f, name):
+                    self.var(f, name).set(deserialize(var['serialized']))
+                else:
+                    self.create_var(f, name, data=var)
 
 
 addon = VarsAddon()
