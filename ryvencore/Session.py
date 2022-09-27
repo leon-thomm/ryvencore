@@ -173,8 +173,11 @@ class Session(Base):
 
 
     def data(self) -> dict:
-        return {
+        d = super().data()
+        d.update({
             'scripts': [
                 s.data() for s in self.scripts
             ],
         }
+        })
+        return d

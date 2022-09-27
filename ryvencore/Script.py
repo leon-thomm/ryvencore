@@ -46,9 +46,11 @@ class Script(Base):
 
 
     def data(self) -> dict:
-        return {
+        d = super().data()
+        d.update({
             'title': self.title,
             # 'variables': self.vars_manager.data(),
             'flow': self.flow.data(),
             'GID': self.GLOBAL_ID,
-        }
+        })
+        return d

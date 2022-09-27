@@ -15,11 +15,12 @@ class NodePort(Base):
         self.label_str = label_str
 
     def data(self) -> dict:
-        return {
+        d = super().data()
+        d.update({
             'type': self.type_,
             'label': self.label_str,
-            'GID': self.GLOBAL_ID,
-        }
+        })
+        return d
 
 
 class NodeInput(NodePort):
@@ -31,8 +32,8 @@ class NodeInput(NodePort):
         self.add_data = add_data
 
     def data(self) -> dict:
-        data = super().data()
-
+        d = super().data()
+        return d
         return data
 
 

@@ -265,13 +265,14 @@ class Flow(Base):
 
     def data(self) -> dict:
         """Returns a dictionary containing all data of the flow"""
-        return {
+        d = super().data()
+        d.update({
             'algorithm mode': FlowAlg.str(self.alg_mode),
             'nodes': self.gen_nodes_data(self.nodes),
             'connections': self.gen_conns_data(self.nodes),
             'output data': self.gen_output_data(self.nodes),
-            'GID': self.GLOBAL_ID,
-        }
+        })
+        return d
 
 
     def gen_nodes_data(self, nodes: List[Node]) -> List[dict]:
