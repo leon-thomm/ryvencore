@@ -6,10 +6,7 @@ components. It defines the Base (parent) class.
 
 def complete_data(data: dict) -> dict:
     """
-    Default implementation for supplementing data with additional (e.g. frontend)
-    information. For example, a frontend can store additional information like
-    current position, color of a node, etc. by replacing this function by an
-    according custom handler.
+    See ``Base.complete_data_function``.
     """
     return data
 
@@ -46,9 +43,9 @@ class Event:
 class IDCtr:
     """
     A simple ascending integer ID counter.
-    Guarantees uniqueness only during lifetime.
-    This approach is preferred over UUIDs because UUIDs require system support
-    which might not be available everywhere.
+    Guarantees uniqueness during lifetime or the program (not only of the Session).
+    This approach is preferred over UUIDs because UUIDs need a networking context
+    and require according system support which might not be available everywhere.
     """
 
     def __init__(self):
@@ -67,7 +64,7 @@ class IDCtr:
 
 class Base:
     """
-    Base class for all abstract components. It provides
+    Base class for all abstract components. It provides:
 
     Functionality for ID counting:
         - an automatic ``GLOBAL_ID`` unique during the lifetime of the program
@@ -77,9 +74,9 @@ class Base:
     Serialization:
         - the ``data()`` method gets reimplemented by subclasses to serialize
         - the ``load()`` method gets reimplemented by subclasses to deserialize
-        - the complete_data_function attribute can be set to a function which\\
-          extends the data dict with additional information, which is useful
-          when ryvencore is embedded e.g. in a frontend
+        - the static attribute ``Base.complete_data_function`` can be set to
+          a function which extends the data dict of any component with additional
+          information, which is useful e.g. in a frontend context
     """
 
     # all abstract components have a global ID
@@ -95,19 +92,11 @@ class Base:
         """returns the object with the given previous id"""
         return cls._prev_id_objs.get(prev_id)
 
+    complete_data_function = complete_data
+
     def __init__(self):
         self.GLOBAL_ID = self._global_id_ctr.count()
         self.PREV_GLOBAL_ID = None
-
-    """
-    
-    CUSTOM DATA
-    
-    """
-
-    # this can be conveniently set to another function by the host to implement
-    # adding additional (e.g. frontend-related) information to the data dict
-    complete_data_function = complete_data
 
     def data(self) -> dict:
         """converts the object to a JSON compatible dict for serialization"""
@@ -117,7 +106,7 @@ class Base:
         return Base.complete_data_function(data)
 
     def load(self, data: dict):
-        """recreate the object from the data dict returned by data()"""
+        """recreate the object from the data dict returned by ``data()``"""
         if dict is not None:
             self.PREV_GLOBAL_ID = data['GID']
             self._prev_id_objs[self.PREV_GLOBAL_ID] = self

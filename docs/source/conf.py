@@ -20,7 +20,7 @@ from importlib.metadata import metadata
 # -- Project information -----------------------------------------------------
 
 project = 'ryvencore'
-copyright = '2021, Leon Thomm'
+copyright = '2022, Leon Thomm'
 author = 'Leon Thomm'
 
 # The full version, including alpha/beta/rc tags
@@ -57,7 +57,13 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 
-html_theme = 'furo'
+import maisie_sphinx_theme
+extensions.append("maisie_sphinx_theme")
+html_theme = 'maisie_sphinx_theme'
+html_theme_path = maisie_sphinx_theme.html_theme_path()
+
+# html_theme = 'alabaster'
+# 'furo'
 # 'karma_sphinx_theme'
 # 'insegel'
 # 'pydata_sphinx_theme'

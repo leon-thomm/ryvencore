@@ -22,7 +22,7 @@ def node_from_identifier(identifier: str, nodes: List):
             return nc
     else:  # couldn't find a node with this identifier => search for identifier_comp
         for nc in nodes:
-            if identifier in nc.identifier_comp:
+            if identifier in nc.legacy_identifiers:
                 return nc
         else:
             raise Exception(

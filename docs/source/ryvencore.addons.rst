@@ -1,18 +1,18 @@
-ryvencore.dtypes package
+ryvencore.addons package
 ========================
 
-Submodules
-----------
+Subpackages
+-----------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
-   ryvencore.dtypes.dtypes
+   ryvencore.addons.default
 
 Module contents
 ---------------
 
-.. automodule:: ryvencore.dtypes
+.. automodule:: ryvencore.addons
    :members:
    :undoc-members:
    :show-inheritance:
