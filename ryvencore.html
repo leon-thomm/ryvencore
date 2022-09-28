@@ -1,336 +1,865 @@
-<!doctype html>
-<html class="no-js">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="ryvencore.dtypes package" href="ryvencore.dtypes.html" /><link rel="prev" title="ryvencore v0.1.0" href="index.html" />
 
-    <meta name="generator" content="sphinx-4.3.0, furo 2021.11.23"/>
-        <title>ryvencore package - ryvencore v0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=0af69da206d614734f649b27d4cdc2dd6c31f41d" />
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>ryvencore package &#8212; ryvencore v0.4.0a7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/maisie.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    
-    
-
-
-<style>
-  body {
-    --color-code-background: #f8f8f8;
-  --color-code-foreground: black;
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ryvencore.addons package" href="ryvencore.addons.html" />
+    <link rel="prev" title="ryvencore v0.4.0a7" href="index.html" />
   
-  }
-  body[data-theme="dark"] {
-    --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
-  
-  }
-  @media (prefers-color-scheme: dark) {
-    body:not([data-theme="light"]) {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
-  
-    }
-  }
-</style></head>
-  <body>
-    <script>
-      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
-    </script>
-    
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-  <symbol id="svg-toc" viewBox="0 0 24 24">
-    <title>Contents</title>
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path stroke="none" d="M0 0h24v24H0z" />
-      <line x1="4" y1="6" x2="20" y2="6" />
-      <line x1="10" y1="12" x2="20" y2="12" />
-      <line x1="6" y1="18" x2="20" y2="18" />
-    </svg>
-  </symbol>
-  <symbol id="svg-menu" viewBox="0 0 24 24">
-    <title>Menu</title>
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
-      <line x1="3" y1="12" x2="21" y2="12"></line>
-      <line x1="3" y1="6" x2="21" y2="6"></line>
-      <line x1="3" y1="18" x2="21" y2="18"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
-    <title>Expand</title>
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
-      <polyline points="9 18 15 12 9 6"></polyline>
-    </svg>
-  </symbol>
-  <symbol id="svg-sun" viewBox="0 0 24 24">
-    <title>Light mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
-      <circle cx="12" cy="12" r="5"></circle>
-      <line x1="12" y1="1" x2="12" y2="3"></line>
-      <line x1="12" y1="21" x2="12" y2="23"></line>
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-      <line x1="1" y1="12" x2="3" y2="12"></line>
-      <line x1="21" y1="12" x2="23" y2="12"></line>
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-moon" viewBox="0 0 24 24">
-    <title>Dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
-    </svg>
-  </symbol>
-  <symbol id="svg-sun-half" viewBox="0 0 24 24">
-    <title>Auto light/dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M13 12h5" />
-      <path d="M13 15h4" />
-      <path d="M13 18h1" />
-      <path d="M13 9h4" />
-      <path d="M13 6h1" />
-    </svg>
-  </symbol>
-</svg>
+   
 
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
-
-
-
-<div class="page">
-  <header class="mobile-header">
-    <div class="header-left">
-      <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
-      </label>
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ryvencore.addons.html" title="ryvencore.addons package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="ryvencore v0.4.0a7"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ryvencore v0.4.0a7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ryvencore package</a></li> 
+      </ul>
     </div>
-    <div class="header-center">
-      <a href="index.html"><div class="brand">ryvencore v0.1.0 documentation</div></a>
-    </div>
-    <div class="header-right">
-      <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
-          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-        </button>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
-      </label>
-    </div>
-  </header>
-  <aside class="sidebar-drawer">
-    <div class="sidebar-container">
-      
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
-  
-  
-  <span class="sidebar-brand-text">ryvencore v0.1.0 documentation</span>
-  
-</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
-  <input type="hidden" name="check_keywords" value="yes">
-  <input type="hidden" name="area" value="default">
-</form>
-<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
-<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">ryvencore package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="ryvencore.dtypes.html">ryvencore.dtypes package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="ryvencore.dtypes.dtypes.html">ryvencore.dtypes.dtypes module</a></li>
-</ul>
-</li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="ryvencore.logging.html">ryvencore.logging package</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="ryvencore.logging.Logger.html">ryvencore.logging.Logger module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="ryvencore.logging.LogsManager.html">ryvencore.logging.LogsManager module</a></li>
-</ul>
-</li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="ryvencore.script_variables.html">ryvencore.script_variables package</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="ryvencore.script_variables.Variable.html">ryvencore.script_variables.Variable module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="ryvencore.script_variables.VarsManager.html">ryvencore.script_variables.VarsManager module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.Base.html">ryvencore.Base module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.Connection.html">ryvencore.Connection module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.Flow.html">ryvencore.Flow module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.FlowExecutor.html">ryvencore.FlowExecutor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.InfoMsgs.html">ryvencore.InfoMsgs module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.Node.html">ryvencore.Node module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.NodePort.html">ryvencore.NodePort module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.NodePortBP.html">ryvencore.NodePortBP module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.RC.html">ryvencore.RC module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.Script.html">ryvencore.Script module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.Session.html">ryvencore.Session module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.pkg_info.html">ryvencore.pkg_info module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.utils.html">ryvencore.utils module</a></li>
-</ul>
-</li>
-</ul>
-
-</div>
-</div>
-      </div>
-      
-    </div>
-  </aside>
-  <div class="main">
-    <div class="content">
-      <div class="article-container">
-        <div class="content-icon-container">
-          <div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
-              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-            </button>
-          </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
-          </label>
-        </div>
-        <article role="main">
-          <section id="ryvencore-package">
-<h1>ryvencore package<a class="headerlink" href="#ryvencore-package" title="Permalink to this headline">¶</a></h1>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.dtypes.html">ryvencore.dtypes package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.dtypes.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.dtypes.html#module-ryvencore.dtypes">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.logging.html">ryvencore.logging package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.logging.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.logging.html#module-ryvencore.logging">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.script_variables.html">ryvencore.script_variables package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.script_variables.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ryvencore.script_variables.html#module-ryvencore.script_variables">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.Base.html">ryvencore.Base module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.Connection.html">ryvencore.Connection module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.Flow.html">ryvencore.Flow module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.FlowExecutor.html">ryvencore.FlowExecutor module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.InfoMsgs.html">ryvencore.InfoMsgs module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.Node.html">ryvencore.Node module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.NodePort.html">ryvencore.NodePort module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.NodePortBP.html">ryvencore.NodePortBP module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.RC.html">ryvencore.RC module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.Script.html">ryvencore.Script module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.Session.html">ryvencore.Session module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.pkg_info.html">ryvencore.pkg_info module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ryvencore.utils.html">ryvencore.utils module</a></li>
-</ul>
-</div>
-</section>
-<section id="module-ryvencore">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ryvencore" title="Permalink to this headline">¶</a></h2>
-</section>
-</section>
-
-        </article>
-      </div>
-      <footer>
-        
-        <div class="related-pages">
-          <a class="next-page" href="ryvencore.dtypes.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">ryvencore.dtypes package</div>
-              </div>
-              <svg><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="index.html">
-              <svg><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">Home</div>
-                
-              </div>
-            </a>
-        </div>
-
-        <div class="related-information">
-              Copyright &#169; 2021, Leon Thomm |
-          Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-          <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            | <a class="muted-link" href="_sources/ryvencore.rst.txt"
-               rel="nofollow">
-              Show Source
-            </a>
-        </div>
-        
-      </footer>
-    </div>
-    <aside class="toc-drawer">
-      
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            Contents
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Contents</h2>
+    <div class="sidebar-localtoc">
+      <ul>
 <li><a class="reference internal" href="#">ryvencore package</a><ul>
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-ryvencore.AddOn">ryvencore.AddOn module</a><ul>
+<li><a class="reference internal" href="#ryvencore.AddOn.AddOn"><code class="docutils literal notranslate"><span class="pre">AddOn</span></code></a><ul>
+<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.name"><code class="docutils literal notranslate"><span class="pre">AddOn.name</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.version"><code class="docutils literal notranslate"><span class="pre">AddOn.version</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.register"><code class="docutils literal notranslate"><span class="pre">AddOn.register()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.get_state"><code class="docutils literal notranslate"><span class="pre">AddOn.get_state()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.set_state"><code class="docutils literal notranslate"><span class="pre">AddOn.set_state()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-ryvencore.Data">ryvencore.Data module</a><ul>
+<li><a class="reference internal" href="#ryvencore.Data.Data"><code class="docutils literal notranslate"><span class="pre">Data</span></code></a><ul>
+<li><a class="reference internal" href="#ryvencore.Data.Data.payload"><code class="docutils literal notranslate"><span class="pre">Data.payload</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Data.Data.get_data"><code class="docutils literal notranslate"><span class="pre">Data.get_data()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Data.Data.set_data"><code class="docutils literal notranslate"><span class="pre">Data.set_data()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-ryvencore.Flow">ryvencore.Flow module</a><ul>
+<li><a class="reference internal" href="#ryvencore.Flow.Flow"><code class="docutils literal notranslate"><span class="pre">Flow</span></code></a><ul>
+<li><a class="reference internal" href="#ryvencore.Flow.Flow.load"><code class="docutils literal notranslate"><span class="pre">Flow.load()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Flow.Flow.create_node"><code class="docutils literal notranslate"><span class="pre">Flow.create_node()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Flow.Flow.add_node"><code class="docutils literal notranslate"><span class="pre">Flow.add_node()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Flow.Flow.remove_node"><code class="docutils literal notranslate"><span class="pre">Flow.remove_node()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Flow.Flow.check_connection_validity"><code class="docutils literal notranslate"><span class="pre">Flow.check_connection_validity()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Flow.Flow.connect_nodes"><code class="docutils literal notranslate"><span class="pre">Flow.connect_nodes()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Flow.Flow.add_connection"><code class="docutils literal notranslate"><span class="pre">Flow.add_connection()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Flow.Flow.remove_connection"><code class="docutils literal notranslate"><span class="pre">Flow.remove_connection()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Flow.Flow.connected_inputs"><code class="docutils literal notranslate"><span class="pre">Flow.connected_inputs()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Flow.Flow.connected_output"><code class="docutils literal notranslate"><span class="pre">Flow.connected_output()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Flow.Flow.algorithm_mode"><code class="docutils literal notranslate"><span class="pre">Flow.algorithm_mode()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Flow.Flow.set_algorithm_mode"><code class="docutils literal notranslate"><span class="pre">Flow.set_algorithm_mode()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Flow.Flow.data"><code class="docutils literal notranslate"><span class="pre">Flow.data()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-ryvencore.Node">ryvencore.Node module</a><ul>
+<li><a class="reference internal" href="#ryvencore.Node.Node"><code class="docutils literal notranslate"><span class="pre">Node</span></code></a><ul>
+<li><a class="reference internal" href="#ryvencore.Node.Node.title"><code class="docutils literal notranslate"><span class="pre">Node.title</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.tags"><code class="docutils literal notranslate"><span class="pre">Node.tags</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.version"><code class="docutils literal notranslate"><span class="pre">Node.version</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.init_inputs"><code class="docutils literal notranslate"><span class="pre">Node.init_inputs</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.init_outputs"><code class="docutils literal notranslate"><span class="pre">Node.init_outputs</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.identifier"><code class="docutils literal notranslate"><span class="pre">Node.identifier</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.legacy_identifiers"><code class="docutils literal notranslate"><span class="pre">Node.legacy_identifiers</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.identifier_prefix"><code class="docutils literal notranslate"><span class="pre">Node.identifier_prefix</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.initialize"><code class="docutils literal notranslate"><span class="pre">Node.initialize()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.after_placement"><code class="docutils literal notranslate"><span class="pre">Node.after_placement()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.prepare_removal"><code class="docutils literal notranslate"><span class="pre">Node.prepare_removal()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.update"><code class="docutils literal notranslate"><span class="pre">Node.update()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.update_error"><code class="docutils literal notranslate"><span class="pre">Node.update_error()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.input"><code class="docutils literal notranslate"><span class="pre">Node.input()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.exec_output"><code class="docutils literal notranslate"><span class="pre">Node.exec_output()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.set_output_val"><code class="docutils literal notranslate"><span class="pre">Node.set_output_val()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.update_event"><code class="docutils literal notranslate"><span class="pre">Node.update_event()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.place_event"><code class="docutils literal notranslate"><span class="pre">Node.place_event()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.remove_event"><code class="docutils literal notranslate"><span class="pre">Node.remove_event()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.additional_data"><code class="docutils literal notranslate"><span class="pre">Node.additional_data()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.load_additional_data"><code class="docutils literal notranslate"><span class="pre">Node.load_additional_data()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.get_state"><code class="docutils literal notranslate"><span class="pre">Node.get_state()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.set_state"><code class="docutils literal notranslate"><span class="pre">Node.set_state()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.create_input"><code class="docutils literal notranslate"><span class="pre">Node.create_input()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.rename_input"><code class="docutils literal notranslate"><span class="pre">Node.rename_input()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.delete_input"><code class="docutils literal notranslate"><span class="pre">Node.delete_input()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.create_output"><code class="docutils literal notranslate"><span class="pre">Node.create_output()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.rename_output"><code class="docutils literal notranslate"><span class="pre">Node.rename_output()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.delete_output"><code class="docutils literal notranslate"><span class="pre">Node.delete_output()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.get_addon"><code class="docutils literal notranslate"><span class="pre">Node.get_addon()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.is_active"><code class="docutils literal notranslate"><span class="pre">Node.is_active()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.data"><code class="docutils literal notranslate"><span class="pre">Node.data()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-ryvencore.Session">ryvencore.Session module</a><ul>
+<li><a class="reference internal" href="#ryvencore.Session.Session"><code class="docutils literal notranslate"><span class="pre">Session</span></code></a><ul>
+<li><a class="reference internal" href="#ryvencore.Session.Session.load_addons"><code class="docutils literal notranslate"><span class="pre">Session.load_addons()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Session.Session.register_nodes"><code class="docutils literal notranslate"><span class="pre">Session.register_nodes()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Session.Session.register_node"><code class="docutils literal notranslate"><span class="pre">Session.register_node()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Session.Session.unregister_node"><code class="docutils literal notranslate"><span class="pre">Session.unregister_node()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Session.Session.all_node_objects"><code class="docutils literal notranslate"><span class="pre">Session.all_node_objects()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Session.Session.create_flow"><code class="docutils literal notranslate"><span class="pre">Session.create_flow()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Session.Session.rename_flow"><code class="docutils literal notranslate"><span class="pre">Session.rename_flow()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Session.Session.flow_title_valid"><code class="docutils literal notranslate"><span class="pre">Session.flow_title_valid()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Session.Session.delete_flow"><code class="docutils literal notranslate"><span class="pre">Session.delete_flow()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Session.Session.load"><code class="docutils literal notranslate"><span class="pre">Session.load()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Session.Session.serialize"><code class="docutils literal notranslate"><span class="pre">Session.serialize()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Session.Session.data"><code class="docutils literal notranslate"><span class="pre">Session.data()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-ryvencore">Module contents</a></li>
 </ul>
 </li>
 </ul>
 
-          </div>
-        </div>
-      </div>
-      
-      
-    </aside>
+    </div>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/scripts/furo.js"></script>
-    </body>
+</div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter"><cite>ryvencore</cite> v0.4.0a7</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="ryvencore.addons.html"
+                          title="next chapter">ryvencore.addons package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ryvencore.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="index.html">Docs</a></li>
+              
+              <li>ryvencore package</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="ryvencore-package">
+<h1>ryvencore package<a class="headerlink" href="#ryvencore-package" title="Permalink to this heading">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ryvencore.addons.html">ryvencore.addons package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ryvencore.addons.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ryvencore.addons.default.html">ryvencore.addons.default package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ryvencore.addons.default.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ryvencore.addons.default.html#module-ryvencore.addons.default.Logging">ryvencore.addons.default.Logging module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ryvencore.addons.default.html#module-ryvencore.addons.default.Variables">ryvencore.addons.default.Variables module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ryvencore.addons.default.html#module-ryvencore.addons.default">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ryvencore.addons.html#module-ryvencore.addons">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</div>
+<div class="section" id="module-ryvencore.AddOn">
+<span id="ryvencore-addon-module"></span><h2>ryvencore.AddOn module<a class="headerlink" href="#module-ryvencore.AddOn" title="Permalink to this heading">¶</a></h2>
+<p><em>ALPHA</em></p>
+<p>This module defines a simple add-on system to extend ryvencore’s functionalities.
+Some default add-ons are provided in the addons.default package, and additional add-ons
+can be added and registered in the Session.</p>
+<dl class="docutils">
+<dt>An add-on</dt><dd><ul class="simple">
+<li>has a name and a version</li>
+<li>is session-local, not flow-local (but you can of course implement per-flow functionality)</li>
+<li>manages its own state (in particular <code class="docutils literal notranslate"><span class="pre">get_state()</span></code> and <code class="docutils literal notranslate"><span class="pre">set_state()</span></code>)</li>
+<li>can store additional node-specific data in the node’s <code class="docutils literal notranslate"><span class="pre">data</span></code> dict when it’s serialized</li>
+<li>will be accessible through the nodes API: <code class="docutils literal notranslate"><span class="pre">self.get_addon('your_addon')</span></code> in your nodes</li>
+</ul>
+</dd>
+</dl>
+<p>Add-on access is blocked during loading (deserialization), so nodes should not access any
+add-ons during the execution of <code class="docutils literal notranslate"><span class="pre">Node.__init__</span></code> or <code class="docutils literal notranslate"><span class="pre">Node.set_data</span></code>.
+This prevents inconsistent states. Nodes are loaded first, then the add-ons.
+Therefore, the add-on should be sufficiently isolated and self-contained.</p>
+<dl class="docutils">
+<dt>To define a custom add-on:</dt><dd><ul class="simple">
+<li>create a directory <code class="docutils literal notranslate"><span class="pre">your_addons</span></code> for you addons or use ryvencore’s addon directory</li>
+<li>create a module for your addon <code class="docutils literal notranslate"><span class="pre">YourAddon.py</span></code> in <code class="docutils literal notranslate"><span class="pre">your_addons</span></code></li>
+<li>create a class <code class="docutils literal notranslate"><span class="pre">YourAddon(ryvencore.AddOn)</span></code> that defines your add-on’s functionality</li>
+<li>instantiate it into a top-level variable: <code class="docutils literal notranslate"><span class="pre">addon</span> <span class="pre">=</span> <span class="pre">YourAddon()</span></code> at the end of the module</li>
+<li>register your addon directory in the Session: <code class="docutils literal notranslate"><span class="pre">session.register_addon_dir('path/to/your_addons')</span></code></li>
+</ul>
+</dd>
+</dl>
+<p>See <code class="docutils literal notranslate"><span class="pre">ryvencore.addons.default</span></code> for examples.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><code class="sig-name descname"><span class="pre">AddOn</span></code><a class="headerlink" href="#ryvencore.AddOn.AddOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.name">
+<code class="sig-name descname"><span class="pre">name</span></code><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#ryvencore.AddOn.AddOn.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.version">
+<code class="sig-name descname"><span class="pre">version</span></code><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#ryvencore.AddOn.AddOn.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.register">
+<code class="sig-name descname"><span class="pre">register</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">session</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.AddOn.AddOn.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when the add-on is registered with a session.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.get_state">
+<code class="sig-name descname"><span class="pre">get_state</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#ryvencore.AddOn.AddOn.get_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the state of the add-on as JSON-compatible a dict.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.set_state">
+<code class="sig-name descname"><span class="pre">set_state</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.AddOn.AddOn.set_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the state of the add-on from the dict generated in get_state().</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ryvencore.Data">
+<span id="ryvencore-data-module"></span><h2>ryvencore.Data module<a class="headerlink" href="#module-ryvencore.Data" title="Permalink to this heading">¶</a></h2>
+<p>This file defines the <code class="docutils literal notranslate"><span class="pre">Data</span></code> type, which must be used to pass data between nodes.
+It should be subclassed to define custom data types. In particular, serialization
+and deserialization must be implemented for each respective type. Types that are
+pickle serializable by default can be used directly with <code class="docutils literal notranslate"><span class="pre">Data(my_data)</span></code>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ryvencore.Data.Data">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><code class="sig-name descname"><span class="pre">Data</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em><span class="n"><span class="pre">load_from</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Data.Data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class for data objects.</p>
+<p>Subclass this class and implement serialization and deserialization accordingly
+to send data to other nodes.</p>
+<p>In case of large data sets being shared, you might want to leave serialization
+empty, which means the graph will not enter the same state when you reload it,
+which is fine as long as your nodes are built appropriately e.g. such that you can
+quickly regenerate that state by updating the root node.</p>
+<p>Be careful when consuming complex input data: modification can lead to undesired
+effects. In particular, if you share some data object <code class="docutils literal notranslate"><span class="pre">D</span></code> with successor nodes
+<code class="docutils literal notranslate"><span class="pre">N1</span></code> and <code class="docutils literal notranslate"><span class="pre">N2</span></code>, and <code class="docutils literal notranslate"><span class="pre">N1</span></code> changes <code class="docutils literal notranslate"><span class="pre">D</span></code> directly, then <code class="docutils literal notranslate"><span class="pre">N2</span></code>
+will see the change as well, because they look at the same Data object:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">ryvencore</span> <span class="k">as</span> <span class="nn">rc</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Producer</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">init_outputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">rc</span><span class="o">.</span><span class="n">NodeOutputType</span><span class="p">()]</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">push_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">D</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">=</span> <span class="n">D</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">update_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inp</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">set_output_val</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Consumer</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">init_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">rc</span><span class="o">.</span><span class="n">NodeInputType</span><span class="p">()]</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">update_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inp</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">payload</span>
+<span class="gp">... </span>        <span class="n">p</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">build_and_run</span><span class="p">(</span><span class="n">D</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">s</span> <span class="o">=</span> <span class="n">rc</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">f</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">create_flow</span><span class="p">(</span><span class="s1">&#39;main&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">producer</span> <span class="o">=</span>  <span class="n">f</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">Producer</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">consumer1</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">Consumer</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">consumer2</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">Consumer</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">f</span><span class="o">.</span><span class="n">connect_nodes</span><span class="p">(</span><span class="n">producer</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">consumer1</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="n">f</span><span class="o">.</span><span class="n">connect_nodes</span><span class="p">(</span><span class="n">producer</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">consumer2</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="n">producer</span><span class="o">.</span><span class="n">push_data</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">build_and_run</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">Data</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]))</span>
+<span class="go">[1, 2, 3, 4]</span>
+<span class="go">[1, 2, 3, 4, 4]</span>
+</pre></div>
+</div>
+<p>This can be useful for optimization when sharing large data, but might not
+be what you want.
+To avoid this you might want to make sure to copy <code class="docutils literal notranslate"><span class="pre">D</span></code> when its payload is
+consumed:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyListData</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">Data</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nd">@property</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">payload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">build_and_run</span><span class="p">(</span><span class="n">MyListData</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]))</span>
+<span class="go">[1, 2, 3, 4]</span>
+<span class="go">[1, 2, 3, 4]</span>
+</pre></div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="ryvencore.Data.Data.payload">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><code class="sig-name descname"><span class="pre">payload</span></code><a class="headerlink" href="#ryvencore.Data.Data.payload" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Data.Data.get_data">
+<code class="sig-name descname"><span class="pre">get_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Data.Data.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform the data object to a <code class="docutils literal notranslate"><span class="pre">pickle</span></code> serializable object.
+DO NOT use this function to access the payload, use <code class="docutils literal notranslate"><span class="pre">payload</span></code> instead.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Data.Data.set_data">
+<code class="sig-name descname"><span class="pre">set_data</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Data.Data.set_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the data object from the dict created in <code class="docutils literal notranslate"><span class="pre">get_data()</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ryvencore.Flow">
+<span id="ryvencore-flow-module"></span><h2>ryvencore.Flow module<a class="headerlink" href="#module-ryvencore.Flow" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ryvencore.Flow.Flow">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><code class="sig-name descname"><span class="pre">Flow</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">session</span></span></em>, <em><span class="n"><span class="pre">title</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Flow.Flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<p>Manages all abstract flow components (nodes, edges, executors, etc.)
+and exposes methods for modification.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Flow.Flow.load">
+<code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Flow.Flow.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loading a flow from data as previously returned by <code class="docutils literal notranslate"><span class="pre">Flow.data()</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Flow.Flow.create_node">
+<code class="sig-name descname"><span class="pre">create_node</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node_class</span></span></em>, <em><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Flow.Flow.create_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates, adds and returns a new node object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Flow.Flow.add_node">
+<code class="sig-name descname"><span class="pre">add_node</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ryvencore.Node.Node" title="ryvencore.Node.Node"><span class="pre">Node</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Flow.Flow.add_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Places the node object in the graph, Stores it, and causes the node’s
+<code class="docutils literal notranslate"><span class="pre">Node.place_event()</span></code> to be executed. <code class="docutils literal notranslate"><span class="pre">Flow.create_node()</span></code> automatically
+adds the node already, so no need to call this manually.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Flow.Flow.remove_node">
+<code class="sig-name descname"><span class="pre">remove_node</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ryvencore.Node.Node" title="ryvencore.Node.Node"><span class="pre">Node</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Flow.Flow.remove_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a node from the flow without deleting it. Can be added again
+with <code class="docutils literal notranslate"><span class="pre">Flow.add_node()</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Flow.Flow.check_connection_validity">
+<code class="sig-name descname"><span class="pre">check_connection_validity</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">p1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NodeOutput</span></span></em>, <em><span class="n"><span class="pre">p2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NodeInput</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#ryvencore.Flow.Flow.check_connection_validity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether a considered connect action is legal.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Flow.Flow.connect_nodes">
+<code class="sig-name descname"><span class="pre">connect_nodes</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">p1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NodeOutput</span></span></em>, <em><span class="n"><span class="pre">p2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NodeInput</span></span></em>, <em><span class="n"><span class="pre">silent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">NodeOutput</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">NodeInput</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#ryvencore.Flow.Flow.connect_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connects nodes or disconnects them if they are already connected.</p>
+<p>TODO: change this; rather introduce <code class="docutils literal notranslate"><span class="pre">disconnect_nodes()</span></code> instead</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Flow.Flow.add_connection">
+<code class="sig-name descname"><span class="pre">add_connection</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">NodeOutput</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">NodeInput</span><span class="p"><span class="pre">]</span></span></span></em>, <em><span class="n"><span class="pre">silent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Flow.Flow.add_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an edge between two node ports.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Flow.Flow.remove_connection">
+<code class="sig-name descname"><span class="pre">remove_connection</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">NodeOutput</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">NodeInput</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Flow.Flow.remove_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes an edge.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Flow.Flow.connected_inputs">
+<code class="sig-name descname"><span class="pre">connected_inputs</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NodeOutput</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">NodeInput</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#ryvencore.Flow.Flow.connected_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all connected inputs to the given output port.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Flow.Flow.connected_output">
+<code class="sig-name descname"><span class="pre">connected_output</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">inp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NodeInput</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">NodeOutput</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#ryvencore.Flow.Flow.connected_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the connected output port to the given input port, or
+<code class="docutils literal notranslate"><span class="pre">None</span></code> if it is not connected.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Flow.Flow.algorithm_mode">
+<code class="sig-name descname"><span class="pre">algorithm_mode</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#ryvencore.Flow.Flow.algorithm_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current algorithm mode of the flow as string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Flow.Flow.set_algorithm_mode">
+<code class="sig-name descname"><span class="pre">set_algorithm_mode</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Flow.Flow.set_algorithm_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the algorithm mode of the flow from a string, possible values
+are ‘data’, ‘data opt’, and ‘exec’.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Flow.Flow.data">
+<code class="sig-name descname"><span class="pre">data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#ryvencore.Flow.Flow.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serializes the flow: returns a JSON compatible dict containing all
+data of the flow.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ryvencore.Node">
+<span id="ryvencore-node-module"></span><h2>ryvencore.Node module<a class="headerlink" href="#module-ryvencore.Node" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ryvencore.Node.Node">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><code class="sig-name descname"><span class="pre">Node</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<p>Base class for all node blueprints. Such a blueprint is made by subclassing this class and registering that subclass
+in the session. Actual node objects are instances of it. The node’s static properties are static attributes.
+Refer to python’s static class attributes behavior.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.title">
+<code class="sig-name descname"><span class="pre">title</span></code><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#ryvencore.Node.Node.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>the node’s title</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.tags">
+<code class="sig-name descname"><span class="pre">tags</span></code><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#ryvencore.Node.Node.tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>a list of tag strings, often useful for searching etc.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.version">
+<code class="sig-name descname"><span class="pre">version</span></code><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#ryvencore.Node.Node.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>version tag, use it!</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.init_inputs">
+<code class="sig-name descname"><span class="pre">init_inputs</span></code><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">NodeInputType</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#ryvencore.Node.Node.init_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of node input types determining the initial inputs</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.init_outputs">
+<code class="sig-name descname"><span class="pre">init_outputs</span></code><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">NodeOutputType</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#ryvencore.Node.Node.init_outputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>initial outputs list, see <code class="docutils literal notranslate"><span class="pre">init_inputs</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.identifier">
+<code class="sig-name descname"><span class="pre">identifier</span></code><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#ryvencore.Node.Node.identifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>unique node identifier string. if not given it will set it to the class name when registering in the session</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.legacy_identifiers">
+<code class="sig-name descname"><span class="pre">legacy_identifiers</span></code><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#ryvencore.Node.Node.legacy_identifiers" title="Permalink to this definition">¶</a></dt>
+<dd><p>a list of compatible identifiers, useful if you change the class name (and hence the identifier) to provide
+backward compatibility to load old projects that rely on the old identifier</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.identifier_prefix">
+<code class="sig-name descname"><span class="pre">identifier_prefix</span></code><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#ryvencore.Node.Node.identifier_prefix" title="Permalink to this definition">¶</a></dt>
+<dd><p>becomes part of the identifier if set; can be useful for grouping nodes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.initialize">
+<code class="sig-name descname"><span class="pre">initialize</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called by the Flow. This method</p>
+<ul class="simple">
+<li>loads all default properties from initial data if it was provided</li>
+<li>sets up inputs and outputs</li>
+<li>loads user_data</li>
+</ul>
+<p>It does not crash on exception when loading user_data,
+as this is not uncommon when developing nodes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.after_placement">
+<code class="sig-name descname"><span class="pre">after_placement</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.after_placement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called from Flow when the nodes gets added.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.prepare_removal">
+<code class="sig-name descname"><span class="pre">prepare_removal</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.prepare_removal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called from Flow when the node gets removed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.update">
+<code class="sig-name descname"><span class="pre">update</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">inp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Activates the node, causing an <code class="docutils literal notranslate"><span class="pre">update_event()</span></code> if <code class="docutils literal notranslate"><span class="pre">block_updates</span></code> is not set.
+For performance-, simplicity-, and maintainability-reasons activation is now
+fully handed over to the operating <code class="docutils literal notranslate"><span class="pre">FlowExecutor</span></code>, and not managed decentralized
+in Node, NodePort, and Connection anymore.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.update_error">
+<code class="sig-name descname"><span class="pre">update_error</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.update_error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.input">
+<code class="sig-name descname"><span class="pre">input</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ryvencore.Data.Data" title="ryvencore.Data.Data"><span class="pre">Data</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#ryvencore.Node.Node.input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the data residing at the data input of given index.</p>
+<p>Do not call on exec inputs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.exec_output">
+<code class="sig-name descname"><span class="pre">exec_output</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.exec_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes an exec output, causing activation of all connections.</p>
+<p>Do not call on data outputs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.set_output_val">
+<code class="sig-name descname"><span class="pre">set_output_val</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">index</span></span></em>, <em><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ryvencore.Data.Data" title="ryvencore.Data.Data"><span class="pre">Data</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.set_output_val" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the value of a data output causing activation of all connections in data mode.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.update_event">
+<code class="sig-name descname"><span class="pre">update_event</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">inp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.update_event" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Gets called when an input received a signal or some node requested data of an output in exec mode.
+Implement this in your node class, this is the place where the main processing of your node should happen.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.place_event">
+<code class="sig-name descname"><span class="pre">place_event</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.place_event" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Called once the node object has been fully initialized and placed in the flow.
+When loading content, <code class="docutils literal notranslate"><span class="pre">place_event()</span></code> is executed <em>before</em> connections are built,
+so updating output values here will not cause any other nodes to be updated during loading.</p>
+<p>Notice that this method gets executed <em>every time</em> the node is added to the flow, which can happen
+multiple times for the same object (e.g. due to undo/redo operations).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.remove_event">
+<code class="sig-name descname"><span class="pre">remove_event</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.remove_event" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Called when the node is removed from the flow; useful for stopping threads and timers etc.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.additional_data">
+<code class="sig-name descname"><span class="pre">additional_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#ryvencore.Node.Node.additional_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p><code class="docutils literal notranslate"><span class="pre">additional_data()</span></code>/<code class="docutils literal notranslate"><span class="pre">load_additional_data()</span></code> is almost equivalent to
+<code class="docutils literal notranslate"><span class="pre">get_state()</span></code>/<code class="docutils literal notranslate"><span class="pre">set_state()</span></code>,
+but it turned out to be useful for frontends to have their own dedicated version,
+so <code class="docutils literal notranslate"><span class="pre">get_state()</span></code>/<code class="docutils literal notranslate"><span class="pre">set_state()</span></code> stays clean for all specific node subclasses.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.load_additional_data">
+<code class="sig-name descname"><span class="pre">load_additional_data</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.load_additional_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>For loading the data returned by <code class="docutils literal notranslate"><span class="pre">additional_data()</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.get_state">
+<code class="sig-name descname"><span class="pre">get_state</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#ryvencore.Node.Node.get_state" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>If your node is stateful, implement this method for serialization. It should return a JSON compatible
+dict that encodes your node’s state. The dict will be passed to <code class="docutils literal notranslate"><span class="pre">set_state()</span></code> when the node is loaded.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.set_state">
+<code class="sig-name descname"><span class="pre">set_state</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.set_state" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Opposite of <code class="docutils literal notranslate"><span class="pre">get_state()</span></code>, reconstruct any custom internal state here.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.create_input">
+<code class="sig-name descname"><span class="pre">create_input</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em><span class="n"><span class="pre">type_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em><span class="n"><span class="pre">add_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em><span class="n"><span class="pre">insert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.create_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates and adds a new input at the end or index <code class="docutils literal notranslate"><span class="pre">insert</span></code> if specified.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.rename_input">
+<code class="sig-name descname"><span class="pre">rename_input</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.rename_input" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.delete_input">
+<code class="sig-name descname"><span class="pre">delete_input</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.delete_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnects and removes an input.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.create_output">
+<code class="sig-name descname"><span class="pre">create_output</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em><span class="n"><span class="pre">type_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em><span class="n"><span class="pre">insert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.create_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates and adds a new output at the end or index <code class="docutils literal notranslate"><span class="pre">insert</span></code> if specified.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.rename_output">
+<code class="sig-name descname"><span class="pre">rename_output</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.rename_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.delete_output">
+<code class="sig-name descname"><span class="pre">delete_output</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.delete_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnects and removes output.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.get_addon">
+<code class="sig-name descname"><span class="pre">get_addon</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.get_addon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an add-on registered in the session by name, or None if it wasn’t found.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.is_active">
+<code class="sig-name descname"><span class="pre">is_active</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Node.Node.is_active" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.data">
+<code class="sig-name descname"><span class="pre">data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#ryvencore.Node.Node.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all metadata of the node in JSON-compatible dict, including custom state.
+Used to rebuild the Flow when loading a project or pasting components.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ryvencore.Session">
+<span id="ryvencore-session-module"></span><h2>ryvencore.Session module<a class="headerlink" href="#module-ryvencore.Session" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ryvencore.Session.Session">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><code class="sig-name descname"><span class="pre">Session</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">gui</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Session.Session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<p>The Session is the top level interface to your project. It mainly manages flows, nodes, and add-ons and
+provides methods for serialization and deserialization of the project.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Session.Session.load_addons">
+<code class="sig-name descname"><span class="pre">load_addons</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Session.Session.load_addons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads all addons from the given location. <code class="docutils literal notranslate"><span class="pre">location</span></code> can be an absolute path to any readable directory.
+See <code class="docutils literal notranslate"><span class="pre">ryvencore.AddOn</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Session.Session.register_nodes">
+<code class="sig-name descname"><span class="pre">register_nodes</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Session.Session.register_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a list of Nodes which then become available in the flows.
+Do not attempt to place nodes in flows that haven’t been registered in the session before.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Session.Session.register_node">
+<code class="sig-name descname"><span class="pre">register_node</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Session.Session.register_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a single node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Session.Session.unregister_node">
+<code class="sig-name descname"><span class="pre">unregister_node</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Session.Session.unregister_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unregisters a node which will then be removed from the available list.
+Existing instances won’t be affected.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Session.Session.all_node_objects">
+<code class="sig-name descname"><span class="pre">all_node_objects</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span></span></span><a class="headerlink" href="#ryvencore.Session.Session.all_node_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all node objects instantiated in any flow.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Session.Session.create_flow">
+<code class="sig-name descname"><span class="pre">create_flow</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ryvencore.Flow.Flow" title="ryvencore.Flow.Flow"><span class="pre">Flow</span></a></span></span><a class="headerlink" href="#ryvencore.Session.Session.create_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates and returns a new flow.
+If data is provided the title parameter will be ignored.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Session.Session.rename_flow">
+<code class="sig-name descname"><span class="pre">rename_flow</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ryvencore.Flow.Flow" title="ryvencore.Flow.Flow"><span class="pre">Flow</span></a></span></em>, <em><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#ryvencore.Session.Session.rename_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Renames an existing flow and returns success boolean.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Session.Session.flow_title_valid">
+<code class="sig-name descname"><span class="pre">flow_title_valid</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#ryvencore.Session.Session.flow_title_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether a considered title for a new flow is valid (unique) or not.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Session.Session.delete_flow">
+<code class="sig-name descname"><span class="pre">delete_flow</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ryvencore.Flow.Flow" title="ryvencore.Flow.Flow"><span class="pre">Flow</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Session.Session.delete_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes an existing flow.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Session.Session.load">
+<code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ryvencore.Flow.Flow" title="ryvencore.Flow.Flow"><span class="pre">Flow</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#ryvencore.Session.Session.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a project and raises an exception if required nodes are missing (not registered).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Session.Session.serialize">
+<code class="sig-name descname"><span class="pre">serialize</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ryvencore.Session.Session.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the project as JSON compatible dict to be saved and loaded again using load()</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Session.Session.data">
+<code class="sig-name descname"><span class="pre">data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#ryvencore.Session.Session.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serializes the whole project into a JSON compatible dict. Pass to <code class="docutils literal notranslate"><span class="pre">load()</span></code> in a new session to restore.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ryvencore">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ryvencore" title="Permalink to this heading">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="index.html" title="previous chapter (use the left arrow)"><cite>ryvencore</cite> v0.4.0a7</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="ryvencore.addons.html" title="next chapter (use the right arrow)">ryvencore.addons package</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ryvencore.addons.html" title="ryvencore.addons package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="ryvencore v0.4.0a7"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ryvencore v0.4.0a7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ryvencore package</a></li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2022, Leon Thomm. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
 </html>
