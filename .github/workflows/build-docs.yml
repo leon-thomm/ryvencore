@@ -18,6 +18,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install sphinx
         pip install maisie_sphinx_theme
+        pip install .
     - name: Build docs
       run: |
         cd docs
