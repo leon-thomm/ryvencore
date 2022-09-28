@@ -1,5 +1,5 @@
 import traceback
-from typing import List
+from typing import List, Optional
 
 from .Base import Base
 
@@ -14,44 +14,41 @@ from .utils import serialize, deserialize
 class Node(Base):
     """
     Base class for all node blueprints. Such a blueprint is made by subclassing this class and registering that subclass
-    in the session. Actual node objects are instances of it. The node's static properties are static attributes,
-    which works really well in Python.
-
-    Attributes:
-        static title: the node's title
-        static type_: conditional type field
-        static tags: a list of tag strings, usually for searching
-        static version: version tag, use it!
-        static init_inputs: initial inputs list. the type BP in NodeInputBP stands for 'blueprint', as they only
-            serve as containers, the actual input objects will be created later
-        static init_outputs: initial outputs list, see init_inputs
-        static identifier: unique node identifier string. if not given, the session will set it to the class name
-            on register
-        static identifier_comp: a list of compatible identifiers, useful if you change the class name (and hence
-            the identifier) to provide backward compatibility to older projects
+    in the session. Actual node objects are instances of it. The node's static properties are static attributes.
+    Refer to python's static class attributes behavior.
     """
 
     title = ''
-    type_ = ''
+    """the node's title"""
+
     tags: List[str] = []
-    version: str = None  # None means `undefined` and should be avoided
-    visible: bool = True  # useful field for frontends to indicate invisible nodes which cannot be manually placed
-    
+    """a list of tag strings, often useful for searching etc."""
+
+    version: str = None
+    """version tag, use it!"""
+
     init_inputs: List[NodeInputType] = []
+    """list of node input types determining the initial inputs"""
+
     init_outputs: List[NodeOutputType] = []
+    """initial outputs list, see ``init_inputs``"""
 
-    identifier: str = None  # set by Session if None
-    identifier_comp: List[str] = []  # identifier (backwards) compatibility, useful when node class name changes
-    identifier_prefix: str = None  # becomes part of identifier if set, often useful
+    identifier: str = None
+    """unique node identifier string. if not given it will set it to the class name when registering in the session"""
 
-    """
-    
-    INITIALIZATION
-    
-    """
+    legacy_identifiers: List[str] = []
+    """a list of compatible identifiers, useful if you change the class name (and hence the identifier) to provide 
+    backward compatibility to load old projects that rely on the old identifier"""
+
+    identifier_prefix: str = None
+    """becomes part of the identifier if set; can be useful for grouping nodes"""
+
+    #
+    # INITIALIZATION
+    #
 
     @classmethod
-    def build_identifier(cls):
+    def _build_identifier(cls):
         """
         Sets the identifier to the class name and prepends f"{identifier_prefix}." if
         the identifier prefix is set.
@@ -82,7 +79,7 @@ class Node(Base):
 
     def initialize(self):
         """
-        This method
+        Called by the Flow. This method
 
         - loads all default properties from initial data if it was provided
         - sets up inputs and outputs
@@ -94,7 +91,7 @@ class Node(Base):
 
         if self.init_data:  # load from data
             # setup ports
-            self.setup_ports(self.init_data['inputs'], self.init_data['outputs'])
+            self._setup_ports(self.init_data['inputs'], self.init_data['outputs'])
 
             # set state
             if 'additional data' in self.init_data:
@@ -118,11 +115,11 @@ class Node(Base):
         else:   # default setup
 
             # setup ports
-            self.setup_ports()
+            self._setup_ports()
 
         self.initialized = True
 
-    def setup_ports(self, inputs_data=None, outputs_data=None):
+    def _setup_ports(self, inputs_data=None, outputs_data=None):
 
         if not inputs_data and not outputs_data:
             # generate initial ports
@@ -153,12 +150,12 @@ class Node(Base):
                 self.create_output(out['label'], out['type'])
 
     def after_placement(self):
-        """Called from Flow when the nodes gets added"""
+        """Called from Flow when the nodes gets added."""
 
         self.place_event()
 
     def prepare_removal(self):
-        """Called from Flow when the node gets removed"""
+        """Called from Flow when the node gets removed."""
 
         self.remove_event()
 
@@ -174,9 +171,9 @@ class Node(Base):
 
     def update(self, inp=-1):  # , output_called=-1):
         """
-        Activates the node, causing an update_event() if block_updates is not set.
+        Activates the node, causing an ``update_event()`` if ``block_updates`` is not set.
         For performance-, simplicity-, and maintainability-reasons activation is now
-        fully handed over to the operating FlowExecutor, and not managed decentralized
+        fully handed over to the operating ``FlowExecutor``, and not managed decentralized
         in Node, NodePort, and Connection anymore.
         """
 
@@ -192,9 +189,11 @@ class Node(Base):
     def update_error(self, e):
         InfoMsgs.write_err('EXCEPTION in', self.title, '\n', traceback.format_exc())
 
-    def input(self, index: int) -> Data:
+    def input(self, index: int) -> Optional[Data]:
         """
-        Returns the value of a data input.
+        Returns the data residing at the data input of given index.
+
+        Do not call on exec inputs.
         """
 
         InfoMsgs.write('input called in', self.title, ':', index)
@@ -202,7 +201,11 @@ class Node(Base):
         return self.flow.executor.input(self, index)
 
     def exec_output(self, index: int):
-        """Executes an exec output, causing activation of all connections"""
+        """
+        Executes an exec output, causing activation of all connections.
+
+        Do not call on data outputs.
+        """
 
         InfoMsgs.write('executing output', index, 'in:', self.title)
 
@@ -228,35 +231,32 @@ class Node(Base):
 
     def update_event(self, inp=-1):
         """
-        Gets called when an input received a signal or some node requested data of an output in exec mode
+        *VIRTUAL*
+
+        Gets called when an input received a signal or some node requested data of an output in exec mode.
+        Implement this in your node class, this is the place where the main processing of your node should happen.
         """
 
         pass
 
     def place_event(self):
         """
-        place_event() is called once the node object has been fully initialized and placed in the flow.
-        When loading content, place_event() is executed *before* the connections are built,
-        which is important for nodes that need to update once and, during this process, set output data values,
-        to prevent later connected (potentially sequential) nodes from receiving false updates because of that.
+        *VIRTUAL*
+
+        Called once the node object has been fully initialized and placed in the flow.
+        When loading content, ``place_event()`` is executed *before* connections are built,
+        so updating output values here will not cause any other nodes to be updated during loading.
+
         Notice that this method gets executed *every time* the node is added to the flow, which can happen
-        multiple times for the same object, for example due to undo/redo operations.
-        Also note that GUI content is usually not accessible yet from here, for that use view_place_event().
-        """
-
-        pass
-
-    def view_place_event(self):
-        """
-        Called once all GUI for the node has been created by the frontend, if one exists.
-        Any initial communication to widgets is supposed to happen here, and this method is not called
-        when running without gui.
+        multiple times for the same object (e.g. due to undo/redo operations).
         """
 
         pass
 
     def remove_event(self):
         """
+        *VIRTUAL*
+
         Called when the node is removed from the flow; useful for stopping threads and timers etc.
         """
 
@@ -264,30 +264,38 @@ class Node(Base):
 
     def additional_data(self) -> dict:
         """
-        Additional_data()/load_additional_data() is almost equivalent to get_state()/set_state(),
-        but it's often useful for frontends to have their own,
-        get_state()/set_state() then stays clean for all specific node subclasses
+        *VIRTUAL*
+
+        ``additional_data()``/``load_additional_data()`` is almost equivalent to
+        ``get_state()``/``set_state()``,
+        but it turned out to be useful for frontends to have their own dedicated version,
+        so ``get_state()``/``set_state()`` stays clean for all specific node subclasses.
         """
 
         return {}
 
     def load_additional_data(self, data: dict):
         """
-        For loading the data returned by additional_data()
+        *VIRTUAL*
+
+        For loading the data returned by ``additional_data()``.
         """
         pass
 
     def get_state(self) -> dict:
         """
-        Used to store node-specific custom data that needs to be reloaded when loading a project or pasting copied
-        components. All values will be serialized by pickle and base64. The corresponding method for the opposite
-        operation is set_state().
+        *VIRTUAL*
+
+        If your node is stateful, implement this method for serialization. It should return a JSON compatible
+        dict that encodes your node's state. The dict will be passed to ``set_state()`` when the node is loaded.
         """
         return {}
 
     def set_state(self, data: dict, version):
         """
-        Used for reloading node-specific custom data which has been previously returned by get_state()
+        *VIRTUAL*
+
+        Opposite of ``get_state()``, reconstruct any custom internal state here.
         """
         pass
 
@@ -300,7 +308,9 @@ class Node(Base):
     #   PORTS
 
     def create_input(self, label: str = '', type_: str = 'data', add_data={}, insert: int = None):
-        """Creates and adds a new input at index pos"""
+        """
+        Creates and adds a new input at the end or index ``insert`` if specified.
+        """
         # InfoMsgs.write('create_input called')
 
         inp = NodeInput(
@@ -321,7 +331,9 @@ class Node(Base):
         self.inputs[index].label_str = label
 
     def delete_input(self, index: int):
-        """Disconnects and removes input"""
+        """
+        Disconnects and removes an input.
+        """
 
         inp: NodeInput = self.inputs[index]
 
@@ -333,7 +345,9 @@ class Node(Base):
         self.inputs.remove(inp)
 
     def create_output(self, label: str = '', type_: str = 'data', insert: int = None):
-        """Creates and adds a new output"""
+        """
+        Creates and adds a new output at the end or index ``insert`` if specified.
+        """
 
         out = NodeOutput(
               node=self,
@@ -352,7 +366,9 @@ class Node(Base):
         self.outputs[index].label_str = label
 
     def delete_output(self, index: int):
-        """Disconnects and removes output"""
+        """
+        Disconnects and removes output.
+        """
 
         out: NodeOutput = self.outputs[index]
 
@@ -366,7 +382,7 @@ class Node(Base):
 
     def get_addon(self, name: str):
         """
-        Returns an add-on registered in the session, or None if it wasn't found.
+        Returns an add-on registered in the session by name, or None if it wasn't found.
         """
         return self.session.addons.get(name)
 
@@ -385,10 +401,7 @@ class Node(Base):
                 return True
         return False
 
-    def flow_in_data_opt_mode(self):
-        return self.flow.alg_mode == FlowAlg.DATA_OPT
-
-    def inp_connected(self, index):
+    def _inp_connected(self, index):
         return self.flow.connected_output(self.inputs[index]) is not None
 
     """
@@ -399,7 +412,7 @@ class Node(Base):
 
     def data(self) -> dict:
         """
-        Returns all metadata of the node in JSON-compatible dict.
+        Returns all metadata of the node in JSON-compatible dict, including custom state.
         Used to rebuild the Flow when loading a project or pasting components.
         """
 

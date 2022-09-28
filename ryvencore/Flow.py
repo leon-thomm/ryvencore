@@ -2,7 +2,7 @@ from .Base import Base, Event
 from .Data import Data
 from .FlowExecutor import DataFlowNaive, DataFlowOptimized, FlowExecutor, executor_from_flow_alg
 from .Node import Node
-from .NodePort import NodePort
+from .NodePort import NodeOutput, NodeInput
 from .RC import FlowAlg, PortObjPos
 from .utils import node_from_identifier, serialize, deserialize
 from typing import List, Dict, Optional, Tuple
@@ -10,7 +10,8 @@ from typing import List, Dict, Optional, Tuple
 
 class Flow(Base):
     """
-    Manages all abstract flow components (nodes, connections) and includes implementations for editing.
+    Manages all abstract flow components (nodes, edges, executors, etc.)
+    and exposes methods for modification.
     """
 
     def __init__(self, session, title):
@@ -19,8 +20,8 @@ class Flow(Base):
         # events
         self.node_added = Event(Node)
         self.node_removed = Event(Node)
-        self.connection_added = Event((NodePort, NodePort))        # Event(Connection)
-        self.connection_removed = Event((NodePort, NodePort))      # Event (Connection)
+        self.connection_added = Event((NodeOutput, NodeInput))        # Event(Connection)
+        self.connection_removed = Event((NodeOutput, NodeInput))      # Event (Connection)
 
         self.connection_request_valid = Event(bool)
         self.nodes_created_from_data = Event(list)
@@ -41,7 +42,7 @@ class Flow(Base):
         self.executor: FlowExecutor = executor_from_flow_alg(self.alg_mode)(self)
 
     def load(self, data: dict):
-        """Loading a flow from data as previously returned by data()"""
+        """Loading a flow from data as previously returned by ``Flow.data()``."""
         super().load(data)
 
         # set algorithm mode
@@ -49,14 +50,14 @@ class Flow(Base):
 
         # build flow
 
-        new_nodes = self.create_nodes_from_data(data['nodes'])
+        new_nodes = self._create_nodes_from_data(data['nodes'])
 
-        self.set_output_values_from_data(new_nodes, data['output data'])
+        self._set_output_values_from_data(new_nodes, data['output data'])
 
-        self.connect_nodes_from_data(new_nodes, data['connections'])
+        self._connect_nodes_from_data(new_nodes, data['connections'])
 
 
-    def create_nodes_from_data(self, nodes_data: List):
+    def _create_nodes_from_data(self, nodes_data: List):
         """create nodes from nodes_data as previously returned by data()"""
 
         nodes = []
@@ -77,7 +78,7 @@ class Flow(Base):
         return nodes
 
 
-    def set_output_values_from_data(self, nodes: List[Node], data: List):
+    def _set_output_values_from_data(self, nodes: List[Node], data: List):
         for d in data:
             indices = d['dependent node outputs']
             indices_paired = zip(indices[0::2], indices[1::2])
@@ -101,7 +102,11 @@ class Flow(Base):
 
 
     def add_node(self, node: Node):
-        """Stores a node object and causes the node's place_event()"""
+        """
+        Places the node object in the graph, Stores it, and causes the node's
+        ``Node.place_event()`` to be executed. ``Flow.create_node()`` automatically
+        adds the node already, so no need to call this manually.
+        """
 
         self.nodes.append(node)
 
@@ -112,7 +117,7 @@ class Flow(Base):
             self.graph_adj_rev[inp] = None
 
         node.after_placement()
-        self.flow_changed()
+        self._flow_changed()
 
         # notify addons
         for addon in self.session.addons.values():
@@ -121,14 +126,11 @@ class Flow(Base):
         self.node_added.emit(node)
 
 
-    def node_view_placed(self, node: Node):
-        """Triggered after the node's GUI content has been fully initialized"""
-
-        node.view_place_event()
-
-
     def remove_node(self, node: Node):
-        """Removes a node from internal list without deleting it"""
+        """
+        Removes a node from the flow without deleting it. Can be added again
+        with ``Flow.add_node()``.
+        """
 
         node.prepare_removal()
         self.nodes.remove(node)
@@ -139,7 +141,7 @@ class Flow(Base):
         for inp in node.inputs:
             del self.graph_adj_rev[inp]
 
-        self.flow_changed()
+        self._flow_changed()
 
         # notify addons
         for addon in self.session.addons.values():
@@ -148,7 +150,7 @@ class Flow(Base):
         self.node_removed.emit(node)
 
 
-    def connect_nodes_from_data(self, nodes: List[Node], data: List):
+    def _connect_nodes_from_data(self, nodes: List[Node], data: List):
         connections = []
 
         for c in data:
@@ -174,8 +176,10 @@ class Flow(Base):
         return connections
 
 
-    def check_connection_validity(self, p1: NodePort, p2: NodePort) -> bool:
-        """Checks whether a considered connect action is legal"""
+    def check_connection_validity(self, p1: NodeOutput, p2: NodeInput) -> bool:
+        """
+        Checks whether a considered connect action is legal.
+        """
 
         valid = True
 
@@ -190,8 +194,12 @@ class Flow(Base):
         return valid
 
 
-    def connect_nodes(self, p1: NodePort, p2: NodePort, silent: bool = False) -> Optional[Tuple[NodePort, NodePort]]:
-        """Connects nodes or disconnects them if they are already connected"""
+    def connect_nodes(self, p1: NodeOutput, p2: NodeInput, silent: bool = False) -> Optional[Tuple[NodeOutput, NodeInput]]:
+        """
+        Connects nodes or disconnects them if they are already connected.
+
+        TODO: change this; rather introduce ``disconnect_nodes()`` instead
+        """
 
         if not self.check_connection_validity(p1, p2):
             return None
@@ -211,8 +219,10 @@ class Flow(Base):
         return out, inp
 
 
-    def add_connection(self, c: Tuple[NodePort, NodePort], silent: bool = False):
-        """Adds a connection object"""
+    def add_connection(self, c: Tuple[NodeOutput, NodeInput], silent: bool = False):
+        """
+        Adds an edge between two node ports.
+        """
 
         out, inp = c
 
@@ -220,7 +230,7 @@ class Flow(Base):
         self.graph_adj_rev[inp] = out
 
         self.node_successors[out.node].append(inp.node)
-        self.flow_changed()
+        self._flow_changed()
 
 
         self.executor.conn_added(out, inp, silent=silent)
@@ -228,8 +238,10 @@ class Flow(Base):
         self.connection_added.emit((out, inp))
 
 
-    def remove_connection(self, c: Tuple[NodePort, NodePort]):
-        """Removes a connection object without deleting it"""
+    def remove_connection(self, c: Tuple[NodeOutput, NodeInput]):
+        """
+        Removes an edge.
+        """
 
         out, inp = c
 
@@ -237,29 +249,41 @@ class Flow(Base):
         self.graph_adj_rev[inp] = None
 
         self.node_successors[out.node].remove(inp.node)
-        self.flow_changed()
+        self._flow_changed()
 
         self.executor.conn_removed(out, inp)
 #
         self.connection_removed.emit((out, inp))
 
 
-    def connected_inputs(self, out: NodePort) -> List[NodePort]:
+    def connected_inputs(self, out: NodeOutput) -> List[NodeInput]:
+        """
+        Returns a list of all connected inputs to the given output port.
+        """
         return self.graph_adj[out]
 
 
-    def connected_output(self, inp: NodePort) -> Optional[NodePort]:
+    def connected_output(self, inp: NodeInput) -> Optional[NodeOutput]:
+        """
+        Returns the connected output port to the given input port, or
+        ``None`` if it is not connected.
+        """
         return self.graph_adj_rev[inp]
 
 
     def algorithm_mode(self) -> str:
-        """Returns the current algorithm mode of the flow as string"""
+        """
+        Returns the current algorithm mode of the flow as string.
+        """
 
         return FlowAlg.str(self.alg_mode)
 
 
     def set_algorithm_mode(self, mode: str):
-        """Sets the algorithm mode of the flow, possible values are 'data' and 'exec'"""
+        """
+        Sets the algorithm mode of the flow from a string, possible values
+        are 'data', 'data opt', and 'exec'.
+        """
 
         new_alg_mode = FlowAlg.from_str(mode)
         if new_alg_mode is None:
@@ -272,29 +296,32 @@ class Flow(Base):
         return True
 
 
-    def flow_changed(self):
+    def _flow_changed(self):
         self.executor.flow_changed = True
 
 
     def data(self) -> dict:
-        """Returns a dictionary containing all data of the flow"""
+        """
+        Serializes the flow: returns a JSON compatible dict containing all
+        data of the flow.
+        """
         d = super().data()
         d.update({
             'algorithm mode': FlowAlg.str(self.alg_mode),
-            'nodes': self.gen_nodes_data(self.nodes),
-            'connections': self.gen_conns_data(self.nodes),
-            'output data': self.gen_output_data(self.nodes),
+            'nodes': self._gen_nodes_data(self.nodes),
+            'connections': self._gen_conns_data(self.nodes),
+            'output data': self._gen_output_data(self.nodes),
         })
         return d
 
 
-    def gen_nodes_data(self, nodes: List[Node]) -> List[dict]:
+    def _gen_nodes_data(self, nodes: List[Node]) -> List[dict]:
         """Returns the data dicts of the nodes given"""
 
         return [n.data() for n in nodes]
 
 
-    def gen_conns_data(self, nodes: List[Node]) -> List[dict]:
+    def _gen_conns_data(self, nodes: List[Node]) -> List[dict]:
         """Generates the connections data between and relative to the nodes passed"""
 
         # notice that this is intentionally not part of Connection, because connection data
@@ -316,7 +343,7 @@ class Flow(Base):
         return data
 
 
-    def gen_output_data(self, nodes: List[Node]) -> List[Dict]:
+    def _gen_output_data(self, nodes: List[Node]) -> List[Dict]:
         """Serializes output data of the nodes"""
 
         outputs_data = {}

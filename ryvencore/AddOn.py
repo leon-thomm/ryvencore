@@ -1,23 +1,30 @@
 """
+*ALPHA*
+
 This module defines a simple add-on system to extend ryvencore's functionalities.
-Some default add-ons are provided in the add-ons.default package, and additional add-ons
+Some default add-ons are provided in the addons.default package, and additional add-ons
 can be added and registered in the Session.
 
 An add-on
+    - has a name and a version
+    - is session-local, not flow-local (but you can of course implement per-flow functionality)
+    - manages its own state (in particular ``get_state()`` and ``set_state()``)
+    - can store additional node-specific data in the node's ``data`` dict when it's serialized
+    - will be accessible through the nodes API: ``self.get_addon('your_addon')`` in your nodes
 
-- has a name, a version, a description
-- is session-local, not flow-local (but you can of course implement per-flow functionality)  
-- manages its own state (in particular ``get_state()`` and ``set_state()``)
-- will be accessible by nodes as attribute (self.add-on_name in the node)
-
-Add-on access is blocked during loading, so nodes should not access any add-ons in set_data(). 
+Add-on access is blocked during loading (deserialization), so nodes should not access any
+add-ons during the execution of ``Node.__init__`` or ``Node.set_data``.
 This prevents inconsistent states. Nodes are loaded first, then the add-ons. 
 Therefore, the add-on should be sufficiently isolated and self-contained.
 
-To define a custom add-on you need to subclass the ``AddOn`` class in its own module,
-instantiate it into a top module level variable ``addon`` (``addon = YourAddon()``),
-and put the module into an add-on directory. See ``Session.register_addon`` and
-see ``ryvencore.addons.default`` for examples.
+To define a custom add-on:
+    - create a directory ``your_addons`` for you addons or use ryvencore's addon directory
+    - create a module for your addon ``YourAddon.py`` in ``your_addons``
+    - create a class ``YourAddon(ryvencore.AddOn)`` that defines your add-on's functionality
+    - instantiate it into a top-level variable: ``addon = YourAddon()`` at the end of the module
+    - register your addon directory in the Session: ``session.register_addon_dir('path/to/your_addons')``
+
+See ``ryvencore.addons.default`` for examples.
 """
 
 from ryvencore.Base import Base
@@ -26,7 +33,6 @@ from ryvencore.Base import Base
 class AddOn(Base):
     name = ''
     version = ''
-    description = ''
 
     def register(self, session):
         """

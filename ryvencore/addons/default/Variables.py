@@ -52,6 +52,38 @@ class VarsAddon(AddOn):
     meaning that data dependencies are determined also by variable subscriptions and not
     purely by the edges in the graph anymore. This can be useful, but it can also prevent
     optimization. Variables are flow-local.
+
+    >>> import ryvencore as rc
+    >>>
+    >>> class MyNode(rc.Node):
+    ...     init_outputs = []
+    ...
+    ...     def __init__(self, params):
+    ...         super().__init__(params)
+    ...
+    ...         self.Vars = self.get_addon('Variables')
+    ...         self.var_val = None
+    ...
+    ...     def place_event(self):
+    ...         self.Vars.subscribe(self, 'var1', self.var1_changed)
+    ...         self.var_val = self.Vars.var(self.flow, 'var1').get()
+    ...
+    ...     def var1_changed(self, val):
+    ...         print('var1 changed!')
+    ...         self.var_val = val
+    >>>
+    >>> s = rc.Session()
+    >>> s.register_node(MyNode)
+    >>> f = s.create_flow('main')
+    >>>
+    >>> Vars = s.addons['Variables']
+    >>> v = Vars.create_var(f, 'var1', None)
+    >>>
+    >>> n1 = f.create_node(MyNode)
+    >>> v.set(42)
+    var1 changed!
+    >>> print(n1.var_val)
+    42
     """
 
     name = 'Variables'
