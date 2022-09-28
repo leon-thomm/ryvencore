@@ -22,13 +22,7 @@ pip install .
 
 ### Usage
 
-As an experimental library, the API is not fully stable and small breaking changes over time should be expected. There is no maintained usage guide, but the code is documented and auto-generated docs are available [here](https://leon-thomm.github.io/ryvencore/).
-
-The API has three main parts:
-
-1. The `Node` API which is similar to Ryven for everything that is not GUI related.
-2. The public interface methods of the main components such as `Session` and `Flow`.
-3. A small API for an experimental add-on system. See the `ryvencore.addons` package.
+As an experimental library, the API is not fully stable and small breaking changes over time should be expected. Generally, the API is defined by what is included in the [docs](https://leon-thomm.github.io/ryvencore/).
 
 ### Examples
 
