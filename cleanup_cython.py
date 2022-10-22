@@ -54,9 +54,9 @@ def cleanup():
     print('REMOVING DIRECTORIES')
 
     dirs = [
-        'ryvencore/build',
-        'ryvencore/dist',
-        'ryvencore/ryvencore.egg-info',
+        'build',
+        'dist',
+        'ryvencore.egg-info',
     ]
 
     for d in dirs:
