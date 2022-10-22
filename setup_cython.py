@@ -74,13 +74,13 @@ and check whether you can successfully load the package from Python.
 """
 
 
-from setuptools import setup as setup_
-from Cython.Build import cythonize, build_ext
 import os
 
 
 def get_ext_paths(root_dir, exclude_files=[], recursive=True):
-    """get filepaths for compilation"""
+
+    # get filepaths for compilation
+
     paths = []
 
     for root, dirs, files in os.walk(root_dir):
@@ -101,7 +101,13 @@ def get_ext_paths(root_dir, exclude_files=[], recursive=True):
 
 
 if __name__ == '__main__':
-    setup_(
+
+    # these dependencies are not required for ryvencore to run, only for compilation
+    # to avoid breaking the documentation build process, we hide them for sphinx
+    from setuptools import setup
+    from Cython.Build import cythonize, build_ext
+
+    setup(
         cmaclass={'build_ext': build_ext},
         ext_modules=cythonize(
             get_ext_paths('ryvencore', exclude_files=['ryvencore/addons/default/DTypes.py']),

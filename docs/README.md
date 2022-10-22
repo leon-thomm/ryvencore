@@ -21,6 +21,14 @@ $ source venv/bin/activate
 $ pip install -r requirements.txt
 ```
 
+**install ryvencore from sources**
+
+```
+cd ..
+pip install .
+cd docs
+```
+
 **build the documentation**
 
 ```
