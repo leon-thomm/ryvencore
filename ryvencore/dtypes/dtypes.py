@@ -91,14 +91,18 @@ class String(DType):
 
 
 class Choice(DType):
-    def __init__(self, default=None, items: t_List = [], doc: str = "", _load_state=None):
+    def __init__(self, default=None, items=None, doc: str = "", _load_state=None):
+        if items is None:
+            items = []
         self.items = items
         super().__init__(default=default, doc=doc, _load_state=_load_state)
         self.add_data('items')
 
 
 class List(DType):
-    def __init__(self, default: t_List = [], doc: str = "", _load_state=None):
+    def __init__(self, default=None, doc: str = "", _load_state=None):
+        if default is None:
+            default = []
         super().__init__(default=default, doc=doc, _load_state=_load_state)
 
 
