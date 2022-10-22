@@ -1,3 +1,94 @@
+"""
+This module defines the abstract flow, managing node, edges, etc.
+Flow execution is implemented by FlowExecutor class.
+
+A *flow* is a directed, usually but not necessarily acyclic multi-graph of *nodes*
+and *edges* (connections between nodes). The nodes are the computational units and
+the edges define the flow of data between them. The fundamental operations to
+perform on a flow are:
+
+* adding a node
+* removing a node and incident edges
+* adding an edge between a node output and another node's input
+* removing an edge
+
+Flow Execution Modes
+--------------------
+
+There are a couple of different modes / algorithms for executing a flow.
+
+**Data Flow**
+
+In the normal data flow mode, data is simply *forward propagated on change*.
+Specifically, this means the following:
+
+A node output may have 0 or more outgoing connections/edges. When a node's output
+value is updated, the new value is propagated to all connected nodes' inputs. If
+there are multiple edges, the order of activation is undefined.
+
+A node input may have 0 or 1 incoming connections/edges. When a node's input receives
+new data, the node's *update event* is invoked.
+
+A *flow execution* is started once some node's *update event* is invoked (either
+by direct invocation through ``node.update()``, or by receiving input data), or
+some node's output value is updated.
+
+A node can consume inputs and update outputs at any time.
+
+Assumptions:
+
+    * no non-terminating feedback loops.
+
+**Data Flow with Optimization**
+
+Since the naive implementation of the above specification can be highly inefficient
+in some cases, a more advanced algorithm can be used.
+This algorithm ensures that, during a *flow execution*, each *edge* is updated at most
+once.
+It should implement the same semantics as the data flow algorithm, but with a slightly
+tightened assumption:
+
+    * no feedback loops / cycles in the graph
+    * nodes never modify their ports (inputs, outputs) during execution (*update event*)
+
+The additional work required for this at the beginning of a *flow execution* is based
+on a DP algorithm running in :math:`\\mathcal{O}(|V|+ |E|)` time, where
+:math:`|V|` is the number of nodes and
+:math:`|E|` is the number of edges.
+However, when there are multiple consecutive executions without
+any subsequent changes to the graph, this work does not need to be repeated and execution
+is fast.
+
+**Execution Flow**
+
+The special *exec mode* uses an additional type of connection (edge): the
+*execution connection*.
+While pure data flows are the more common use case, some applications call for a slightly
+different paradigm. You can think of the exec mode as e.g. UnrealEngine's blueprint system.
+
+In *exec mode*, calling ``node.exec_output(index)`` has a similar effect as calling
+``node.set_output_val(index, val)`` in *data mode*,
+but without any data being propagated, so it's just a trigger signal.
+Pushing output data, however, does not cause updates in successor nodes.
+
+When a node is updated (it received an *update event* through an *exec connection*), once it
+needs input data (it calls ``self.input(index)``), if that input is connected to some
+predecessor node `P`, then `P` receives an *update event* with ``inp=-1``, during which
+it should push the output data.
+Therefore, data is not forward propagated on change (``node.set_output_val(index, value)``),
+but generated on request (backwards,
+``node.input()`` -> ``pred.update_event()`` -> ``pred.set_output_val()`` -> return).
+
+The *exec mode* is still somewhat experimental, because the *data mode* is the far more
+common use case. It is not yet clear how to best implement the *exec mode* in a way that
+is both efficient and easy to use.
+
+Assumptions:
+
+    * no non-terminating feedback loops with exec connections
+
+"""
+
 from .Base import Base, Event
 from .Data import Data
 from .FlowExecutor import DataFlowNaive, DataFlowOptimized, FlowExecutor, executor_from_flow_alg
