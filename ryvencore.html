@@ -69,8 +69,6 @@
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-ryvencore.AddOn">ryvencore.AddOn module</a><ul>
 <li><a class="reference internal" href="#ryvencore.AddOn.AddOn"><code class="docutils literal notranslate"><span class="pre">AddOn</span></code></a><ul>
-<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.name"><code class="docutils literal notranslate"><span class="pre">AddOn.name</span></code></a></li>
-<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.version"><code class="docutils literal notranslate"><span class="pre">AddOn.version</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.AddOn.AddOn.register"><code class="docutils literal notranslate"><span class="pre">AddOn.register()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.AddOn.AddOn.get_state"><code class="docutils literal notranslate"><span class="pre">AddOn.get_state()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.AddOn.AddOn.set_state"><code class="docutils literal notranslate"><span class="pre">AddOn.set_state()</span></code></a></li>
@@ -80,7 +78,6 @@
 </li>
 <li><a class="reference internal" href="#module-ryvencore.Data">ryvencore.Data module</a><ul>
 <li><a class="reference internal" href="#ryvencore.Data.Data"><code class="docutils literal notranslate"><span class="pre">Data</span></code></a><ul>
-<li><a class="reference internal" href="#ryvencore.Data.Data.payload"><code class="docutils literal notranslate"><span class="pre">Data.payload</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Data.Data.get_data"><code class="docutils literal notranslate"><span class="pre">Data.get_data()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Data.Data.set_data"><code class="docutils literal notranslate"><span class="pre">Data.set_data()</span></code></a></li>
 </ul>
@@ -121,7 +118,6 @@
 <li><a class="reference internal" href="#ryvencore.Node.Node.after_placement"><code class="docutils literal notranslate"><span class="pre">Node.after_placement()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.prepare_removal"><code class="docutils literal notranslate"><span class="pre">Node.prepare_removal()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.update"><code class="docutils literal notranslate"><span class="pre">Node.update()</span></code></a></li>
-<li><a class="reference internal" href="#ryvencore.Node.Node.update_error"><code class="docutils literal notranslate"><span class="pre">Node.update_error()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.input"><code class="docutils literal notranslate"><span class="pre">Node.input()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.exec_output"><code class="docutils literal notranslate"><span class="pre">Node.exec_output()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.set_output_val"><code class="docutils literal notranslate"><span class="pre">Node.set_output_val()</span></code></a></li>
@@ -133,13 +129,10 @@
 <li><a class="reference internal" href="#ryvencore.Node.Node.get_state"><code class="docutils literal notranslate"><span class="pre">Node.get_state()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.set_state"><code class="docutils literal notranslate"><span class="pre">Node.set_state()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.create_input"><code class="docutils literal notranslate"><span class="pre">Node.create_input()</span></code></a></li>
-<li><a class="reference internal" href="#ryvencore.Node.Node.rename_input"><code class="docutils literal notranslate"><span class="pre">Node.rename_input()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.delete_input"><code class="docutils literal notranslate"><span class="pre">Node.delete_input()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.create_output"><code class="docutils literal notranslate"><span class="pre">Node.create_output()</span></code></a></li>
-<li><a class="reference internal" href="#ryvencore.Node.Node.rename_output"><code class="docutils literal notranslate"><span class="pre">Node.rename_output()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.delete_output"><code class="docutils literal notranslate"><span class="pre">Node.delete_output()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.get_addon"><code class="docutils literal notranslate"><span class="pre">Node.get_addon()</span></code></a></li>
-<li><a class="reference internal" href="#ryvencore.Node.Node.is_active"><code class="docutils literal notranslate"><span class="pre">Node.is_active()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.data"><code class="docutils literal notranslate"><span class="pre">Node.data()</span></code></a></li>
 </ul>
 </li>
@@ -277,16 +270,6 @@ Therefore, the add-on should be sufficiently isolated and self-contained.</p>
 <dt class="sig sig-object py" id="ryvencore.AddOn.AddOn">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><code class="sig-name descname"><span class="pre">AddOn</span></code><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.name">
-<code class="sig-name descname"><span class="pre">name</span></code><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#ryvencore.AddOn.AddOn.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.version">
-<code class="sig-name descname"><span class="pre">version</span></code><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#ryvencore.AddOn.AddOn.version" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.register">
 <code class="sig-name descname"><span class="pre">register</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn.register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn.register" title="Permalink to this definition">¶</a></dt>
@@ -378,11 +361,6 @@ consumed:</p>
 <span class="go">[1, 2, 3, 4]</span>
 </pre></div>
 </div>
-<dl class="py property">
-<dt class="sig sig-object py" id="ryvencore.Data.Data.payload">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><code class="sig-name descname"><span class="pre">payload</span></code><a class="headerlink" href="#ryvencore.Data.Data.payload" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.Data.Data.get_data">
 <code class="sig-name descname"><span class="pre">get_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Data.html#Data.get_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Data.Data.get_data" title="Permalink to this definition">¶</a></dt>
@@ -667,11 +645,6 @@ in Node, NodePort, and Connection anymore.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ryvencore.Node.Node.update_error">
-<code class="sig-name descname"><span class="pre">update_error</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Node.html#Node.update_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Node.Node.update_error" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.Node.Node.input">
 <code class="sig-name descname"><span class="pre">input</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ryvencore.Data.Data" title="ryvencore.Data.Data"><span class="pre">Data</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ryvencore/Node.html#Node.input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Node.Node.input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the data residing at the data input of given index.</p>
@@ -756,11 +729,6 @@ dict that encodes your node’s state. The dict will be passed to <code class="d
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ryvencore.Node.Node.rename_input">
-<code class="sig-name descname"><span class="pre">rename_input</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Node.html#Node.rename_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Node.Node.rename_input" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.Node.Node.delete_input">
 <code class="sig-name descname"><span class="pre">delete_input</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Node.html#Node.delete_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Node.Node.delete_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Disconnects and removes an input.</p>
@@ -773,11 +741,6 @@ dict that encodes your node’s state. The dict will be passed to <code class="d
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ryvencore.Node.Node.rename_output">
-<code class="sig-name descname"><span class="pre">rename_output</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Node.html#Node.rename_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Node.Node.rename_output" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.Node.Node.delete_output">
 <code class="sig-name descname"><span class="pre">delete_output</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Node.html#Node.delete_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Node.Node.delete_output" title="Permalink to this definition">¶</a></dt>
 <dd><p>Disconnects and removes output.</p>
@@ -788,11 +751,6 @@ dict that encodes your node’s state. The dict will be passed to <code class="d
 <code class="sig-name descname"><span class="pre">get_addon</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Node.html#Node.get_addon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Node.Node.get_addon" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an add-on registered in the session by name, or None if it wasn’t found.</p>
 </dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ryvencore.Node.Node.is_active">
-<code class="sig-name descname"><span class="pre">is_active</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Node.html#Node.is_active"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Node.Node.is_active" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.Node.Node.data">
