@@ -1,15 +1,36 @@
 """
 This setup file can be used to manually compile ryvencore to a C extension using Cython, behavior should be the same.
 
-HOW TO COMPILE
+Follow the below process to compile ryvencore with Cython and install it as a regular package.
+Points 1 - 4 are only necessary if they are not satisfied already.
+Run all commands from the top level 'ryvencore' directory. The process is shown for Ubuntu Linux.
 
-Run all commands from the top level 'ryvencore' directory, and remember to remove any old ryvencore version initially
-$ pip uninstall ryvencore
-The below instructions show how to compile the sources on your system. Note that you will need Cython and an according
-C compiler for this.
+1. Remove old ryvencore versions
+
+    $ pip uninstall ryvencore
+
+2. Install GCC
+
+    $ sudo apt install build-essential
+
+3. Install Python dev tools
+
+    $ sudo apt install python3-dev
+
+4. Install dependencies
+
+    $ pip install cython, wheel
+
+5. Compile
 
     $ python -m setup_cython build_ext --inplace
+
+6. Build wheel
+
     $ python setup_cython.py sdist bdist_wheel
+
+7. Install package from wheel
+
     $ pip install ./dist/ryvencore-<version>-<platform>.whl
 
 NOTE
@@ -60,7 +81,7 @@ def get_ext_paths(root_dir, exclude_files=[], recursive=True):
 setup(
     cmaclass={'build_ext': build_ext},
     ext_modules=cythonize(
-        get_ext_paths('ryvencore'),
+        get_ext_paths('ryvencore', exclude_files=['ryvencore/addons/default/DTypes.py']),
         compiler_directives={'language_level': 3},
         annotate=True,
     )
