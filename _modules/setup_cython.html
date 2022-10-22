@@ -1,0 +1,233 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>setup_cython &#8212; ryvencore v0.4.0a9 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/maisie.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ryvencore v0.4.0a9 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">setup_cython</a></li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="index.html">Module code</a></li>
+              
+              <li>setup_cython</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for setup_cython</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This setup file can be used to manually compile ryvencore to a C extension using Cython, behavior should be the same.</span>
+
+<span class="sd">Follow the below process to compile ryvencore with Cython and install it as a regular package.</span>
+<span class="sd">Points 1 - 4 are only necessary if they are not satisfied already.</span>
+<span class="sd">Run all commands from the top level &#39;ryvencore&#39; directory. The process is shown for Ubuntu Linux.</span>
+<span class="sd">Assuming only Python is installed already:</span>
+
+<span class="sd">1. Remove old ryvencore versions</span>
+
+<span class="sd">.. code-block:: bash</span>
+
+<span class="sd">    $ pip uninstall ryvencore</span>
+
+<span class="sd">2. Install GCC</span>
+
+<span class="sd">.. code-block:: bash</span>
+
+<span class="sd">    $ sudo apt install build-essential</span>
+
+<span class="sd">3. Install Python dev tools</span>
+
+<span class="sd">.. code-block:: bash</span>
+
+<span class="sd">    $ sudo apt install python3-dev</span>
+
+<span class="sd">4. Install Python dependencies</span>
+
+<span class="sd">.. code-block:: bash</span>
+
+<span class="sd">    $ pip install cython wheel</span>
+
+<span class="sd">5. Compile</span>
+
+<span class="sd">.. code-block:: bash</span>
+
+<span class="sd">    $ python -m setup_cython build_ext --inplace</span>
+
+<span class="sd">6. Build wheel</span>
+
+<span class="sd">.. code-block:: bash</span>
+
+<span class="sd">    $ python setup_cython.py sdist bdist_wheel</span>
+
+<span class="sd">7. Install package from wheel</span>
+
+<span class="sd">.. code-block:: bash</span>
+
+<span class="sd">    $ pip install ./dist/ryvencore-&lt;version&gt;-&lt;platform&gt;.whl</span>
+
+<span class="sd">NOTE</span>
+
+<span class="sd">- if you don&#39;t want to keep the source files (.py and compiled .c) in the installed package (only the compiled .so \</span>
+<span class="sd">files), simply comment out the line `packages = find:` in setup.cfg</span>
+<span class="sd">- you can remove all the generated files and directories by running :code:`python cleanup_cython.py`</span>
+
+<span class="sd">To verify that the package successfully runs from the compiled C extension modules you can check whether</span>
+<span class="sd">the imported ryvencore package shows the :code:`__init__.so` file and not :code:`__init__.py`.</span>
+
+
+<span class="sd">.. code-block:: bash</span>
+
+<span class="sd">    $ python</span>
+<span class="sd">    &gt; import ryvencore as rc</span>
+<span class="sd">    &gt; print(rc)</span>
+
+<span class="sd">and to really be sure you can also manually remove all .py files in the installation directory</span>
+
+<span class="sd">.. code-block:: bash</span>
+
+<span class="sd">   .../site-packages/ryvencore&gt; find . -name &quot;*.py&quot; -type f -delete</span>
+
+<span class="sd">and check whether you can successfully load the package from Python.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<div class="viewcode-block" id="get_ext_paths"><a class="viewcode-back" href="../setup_cython.html#setup_cython.get_ext_paths">[docs]</a><span class="k">def</span> <span class="nf">get_ext_paths</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">exclude_files</span><span class="o">=</span><span class="p">[],</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+    <span class="c1"># get filepaths for compilation</span>
+
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">root_dir</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;.py&#39;</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">exclude_files</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">recursive</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
+                <span class="n">paths</span> <span class="o">+=</span> <span class="n">get_ext_paths</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">exclude_files</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">paths</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="c1"># these dependencies are not required for ryvencore to run, only for compilation</span>
+    <span class="c1"># to avoid breaking the documentation build process, we hide them for sphinx</span>
+    <span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span>
+    <span class="kn">from</span> <span class="nn">Cython.Build</span> <span class="kn">import</span> <span class="n">cythonize</span><span class="p">,</span> <span class="n">build_ext</span>
+
+    <span class="n">setup</span><span class="p">(</span>
+        <span class="n">cmaclass</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;build_ext&#39;</span><span class="p">:</span> <span class="n">build_ext</span><span class="p">},</span>
+        <span class="n">ext_modules</span><span class="o">=</span><span class="n">cythonize</span><span class="p">(</span>
+            <span class="n">get_ext_paths</span><span class="p">(</span><span class="s1">&#39;ryvencore&#39;</span><span class="p">,</span> <span class="n">exclude_files</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ryvencore/addons/default/DTypes.py&#39;</span><span class="p">]),</span>
+            <span class="n">compiler_directives</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;language_level&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+            <span class="n">annotate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ryvencore v0.4.0a9 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">setup_cython</a></li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2022, Leon Thomm. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

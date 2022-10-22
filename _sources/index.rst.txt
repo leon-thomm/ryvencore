@@ -13,5 +13,6 @@
    :caption: Contents:
 
    ryvencore
+   setup_cython
 
 Welcome to the ``ryvencore`` documentation!
