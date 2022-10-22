@@ -19,7 +19,7 @@ Run all commands from the top level 'ryvencore' directory. The process is shown 
 
 4. Install dependencies
 
-    $ pip install cython, wheel
+    $ pip install cython wheel
 
 5. Compile
 
