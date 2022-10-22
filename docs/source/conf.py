@@ -15,6 +15,7 @@ import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
 from ryvencore import *
+from setup_cython import *
 from importlib.metadata import metadata
 
 # -- Project information -----------------------------------------------------
