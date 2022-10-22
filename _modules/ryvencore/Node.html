@@ -1,0 +1,552 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>ryvencore.Node &#8212; ryvencore v0.4.0a8 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/maisie.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0a8 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ryvencore.Node</a></li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../index.html">Docs</a></li>
+              
+                <li><a href="../index.html">Module code</a></li>
+              
+              <li>ryvencore.Node</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for ryvencore.Node</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">.Base</span> <span class="kn">import</span> <span class="n">Base</span>
+
+<span class="kn">from</span> <span class="nn">.NodePort</span> <span class="kn">import</span> <span class="n">NodeInput</span><span class="p">,</span> <span class="n">NodeOutput</span>
+<span class="kn">from</span> <span class="nn">.NodePortType</span> <span class="kn">import</span> <span class="n">NodeInputType</span><span class="p">,</span> <span class="n">NodeOutputType</span>
+<span class="kn">from</span> <span class="nn">.RC</span> <span class="kn">import</span> <span class="n">FlowAlg</span>
+<span class="kn">from</span> <span class="nn">.Data</span> <span class="kn">import</span> <span class="n">Data</span>
+<span class="kn">from</span> <span class="nn">.InfoMsgs</span> <span class="kn">import</span> <span class="n">InfoMsgs</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">serialize</span><span class="p">,</span> <span class="n">deserialize</span>
+
+
+<div class="viewcode-block" id="Node"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node">[docs]</a><span class="k">class</span> <span class="nc">Node</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for all node blueprints. Such a blueprint is made by subclassing this class and registering that subclass</span>
+<span class="sd">    in the session. Actual node objects are instances of it. The node&#39;s static properties are static attributes.</span>
+<span class="sd">    Refer to python&#39;s static class attributes behavior.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;the node&#39;s title&quot;&quot;&quot;</span>
+
+    <span class="n">tags</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;a list of tag strings, often useful for searching etc.&quot;&quot;&quot;</span>
+
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;version tag, use it!&quot;&quot;&quot;</span>
+
+    <span class="n">init_inputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeInputType</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;list of node input types determining the initial inputs&quot;&quot;&quot;</span>
+
+    <span class="n">init_outputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeOutputType</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;initial outputs list, see ``init_inputs``&quot;&quot;&quot;</span>
+
+    <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;unique node identifier string. if not given it will set it to the class name when registering in the session&quot;&quot;&quot;</span>
+
+    <span class="n">legacy_identifiers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;a list of compatible identifiers, useful if you change the class name (and hence the identifier) to provide </span>
+<span class="sd">    backward compatibility to load old projects that rely on the old identifier&quot;&quot;&quot;</span>
+
+    <span class="n">identifier_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;becomes part of the identifier if set; can be useful for grouping nodes&quot;&quot;&quot;</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># INITIALIZATION</span>
+    <span class="c1">#</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_build_identifier</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the identifier to the class name and prepends f&quot;{identifier_prefix}.&quot; if</span>
+<span class="sd">        the identifier prefix is set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">identifier_prefix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">identifier_prefix</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span>
+
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">identifier</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">identifier</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">identifier</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="bp">cls</span><span class="o">.</span><span class="n">identifier</span>
+
+        <span class="c1"># notice that we do not touch the legacy identifier fields</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="n">Base</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_data</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeInput</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeOutput</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_init_updates</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_updates</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="Node.initialize"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called by the Flow. This method</span>
+
+<span class="sd">        - loads all default properties from initial data if it was provided</span>
+<span class="sd">        - sets up inputs and outputs</span>
+<span class="sd">        - loads user_data</span>
+
+<span class="sd">        It does not crash on exception when loading user_data,</span>
+<span class="sd">        as this is not uncommon when developing nodes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_data</span><span class="p">:</span>  <span class="c1"># load from data</span>
+            <span class="c1"># setup ports</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_setup_ports</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_data</span><span class="p">[</span><span class="s1">&#39;inputs&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_data</span><span class="p">[</span><span class="s1">&#39;outputs&#39;</span><span class="p">])</span>
+
+            <span class="c1"># set state</span>
+            <span class="k">if</span> <span class="s1">&#39;additional data&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_data</span><span class="p">:</span>
+                <span class="n">add_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_data</span><span class="p">[</span><span class="s1">&#39;additional data&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>   <span class="c1"># backwards compatibility</span>
+                <span class="n">add_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_additional_data</span><span class="p">(</span><span class="n">add_data</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;version&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_data</span><span class="p">:</span>
+                    <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_data</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># backwards compatibility</span>
+                    <span class="n">version</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_data</span><span class="p">[</span><span class="s1">&#39;state data&#39;</span><span class="p">]),</span> <span class="n">version</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">InfoMsgs</span><span class="o">.</span><span class="n">write_err</span><span class="p">(</span>
+                    <span class="s1">&#39;Exception while setting data in&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="s1">&#39;node:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="s1">&#39; (was this intended?)&#39;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>   <span class="c1"># default setup</span>
+
+            <span class="c1"># setup ports</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_setup_ports</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+    <span class="k">def</span> <span class="nf">_setup_ports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outputs_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">inputs_data</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">outputs_data</span><span class="p">:</span>
+            <span class="c1"># generate initial ports</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_inputs</span><span class="p">)):</span>
+                <span class="n">inp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_inputs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">create_input</span><span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">inp</span><span class="o">.</span><span class="n">type_</span><span class="p">,</span> <span class="n">add_data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">init_inputs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">add_data</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_outputs</span><span class="p">)):</span>
+                <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_outputs</span><span class="p">[</span><span class="n">o</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">create_output</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">out</span><span class="o">.</span><span class="n">type_</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># load from data</span>
+            <span class="c1"># initial ports specifications are irrelevant then</span>
+
+            <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">inputs_data</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">create_input</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">inp</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">],</span> <span class="n">type_</span><span class="o">=</span><span class="n">inp</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">],</span> <span class="n">add_data</span><span class="o">=</span><span class="n">inp</span><span class="p">)</span>
+
+                <span class="c1"># if &#39;val&#39; in inp:</span>
+                <span class="c1">#     # this means the input is &#39;data&#39; and did not have any connections,</span>
+                <span class="c1">#     # so we saved its value which was probably represented by some widget</span>
+                <span class="c1">#     # in the front end which has probably overridden the Node.input() method</span>
+                <span class="c1">#     self.inputs[-1].val = deserialize(inp[&#39;val&#39;])</span>
+
+            <span class="k">for</span> <span class="n">out</span> <span class="ow">in</span> <span class="n">outputs_data</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">create_output</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">],</span> <span class="n">out</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Node.after_placement"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.after_placement">[docs]</a>    <span class="k">def</span> <span class="nf">after_placement</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Called from Flow when the nodes gets added.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">place_event</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Node.prepare_removal"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.prepare_removal">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_removal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Called from Flow when the node gets removed.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_event</span><span class="p">()</span></div>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    ALGORITHM</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># notice that all the below methods check whether the flow currently &#39;runs with an executor&#39;, which means</span>
+    <span class="c1"># the flow is running in a special execution mode, in which case all the algorithm-related methods below are</span>
+    <span class="c1"># handled by the according executor</span>
+
+<div class="viewcode-block" id="Node.update"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inp</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>  <span class="c1"># , output_called=-1):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Activates the node, causing an ``update_event()`` if ``block_updates`` is not set.</span>
+<span class="sd">        For performance-, simplicity-, and maintainability-reasons activation is now</span>
+<span class="sd">        fully handed over to the operating ``FlowExecutor``, and not managed decentralized</span>
+<span class="sd">        in Node, NodePort, and Connection anymore.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_updates</span><span class="p">:</span>
+            <span class="n">InfoMsgs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;update blocked in&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="s1">&#39;node&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">InfoMsgs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;update in&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="s1">&#39;node on input&#39;</span><span class="p">,</span> <span class="n">inp</span><span class="p">)</span>
+
+        <span class="c1"># invoke update_event</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">executor</span><span class="o">.</span><span class="n">update_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.update_error"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.update_error">[docs]</a>    <span class="k">def</span> <span class="nf">update_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+        <span class="n">InfoMsgs</span><span class="o">.</span><span class="n">write_err</span><span class="p">(</span><span class="s1">&#39;EXCEPTION in&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="Node.input"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.input">[docs]</a>    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Data</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the data residing at the data input of given index.</span>
+
+<span class="sd">        Do not call on exec inputs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">InfoMsgs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;input called in&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">executor</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.exec_output"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.exec_output">[docs]</a>    <span class="k">def</span> <span class="nf">exec_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Executes an exec output, causing activation of all connections.</span>
+
+<span class="sd">        Do not call on data outputs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">InfoMsgs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;executing output&#39;</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="s1">&#39;in:&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">executor</span><span class="o">.</span><span class="n">exec_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.set_output_val"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.set_output_val">[docs]</a>    <span class="k">def</span> <span class="nf">set_output_val</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of a data output causing activation of all connections in data mode.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Data</span><span class="p">),</span> <span class="s2">&quot;Output value must be of type ryvencore.Data&quot;</span>
+
+        <span class="n">InfoMsgs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;setting output&#39;</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">executor</span><span class="o">.</span><span class="n">set_output_val</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    EVENT SLOTS</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># these methods get implemented by node implementations</span>
+
+<div class="viewcode-block" id="Node.update_event"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.update_event">[docs]</a>    <span class="k">def</span> <span class="nf">update_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inp</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *VIRTUAL*</span>
+
+<span class="sd">        Gets called when an input received a signal or some node requested data of an output in exec mode.</span>
+<span class="sd">        Implement this in your node class, this is the place where the main processing of your node should happen.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Node.place_event"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.place_event">[docs]</a>    <span class="k">def</span> <span class="nf">place_event</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *VIRTUAL*</span>
+
+<span class="sd">        Called once the node object has been fully initialized and placed in the flow.</span>
+<span class="sd">        When loading content, ``place_event()`` is executed *before* connections are built,</span>
+<span class="sd">        so updating output values here will not cause any other nodes to be updated during loading.</span>
+
+<span class="sd">        Notice that this method gets executed *every time* the node is added to the flow, which can happen</span>
+<span class="sd">        multiple times for the same object (e.g. due to undo/redo operations).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Node.remove_event"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.remove_event">[docs]</a>    <span class="k">def</span> <span class="nf">remove_event</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *VIRTUAL*</span>
+
+<span class="sd">        Called when the node is removed from the flow; useful for stopping threads and timers etc.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Node.additional_data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.additional_data">[docs]</a>    <span class="k">def</span> <span class="nf">additional_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *VIRTUAL*</span>
+
+<span class="sd">        ``additional_data()``/``load_additional_data()`` is almost equivalent to</span>
+<span class="sd">        ``get_state()``/``set_state()``,</span>
+<span class="sd">        but it turned out to be useful for frontends to have their own dedicated version,</span>
+<span class="sd">        so ``get_state()``/``set_state()`` stays clean for all specific node subclasses.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="Node.load_additional_data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.load_additional_data">[docs]</a>    <span class="k">def</span> <span class="nf">load_additional_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *VIRTUAL*</span>
+
+<span class="sd">        For loading the data returned by ``additional_data()``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Node.get_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.get_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *VIRTUAL*</span>
+
+<span class="sd">        If your node is stateful, implement this method for serialization. It should return a JSON compatible</span>
+<span class="sd">        dict that encodes your node&#39;s state. The dict will be passed to ``set_state()`` when the node is loaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="Node.set_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.set_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *VIRTUAL*</span>
+
+<span class="sd">        Opposite of ``get_state()``, reconstruct any custom internal state here.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    API</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#   PORTS</span>
+
+<div class="viewcode-block" id="Node.create_input"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.create_input">[docs]</a>    <span class="k">def</span> <span class="nf">create_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">add_data</span><span class="o">=</span><span class="p">{},</span> <span class="n">insert</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates and adds a new input at the end or index ``insert`` if specified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># InfoMsgs.write(&#39;create_input called&#39;)</span>
+
+        <span class="n">inp</span> <span class="o">=</span> <span class="n">NodeInput</span><span class="p">(</span>
+            <span class="n">node</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">type_</span><span class="o">=</span><span class="n">type_</span><span class="p">,</span>
+            <span class="n">label_str</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">add_data</span><span class="o">=</span><span class="n">add_data</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">insert</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">insert</span><span class="p">,</span> <span class="n">inp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">inp</span></div>
+
+<div class="viewcode-block" id="Node.rename_input"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.rename_input">[docs]</a>    <span class="k">def</span> <span class="nf">rename_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">label_str</span> <span class="o">=</span> <span class="n">label</span></div>
+
+<div class="viewcode-block" id="Node.delete_input"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.delete_input">[docs]</a>    <span class="k">def</span> <span class="nf">delete_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Disconnects and removes an input.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">inp</span><span class="p">:</span> <span class="n">NodeInput</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+        <span class="c1"># break all connections</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">connected_output</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">connect_nodes</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">inp</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.create_output"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.create_output">[docs]</a>    <span class="k">def</span> <span class="nf">create_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">insert</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates and adds a new output at the end or index ``insert`` if specified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">NodeOutput</span><span class="p">(</span>
+              <span class="n">node</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+              <span class="n">type_</span><span class="o">=</span><span class="n">type_</span><span class="p">,</span>
+              <span class="n">label_str</span><span class="o">=</span><span class="n">label</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">insert</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">insert</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="Node.rename_output"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.rename_output">[docs]</a>    <span class="k">def</span> <span class="nf">rename_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">label_str</span> <span class="o">=</span> <span class="n">label</span></div>
+
+<div class="viewcode-block" id="Node.delete_output"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.delete_output">[docs]</a>    <span class="k">def</span> <span class="nf">delete_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Disconnects and removes output.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">out</span><span class="p">:</span> <span class="n">NodeOutput</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+        <span class="c1"># break all connections</span>
+        <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">connected_inputs</span><span class="p">(</span><span class="n">out</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">connect_nodes</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">inp</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
+
+    <span class="c1">#   VARIABLES</span>
+
+<div class="viewcode-block" id="Node.get_addon"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.get_addon">[docs]</a>    <span class="k">def</span> <span class="nf">get_addon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an add-on registered in the session by name, or None if it wasn&#39;t found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">addons</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    UTILITY METHODS</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Node.is_active"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.is_active">[docs]</a>    <span class="k">def</span> <span class="nf">is_active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">type_</span> <span class="o">==</span> <span class="s1">&#39;exec&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">type_</span> <span class="o">==</span> <span class="s1">&#39;exec&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="k">def</span> <span class="nf">_inp_connected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">connected_output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="n">index</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    SERIALIZATION</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Node.data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns all metadata of the node in JSON-compatible dict, including custom state.</span>
+<span class="sd">        Used to rebuild the Flow when loading a project or pasting components.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;identifier&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span>
+            <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+
+            <span class="s1">&#39;state data&#39;</span><span class="p">:</span> <span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_state</span><span class="p">()),</span>
+            <span class="s1">&#39;additional data&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_data</span><span class="p">(),</span>
+
+            <span class="s1">&#39;inputs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">data</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">],</span>
+            <span class="s1">&#39;outputs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">data</span><span class="p">()</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">],</span>
+        <span class="p">})</span>
+
+        <span class="c1"># extend with data from addons</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">addon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">addons</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># addons can modify anything, there is no isolation enforcement</span>
+            <span class="n">addon</span><span class="o">.</span><span class="n">_extend_node_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">d</span></div></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0a8 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ryvencore.Node</a></li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2022, Leon Thomm. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

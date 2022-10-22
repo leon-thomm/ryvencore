@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>ryvencore.AddOn &#8212; ryvencore v0.4.0a8 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/maisie.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0a8 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ryvencore.AddOn</a></li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../index.html">Docs</a></li>
+              
+                <li><a href="../index.html">Module code</a></li>
+              
+              <li>ryvencore.AddOn</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for ryvencore.AddOn</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">*ALPHA*</span>
+
+<span class="sd">This module defines a simple add-on system to extend ryvencore&#39;s functionalities.</span>
+<span class="sd">Some default add-ons are provided in the addons.default package, and additional add-ons</span>
+<span class="sd">can be added and registered in the Session.</span>
+
+<span class="sd">An add-on</span>
+<span class="sd">    - has a name and a version</span>
+<span class="sd">    - is session-local, not flow-local (but you can of course implement per-flow functionality)</span>
+<span class="sd">    - manages its own state (in particular ``get_state()`` and ``set_state()``)</span>
+<span class="sd">    - can store additional node-specific data in the node&#39;s ``data`` dict when it&#39;s serialized</span>
+<span class="sd">    - will be accessible through the nodes API: ``self.get_addon(&#39;your_addon&#39;)`` in your nodes</span>
+
+<span class="sd">Add-on access is blocked during loading (deserialization), so nodes should not access any</span>
+<span class="sd">add-ons during the execution of ``Node.__init__`` or ``Node.set_data``.</span>
+<span class="sd">This prevents inconsistent states. Nodes are loaded first, then the add-ons. </span>
+<span class="sd">Therefore, the add-on should be sufficiently isolated and self-contained.</span>
+
+<span class="sd">To define a custom add-on:</span>
+<span class="sd">    - create a directory ``your_addons`` for you addons or use ryvencore&#39;s addon directory</span>
+<span class="sd">    - create a module for your addon ``YourAddon.py`` in ``your_addons``</span>
+<span class="sd">    - create a class ``YourAddon(ryvencore.AddOn)`` that defines your add-on&#39;s functionality</span>
+<span class="sd">    - instantiate it into a top-level variable: ``addon = YourAddon()`` at the end of the module</span>
+<span class="sd">    - register your addon directory in the Session: ``session.register_addon_dir(&#39;path/to/your_addons&#39;)``</span>
+
+<span class="sd">See ``ryvencore.addons.default`` for examples.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">ryvencore.Base</span> <span class="kn">import</span> <span class="n">Base</span>
+
+
+<div class="viewcode-block" id="AddOn"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn">[docs]</a><span class="k">class</span> <span class="nc">AddOn</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+<div class="viewcode-block" id="AddOn.register"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called when the add-on is registered with a session.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span></div>
+
+    <span class="k">def</span> <span class="nf">_on_node_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called when a node is created. This happens only once, whereas</span>
+<span class="sd">        a node can be added and removed multiple times, see</span>
+<span class="sd">        on_node_added() and</span>
+<span class="sd">        on_node_removed().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_on_node_added</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called when a node is added to a flow.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_on_node_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called when a node is removed from a flow.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_extend_node_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extend the node data dict with additional add-on-related data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># def _extend_flow_data(self, flow, data: dict):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Extend the flow data dict with additional add-on-related data.</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     pass</span>
+    <span class="c1">#</span>
+    <span class="c1"># def _extend_session_data(self, data: dict):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Extend the session data dict with additional add-on-related data.</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     pass</span>
+
+<div class="viewcode-block" id="AddOn.get_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.get_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the state of the add-on as JSON-compatible a dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="AddOn.set_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.set_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the state of the add-on from the dict generated in get_state().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0a8 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ryvencore.AddOn</a></li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2022, Leon Thomm. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>
