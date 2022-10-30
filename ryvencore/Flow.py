@@ -174,8 +174,22 @@ class Flow(Base):
             indices = d['dependent node outputs']
             indices_paired = zip(indices[0::2], indices[1::2])
             for node_index, output_index in indices_paired:
+
+                # find Data class
+                dt_id = d['data']['identifier']
+                if dt_id == 'Data':
+                    data_type = Data
+                else:
+                    data_type = self.session.data_types.get(dt_id)
+
+                    if data_type is None:
+                        print_err(f'Tried to use unregistered Data type '
+                                  f'{dt_id} while loading. Skipping. '
+                                  f'Please register data types before using them.')
+                        continue
+
                 nodes[node_index].outputs[output_index].val = \
-                    Data(load_from=d['data'])
+                    data_type(load_from=d['data'])
 
 
     def create_node(self, node_class, data=None):
