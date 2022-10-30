@@ -5,7 +5,7 @@ from typing import List, Dict
 from .Base import Base, Event
 from .Flow import Flow
 from .InfoMsgs import InfoMsgs
-from .utils import pkg_path, load_from_file
+from .utils import pkg_version, pkg_path, load_from_file
 from .Node import Node
 
 
@@ -14,6 +14,8 @@ class Session(Base):
     The Session is the top level interface to your project. It mainly manages flows, nodes, and add-ons and
     provides methods for serialization and deserialization of the project.
     """
+
+    version = pkg_version()
 
     def __init__(
             self,
@@ -171,7 +173,8 @@ class Session(Base):
 
     def load(self, data: Dict) -> List[Flow]:
         """
-        Loads a project and raises an exception if required nodes are missing (not registered).
+        Loads a project and raises an exception if required nodes are missing
+        (not registered).
         """
 
         super().load(data)
@@ -203,14 +206,18 @@ class Session(Base):
         return new_flows
 
     def serialize(self):
-        """Returns the project as JSON compatible dict to be saved and loaded again using load()"""
+        """
+        Returns the project as JSON compatible dict to be saved and
+        loaded again using load()
+        """
 
         return self.complete_data(self.data())
 
 
     def data(self) -> dict:
         """
-        Serializes the whole project into a JSON compatible dict. Pass to ``load()`` in a new session to restore.
+        Serializes the whole project into a JSON compatible dict.
+        Pass to :code:`load()` in a new session to restore.
         """
 
         d = super().data()
@@ -222,4 +229,3 @@ class Session(Base):
                 name: addon.get_state() for name, addon in self.addons.items()
             }
         })
-        return d
