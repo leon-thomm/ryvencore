@@ -175,7 +175,7 @@ class Flow(Base):
             indices_paired = zip(indices[0::2], indices[1::2])
             for node_index, output_index in indices_paired:
                 nodes[node_index].outputs[output_index].val = \
-                    Data(load_from=deserialize(d['data']))
+                    Data(load_from=d['data'])
 
 
     def create_node(self, node_class, data=None):
@@ -444,7 +444,7 @@ class Flow(Base):
                 d = out.val
                 if isinstance(d, Data) and d not in outputs_data:
                     outputs_data[d] = {
-                        'data': serialize(d.get_data()),
+                        'data': d.data(),
                         'dependent node outputs': [i_n, i_o],
                     }
                 elif isinstance(d, Data):
