@@ -199,7 +199,7 @@ class Session(Base):
         # load addons
         for name, addon_data in data['addons'].items():
             if name in self.addons:
-                self.addons[name].set_state(addon_data)
+                self.addons[name].load(addon_data)
             else:
                 print(f'found missing addon: {name}; attempting to load anyway')
 
@@ -226,6 +226,6 @@ class Session(Base):
                 s.data() for s in self.flows
             ],
             'addons': {
-                name: addon.get_state() for name, addon in self.addons.items()
+                name: addon.data() for name, addon in self.addons.items()
             }
         }

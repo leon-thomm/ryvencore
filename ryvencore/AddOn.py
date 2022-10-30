@@ -84,7 +84,7 @@ class AddOn(Base):
         """
         return {}
 
-    def set_state(self, state: dict):
+    def set_state(self, state: dict, version: str):
         """
         *VIRTUAL*
 
@@ -92,3 +92,18 @@ class AddOn(Base):
         :code:`AddOn.get_state()`.
         """
         pass
+
+    def data(self) -> dict:
+        """
+        Supplements the data dict with additional data.
+        """
+        return {
+            **super().data(),
+            'custom state': self.get_state()
+        }
+
+    def load(self, data: dict):
+        """
+        Loads the data dict generated in :code:`AddOn.data()`.
+        """
+        self.set_state(data['custom state'], data['version'])
