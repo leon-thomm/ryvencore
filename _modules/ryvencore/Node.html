@@ -121,7 +121,7 @@
     <span class="sd">&quot;&quot;&quot;unique node identifier string. if not given it will set it to the class name when registering in the session&quot;&quot;&quot;</span>
 
     <span class="n">legacy_identifiers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="sd">&quot;&quot;&quot;a list of compatible identifiers, useful if you change the class name (and hence the identifier) to provide </span>
+    <span class="sd">&quot;&quot;&quot;a list of compatible identifiers, useful when you change the class name (and hence the identifier) to provide </span>
 <span class="sd">    backward compatibility to load old projects that rely on the old identifier&quot;&quot;&quot;</span>
 
     <span class="n">identifier_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
@@ -194,7 +194,8 @@
 
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">InfoMsgs</span><span class="o">.</span><span class="n">write_err</span><span class="p">(</span>
-                    <span class="s1">&#39;Exception while setting data in&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="s1">&#39;node:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="s1">&#39; (was this intended?)&#39;</span><span class="p">)</span>
+                    <span class="sa">f</span><span class="s1">&#39;Exception while setting data in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s1"> node:&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1"> (was this intended?)&#39;</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>   <span class="c1"># default setup</span>
 
@@ -500,17 +501,18 @@
 <span class="sd">        Used to rebuild the Flow when loading a project or pasting components.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">d</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>
-        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(),</span>
+
             <span class="s1">&#39;identifier&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span>
-            <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+            <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>    <span class="c1"># this overrides the version field from Base</span>
 
             <span class="s1">&#39;state data&#39;</span><span class="p">:</span> <span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_state</span><span class="p">()),</span>
             <span class="s1">&#39;additional data&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_data</span><span class="p">(),</span>
 
             <span class="s1">&#39;inputs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">data</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">],</span>
             <span class="s1">&#39;outputs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">data</span><span class="p">()</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">],</span>
-        <span class="p">})</span>
+        <span class="p">}</span>
 
         <span class="c1"># extend with data from addons</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">addon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">addons</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>

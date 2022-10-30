@@ -126,6 +126,8 @@
 
     <span class="k">def</span> <span class="nf">_on_node_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *VIRTUAL*</span>
+
 <span class="sd">        Called when a node is created. This happens only once, whereas</span>
 <span class="sd">        a node can be added and removed multiple times, see</span>
 <span class="sd">        on_node_added() and</span>
@@ -135,45 +137,60 @@
 
     <span class="k">def</span> <span class="nf">_on_node_added</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *VIRTUAL*</span>
+
 <span class="sd">        Called when a node is added to a flow.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">_on_node_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *VIRTUAL*</span>
+
 <span class="sd">        Called when a node is removed from a flow.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">_extend_node_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *VIRTUAL*</span>
+
 <span class="sd">        Extend the node data dict with additional add-on-related data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
-    <span class="c1"># def _extend_flow_data(self, flow, data: dict):</span>
-    <span class="c1">#     &quot;&quot;&quot;</span>
-    <span class="c1">#     Extend the flow data dict with additional add-on-related data.</span>
-    <span class="c1">#     &quot;&quot;&quot;</span>
-    <span class="c1">#     pass</span>
-    <span class="c1">#</span>
-    <span class="c1"># def _extend_session_data(self, data: dict):</span>
-    <span class="c1">#     &quot;&quot;&quot;</span>
-    <span class="c1">#     Extend the session data dict with additional add-on-related data.</span>
-    <span class="c1">#     &quot;&quot;&quot;</span>
-    <span class="c1">#     pass</span>
-
 <div class="viewcode-block" id="AddOn.get_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.get_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *VIRTUAL*</span>
+
 <span class="sd">        Return the state of the add-on as JSON-compatible a dict.</span>
+<span class="sd">        This dict will be extended by :code:`AddOn.complete_data()`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{}</span></div>
 
-<div class="viewcode-block" id="AddOn.set_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.set_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="AddOn.set_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.set_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the state of the add-on from the dict generated in get_state().</span>
+<span class="sd">        *VIRTUAL*</span>
+
+<span class="sd">        Set the state of the add-on from the dict generated in</span>
+<span class="sd">        :code:`AddOn.get_state()`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div></div>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="AddOn.data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Supplements the data dict with additional data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(),</span>
+            <span class="s1">&#39;custom state&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="AddOn.load"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads the data dict generated in :code:`AddOn.data()`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;custom state&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">])</span></div></div>
 </pre></div>
 
           </div>

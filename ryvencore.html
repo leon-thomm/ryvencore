@@ -72,14 +72,20 @@
 <li><a class="reference internal" href="#ryvencore.AddOn.AddOn.register"><code class="docutils literal notranslate"><span class="pre">AddOn.register()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.AddOn.AddOn.get_state"><code class="docutils literal notranslate"><span class="pre">AddOn.get_state()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.AddOn.AddOn.set_state"><code class="docutils literal notranslate"><span class="pre">AddOn.set_state()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.data"><code class="docutils literal notranslate"><span class="pre">AddOn.data()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.load"><code class="docutils literal notranslate"><span class="pre">AddOn.load()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-ryvencore.Data">ryvencore.Data module</a><ul>
 <li><a class="reference internal" href="#ryvencore.Data.Data"><code class="docutils literal notranslate"><span class="pre">Data</span></code></a><ul>
+<li><a class="reference internal" href="#ryvencore.Data.Data.identifier"><code class="docutils literal notranslate"><span class="pre">Data.identifier</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Data.Data.legacy_identifiers"><code class="docutils literal notranslate"><span class="pre">Data.legacy_identifiers</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Data.Data.get_data"><code class="docutils literal notranslate"><span class="pre">Data.get_data()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Data.Data.set_data"><code class="docutils literal notranslate"><span class="pre">Data.set_data()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Data.Data.data"><code class="docutils literal notranslate"><span class="pre">Data.data()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Data.Data.load"><code class="docutils literal notranslate"><span class="pre">Data.load()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -145,6 +151,7 @@
 <li><a class="reference internal" href="#ryvencore.Session.Session.register_node"><code class="docutils literal notranslate"><span class="pre">Session.register_node()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Session.Session.unregister_node"><code class="docutils literal notranslate"><span class="pre">Session.unregister_node()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Session.Session.all_node_objects"><code class="docutils literal notranslate"><span class="pre">Session.all_node_objects()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Session.Session.register_data"><code class="docutils literal notranslate"><span class="pre">Session.register_data()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Session.Session.create_flow"><code class="docutils literal notranslate"><span class="pre">Session.create_flow()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Session.Session.rename_flow"><code class="docutils literal notranslate"><span class="pre">Session.rename_flow()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Session.Session.flow_title_valid"><code class="docutils literal notranslate"><span class="pre">Session.flow_title_valid()</span></code></a></li>
@@ -279,13 +286,29 @@ Therefore, the add-on should be sufficiently isolated and self-contained.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.get_state">
 <code class="sig-name descname"><span class="pre">get_state</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn.get_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn.get_state" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the state of the add-on as JSON-compatible a dict.</p>
+<dd><p><em>VIRTUAL</em></p>
+<p>Return the state of the add-on as JSON-compatible a dict.
+This dict will be extended by <code class="code docutils literal notranslate"><span class="pre">AddOn.complete_data()</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.set_state">
-<code class="sig-name descname"><span class="pre">set_state</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn.set_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn.set_state" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the state of the add-on from the dict generated in get_state().</p>
+<code class="sig-name descname"><span class="pre">set_state</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn.set_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn.set_state" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Set the state of the add-on from the dict generated in
+<code class="code docutils literal notranslate"><span class="pre">AddOn.get_state()</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.data">
+<code class="sig-name descname"><span class="pre">data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn.data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Supplements the data dict with additional data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.load">
+<code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the data dict generated in <code class="code docutils literal notranslate"><span class="pre">AddOn.data()</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -293,14 +316,14 @@ Therefore, the add-on should be sufficiently isolated and self-contained.</p>
 </div>
 <div class="section" id="module-ryvencore.Data">
 <span id="ryvencore-data-module"></span><h2>ryvencore.Data module<a class="headerlink" href="#module-ryvencore.Data" title="Permalink to this heading">¶</a></h2>
-<p>This file defines the <code class="docutils literal notranslate"><span class="pre">Data</span></code> type, which must be used to pass data between nodes.
+<p>This file defines the <code class="code docutils literal notranslate"><span class="pre">Data</span></code> type, which must be used to pass data between nodes.
 It should be subclassed to define custom data types. In particular, serialization
 and deserialization must be implemented for each respective type. Types that are
-pickle serializable by default can be used directly with <code class="docutils literal notranslate"><span class="pre">Data(my_data)</span></code>.</p>
+pickle serializable by default can be used directly with :code`Data(my_data)`.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ryvencore.Data.Data">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><code class="sig-name descname"><span class="pre">Data</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em><span class="n"><span class="pre">load_from</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Data.html#Data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Data.Data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
 <p>Base class for data objects.</p>
 <p>Subclass this class and implement serialization and deserialization accordingly
 to send data to other nodes.</p>
@@ -309,20 +332,20 @@ empty, which means the graph will not enter the same state when you reload it,
 which is fine as long as your nodes are built appropriately e.g. such that you can
 quickly regenerate that state by updating the root node.</p>
 <p>Be careful when consuming complex input data: modification can lead to undesired
-effects. In particular, if you share some data object <code class="docutils literal notranslate"><span class="pre">D</span></code> with successor nodes
-<code class="docutils literal notranslate"><span class="pre">N1</span></code> and <code class="docutils literal notranslate"><span class="pre">N2</span></code>, and <code class="docutils literal notranslate"><span class="pre">N1</span></code> changes <code class="docutils literal notranslate"><span class="pre">D</span></code> directly, then <code class="docutils literal notranslate"><span class="pre">N2</span></code>
+effects. In particular, if you share some data object <span class="math notranslate nohighlight">\(d\)</span> with successor nodes
+<span class="math notranslate nohighlight">\(N1\)</span> and <span class="math notranslate nohighlight">\(N2\)</span>, and <span class="math notranslate nohighlight">\(N1\)</span> changes <span class="math notranslate nohighlight">\(d\)</span> directly, then <span class="math notranslate nohighlight">\(N2\)</span>
 will see the change as well, because they look at the same Data object:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">ryvencore</span> <span class="k">as</span> <span class="nn">rc</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Producer</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="n">init_outputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">rc</span><span class="o">.</span><span class="n">NodeOutputType</span><span class="p">()]</span>
 <span class="gp">...</span>
-<span class="gp">... </span>    <span class="k">def</span> <span class="nf">push_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">D</span><span class="p">):</span>
-<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">=</span> <span class="n">D</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">push_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">d</span>
 <span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
 <span class="gp">...</span>
 <span class="gp">... </span>    <span class="k">def</span> <span class="nf">update_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inp</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
-<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">set_output_val</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">set_output_val</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">)</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Consumer</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="n">init_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">rc</span><span class="o">.</span><span class="n">NodeInputType</span><span class="p">()]</span>
@@ -349,7 +372,7 @@ will see the change as well, because they look at the same Data object:</p>
 </div>
 <p>This can be useful for optimization when sharing large data, but might not
 be what you want.
-To avoid this you might want to make sure to copy <code class="docutils literal notranslate"><span class="pre">D</span></code> when its payload is
+To avoid this you might want to make sure to copy <span class="math notranslate nohighlight">\(d\)</span> when its payload is
 consumed:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyListData</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">Data</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="nd">@property</span>
@@ -361,17 +384,45 @@ consumed:</p>
 <span class="go">[1, 2, 3, 4]</span>
 </pre></div>
 </div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ryvencore.Data.Data.identifier">
+<code class="sig-name descname"><span class="pre">identifier</span></code><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#ryvencore.Data.Data.identifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>unique Data identifier; you can set this manually in subclasses, if
+you don’t the class name will be used</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ryvencore.Data.Data.legacy_identifiers">
+<code class="sig-name descname"><span class="pre">legacy_identifiers</span></code><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#ryvencore.Data.Data.legacy_identifiers" title="Permalink to this definition">¶</a></dt>
+<dd><p>a list of compatible identifiers in case you change the identifier</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.Data.Data.get_data">
 <code class="sig-name descname"><span class="pre">get_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Data.html#Data.get_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Data.Data.get_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transform the data object to a <code class="docutils literal notranslate"><span class="pre">pickle</span></code> serializable object.
-DO NOT use this function to access the payload, use <code class="docutils literal notranslate"><span class="pre">payload</span></code> instead.</p>
+<dd><p><em>VIRTUAL</em></p>
+<p>Transform the data object to a <code class="code docutils literal notranslate"><span class="pre">pickle</span></code> serializable object.
+<strong>Do not</strong> use this function to access the payload, use <code class="code docutils literal notranslate"><span class="pre">payload</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.Data.Data.set_data">
 <code class="sig-name descname"><span class="pre">set_data</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Data.html#Data.set_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Data.Data.set_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Deserialize the data object from the dict created in <code class="docutils literal notranslate"><span class="pre">get_data()</span></code>.</p>
+<dd><p><em>VIRTUAL</em></p>
+<p>Deserialize the data object from the dict created in <code class="code docutils literal notranslate"><span class="pre">get_data()</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Data.Data.data">
+<code class="sig-name descname"><span class="pre">data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/ryvencore/Data.html#Data.data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Data.Data.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the object to a JSON compatible dict.
+Reserved field names are ‘GID’ and ‘version’.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Data.Data.load">
+<code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Data.html#Data.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Data.Data.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recreate the object state from the data dict returned by <code class="code docutils literal notranslate"><span class="pre">data()</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -600,7 +651,7 @@ Refer to python’s static class attributes behavior.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ryvencore.Node.Node.legacy_identifiers">
 <code class="sig-name descname"><span class="pre">legacy_identifiers</span></code><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#ryvencore.Node.Node.legacy_identifiers" title="Permalink to this definition">¶</a></dt>
-<dd><p>a list of compatible identifiers, useful if you change the class name (and hence the identifier) to provide
+<dd><p>a list of compatible identifiers, useful when you change the class name (and hence the identifier) to provide
 backward compatibility to load old projects that rely on the old identifier</p>
 </dd></dl>
 
@@ -804,6 +855,13 @@ Existing instances won’t be affected.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Session.Session.register_data">
+<code class="sig-name descname"><span class="pre">register_data</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">data_type_class</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Session.html#Session.register_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Session.Session.register_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a new <code class="code docutils literal notranslate"><span class="pre">Data</span></code> subclass which will then be available
+in the flows.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.Session.Session.create_flow">
 <code class="sig-name descname"><span class="pre">create_flow</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ryvencore.Flow.Flow" title="ryvencore.Flow.Flow"><span class="pre">Flow</span></a></span></span><a class="reference internal" href="_modules/ryvencore/Session.html#Session.create_flow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Session.Session.create_flow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates and returns a new flow.
@@ -831,19 +889,22 @@ If data is provided the title parameter will be ignored.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.Session.Session.load">
 <code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ryvencore.Flow.Flow" title="ryvencore.Flow.Flow"><span class="pre">Flow</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ryvencore/Session.html#Session.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Session.Session.load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Loads a project and raises an exception if required nodes are missing (not registered).</p>
+<dd><p>Loads a project and raises an exception if required nodes are missing
+(not registered).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.Session.Session.serialize">
 <code class="sig-name descname"><span class="pre">serialize</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Session.html#Session.serialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Session.Session.serialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the project as JSON compatible dict to be saved and loaded again using load()</p>
+<dd><p>Returns the project as JSON compatible dict to be saved and
+loaded again using load()</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.Session.Session.data">
 <code class="sig-name descname"><span class="pre">data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/ryvencore/Session.html#Session.data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Session.Session.data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serializes the whole project into a JSON compatible dict. Pass to <code class="docutils literal notranslate"><span class="pre">load()</span></code> in a new session to restore.</p>
+<dd><p>Serializes the whole project into a JSON compatible dict.
+Pass to <code class="code docutils literal notranslate"><span class="pre">load()</span></code> in a new session to restore.</p>
 </dd></dl>
 
 </dd></dl>

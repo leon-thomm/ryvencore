@@ -83,14 +83,16 @@
             
   <h1>Source code for ryvencore.Data</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This file defines the ``Data`` type, which must be used to pass data between nodes.</span>
+<span class="sd">This file defines the :code:`Data` type, which must be used to pass data between nodes.</span>
 <span class="sd">It should be subclassed to define custom data types. In particular, serialization</span>
 <span class="sd">and deserialization must be implemented for each respective type. Types that are</span>
-<span class="sd">pickle serializable by default can be used directly with ``Data(my_data)``.</span>
+<span class="sd">pickle serializable by default can be used directly with :code`Data(my_data)`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">ryvencore.Base</span> <span class="kn">import</span> <span class="n">Base</span>
+<span class="kn">from</span> <span class="nn">ryvencore.utils</span> <span class="kn">import</span> <span class="n">serialize</span><span class="p">,</span> <span class="n">deserialize</span><span class="p">,</span> <span class="n">print_err</span>
 
 
-<div class="viewcode-block" id="Data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Data.Data">[docs]</a><span class="k">class</span> <span class="nc">Data</span><span class="p">:</span>
+<div class="viewcode-block" id="Data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Data.Data">[docs]</a><span class="k">class</span> <span class="nc">Data</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for data objects.</span>
 
@@ -103,8 +105,8 @@
 <span class="sd">    quickly regenerate that state by updating the root node.</span>
 
 <span class="sd">    Be careful when consuming complex input data: modification can lead to undesired</span>
-<span class="sd">    effects. In particular, if you share some data object ``D`` with successor nodes</span>
-<span class="sd">    ``N1`` and ``N2``, and ``N1`` changes ``D`` directly, then ``N2``</span>
+<span class="sd">    effects. In particular, if you share some data object :math:`d` with successor nodes</span>
+<span class="sd">    :math:`N1` and :math:`N2`, and :math:`N1` changes :math:`d` directly, then :math:`N2`</span>
 <span class="sd">    will see the change as well, because they look at the same Data object:</span>
 
 <span class="sd">    &gt;&gt;&gt; import ryvencore as rc</span>
@@ -112,12 +114,12 @@
 <span class="sd">    &gt;&gt;&gt; class Producer(rc.Node):</span>
 <span class="sd">    ...     init_outputs = [rc.NodeOutputType()]</span>
 <span class="sd">    ...</span>
-<span class="sd">    ...     def push_data(self, D):</span>
-<span class="sd">    ...         self.D = D</span>
+<span class="sd">    ...     def push_data(self, d):</span>
+<span class="sd">    ...         self.d = d</span>
 <span class="sd">    ...         self.update()</span>
 <span class="sd">    ...</span>
 <span class="sd">    ...     def update_event(self, inp=-1):</span>
-<span class="sd">    ...         self.set_output_val(0, self.D)</span>
+<span class="sd">    ...         self.set_output_val(0, self.d)</span>
 <span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; class Consumer(rc.Node):</span>
 <span class="sd">    ...     init_inputs = [rc.NodeInputType()]</span>
@@ -143,7 +145,7 @@
 
 <span class="sd">    This can be useful for optimization when sharing large data, but might not</span>
 <span class="sd">    be what you want.</span>
-<span class="sd">    To avoid this you might want to make sure to copy ``D`` when its payload is</span>
+<span class="sd">    To avoid this you might want to make sure to copy :math:`d` when its payload is</span>
 <span class="sd">    consumed:</span>
 
 <span class="sd">    &gt;&gt;&gt; class MyListData(rc.Data):</span>
@@ -156,11 +158,28 @@
 <span class="sd">    [1, 2, 3, 4]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="c1"># will be &#39;Data&#39; by default, see :code:`_build_identifier()`</span>
+    <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;unique Data identifier; you can set this manually in subclasses, if</span>
+<span class="sd">    you don&#39;t the class name will be used&quot;&quot;&quot;</span>
+
+    <span class="n">legacy_identifiers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;a list of compatible identifiers in case you change the identifier&quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_build_identifier</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">identifier</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_from</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">load_from</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">load_from</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">load_from</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">payload</span><span class="si">}</span><span class="s1">) object, GID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">global_id</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">payload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -172,16 +191,40 @@
 
 <div class="viewcode-block" id="Data.get_data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Data.Data.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Transform the data object to a ``pickle`` serializable object.</span>
-<span class="sd">        DO NOT use this function to access the payload, use ``payload`` instead.</span>
+<span class="sd">        *VIRTUAL*</span>
+
+<span class="sd">        Transform the data object to a :code:`pickle` serializable object.</span>
+<span class="sd">        **Do not** use this function to access the payload, use :code:`payload` instead.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">payload</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">payload</span>     <span class="c1"># naive default implementation</span></div>
 
 <div class="viewcode-block" id="Data.set_data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Data.Data.set_data">[docs]</a>    <span class="k">def</span> <span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Deserialize the data object from the dict created in ``get_data()``.</span>
+<span class="sd">        *VIRTUAL*</span>
+
+<span class="sd">        Deserialize the data object from the dict created in :code:`get_data()`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">payload</span> <span class="o">=</span> <span class="n">data</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">payload</span> <span class="o">=</span> <span class="n">data</span>     <span class="c1"># naive default implementation</span></div>
+
+<div class="viewcode-block" id="Data.data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Data.Data.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(),</span>
+            <span class="s1">&#39;identifier&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span>
+            <span class="s1">&#39;serialized&#39;</span><span class="p">:</span> <span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="Data.load"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Data.Data.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;identifier&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span> <span class="ow">and</span> \
+                <span class="n">data</span><span class="p">[</span><span class="s1">&#39;identifier&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">legacy_identifiers</span><span class="p">:</span>
+            <span class="c1"># this should not happen when loading a Flow, because the flow checks</span>
+            <span class="n">print_err</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;WARNING: Data identifier </span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;identifier&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> &#39;</span>
+                      <span class="sa">f</span><span class="s1">&#39;is not compatible with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s1">. Skipping.&#39;</span>
+                      <span class="sa">f</span><span class="s1">&#39;Did you forget to add it to legacy_identifiers?&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">deserialize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;serialized&#39;</span><span class="p">]))</span></div></div>
 </pre></div>
 
           </div>

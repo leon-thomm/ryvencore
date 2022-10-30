@@ -205,7 +205,7 @@ content should be preserved, it should be saved in a file.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ryvencore.addons.default.Logging.LoggingAddon.version">
-<code class="sig-name descname"><span class="pre">version</span></code><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'0.0.1'</span></em><a class="headerlink" href="#ryvencore.addons.default.Logging.LoggingAddon.version" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">version</span></code><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'0.0.1'</span></em><a class="headerlink" href="#ryvencore.addons.default.Logging.LoggingAddon.version" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -297,7 +297,7 @@ optimization. Variables are flow-local.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.version">
-<code class="sig-name descname"><span class="pre">version</span></code><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'0.0.3'</span></em><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.version" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">version</span></code><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'0.0.3'</span></em><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.version" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -339,13 +339,17 @@ optimization. Variables are flow-local.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.get_state">
 <code class="sig-name descname"><span class="pre">get_state</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.get_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.get_state" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the state of the add-on as JSON-compatible a dict.</p>
+<dd><p><em>VIRTUAL</em></p>
+<p>Return the state of the add-on as JSON-compatible a dict.
+This dict will be extended by <code class="code docutils literal notranslate"><span class="pre">AddOn.complete_data()</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.set_state">
 <code class="sig-name descname"><span class="pre">set_state</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.set_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.set_state" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the state of the add-on from the dict generated in get_state().</p>
+<dd><p><em>VIRTUAL</em></p>
+<p>Set the state of the add-on from the dict generated in
+<code class="code docutils literal notranslate"><span class="pre">AddOn.get_state()</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
