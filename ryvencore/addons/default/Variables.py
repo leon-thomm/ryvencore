@@ -224,4 +224,4 @@ class VarsAddon(AddOn):
                     self.create_var(f, name, data=var)
 
 
-addon = VarsAddon()
+# addon = VarsAddon()
