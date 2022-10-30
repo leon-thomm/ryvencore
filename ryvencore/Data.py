@@ -4,9 +4,11 @@ It should be subclassed to define custom data types. In particular, serializatio
 and deserialization must be implemented for each respective type. Types that are
 pickle serializable by default can be used directly with :code`Data(my_data)`.
 """
+from ryvencore.Base import Base
+from ryvencore.utils import serialize, deserialize, print_err
 
 
-class Data:
+class Data(Base):
     """
     Base class for data objects.
 
@@ -72,11 +74,28 @@ class Data:
     [1, 2, 3, 4]
     """
 
+    # will be 'Data' by default, see :code:`_build_identifier()`
+    identifier: str = None
+    """unique Data identifier; you can set this manually in subclasses, if
+    you don't the class name will be used"""
+
+    legacy_identifiers = []
+    """a list of compatible identifiers in case you change the identifier"""
+
+    @classmethod
+    def _build_identifier(cls):
+        cls.identifier = cls.__name__
+
     def __init__(self, value=None, load_from=None):
+        super().__init__()
+
         if load_from is not None:
-            self.set_data(load_from)
+            self.load(load_from)
         else:
             self._payload = value
+
+    def __str__(self):
+        return f'<{self.__class__.__name__}({self.payload}) object, GID: {self.global_id}>'
 
     @property
     def payload(self):
@@ -88,13 +107,37 @@ class Data:
 
     def get_data(self):
         """
-        Transform the data object to a ``pickle`` serializable object.
-        DO NOT use this function to access the payload, use ``payload`` instead.
+        *VIRTUAL*
+
+        Transform the data object to a :code:`pickle` serializable object.
+        **Do not** use this function to access the payload, use :code:`payload` instead.
         """
-        return self.payload
+        return self.payload     # naive default implementation
 
     def set_data(self, data):
         """
-        Deserialize the data object from the dict created in ``get_data()``.
+        *VIRTUAL*
+
+        Deserialize the data object from the dict created in :code:`get_data()`.
         """
-        self.payload = data
+        self.payload = data     # naive default implementation
+
+    def data(self) -> dict:
+        return {
+            **super().data(),
+            'identifier': self.identifier,
+            'serialized': serialize(self.get_data())
+        }
+
+    def load(self, data: dict):
+        super().load(data)
+
+        if data['identifier'] != self.identifier and \
+                data['identifier'] not in self.legacy_identifiers:
+            # this should not happen when loading a Flow, because the flow checks
+            print_err(f'WARNING: Data identifier {data["identifier"]} '
+                      f'is not compatible with {self.identifier}. Skipping.'
+                      f'Did you forget to add it to legacy_identifiers?')
+            return
+
+        self.set_data(deserialize(data['serialized']))

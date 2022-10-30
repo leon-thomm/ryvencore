@@ -5,7 +5,7 @@ from typing import List, Dict
 from .Base import Base, Event
 from .Flow import Flow
 from .InfoMsgs import InfoMsgs
-from .utils import pkg_version, pkg_path, load_from_file
+from .utils import pkg_version, pkg_path, load_from_file, print_err
 from .Node import Node
 
 
@@ -31,8 +31,9 @@ class Session(Base):
         # ATTRIBUTES
         self.addons = {}
         self.flows: [Flow] = []
-        self.nodes = set()  # list of node CLASSES
+        self.nodes = set()      # list of node CLASSES
         self.invisible_nodes = set()
+        self.data_types = {}
         self.gui: bool = gui
         self.init_data = None
 
@@ -104,6 +105,25 @@ class Session(Base):
             for n in s.flow.nodes:
                 nodes.append(n)
         return nodes
+
+
+    def register_data(self, data_type_class):
+        """
+        Registers a new :code:`Data` subclass which will then be available
+        in the flows.
+        """
+
+        id = data_type_class.identifier
+        if id != 'Data':
+            data_type_class._build_identifier()
+        if id == 'Data' or id in self.data_types:
+            print_err(
+                f'Data type identifier "{id}" is already registered.'
+                f'skipping. You can use the "identifier" attribute of'
+                f'your Data subclass.')
+            return
+
+        self.data_types[id] = data_type_class
 
 
     def create_flow(self, title: str = None, data: Dict = None) -> Flow:

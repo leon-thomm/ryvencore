@@ -3,13 +3,15 @@
 import base64
 import importlib.util
 import importlib.metadata
+import json
 import pickle
 import sys
 from os.path import dirname, abspath, join, basename
-from typing import List, Tuple
+from typing import List, Tuple, Optional
+from packaging.version import Version, parse as _parse_version
 
 
-def pkg_version():
+def pkg_version() -> str:
     return importlib.metadata.version('ryvencore')
 
 
@@ -35,6 +37,11 @@ def deserialize(data):
 
 def print_err(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
+
+def json_print(d: dict):
+    # I just need this all the time
+    print(json.dumps(d, indent=4))
 
 
 def node_from_identifier(identifier: str, nodes: List):
