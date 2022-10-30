@@ -18,12 +18,11 @@ class NodePort(Base):
         self.label_str = label_str
 
     def data(self) -> dict:
-        d = super().data()
-        d.update({
+        return {
+            **super().data(),
             'type': self.type_,
             'label': self.label_str,
-        })
-        return d
+        }
 
 
 class NodeInput(NodePort):

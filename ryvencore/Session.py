@@ -5,7 +5,7 @@ from typing import List, Dict
 from .Base import Base, Event
 from .Flow import Flow
 from .InfoMsgs import InfoMsgs
-from .utils import pkg_path, load_from_file
+from .utils import pkg_version, pkg_path, load_from_file, print_err
 from .Node import Node
 
 
@@ -14,6 +14,8 @@ class Session(Base):
     The Session is the top level interface to your project. It mainly manages flows, nodes, and add-ons and
     provides methods for serialization and deserialization of the project.
     """
+
+    version = pkg_version()
 
     def __init__(
             self,
@@ -29,8 +31,9 @@ class Session(Base):
         # ATTRIBUTES
         self.addons = {}
         self.flows: [Flow] = []
-        self.nodes = set()  # list of node CLASSES
+        self.nodes = set()      # list of node CLASSES
         self.invisible_nodes = set()
+        self.data_types = {}
         self.gui: bool = gui
         self.init_data = None
 
@@ -104,6 +107,25 @@ class Session(Base):
         return nodes
 
 
+    def register_data(self, data_type_class):
+        """
+        Registers a new :code:`Data` subclass which will then be available
+        in the flows.
+        """
+
+        id = data_type_class.identifier
+        if id != 'Data':
+            data_type_class._build_identifier()
+        if id == 'Data' or id in self.data_types:
+            print_err(
+                f'Data type identifier "{id}" is already registered.'
+                f'skipping. You can use the "identifier" attribute of'
+                f'your Data subclass.')
+            return
+
+        self.data_types[id] = data_type_class
+
+
     def create_flow(self, title: str = None, data: Dict = None) -> Flow:
         """
         Creates and returns a new flow.
@@ -171,7 +193,8 @@ class Session(Base):
 
     def load(self, data: Dict) -> List[Flow]:
         """
-        Loads a project and raises an exception if required nodes are missing (not registered).
+        Loads a project and raises an exception if required nodes are missing
+        (not registered).
         """
 
         super().load(data)
@@ -196,30 +219,33 @@ class Session(Base):
         # load addons
         for name, addon_data in data['addons'].items():
             if name in self.addons:
-                self.addons[name].set_state(addon_data)
+                self.addons[name].load(addon_data)
             else:
                 print(f'found missing addon: {name}; attempting to load anyway')
 
         return new_flows
 
     def serialize(self):
-        """Returns the project as JSON compatible dict to be saved and loaded again using load()"""
+        """
+        Returns the project as JSON compatible dict to be saved and
+        loaded again using load()
+        """
 
         return self.complete_data(self.data())
 
 
     def data(self) -> dict:
         """
-        Serializes the whole project into a JSON compatible dict. Pass to ``load()`` in a new session to restore.
+        Serializes the whole project into a JSON compatible dict.
+        Pass to :code:`load()` in a new session to restore.
         """
 
-        d = super().data()
-        d.update({
+        return {
+            **super().data(),
             'flows': [
                 s.data() for s in self.flows
             ],
             'addons': {
-                name: addon.get_state() for name, addon in self.addons.items()
+                name: addon.data() for name, addon in self.addons.items()
             }
-        })
-        return d
+        }

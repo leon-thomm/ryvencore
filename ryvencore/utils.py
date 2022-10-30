@@ -2,9 +2,29 @@
 
 import base64
 import importlib.util
+import importlib.metadata
+import json
 import pickle
+import sys
 from os.path import dirname, abspath, join, basename
-from typing import List, Tuple
+from typing import List, Tuple, Optional
+from packaging.version import Version, parse as _parse_version
+
+
+def pkg_version() -> str:
+    return importlib.metadata.version('ryvencore')
+
+
+def pkg_path(subpath: str = None):
+    """
+    Returns the path to the installed package root directory, optionally with a relative sub-path appended.
+    Notice that this returns the path to the ryvencore package (ryvencore/ryvencore/) not the repository (ryvencore/).
+    """
+
+    p = dirname(__file__)
+    if subpath is not None:
+        p = join(p, subpath)
+    return abspath(p)
 
 
 def serialize(data) -> str:
@@ -13,6 +33,15 @@ def serialize(data) -> str:
 
 def deserialize(data):
     return pickle.loads(base64.b64decode(data))
+
+
+def print_err(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+
+def json_print(d: dict):
+    # I just need this all the time
+    print(json.dumps(d, indent=4))
 
 
 def node_from_identifier(identifier: str, nodes: List):
@@ -31,17 +60,6 @@ def node_from_identifier(identifier: str, nodes: List):
                 f'identifier to the identifier_comp list attribute to provide '
                 f'backwards compatibility.'
             )
-
-def pkg_path(subpath: str = None):
-    """
-    Returns the path to the installed package root directory, optionally with a relative sub-path appended.
-    Notice that this returns the path to the ryvencore package (ryvencore/ryvencore/) not the repository (ryvencore/).
-    """
-
-    p = dirname(__file__)
-    if subpath is not None:
-        p = join(p, subpath)
-    return abspath(p)
 
 
 def load_from_file(file: str, comps: List[str]) -> Tuple:
