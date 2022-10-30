@@ -110,8 +110,11 @@ class Base:
     # non-static
 
     def __init__(self):
-        self.GLOBAL_ID = self._global_id_ctr.count()
-        self.PREV_GLOBAL_ID = None
+        self.global_id = self._global_id_ctr.count()
+
+        # the following attributes are set in :code:`load()`
+        self.prev_global_id = None
+        self.prev_version = None
 
     def data(self) -> dict:
         """
@@ -119,7 +122,7 @@ class Base:
         Reserved field names are 'GID' and 'version'.
         """
         return {
-            'GID': self.GLOBAL_ID,
+            'GID': self.global_id,
 
             # version optional
             **({'version': self.version}
@@ -132,5 +135,6 @@ class Base:
         Recreate the object state from the data dict returned by :code:`data()`.
         """
         if dict is not None:
-            self.PREV_GLOBAL_ID = data['GID']
-            self._prev_id_objs[self.PREV_GLOBAL_ID] = self
+            self.prev_global_id = data['GID']
+            self._prev_id_objs[self.prev_global_id] = self
+            self.prev_version = data.get('version')
