@@ -42,6 +42,8 @@ class AddOn(Base):
 
     def _on_node_created(self, flow, node):
         """
+        *VIRTUAL*
+
         Called when a node is created. This happens only once, whereas
         a node can be added and removed multiple times, see
         on_node_added() and
@@ -51,42 +53,42 @@ class AddOn(Base):
 
     def _on_node_added(self, flow, node):
         """
+        *VIRTUAL*
+
         Called when a node is added to a flow.
         """
         pass
 
     def _on_node_removed(self, flow, node):
         """
+        *VIRTUAL*
+
         Called when a node is removed from a flow.
         """
         pass
 
     def _extend_node_data(self, node, data: dict):
         """
+        *VIRTUAL*
+
         Extend the node data dict with additional add-on-related data.
         """
         pass
 
-    # def _extend_flow_data(self, flow, data: dict):
-    #     """
-    #     Extend the flow data dict with additional add-on-related data.
-    #     """
-    #     pass
-    #
-    # def _extend_session_data(self, data: dict):
-    #     """
-    #     Extend the session data dict with additional add-on-related data.
-    #     """
-    #     pass
-
     def get_state(self) -> dict:
         """
+        *VIRTUAL*
+
         Return the state of the add-on as JSON-compatible a dict.
+        This dict will be extended by :code:`AddOn.complete_data()`.
         """
         return {}
 
     def set_state(self, state: dict):
         """
-        Set the state of the add-on from the dict generated in get_state().
+        *VIRTUAL*
+
+        Set the state of the add-on from the dict generated in
+        :code:`AddOn.get_state()`.
         """
         pass

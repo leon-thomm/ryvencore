@@ -107,6 +107,8 @@ class DataFlowNaive(FlowExecutor):
 
 class DataFlowOptimized(DataFlowNaive):
     """
+    *(see also documentation in Flow)*
+
     A special flow executor which implements some node functions to optimise flow execution.
     Whenever a new execution is invoked somewhere (some node or output is updated), it
     analyses the graph's connected component (of successors) where the execution was invoked
@@ -120,10 +122,6 @@ class DataFlowOptimized(DataFlowNaive):
     execution where any two executed branches which merge again in the future result in two
     complete executions of everything that comes after the merge, which quickly produces
     exponential performance issues.
-
-    Assumptions for the graph:
-
-    - no feedback loops
     """
 
     def __init__(self, flow):
