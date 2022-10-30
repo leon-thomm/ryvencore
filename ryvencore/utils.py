@@ -15,7 +15,7 @@ else:
     import importlib.metadata as importlib_metadata
 
 def pkg_version() -> str:
-    return importlib.metadata.version('ryvencore')
+    return importlib_metadata.version('ryvencore')
 
 
 def pkg_path(subpath: str = None):
