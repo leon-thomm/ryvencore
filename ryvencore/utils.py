@@ -1,15 +1,18 @@
 """A collection of useful functions used by different components."""
 
 import base64
-import importlib.util
-import importlib.metadata
 import json
 import pickle
 import sys
 from os.path import dirname, abspath, join, basename
 from typing import List, Tuple, Optional
 from packaging.version import Version, parse as _parse_version
+import importlib.util
 
+if sys.version_info < (3, 8):
+    import importlib_metadata
+else:
+    import importlib.metadata as importlib_metadata
 
 def pkg_version() -> str:
     return importlib.metadata.version('ryvencore')
