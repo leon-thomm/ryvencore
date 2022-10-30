@@ -77,11 +77,11 @@ class DataFlowNaive(FlowExecutor):
             return None
 
     # Node.set_output_val() =>
-    def set_output_val(self, node, index, val):
+    def set_output_val(self, node, index, data):
         out = node.outputs[index]
         if not out.type_ == 'data':
             return
-        out.val = val
+        out.val = data
 
         for inp in self.graph[out]:
             inp.node.update(inp=inp.node.inputs.index(inp))
@@ -153,13 +153,13 @@ class DataFlowOptimized(DataFlowNaive):
     #   DataFlowNative.input(node, index)
 
     # Node.set_output_val() =>
-    def set_output_val(self, node, index, val):
+    def set_output_val(self, node, index, data):
         out = node.outputs[index]
 
         if self.execution_root_node is None:  # execution starter!
             self.start_execution(root_output=out)
 
-            out.val = val
+            out.val = data
             self.output_updated[out] = True
             self.propagate_output(out)
 
@@ -173,10 +173,10 @@ class DataFlowOptimized(DataFlowNaive):
                 # there are other possible solutions to this, including running
                 # a new execution analysis of this graph here
 
-                super().set_output_val(node, index, val)
+                super().set_output_val(node, index, data)
 
             else:
-                out.val = val
+                out.val = data
                 self.output_updated[out] = True
 
     # Node.exec_output() =>
@@ -348,9 +348,9 @@ class ExecFlowNaive(FlowExecutor):
             return None
 
     # Node.set_output_val() =>
-    def set_output_val(self, node, index, val):
+    def set_output_val(self, node, index, data):
         out = node.outputs[index]
-        out.val = val
+        out.val = data
 
     # Node.exec_output() =>
     def exec_output(self, node, index):

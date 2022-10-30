@@ -5,31 +5,53 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
-   ryvencore.dtypes
-   ryvencore.logging
-   ryvencore.script_variables
+   ryvencore.addons
 
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 2
+ryvencore.AddOn module
+----------------------
 
-   ryvencore.Base
-   ryvencore.Connection
-   ryvencore.Flow
-   ryvencore.FlowExecutor
-   ryvencore.InfoMsgs
-   ryvencore.Node
-   ryvencore.NodePort
-   ryvencore.NodePortBP
-   ryvencore.RC
-   ryvencore.Script
-   ryvencore.Session
-   ryvencore.pkg_info
-   ryvencore.utils
+.. automodule:: ryvencore.AddOn
+   :members: AddOn
+   :undoc-members:
+   :show-inheritance:
+
+
+ryvencore.Data module
+---------------------
+
+.. automodule:: ryvencore.Data
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+ryvencore.Flow module
+---------------------
+
+.. automodule:: ryvencore.Flow
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+ryvencore.Node module
+---------------------
+
+.. automodule:: ryvencore.Node
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+ryvencore.Session module
+------------------------
+
+.. automodule:: ryvencore.Session
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
