@@ -95,7 +95,7 @@ from .FlowExecutor import DataFlowNaive, DataFlowOptimized, FlowExecutor, execut
 from .Node import Node
 from .NodePort import NodeOutput, NodeInput
 from .RC import FlowAlg, PortObjPos
-from .utils import node_from_identifier, serialize, deserialize
+from .utils import *
 from typing import List, Dict, Optional, Tuple
 
 
@@ -180,6 +180,10 @@ class Flow(Base):
 
     def create_node(self, node_class, data=None):
         """Creates, adds and returns a new node object"""
+
+        if node_class not in self.session.nodes:
+            print_err(f'Node class {node_class} not in session nodes')
+            return
 
         node = node_class((self, self.session, data))
         node.initialize()
