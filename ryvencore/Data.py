@@ -1,8 +1,8 @@
 """
-This file defines the ``Data`` type, which must be used to pass data between nodes.
+This file defines the :code:`Data` type, which must be used to pass data between nodes.
 It should be subclassed to define custom data types. In particular, serialization
 and deserialization must be implemented for each respective type. Types that are
-pickle serializable by default can be used directly with ``Data(my_data)``.
+pickle serializable by default can be used directly with :code`Data(my_data)`.
 """
 
 
@@ -19,8 +19,8 @@ class Data:
     quickly regenerate that state by updating the root node.
 
     Be careful when consuming complex input data: modification can lead to undesired
-    effects. In particular, if you share some data object ``D`` with successor nodes
-    ``N1`` and ``N2``, and ``N1`` changes ``D`` directly, then ``N2``
+    effects. In particular, if you share some data object :math:`d` with successor nodes
+    :math:`N1` and :math:`N2`, and :math:`N1` changes :math:`d` directly, then :math:`N2`
     will see the change as well, because they look at the same Data object:
 
     >>> import ryvencore as rc
@@ -28,12 +28,12 @@ class Data:
     >>> class Producer(rc.Node):
     ...     init_outputs = [rc.NodeOutputType()]
     ...
-    ...     def push_data(self, D):
-    ...         self.D = D
+    ...     def push_data(self, d):
+    ...         self.d = d
     ...         self.update()
     ...
     ...     def update_event(self, inp=-1):
-    ...         self.set_output_val(0, self.D)
+    ...         self.set_output_val(0, self.d)
     >>>
     >>> class Consumer(rc.Node):
     ...     init_inputs = [rc.NodeInputType()]
@@ -59,7 +59,7 @@ class Data:
 
     This can be useful for optimization when sharing large data, but might not
     be what you want.
-    To avoid this you might want to make sure to copy ``D`` when its payload is
+    To avoid this you might want to make sure to copy :math:`d` when its payload is
     consumed:
 
     >>> class MyListData(rc.Data):

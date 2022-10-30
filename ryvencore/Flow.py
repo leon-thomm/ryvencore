@@ -95,7 +95,7 @@ from .FlowExecutor import DataFlowNaive, DataFlowOptimized, FlowExecutor, execut
 from .Node import Node
 from .NodePort import NodeOutput, NodeInput
 from .RC import FlowAlg, PortObjPos
-from .utils import node_from_identifier, serialize, deserialize
+from .utils import *
 from typing import List, Dict, Optional, Tuple
 
 
@@ -180,6 +180,10 @@ class Flow(Base):
 
     def create_node(self, node_class, data=None):
         """Creates, adds and returns a new node object"""
+
+        if node_class not in self.session.nodes:
+            print_err(f'Node class {node_class} not in session nodes')
+            return
 
         node = node_class((self, self.session, data))
         node.initialize()
@@ -396,14 +400,13 @@ class Flow(Base):
         Serializes the flow: returns a JSON compatible dict containing all
         data of the flow.
         """
-        d = super().data()
-        d.update({
+        return {
+            **super().data(),
             'algorithm mode': FlowAlg.str(self.alg_mode),
             'nodes': self._gen_nodes_data(self.nodes),
             'connections': self._gen_conns_data(self.nodes),
             'output data': self._gen_output_data(self.nodes),
-        })
-        return d
+        }
 
 
     def _gen_nodes_data(self, nodes: List[Node]) -> List[dict]:
