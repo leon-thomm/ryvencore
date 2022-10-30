@@ -2,8 +2,8 @@ import json
 import unittest
 import ryvencore as rc
 from ryvencore import Data
-from ryvencore.addons.default.Variables import addon as Variables
-from ryvencore.addons.default.Logging import addon as Logging
+# from ryvencore.addons.default.Variables import addon as Variables
+# from ryvencore.addons.default.Logging import addon as Logging
 
 
 # class NodeBase(rc.Node):
