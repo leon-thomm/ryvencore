@@ -220,12 +220,12 @@ class Session(Base):
         Pass to :code:`load()` in a new session to restore.
         """
 
-        d = super().data()
-        d.update({
+        return {
+            **super().data(),
             'flows': [
                 s.data() for s in self.flows
             ],
             'addons': {
                 name: addon.get_state() for name, addon in self.addons.items()
             }
-        })
+        }

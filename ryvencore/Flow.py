@@ -400,14 +400,13 @@ class Flow(Base):
         Serializes the flow: returns a JSON compatible dict containing all
         data of the flow.
         """
-        d = super().data()
-        d.update({
+        return {
+            **super().data(),
             'algorithm mode': FlowAlg.str(self.alg_mode),
             'nodes': self._gen_nodes_data(self.nodes),
             'connections': self._gen_conns_data(self.nodes),
             'output data': self._gen_output_data(self.nodes),
-        })
-        return d
+        }
 
 
     def _gen_nodes_data(self, nodes: List[Node]) -> List[dict]:
