@@ -37,7 +37,7 @@ class Node(Base):
     """unique node identifier string. if not given it will set it to the class name when registering in the session"""
 
     legacy_identifiers: List[str] = []
-    """a list of compatible identifiers, useful if you change the class name (and hence the identifier) to provide 
+    """a list of compatible identifiers, useful when you change the class name (and hence the identifier) to provide 
     backward compatibility to load old projects that rely on the old identifier"""
 
     identifier_prefix: str = None
@@ -110,7 +110,8 @@ class Node(Base):
 
             except Exception as e:
                 InfoMsgs.write_err(
-                    'Exception while setting data in', self.title, 'node:', e, ' (was this intended?)')
+                    f'Exception while setting data in {self.title} node:'
+                    f'{e} (was this intended?)')
 
         else:   # default setup
 
@@ -420,7 +421,7 @@ class Node(Base):
             **super().data(),
 
             'identifier': self.identifier,
-            'version': self.version,
+            'version': self.version,    # this overrides the version field from Base
 
             'state data': serialize(self.get_state()),
             'additional data': self.additional_data(),
