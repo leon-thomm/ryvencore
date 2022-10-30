@@ -1,14 +1,31 @@
 """
-This module defines features and behavior that applies to most internal
-components. It defines the Base (parent) class.
+This module defines the :code:`Base` class for most internal components,
+implementing features such as a unique ID, a system for save and load,
+and a very minimal event system.
 """
 
 
-def complete_data(data: dict) -> dict:
+class IDCtr:
     """
-    See ``Base.complete_data_function``.
+    A simple ascending integer ID counter.
+    Guarantees uniqueness during lifetime or the program (not only of the Session).
+    This approach is preferred over UUIDs because UUIDs need a networking context
+    and require according system support which might not be available everywhere.
     """
-    return data
+
+    def __init__(self):
+        self.ctr = -1
+
+    def count(self):
+        """increases the counter and returns the new count. first time is 0"""
+        self.ctr += 1
+        return self.ctr
+
+    def set_count(self, cnt):
+        if cnt < self.ctr:
+            raise Exception("Decreasing ID counters is illegal")
+        else:
+            self.ctr = cnt
 
 
 class Event:
@@ -40,51 +57,33 @@ class Event:
         for cb in self._slots:
             cb(*args)
 
-class IDCtr:
-    """
-    A simple ascending integer ID counter.
-    Guarantees uniqueness during lifetime or the program (not only of the Session).
-    This approach is preferred over UUIDs because UUIDs need a networking context
-    and require according system support which might not be available everywhere.
-    """
-
-    def __init__(self):
-        self.ctr = -1
-
-    def count(self):
-        """increases the counter and returns the new count. first time is 0"""
-        self.ctr += 1
-        return self.ctr
-
-    def set_count(self, cnt):
-        if cnt < self.ctr:
-            raise Exception("Decreasing ID counters is illegal")
-        else:
-            self.ctr = cnt
 
 class Base:
     """
     Base class for all abstract components. It provides:
 
     Functionality for ID counting:
-        - an automatic ``GLOBAL_ID`` unique during the lifetime of the program
-        - a ``PREV_GLOBAL_ID`` for re-identification after save & load,
-          automatically set in ``load()``
+        - an automatic :code:`GLOBAL_ID` unique during the lifetime of the program
+        - a :code:`PREV_GLOBAL_ID` for re-identification after save & load,
+          automatically set in :code:`load()`
 
     Serialization:
-        - the ``data()`` method gets reimplemented by subclasses to serialize
-        - the ``load()`` method gets reimplemented by subclasses to deserialize
-        - the static attribute ``Base.complete_data_function`` can be set to
-          a function which extends the data dict of any component with additional
-          information, which is useful e.g. in a frontend context
+        - the :code:`data()` method gets reimplemented by subclasses to serialize
+        - the :code:`load()` method gets reimplemented by subclasses to deserialize
+        - the static attribute :code:`Base.complete_data_function` can be set to
+          a function which extends the serialization process by supplementing the
+          data dict with additional information, which is useful in many
+          contexts, e.g. a frontend does not need to implement separate save & load
+          functions for its GUI components
     """
 
-    # all abstract components have a global ID
+    # static attributes
+
     _global_id_ctr = IDCtr()
 
     # TODO: this produces a memory leak, because the objects are never removed
     #  from the dict. It shouldn't be a problem as long as PREF_GLOBAL_ID is
-    #  only used for loading.
+    #  only used for loading, but I'd be happy to avoid this if possible
     _prev_id_objs = {}
 
     @classmethod
@@ -92,21 +91,46 @@ class Base:
         """returns the object with the given previous id"""
         return cls._prev_id_objs.get(prev_id)
 
-    complete_data_function = complete_data
+    complete_data_function = lambda data: data
+
+    @staticmethod
+    def complete_data(data: dict):
+        """
+        Invokes the customizable :code:`complete_data_function` function
+        on the dict returned by :code:`data`. This does not happen automatically
+        on :code:`data()` because it is not always necessary (and might only be
+        necessary once, not for each component individually).
+        """
+        return Base.complete_data_function(data)
+
+
+    # optional version which, if set, will be stored in :code:`data()`
+    version: str = None
+
+    # non-static
 
     def __init__(self):
         self.GLOBAL_ID = self._global_id_ctr.count()
         self.PREV_GLOBAL_ID = None
 
     def data(self) -> dict:
-        """converts the object to a JSON compatible dict for serialization"""
-        return {'GID': self.GLOBAL_ID}
+        """
+        Convert the object to a JSON compatible dict.
+        Reserved field names are 'GID' and 'version'.
+        """
+        return {
+            'GID': self.GLOBAL_ID,
 
-    def complete_data(self, data: dict) -> data:
-        return Base.complete_data_function(data)
+            # version optional
+            **({'version': self.version}
+               if self.version is not None
+               else {})
+        }
 
     def load(self, data: dict):
-        """recreate the object from the data dict returned by ``data()``"""
+        """
+        Recreate the object state from the data dict returned by :code:`data()`.
+        """
         if dict is not None:
             self.PREV_GLOBAL_ID = data['GID']
             self._prev_id_objs[self.PREV_GLOBAL_ID] = self

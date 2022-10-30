@@ -5,7 +5,7 @@
 
 An experimental Python library for graph-based processing, designed for flow-based/node-based visual scripting editors. It is the backbone of the [Ryven](https://github.com/leon-thomm/Ryven) project, but it can very much be used in other contexts as well.
 
-While ryvencore is written purely in Python, it is very lightweight and highly compatible. It can be compiled with Cython, see the `setup_cython.py` file. The performance seems comparable so far, but the code hasn't been optimized for Cython yet, so there might be a lot of potential. Please consider contributing. [Pyodide](https://github.com/pyodide/pyodide) provides a WebAssembly port of ryvencore.
+While ryvencore is written purely in Python, it is very lightweight and highly compatible. It can be compiled with Cython, see the `setup_cython.py` file. The performance seems comparable so far, but the code hasn't been optimized for Cython yet, so there might be a lot of potential. Please consider contributing. ryvencore also seems compatible with most Python ports to WebAssembly, even the Cython compiled ryvencore.
 
 ### Installation
 
