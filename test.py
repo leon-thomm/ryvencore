@@ -154,12 +154,12 @@ class ExecFlowBasic(unittest.TestCase):
     def runTest(self):
         # rc.InfoMsgs.enable(True)
         s = rc.Session()
-        f = s.create_flow('main').flow
+        f = s.create_flow('main')
         f.set_algorithm_mode('exec')
 
-        n1 = f.create_node(Node1)
-        n2 = f.create_node(Node2)
-        n3 = f.create_node(Node2)
+        n1 = f.create_node(self.Node1)
+        n2 = f.create_node(self.Node2)
+        n3 = f.create_node(self.Node2)
 
         f.connect_nodes(n1.outputs[0], n2.inputs[0])
         f.connect_nodes(n1.outputs[1], n2.inputs[1])

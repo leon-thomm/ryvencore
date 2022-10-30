@@ -1,23 +1,64 @@
 """
 This setup file can be used to manually compile ryvencore to a C extension using Cython, behavior should be the same.
 
-HOW TO COMPILE
+Follow the below process to compile ryvencore with Cython and install it as a regular package.
+Points 1 - 4 are only necessary if they are not satisfied already.
+Run all commands from the top level 'ryvencore' directory. The process is shown for Ubuntu Linux.
+Assuming only Python is installed already:
 
-Run all commands from the top level 'ryvencore' directory, and remember to remove any old ryvencore version initially
-$ pip uninstall ryvencore
-The below instructions show how to compile the sources on your system. Note that you will need Cython and an according
-C compiler for this.
+1. Remove old ryvencore versions
+
+.. code-block:: bash
+
+    $ pip uninstall ryvencore
+
+2. Install GCC
+
+.. code-block:: bash
+
+    $ sudo apt install build-essential
+
+3. Install Python dev tools
+
+.. code-block:: bash
+
+    $ sudo apt install python3-dev
+
+4. Install Python dependencies
+
+.. code-block:: bash
+
+    $ pip install cython wheel
+
+5. Compile
+
+.. code-block:: bash
 
     $ python -m setup_cython build_ext --inplace
+
+6. Build wheel
+
+.. code-block:: bash
+
     $ python setup_cython.py sdist bdist_wheel
+
+7. Install package from wheel
+
+.. code-block:: bash
+
     $ pip install ./dist/ryvencore-<version>-<platform>.whl
 
 NOTE
--   if you don't want to keep the source files (.py and compiled .c) in the installed package (only the compiled .so
-    files), simply comment out the line `packages = find:` in setup.cfg
+
+- if you don't want to keep the source files (.py and compiled .c) in the installed package (only the compiled .so \
+files), simply comment out the line `packages = find:` in setup.cfg
+- you can remove all the generated files and directories by running :code:`python cleanup_cython.py`
 
 To verify that the package successfully runs from the compiled C extension modules you can check whether
-the imported ryvencore package shows the __init__.so file and not __init__.py
+the imported ryvencore package shows the :code:`__init__.so` file and not :code:`__init__.py`.
+
+
+.. code-block:: bash
 
     $ python
     > import ryvencore as rc
@@ -25,19 +66,21 @@ the imported ryvencore package shows the __init__.so file and not __init__.py
 
 and to really be sure you can also manually remove all .py files in the installation directory
 
-    on Linux: $ .../site-packages/ryvencore> find . -name "*.py" -type f -delete
+.. code-block:: bash
+
+   .../site-packages/ryvencore> find . -name "*.py" -type f -delete
 
 and check whether you can successfully load the package from Python.
 """
 
 
-from setuptools import setup
-from Cython.Build import cythonize, build_ext
 import os
 
 
 def get_ext_paths(root_dir, exclude_files=[], recursive=True):
-    """get filepaths for compilation"""
+
+    # get filepaths for compilation
+
     paths = []
 
     for root, dirs, files in os.walk(root_dir):
@@ -57,11 +100,18 @@ def get_ext_paths(root_dir, exclude_files=[], recursive=True):
     return paths
 
 
-setup(
-    cmaclass={'build_ext': build_ext},
-    ext_modules=cythonize(
-        get_ext_paths('ryvencore'),
-        compiler_directives={'language_level': 3},
-        annotate=True,
+if __name__ == '__main__':
+
+    # these dependencies are not required for ryvencore to run, only for compilation
+    # to avoid breaking the documentation build process, we hide them for sphinx
+    from setuptools import setup
+    from Cython.Build import cythonize, build_ext
+
+    setup(
+        cmaclass={'build_ext': build_ext},
+        ext_modules=cythonize(
+            get_ext_paths('ryvencore', exclude_files=['ryvencore/addons/default/DTypes.py']),
+            compiler_directives={'language_level': 3},
+            annotate=True,
+        )
     )
-)
