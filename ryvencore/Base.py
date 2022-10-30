@@ -104,6 +104,8 @@ class Base:
         return Base.complete_data_function(data)
 
 
+    # optional version which, if set, will be stored in :code:`data()`
+    version: str = None
 
     # non-static
 
@@ -112,11 +114,18 @@ class Base:
         self.PREV_GLOBAL_ID = None
 
     def data(self) -> dict:
-        """converts the object to a JSON compatible dict for serialization"""
-        return {'GID': self.GLOBAL_ID}
+        """
+        Convert the object to a JSON compatible dict.
+        Reserved field names are 'GID' and 'version'.
+        """
+        return {
+            'GID': self.GLOBAL_ID,
 
-    def complete_data(self, data: dict) -> data:
-        return Base.complete_data_function(data)
+            # version optional
+            **({'version': self.version}
+               if self.version is not None
+               else {})
+        }
 
     def load(self, data: dict):
         """
