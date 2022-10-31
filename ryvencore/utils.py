@@ -74,10 +74,14 @@ def load_from_file(file: str, comps: List[str]) -> Tuple:
     name = basename(file).split('.')[0]
     spec = importlib.util.spec_from_file_location(name, file)
     importlib.util.module_from_spec(spec)
+
+    # TODO
+    #  I'm using the deprecated load_module() instead of
+    #  exec_module() because I had issues with exec_module().
+    #  exec_module() somehow registers it as "built-in" which
+    #  is wrong and prevents features, such as inspecting
+    #  the source with inspect
     mod = spec.loader.load_module(name)
-    # using load_module(name) instead of exec_module(mod) here,
-    # because exec_module() somehow then registers it as "built-in"
-    # which is wrong and e.g. prevents inspect from parsing the source
 
     def get_comp(c):
         try:
