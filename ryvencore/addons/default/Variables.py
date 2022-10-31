@@ -8,9 +8,14 @@ from ryvencore import AddOn
 
 
 class Variable:
-    """Implementation of flow variables"""
+    """
+    *currently disabled; breaking changes upcoming*
 
-    def __init__(self, addon, flow, name='', val=None, data=None):
+    Implementation of flow variables.
+    A Variable can currently only hold pickle serializable data.
+    Storing other data will break save&load.
+    """
+
         self.addon = addon
         self.flow = flow
         self.name = name
@@ -224,4 +229,4 @@ class VarsAddon(AddOn):
                     self.create_var(f, name, data=var)
 
 
-addon = VarsAddon()
+# addon = VarsAddon()

@@ -1,18 +1,21 @@
 """A collection of useful functions used by different components."""
 
 import base64
-import importlib.util
-import importlib.metadata
 import json
 import pickle
 import sys
 from os.path import dirname, abspath, join, basename
 from typing import List, Tuple, Optional
 from packaging.version import Version, parse as _parse_version
+import importlib.util
 
+if sys.version_info < (3, 8):
+    import importlib_metadata
+else:
+    import importlib.metadata as importlib_metadata
 
 def pkg_version() -> str:
-    return importlib.metadata.version('ryvencore')
+    return importlib_metadata.version('ryvencore')
 
 
 def pkg_path(subpath: str = None):
@@ -71,10 +74,14 @@ def load_from_file(file: str, comps: List[str]) -> Tuple:
     name = basename(file).split('.')[0]
     spec = importlib.util.spec_from_file_location(name, file)
     importlib.util.module_from_spec(spec)
+
+    # TODO
+    #  I'm using the deprecated load_module() instead of
+    #  exec_module() because I had issues with exec_module().
+    #  exec_module() somehow registers it as "built-in" which
+    #  is wrong and prevents features, such as inspecting
+    #  the source with inspect
     mod = spec.loader.load_module(name)
-    # using load_module(name) instead of exec_module(mod) here,
-    # because exec_module() somehow then registers it as "built-in"
-    # which is wrong and e.g. prevents inspect from parsing the source
 
     def get_comp(c):
         try:

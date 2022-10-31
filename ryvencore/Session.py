@@ -1,5 +1,6 @@
 import importlib
 import glob
+import os.path
 from typing import List, Dict
 
 from .Base import Base, Event
@@ -58,7 +59,7 @@ class Session(Base):
                 continue
 
             # register addon
-            modname = path.split('/')[-1][:-3]
+            modname = os.path.split(path)[-1][:-3]
             self.addons[modname] = addon
 
             addon.register(self)
@@ -113,13 +114,12 @@ class Session(Base):
         in the flows.
         """
 
+        data_type_class._build_identifier()
         id = data_type_class.identifier
-        if id != 'Data':
-            data_type_class._build_identifier()
         if id == 'Data' or id in self.data_types:
             print_err(
-                f'Data type identifier "{id}" is already registered.'
-                f'skipping. You can use the "identifier" attribute of'
+                f'Data type identifier "{id}" is already registered. '
+                f'skipping. You can use the "identifier" attribute of '
                 f'your Data subclass.')
             return
 
