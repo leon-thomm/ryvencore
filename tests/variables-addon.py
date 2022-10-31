@@ -6,7 +6,6 @@ from utils import check_addon_available
 check_addon_available('Variables', __file__)
 
 from ryvencore.addons.default.Variables import addon as Variables
-from ryvencore.addons.default.Logging import addon as Logging
 
 
 class NodeBase(rc.Node):
@@ -15,28 +14,27 @@ class NodeBase(rc.Node):
         super().__init__(params)
 
         self.Vars: Variables = self.get_addon('Variables')
-        self.Logging: Logging = self.get_addon('Logging')
 
-    def place_event(self):
-        if not self.Vars._var_exists(self.flow, 'var1'):
+    def create_var1(self):
+        if not self.Vars.var_exists(self.flow, 'var1'):
             self.Vars.create_var(self.flow, 'var1', 'Hello, World!')
 
 
 class Node1(NodeBase):
     title = 'node 1'
     init_inputs = []
-    init_outputs = [rc.NodeOutputType(type_='data'), rc.NodeOutputType(type_='data')]
+    init_outputs = [
+        rc.NodeOutputType(),
+        rc.NodeOutputType()
+    ]
 
     def __init__(self, params):
         super().__init__(params)
 
         self.var_val = None
 
-        self.log1 = self.Logging.new_logger(self, 'log1')
-        self.log2 = self.Logging.new_logger(self, 'log2')
-
     def subscribe_to_var1(self):
-        self.Vars.subscribe(self, 'var1', self.var1_changed)
+        self.Vars.subscribe(self, 'var1', self.on_var1_changed)
         self.var_val = self.Vars.var(self.flow, 'var1').get()
 
     def update_event(self, inp=-1):
@@ -44,7 +42,7 @@ class Node1(NodeBase):
         self.set_output_val(1, rc.Data(42))
         print('finished')
 
-    def var1_changed(self, val):
+    def on_var1_changed(self, val):
         self.var_val = val
         print('var1 changed in slot:', val)
         self.update()
@@ -80,10 +78,7 @@ class DataFlowBasic(unittest.TestCase):
         f.connect_nodes(n1.outputs[1], n3.inputs[0])
         f.connect_nodes(n1.outputs[1], n4.inputs[0])
 
-        # test data model
-
-        self.assertEqual(n1.outputs[0].val, None)
-        self.assertEqual(n1.outputs[1].val, None)
+        n1.create_var1()
 
         n1.update()
 
@@ -112,19 +107,19 @@ class DataFlowBasic(unittest.TestCase):
         vars = s2.addons.get('Variables')
 
         f2 = s2.flows[0]
-        assert vars.var(f2, 'var1').get() == 42
+        self.assertEqual(vars.var(f2, 'var1').get(), 42)
 
         n1_2, n2_2, n3_2, n4_2 = f2.nodes
+        n2_2.update_var1('test')
 
-        assert n1_2.var_val == 42
-        assert n2_2.input(0).payload == 'Hello, World!'
-        assert n3_2.input(0).payload == 42
-        assert n4_2.input(0).payload == 42
+        self.assertEqual(n1_2.var_val, 'test')
+        self.assertEqual(n3_2.input(0).payload, 42)
+        self.assertEqual(n4_2.input(0).payload, 42)
 
         n1_2.update()
         n2_2.update_var1(43)
 
-        assert n1_2.var_val == 43
+        self.assertEqual(n1_2.var_val, 43)
 
 
 if __name__ == '__main__':

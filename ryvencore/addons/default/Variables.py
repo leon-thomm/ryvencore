@@ -1,10 +1,12 @@
 from typing import Optional
+from packaging.version import parse as parse_version
 
-from ryvencore import Node
+from ryvencore import Node, Data, AddOn
 from ryvencore.Base import Base, Event
-from ryvencore.utils import serialize, deserialize
-from ryvencore import AddOn
+from ryvencore.utils import serialize, deserialize, print_err
 
+
+ADDON_VERSION = '0.4'
 
 
 class Variable:
@@ -20,26 +22,24 @@ class Variable:
         self.addon = addon
         self.flow = flow
         self.name = name
-        self.val = val
-
-        if data and 'serialized' in data.keys():
-            self.val = deserialize(data['serialized'])
+        self.data: Data = Data(value=data, load_from=load_data)
 
     def get(self):
         """
         Returns the value of the variable
         """
-        return self.val
+        return self.data.payload if self.data is not None else None
 
-    def set(self, val):
+    def set(self, val, silent=False):
         """
         Sets the value of the variable
         """
-        self.val = val
-        self.addon._var_updated(self.flow, self.name)
+        self.data = Data(val)
+        if not silent:
+            self.addon._var_updated(self.flow, self.name)
 
     def serialize(self):
-        return serialize(self.val)
+        return self.data.data()
 
 
 
@@ -93,7 +93,7 @@ class VarsAddon(AddOn):
     """
 
     name = 'Variables'
-    version = '0.0.3'
+    version = ADDON_VERSION
 
     def __init__(self):
         AddOn.__init__(self)
@@ -112,9 +112,9 @@ class VarsAddon(AddOn):
         Checks if ``name`` is a valid variable identifier and hasn't been take yet.
         """
 
-        return name.isidentifier() and not self._var_exists(flow, name)
+        return name.isidentifier() and not self.var_exists(flow, name)
 
-    def create_var(self, flow, name: str, val=None, data=None) -> Optional[Variable]:
+    def create_var(self, flow, name: str, val=None, load_from=None) -> Optional[Variable]:
         """
         Creates and returns a new variable and None if the name isn't valid.
         """
@@ -123,7 +123,7 @@ class VarsAddon(AddOn):
             self.flow_variables[flow] = {}
 
         if self.var_name_valid(flow, name):
-            v = Variable(self, flow, name, val, data)
+            v = Variable(self, flow, name, val, load_from)
             self.flow_variables[flow][name] = {
                 'var': v,
                 'subscriptions': []
@@ -136,19 +136,19 @@ class VarsAddon(AddOn):
         """
         Deletes a variable and causes subscription update. Subscriptions are preserved.
         """
-        if not self._var_exists(flow, name):
+        if not self.var_exists(flow, name):
             return
 
         del self.flow_variables[flow][name]['var']
 
-    def _var_exists(self, flow, name: str) -> bool:
+    def var_exists(self, flow, name: str) -> bool:
         return flow in self.flow_variables and name in self.flow_variables[flow]
 
     def var(self, flow, name: str):
         """
         Returns the variable with the given name or None if it doesn't exist.
         """
-        if not self._var_exists(flow, name):
+        if not self.var_exists(flow, name):
             return None
 
         return self.flow_variables[flow][name]['var']
@@ -161,13 +161,13 @@ class VarsAddon(AddOn):
         v = self.flow_variables[flow][name]['var']
 
         for (node, cb) in self.flow_variables[flow][name]['subscriptions']:
-            cb(v.val)
+            cb(v.get())
 
     def subscribe(self, node: Node, name: str, callback):
         """
         Subscribe to a variable. ``callback`` must be a method of the node.
         """
-        if not self._var_exists(node.flow, name):
+        if not self.var_exists(node.flow, name):
             return
 
         self.flow_variables[node.flow][name]['subscriptions'].append((node, callback))
@@ -176,7 +176,7 @@ class VarsAddon(AddOn):
         """
         Unsubscribe from a variable.
         """
-        if not self._var_exists(node.flow, name):
+        if not self.var_exists(node.flow, name):
             return
 
         self.flow_variables[node.flow][name]['subscriptions'].remove((node, callback))
@@ -185,6 +185,9 @@ class VarsAddon(AddOn):
         """
         Extends the node data with the variable subscriptions.
         """
+
+        if self.flow_variables.get(node.flow) is None:
+            return
 
         data['Variables'] = {
             'subscriptions': {
@@ -208,26 +211,28 @@ class VarsAddon(AddOn):
 
     def get_state(self) -> dict:
         return {
-            f.GLOBAL_ID: {
-                name: {
-                    'serialized': var['var'].serialize()
-                }
+            f.global_id: {
+                name: var['var'].serialize()
                 for name, var in self.flow_variables[f].items()
             }
             for f in self.flow_variables.keys()
         }
 
-    def set_state(self, state: dict):
+    def set_state(self, state: dict, version: str):
+
+        if parse_version(version) < parse_version('0.4'):
+            print_err('Variables addon: state version too old, skipping')
+            return
 
         for pref_flow_id, variables in state.items():
             f = Base.obj_from_prev_id(pref_flow_id)
 
             # recreate variables
             for name, var in variables.items():
-                if self._var_exists(f, name):
-                    self.var(f, name).set(deserialize(var['serialized']))
-                else:
-                    self.create_var(f, name, data=var)
+                # if self._var_exists(f, name):
+                #     self.var(f, name).set(Data(load_from=var['serialized']))
+                # else:
+                self.create_var(f, name, load_from=var)
 
 
-# addon = VarsAddon()
+addon = VarsAddon()

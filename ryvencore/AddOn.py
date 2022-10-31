@@ -8,23 +8,23 @@ can be added and registered in the Session.
 An add-on
     - has a name and a version
     - is session-local, not flow-local (but you can of course implement per-flow functionality)
-    - manages its own state (in particular ``get_state()`` and ``set_state()``)
-    - can store additional node-specific data in the node's ``data`` dict when it's serialized
-    - will be accessible through the nodes API: ``self.get_addon('your_addon')`` in your nodes
+    - manages its own state (in particular :code:`get_state()` and :code:`set_state()`)
+    - can store additional node-specific data in the node's :code:`data` dict when it's serialized
+    - will be accessible through the nodes API: :code:`self.get_addon('your_addon')` in your nodes
 
 Add-on access is blocked during loading (deserialization), so nodes should not access any
-add-ons during the execution of ``Node.__init__`` or ``Node.set_data``.
+add-ons during the execution of :code:`Node.__init__` or :code:`Node.set_data`.
 This prevents inconsistent states. Nodes are loaded first, then the add-ons. 
 Therefore, the add-on should be sufficiently isolated and self-contained.
 
 To define a custom add-on:
-    - create a directory ``your_addons`` for you addons or use ryvencore's addon directory
-    - create a module for your addon ``YourAddon.py`` in ``your_addons``
-    - create a class ``YourAddon(ryvencore.AddOn)`` that defines your add-on's functionality
-    - instantiate it into a top-level variable: ``addon = YourAddon()`` at the end of the module
-    - register your addon directory in the Session: ``session.register_addon_dir('path/to/your_addons')``
+    - create a directory :code:`your_addons` for you addons or use ryvencore's addon directory
+    - create a module for your addon :code:`YourAddon.py` in :code:`your_addons`
+    - create a class :code:`YourAddon(ryvencore.AddOn)` that defines your add-on's functionality
+    - instantiate it into a top-level variable: :code:`addon = YourAddon()` at the end of the module
+    - register your addon directory in the Session: :code:`session.register_addon_dir('path/to/your_addons')`
 
-See ``ryvencore.addons.default`` for examples.
+See :code:`ryvencore.addons.default` for examples.
 """
 
 from ryvencore.Base import Base
@@ -55,7 +55,14 @@ class AddOn(Base):
         """
         *VIRTUAL*
 
-        Called when a node is added to a flow.
+        Called when a node is added to a flow. Notice, however, that currently
+        add-ons are loaded after nodes, so in case you are storing some state
+        and you need to rebuild any sort of connections between nodes and your
+        add-on during loading, this function will be called *before* the
+        add-on itself is loaded, so you might want to shift this logic
+        into :code:`set_state()` at which point all nodes will be initialized.
+        
+        **This might change.**
         """
         pass
 
