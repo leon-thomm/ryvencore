@@ -1,5 +1,6 @@
 import importlib
 import glob
+import os.path
 from typing import List, Dict
 
 from .Base import Base, Event
@@ -58,7 +59,7 @@ class Session(Base):
                 continue
 
             # register addon
-            modname = path.split('/')[-1][:-3]
+            modname = os.path.split(path)[-1][:-3]
             self.addons[modname] = addon
 
             addon.register(self)
