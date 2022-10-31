@@ -227,7 +227,7 @@
 <li class="toctree-l3"><a class="reference internal" href="ryvencore.addons.default.html">ryvencore.addons.default package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="ryvencore.addons.default.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ryvencore.addons.default.html#module-ryvencore.addons.default.Logging">ryvencore.addons.default.Logging module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ryvencore.addons.default.html#module-ryvencore.addons.default.Variables">ryvencore.addons.default.Variables module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ryvencore.addons.default.html#ryvencore-addons-default-variables-module">ryvencore.addons.default.Variables module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ryvencore.addons.default.html#module-ryvencore.addons.default">Module contents</a></li>
 </ul>
 </li>
@@ -326,7 +326,10 @@ pickle serializable by default can be used directly with :code`Data(my_data)`.</
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
 <p>Base class for data objects.</p>
 <p>Subclass this class and implement serialization and deserialization accordingly
-to send data to other nodes.</p>
+to send data to other nodes. You must register your custom <code class="code docutils literal notranslate"><span class="pre">Data</span></code> subclass
+with the <code class="code docutils literal notranslate"><span class="pre">Session.register_data()</span></code> before using it (which especially applies
+to loading a project, custom <code class="code docutils literal notranslate"><span class="pre">Data</span></code> subclasses used must be registered in
+advance).</p>
 <p>In case of large data sets being shared, you might want to leave serialization
 empty, which means the graph will not enter the same state when you reload it,
 which is fine as long as your nodes are built appropriately e.g. such that you can
@@ -386,7 +389,7 @@ consumed:</p>
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ryvencore.Data.Data.identifier">
-<code class="sig-name descname"><span class="pre">identifier</span></code><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#ryvencore.Data.Data.identifier" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">identifier</span></code><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Data'</span></em><a class="headerlink" href="#ryvencore.Data.Data.identifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>unique Data identifier; you can set this manually in subclasses, if
 you don’t the class name will be used</p>
 </dd></dl>

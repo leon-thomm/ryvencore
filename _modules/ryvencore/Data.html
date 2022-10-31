@@ -97,7 +97,10 @@
 <span class="sd">    Base class for data objects.</span>
 
 <span class="sd">    Subclass this class and implement serialization and deserialization accordingly</span>
-<span class="sd">    to send data to other nodes.</span>
+<span class="sd">    to send data to other nodes. You must register your custom :code:`Data` subclass</span>
+<span class="sd">    with the :code:`Session.register_data()` before using it (which especially applies</span>
+<span class="sd">    to loading a project, custom :code:`Data` subclasses used must be registered in</span>
+<span class="sd">    advance).</span>
 
 <span class="sd">    In case of large data sets being shared, you might want to leave serialization</span>
 <span class="sd">    empty, which means the graph will not enter the same state when you reload it,</span>
@@ -225,6 +228,10 @@
             <span class="k">return</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">deserialize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;serialized&#39;</span><span class="p">]))</span></div></div>
+
+
+<span class="c1"># build identifier for Data</span>
+<span class="n">Data</span><span class="o">.</span><span class="n">_build_identifier</span><span class="p">()</span>
 </pre></div>
 
           </div>

@@ -84,6 +84,7 @@
   <h1>Source code for ryvencore.Session</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
 
 <span class="kn">from</span> <span class="nn">.Base</span> <span class="kn">import</span> <span class="n">Base</span><span class="p">,</span> <span class="n">Event</span>
@@ -142,7 +143,7 @@
                 <span class="k">continue</span>
 
             <span class="c1"># register addon</span>
-            <span class="n">modname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">modname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">path</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">addons</span><span class="p">[</span><span class="n">modname</span><span class="p">]</span> <span class="o">=</span> <span class="n">addon</span>
 
             <span class="n">addon</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -197,13 +198,12 @@
 <span class="sd">        in the flows.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="n">data_type_class</span><span class="o">.</span><span class="n">_build_identifier</span><span class="p">()</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="n">data_type_class</span><span class="o">.</span><span class="n">identifier</span>
-        <span class="k">if</span> <span class="nb">id</span> <span class="o">!=</span> <span class="s1">&#39;Data&#39;</span><span class="p">:</span>
-            <span class="n">data_type_class</span><span class="o">.</span><span class="n">_build_identifier</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="s1">&#39;Data&#39;</span> <span class="ow">or</span> <span class="nb">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_types</span><span class="p">:</span>
             <span class="n">print_err</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Data type identifier &quot;</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s1">&quot; is already registered.&#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;skipping. You can use the &quot;identifier&quot; attribute of&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;Data type identifier &quot;</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s1">&quot; is already registered. &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;skipping. You can use the &quot;identifier&quot; attribute of &#39;</span>
                 <span class="sa">f</span><span class="s1">&#39;your Data subclass.&#39;</span><span class="p">)</span>
             <span class="k">return</span>
 
