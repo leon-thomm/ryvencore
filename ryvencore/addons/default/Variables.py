@@ -16,6 +16,7 @@ class Variable:
     Storing other data will break save&load.
     """
 
+    def __init__(self, addon, flow, name='', val=None, data=None):
         self.addon = addon
         self.flow = flow
         self.name = name
