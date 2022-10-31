@@ -13,7 +13,10 @@ class Data(Base):
     Base class for data objects.
 
     Subclass this class and implement serialization and deserialization accordingly
-    to send data to other nodes.
+    to send data to other nodes. You must register your custom :code:`Data` subclass
+    with the :code:`Session.register_data()` before using it (which especially applies
+    to loading a project, custom :code:`Data` subclasses used must be registered in
+    advance).
 
     In case of large data sets being shared, you might want to leave serialization
     empty, which means the graph will not enter the same state when you reload it,
