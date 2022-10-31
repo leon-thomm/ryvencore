@@ -141,3 +141,7 @@ class Data(Base):
             return
 
         self.set_data(deserialize(data['serialized']))
+
+
+# build identifier for Data
+Data._build_identifier()

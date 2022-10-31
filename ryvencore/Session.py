@@ -114,13 +114,12 @@ class Session(Base):
         in the flows.
         """
 
+        data_type_class._build_identifier()
         id = data_type_class.identifier
-        if id != 'Data':
-            data_type_class._build_identifier()
         if id == 'Data' or id in self.data_types:
             print_err(
-                f'Data type identifier "{id}" is already registered.'
-                f'skipping. You can use the "identifier" attribute of'
+                f'Data type identifier "{id}" is already registered. '
+                f'skipping. You can use the "identifier" attribute of '
                 f'your Data subclass.')
             return
 
