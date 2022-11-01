@@ -146,8 +146,6 @@ class Session(Base):
         if data:
             flow.load(data)
 
-        self.new_flow_created.emit(flow)
-
         return flow
 
 
