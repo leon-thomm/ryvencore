@@ -64,7 +64,7 @@ class AddOn(Base):
         """
         pass
 
-    def on_node_created(self, flow, node):
+    def on_node_created(self, node):
         """
         *VIRTUAL*
 

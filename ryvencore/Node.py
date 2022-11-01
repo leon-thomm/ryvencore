@@ -257,6 +257,8 @@ class Node(Base):
         *VIRTUAL*
 
         Opposite of ``get_state()``, reconstruct any custom internal state here.
+        Notice, that add-ons might not yet be fully available here, but in
+        ``place_event()`` the should be.
         """
         pass
 

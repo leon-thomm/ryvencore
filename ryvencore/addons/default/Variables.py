@@ -137,7 +137,8 @@ class VarsAddon(AddOn):
     subscription management
     """
 
-    def on_node_created(self, flow, node):
+    def on_node_created(self, node):
+        flow = node.flow
 
         # is invoked *before* the node is added to the flow
 

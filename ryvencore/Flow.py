@@ -111,7 +111,7 @@ class Flow(Base):
         # events
         self.node_added = Event(Node)
         self.node_removed = Event(Node)
-        self.node_created = Event((Node, dict))
+        self.node_created = Event(Node)
         self.connection_added = Event((NodeOutput, NodeInput))        # Event(Connection)
         self.connection_removed = Event((NodeOutput, NodeInput))      # Event (Connection)
 
@@ -207,7 +207,7 @@ class Flow(Base):
         node = node_class((self, self.session))
         if data is not None:
             node.load(data)
-        self.node_created.emit(node, data)
+        self.node_created.emit(node)
         self.add_node(node)
 
         return node
