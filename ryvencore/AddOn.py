@@ -26,7 +26,7 @@ To define a custom add-on:
 
 See :code:`ryvencore.addons.default` for examples.
 """
-
+from ryvencore import Flow
 from ryvencore.Base import Base
 
 
@@ -40,33 +40,49 @@ class AddOn(Base):
         """
         self.session = session
 
-    def _on_node_created(self, flow, node):
+    def connect_flow_events(self, flow: Flow):
+        """
+        Connects flow events to the add-on.
+        """
+        flow.node_added.connect(self.on_node_added)
+        flow.node_removed.connect(self.on_node_removed)
+
+    def on_flow_created(self, flow):
         """
         *VIRTUAL*
 
-        Called when a node is created. This happens only once, whereas
-        a node can be added and removed multiple times, see
-        on_node_added() and
-        on_node_removed().
+        Called when a flow is created.
         """
         pass
 
-    def _on_node_added(self, flow, node):
+    def on_flow_destroyed(self, flow):
         """
         *VIRTUAL*
 
-        Called when a node is added to a flow. Notice, however, that currently
-        add-ons are loaded after nodes, so in case you are storing some state
-        and you need to rebuild any sort of connections between nodes and your
-        add-on during loading, this function will be called *before* the
-        add-on itself is loaded, so you might want to shift this logic
-        into :code:`set_state()` at which point all nodes will be initialized.
-        
-        **This might change.**
+        Called when a flow is destroyed.
         """
         pass
 
-    def _on_node_removed(self, flow, node):
+    # def on_node_created(self, flow, node):
+    #     """
+    #     *VIRTUAL*
+    #
+    #     Called when a node is created. This happens only once, whereas
+    #     a node can be added and removed multiple times, see
+    #     on_node_added() and
+    #     on_node_removed().
+    #     """
+    #     pass
+
+    def on_node_added(self, flow, node):
+        """
+        *VIRTUAL*
+
+        Called when a node is added to a flow.
+        """
+        pass
+
+    def on_node_removed(self, flow, node):
         """
         *VIRTUAL*
 
@@ -74,11 +90,13 @@ class AddOn(Base):
         """
         pass
 
-    def _extend_node_data(self, node, data: dict):
+    def extend_node_data(self, node, data: dict):
         """
         *VIRTUAL*
 
-        Extend the node data dict with additional add-on-related data.
+        Invoked whenever any node is serialized. This method can be
+        used to extend the node's data dict with additional
+        add-on.related data.
         """
         pass
 
@@ -96,7 +114,11 @@ class AddOn(Base):
         *VIRTUAL*
 
         Set the state of the add-on from the dict generated in
-        :code:`AddOn.get_state()`.
+        :code:`AddOn.get_state()`. Notice that add-ons are loaded
+        *before* the flows. If you need to re-establish any sort
+        of connections between flows or nodes and your add-on,
+        you should store :code:`state` and do so in the according
+        slot methods (e.g. :code:`on_node_added()`).
         """
         pass
 

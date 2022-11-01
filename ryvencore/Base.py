@@ -133,7 +133,16 @@ class Base:
     def load(self, data: dict):
         """
         Recreate the object state from the data dict returned by :code:`data()`.
+
+        Convention: don't call this method in the constructor, invoke it manually
+        from outside, if other components can depend on it (and be notified of its
+        creation).
+        Reason: If another component `X` depends on this one (and
+        gets notified when this one is created), `X` should be notified *before*
+        it gets notified of creation or loading of subcomponents created during
+        this load. (E.g. add-ons need to know the flow before nodes are loaded.)
         """
+
         if dict is not None:
             self.prev_global_id = data['GID']
             self._prev_id_objs[self.prev_global_id] = self

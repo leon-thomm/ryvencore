@@ -63,7 +63,13 @@ class Session(Base):
             self.addons[modname] = addon
 
             addon.register(self)
-            setattr(Node, addon.name, addon)
+            # setattr(Node, addon.name, addon)
+
+            # establish event connections
+            self.new_flow_created.connect(addon.on_flow_created)
+            self.flow_deleted.connect(addon.on_flow_destroyed)
+            for f in self.flows:
+                addon.connect_flow_events(f)
 
 
     def register_nodes(self, node_classes: List):
@@ -135,6 +141,8 @@ class Session(Base):
         flow = Flow(session=self, title=title)
         self.flows.append(flow)
 
+        self.new_flow_created.emit(flow)
+
         if data:
             flow.load(data)
 
@@ -201,6 +209,13 @@ class Session(Base):
 
         self.init_data = data
 
+        # load addons
+        for name, addon_data in data['addons'].items():
+            if name in self.addons:
+                self.addons[name].load(addon_data)
+            else:
+                print(f'found missing addon: {name}; attempting to load anyway')
+
         # load flows
         new_flows = []
 
@@ -215,13 +230,6 @@ class Session(Base):
 
         for fd in flows_data:
             new_flows.append(self.create_flow(data=fd))
-
-        # load addons
-        for name, addon_data in data['addons'].items():
-            if name in self.addons:
-                self.addons[name].load(addon_data)
-            else:
-                print(f'found missing addon: {name}; attempting to load anyway')
 
         return new_flows
 

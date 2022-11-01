@@ -120,6 +120,10 @@ class Flow(Base):
 
         self.algorithm_mode_changed = Event(str)
 
+        # connect events to add-ons
+        for addon in session.addons.values():
+            addon.connect_flow_events(self)
+
         # general attributes
         self.session = session
         self.title = title
@@ -203,10 +207,6 @@ class Flow(Base):
         node.initialize()
         self.add_node(node)
 
-        # notify addons
-        for addon in self.session.addons.values():
-            addon._on_node_created(self, node)
-
         return node
 
 
@@ -227,10 +227,6 @@ class Flow(Base):
 
         node.after_placement()
         self._flow_changed()
-
-        # notify addons
-        for addon in self.session.addons.values():
-            addon._on_node_added(self, node)
 
         self.node_added.emit(node)
 
