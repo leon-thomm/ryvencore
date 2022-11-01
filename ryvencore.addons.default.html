@@ -443,22 +443,12 @@ removed multiple times, see <code class="code docutils literal notranslate"><spa
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.get_state">
 <code class="sig-name descname"><span class="pre">get_state</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.get_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.get_state" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>VIRTUAL</em></p>
-<p>Return the state of the add-on as JSON-compatible a dict.
-This dict will be extended by <code class="code docutils literal notranslate"><span class="pre">AddOn.complete_data()</span></code>.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.set_state">
 <code class="sig-name descname"><span class="pre">set_state</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.set_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.set_state" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>VIRTUAL</em></p>
-<p>Set the state of the add-on from the dict generated in
-<code class="code docutils literal notranslate"><span class="pre">AddOn.get_state()</span></code>. Notice that add-ons are loaded
-<em>before</em> the flows. If you need to re-establish any sort
-of connections between flows or nodes and your add-on,
-you should store <code class="code docutils literal notranslate"><span class="pre">state</span></code> and do so in the according
-slot methods (e.g. <code class="code docutils literal notranslate"><span class="pre">on_node_added()</span></code>).</p>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 

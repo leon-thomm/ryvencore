@@ -172,7 +172,6 @@
 <span class="sd">    * no non-terminating feedback loops with exec connections</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">Session</span>
 <span class="kn">from</span> <span class="nn">.Base</span> <span class="kn">import</span> <span class="n">Base</span><span class="p">,</span> <span class="n">Event</span>
 <span class="kn">from</span> <span class="nn">.Data</span> <span class="kn">import</span> <span class="n">Data</span>
 <span class="kn">from</span> <span class="nn">.FlowExecutor</span> <span class="kn">import</span> <span class="n">DataFlowNaive</span><span class="p">,</span> <span class="n">DataFlowOptimized</span><span class="p">,</span> <span class="n">FlowExecutor</span><span class="p">,</span> <span class="n">executor_from_flow_alg</span>
@@ -189,7 +188,7 @@
 <span class="sd">    and exposes methods for modification.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">Base</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># events</span>
