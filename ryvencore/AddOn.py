@@ -26,7 +26,9 @@ To define a custom add-on:
 
 See :code:`ryvencore.addons.default` for examples.
 """
-from ryvencore import Flow
+from typing import Dict
+
+from ryvencore import Flow, Session, Node
 from ryvencore.Base import Base
 
 
@@ -34,7 +36,7 @@ class AddOn(Base):
     name = ''
     version = ''
 
-    def register(self, session):
+    def register(self, session: Session):
         """
         Called when the add-on is registered with a session.
         """
@@ -48,7 +50,7 @@ class AddOn(Base):
         flow.node_added.connect(self.on_node_added)
         flow.node_removed.connect(self.on_node_removed)
 
-    def on_flow_created(self, flow):
+    def on_flow_created(self, flow: Flow):
         """
         *VIRTUAL*
 
@@ -56,7 +58,7 @@ class AddOn(Base):
         """
         pass
 
-    def on_flow_destroyed(self, flow):
+    def on_flow_destroyed(self, flow: Flow):
         """
         *VIRTUAL*
 
@@ -64,7 +66,7 @@ class AddOn(Base):
         """
         pass
 
-    def on_node_created(self, node):
+    def on_node_created(self, node: Node):
         """
         *VIRTUAL*
 
@@ -79,7 +81,7 @@ class AddOn(Base):
         """
         pass
 
-    def on_node_added(self, node):
+    def on_node_added(self, node: Node):
         """
         *VIRTUAL*
 
@@ -87,7 +89,7 @@ class AddOn(Base):
         """
         pass
 
-    def on_node_removed(self, flow, node):
+    def on_node_removed(self, flow: Flow, node: Node):
         """
         *VIRTUAL*
 
@@ -95,7 +97,7 @@ class AddOn(Base):
         """
         pass
 
-    def extend_node_data(self, node, data: dict):
+    def extend_node_data(self, node: Node, data: Dict):
         """
         *VIRTUAL*
 
@@ -105,7 +107,7 @@ class AddOn(Base):
         """
         pass
 
-    def get_state(self) -> dict:
+    def get_state(self) -> Dict:
         """
         *VIRTUAL*
 
@@ -127,7 +129,7 @@ class AddOn(Base):
         """
         pass
 
-    def data(self) -> dict:
+    def data(self) -> Dict:
         """
         Supplements the data dict with additional data.
         """
@@ -136,7 +138,7 @@ class AddOn(Base):
             'custom state': self.get_state()
         }
 
-    def load(self, data: dict):
+    def load(self, data: Dict):
         """
         Loads the data dict generated in :code:`AddOn.data()`.
         """

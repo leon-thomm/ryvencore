@@ -5,7 +5,7 @@ import json
 import pickle
 import sys
 from os.path import dirname, abspath, join, basename
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict
 from packaging.version import Version, parse as _parse_version
 import importlib.util
 
@@ -42,7 +42,7 @@ def print_err(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-def json_print(d: dict):
+def json_print(d: Dict):
     # I just need this all the time
     print(json.dumps(d, indent=4))
 

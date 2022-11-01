@@ -1,8 +1,9 @@
 import importlib
 import glob
 import os.path
-from typing import List, Dict
+from typing import List, Dict, Type
 
+from .Data import Data
 from .Base import Base, Event
 from .Flow import Flow
 from .InfoMsgs import InfoMsgs
@@ -74,7 +75,7 @@ class Session(Base):
                 addon.connect_flow_events(f)
 
 
-    def register_nodes(self, node_classes: List):
+    def register_nodes(self, node_classes: List[Type[Node]]):
         """
         Registers a list of Nodes which then become available in the flows.
         Do not attempt to place nodes in flows that haven't been registered in the session before.
@@ -84,7 +85,7 @@ class Session(Base):
             self.register_node(n)
 
 
-    def register_node(self, node_class):
+    def register_node(self, node_class: Type[Node]):
         """
         Registers a single node.
         """
@@ -95,7 +96,7 @@ class Session(Base):
         self.nodes.add(node_class)
 
 
-    def unregister_node(self, node_class):
+    def unregister_node(self, node_class: Type[Node]):
         """
         Unregisters a node which will then be removed from the available list.
         Existing instances won't be affected.
@@ -104,7 +105,7 @@ class Session(Base):
         self.nodes.remove(node_class)
 
 
-    def all_node_objects(self) -> List:
+    def all_node_objects(self) -> List[Node]:
         """
         Returns a list of all node objects instantiated in any flow.
         """
@@ -116,7 +117,7 @@ class Session(Base):
         return nodes
 
 
-    def register_data(self, data_type_class):
+    def register_data(self, data_type_class: Type[Data]):
         """
         Registers a new :code:`Data` subclass which will then be available
         in the flows.
@@ -233,7 +234,7 @@ class Session(Base):
 
         return new_flows
 
-    def serialize(self):
+    def serialize(self) -> Dict:
         """
         Returns the project as JSON compatible dict to be saved and
         loaded again using load()
@@ -244,8 +245,10 @@ class Session(Base):
 
     def data(self) -> dict:
         """
-        Serializes the whole project into a JSON compatible dict.
-        Pass to :code:`load()` in a new session to restore.
+        Serializes the project's abstract state into a JSON compatible
+        dict. Pass to :code:`load()` in a new session to restore.
+        Don't use this function for saving, use :code:`serialize()` in
+        order to include the effects of :code:`Base.complete_data()`.
         """
 
         return {
