@@ -27,10 +27,10 @@ class Logger(PyLogger):
 
 class LoggingAddon(AddOn):
     """
-    This addon implements very basic some logging functionality.
+    This addon implements some very basic logging functionality.
 
-    It provides an API to create and delete loggers that are owned
-    by a particular node. The logger gets enabled/disabled
+    It provides functions to create and delete loggers that are owned
+    by a particular node. The loggers get enabled/disabled
     automatically when the owning node is added to/removed from
     the flow.
 
@@ -38,7 +38,7 @@ class LoggingAddon(AddOn):
     preserves its global ID throughout save and load.
 
     The contents of logs are currently not preserved. If a log's
-    content should be preserved, it should be saved in a file.
+    content should be preserved, it should be saved explicitly.
 
     Refer to Python's logging module documentation.
     """
@@ -70,7 +70,7 @@ class LoggingAddon(AddOn):
         # self.logger_created.emit(logger)
         return logger
 
-    def on_node_created(self, flow, node):
+    def on_node_created(self, node):
         if node.load_data and 'Logging' in node.load_data:
             for title in node.load_data['Logging']['loggers']:
                 self.new_logger(node, title)
@@ -104,4 +104,4 @@ class LoggingAddon(AddOn):
             'loggers': [name for name in self.loggers[node].keys()]
         }
 
-# addon = LoggingAddon()
+addon = LoggingAddon()
