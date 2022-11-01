@@ -88,7 +88,7 @@ Assumptions:
     * no non-terminating feedback loops with exec connections
 
 """
-from . import Session
+from .Session import Session
 from .Base import Base, Event
 from .Data import Data
 from .FlowExecutor import DataFlowNaive, DataFlowOptimized, FlowExecutor, executor_from_flow_alg

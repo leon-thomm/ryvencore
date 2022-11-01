@@ -282,6 +282,8 @@ class VarsAddon(AddOn):
         }
 
     def get_state(self) -> dict:
+        """"""
+        
         return {
             f.global_id: {
                 name: var['var'].serialize()
@@ -291,6 +293,7 @@ class VarsAddon(AddOn):
         }
 
     def set_state(self, state: dict, version: str):
+        """"""
 
         if parse_version(version) < parse_version('0.4'):
             print_err('Variables addon state version too old, skipping')
