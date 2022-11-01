@@ -11,8 +11,6 @@ ADDON_VERSION = '0.4'
 
 class Variable:
     """
-    *currently disabled; breaking changes upcoming*
-
     Implementation of flow variables.
     A Variable can currently only hold pickle serializable data.
     Storing other data will break save&load.
