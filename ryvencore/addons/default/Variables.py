@@ -123,18 +123,34 @@ class VarsAddon(AddOn):
         # available, see :code:`on_flow_created()`
         self.flow_vars__pending = {}
 
+    """
+    flow management
+    """
+
     def on_flow_created(self, flow):
         self.flow_variables[flow] = {}
 
+    def on_flow_deleted(self, flow):
+        del self.flow_variables[flow]
+
+    """
+    subscription management
+    """
+
+    def on_node_created(self, flow, node):
+
+        # is invoked *before* the node is added to the flow
+
+        # unfortunately, I cannot do this in on_flow_created because there
+        # the flow doesn't have it's prev_global_id yet, but here it does
         if flow.prev_global_id in self.flow_vars__pending:
             for name, data in self.flow_vars__pending[flow.prev_global_id].items():
                 self.create_var(flow, name, load_from=data)
             del self.flow_vars__pending[flow.prev_global_id]
 
-    def on_flow_deleted(self, flow):
-        del self.flow_variables[flow]
 
-    def on_node_added(self, flow, node):
+
+    def on_node_added(self, node):
         """
         Reconstruction of subscriptions.
         """
@@ -146,8 +162,8 @@ class VarsAddon(AddOn):
             del self.removed_subscriptions[node]
 
         # otherwise, check if it has load data and reconstruct subscriptions
-        elif node.init_data and 'Variables' in node.init_data:
-            for name, cb_name in node.init_data['Variables']['subscriptions'].items():
+        elif node.load_data and 'Variables' in node.load_data:
+            for name, cb_name in node.load_data['Variables']['subscriptions'].items():
                 self.subscribe(node, name, getattr(node, cb_name))
 
     def on_node_removed(self, flow, node):
@@ -164,6 +180,10 @@ class VarsAddon(AddOn):
                 if node == node:
                     self.removed_subscriptions[node][name] = cb.__name__
                     self.unsubscribe(node, name, cb)
+
+    """
+    variables api
+    """
 
     def var_name_valid(self, flow, name: str) -> bool:
         """
@@ -240,6 +260,10 @@ class VarsAddon(AddOn):
             return
 
         self.flow_variables[node.flow][name]['subscriptions'].remove((node, callback))
+
+    """
+    serialization
+    """
 
     def extend_node_data(self, node, data: dict):
         """
