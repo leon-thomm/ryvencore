@@ -203,8 +203,9 @@ class Flow(Base):
             print_err(f'Node class {node_class} not in session nodes')
             return
 
-        node = node_class((self, self.session, data))
-        node.initialize()
+        node = node_class((self, self.session))
+        if data is not None:
+            node.load(data)
         self.add_node(node)
 
         return node

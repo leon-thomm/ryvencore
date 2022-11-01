@@ -68,57 +68,17 @@ class Node(Base):
     def __init__(self, params):
         Base.__init__(self)
 
-        self.flow, self.session, self.init_data = params
+        self.flow, self.session = params
         self.inputs: List[NodeInput] = []
         self.outputs: List[NodeOutput] = []
 
-        self.initialized = False
+        self.loaded = False
+        self.load_data = None
 
         self.block_init_updates = False
         self.block_updates = False
 
-    def initialize(self):
-        """
-        Called by the Flow. This method
-
-        - loads all default properties from initial data if it was provided
-        - sets up inputs and outputs
-        - loads user_data
-
-        It does not crash on exception when loading user_data,
-        as this is not uncommon when developing nodes.
-        """
-
-        if self.init_data:  # load from data
-            # setup ports
-            self._setup_ports(self.init_data['inputs'], self.init_data['outputs'])
-
-            # set state
-            if 'additional data' in self.init_data:
-                add_data = self.init_data['additional data']
-            else:   # backwards compatibility
-                add_data = self.init_data
-            self.load_additional_data(add_data)
-
-            try:
-                if 'version' in self.init_data:
-                    version = self.init_data['version']
-                else:  # backwards compatibility
-                    version = None
-
-                self.set_state(deserialize(self.init_data['state data']), version)
-
-            except Exception as e:
-                InfoMsgs.write_err(
-                    f'Exception while setting data in {self.title} node:'
-                    f'{e} (was this intended?)')
-
-        else:   # default setup
-
-            # setup ports
-            self._setup_ports()
-
-        self.initialized = True
+        self._setup_ports()
 
     def _setup_ports(self, inputs_data=None, outputs_data=None):
 
@@ -411,10 +371,47 @@ class Node(Base):
     
     """
 
+    def load(self, data):
+        """
+        Initializes the node from the data dict returned by :code:`Node.data()`.
+        Called by the flow, before the node is added to it.
+        It does not crash on exception when loading user_data,
+        as this is not uncommon when developing nodes.
+        """
+        super().load(data)
+
+        self.load_data = data
+
+        # setup ports
+        #   remove initial ports
+        self.inputs = []
+        self.outputs = []
+        #   load from data
+        self._setup_ports(data['inputs'], data['outputs'])
+
+        # additional data
+        if 'additional data' in data:
+            add_data = data['additional data']
+        else:   # backwards compatibility
+            add_data = data
+        self.load_additional_data(add_data)
+
+        # set use state
+        try:
+            version = data.get('version')
+            self.set_state(deserialize(data['state data']), version)
+        except Exception as e:
+            InfoMsgs.write_err(
+                f'Exception while setting data in {self.title} node:'
+                f'{e} (was this intended?)')
+
+        self.loaded = True
+
     def data(self) -> dict:
         """
-        Returns all metadata of the node in JSON-compatible dict, including custom state.
-        Used to rebuild the Flow when loading a project or pasting components.
+        Serializes the node's metadata, current configuration, and user state into
+        a JSON-compatible dict, from which the node can be loaded later using
+        :code:`Node.load()`.
         """
 
         d = {
