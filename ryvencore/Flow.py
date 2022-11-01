@@ -250,7 +250,7 @@ class Flow(Base):
 
         # notify addons
         for addon in self.session.addons.values():
-            addon._on_node_removed(self, node)
+            addon.on_node_removed(self, node)
 
         self.node_removed.emit(node)
 

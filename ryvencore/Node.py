@@ -433,6 +433,6 @@ class Node(Base):
         # extend with data from addons
         for name, addon in self.session.addons.items():
             # addons can modify anything, there is no isolation enforcement
-            addon._extend_node_data(self, d)
+            addon.extend_node_data(self, d)
 
         return d

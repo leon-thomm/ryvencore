@@ -38,14 +38,16 @@ class Session(Base):
         self.gui: bool = gui
         self.init_data = None
 
-        self.load_addons(pkg_path('addons/default/'))
-        self.load_addons(pkg_path('addons/'))
+        self.register_addons(pkg_path('addons/default/'))
+        self.register_addons(pkg_path('addons/'))
 
 
-    def load_addons(self, location: str):
+    def register_addons(self, location: str):
         """
-        Loads all addons from the given location. ``location`` can be an absolute path to any readable directory.
-        See ``ryvencore.AddOn``.
+        Loads all addons from the given location. :code:`location` can
+        be an absolute path to any readable directory. New addons can be
+        registered at any time.
+        See :code:`ryvencore.AddOn`.
         """
 
         # discover all top-level modules in the given location
