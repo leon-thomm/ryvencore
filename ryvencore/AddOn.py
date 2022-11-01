@@ -44,6 +44,7 @@ class AddOn(Base):
         """
         Connects flow events to the add-on.
         """
+        flow.node_created.connect(self.on_node_created)
         flow.node_added.connect(self.on_node_added)
         flow.node_removed.connect(self.on_node_removed)
 
@@ -63,16 +64,20 @@ class AddOn(Base):
         """
         pass
 
-    # def on_node_created(self, flow, node):
-    #     """
-    #     *VIRTUAL*
-    #
-    #     Called when a node is created. This happens only once, whereas
-    #     a node can be added and removed multiple times, see
-    #     on_node_added() and
-    #     on_node_removed().
-    #     """
-    #     pass
+    def on_node_created(self, flow, node):
+        """
+        *VIRTUAL*
+
+        Called when a node is created and fully initialized
+        (:code:`Node.load()` has already been called, if necessary),
+        but not yet added to the flow. Therefore, this is a good place
+        to initialize the node with add-on-specific data.
+
+        This happens only once per node, whereas it can be added and
+        removed multiple times, see :code:`AddOn.on_node_added()` and
+        :code:`AddOn.on_node_removed()`.
+        """
+        pass
 
     def on_node_added(self, node):
         """
