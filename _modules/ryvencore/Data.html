@@ -88,6 +88,8 @@
 <span class="sd">and deserialization must be implemented for each respective type. Types that are</span>
 <span class="sd">pickle serializable by default can be used directly with :code`Data(my_data)`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+
 <span class="kn">from</span> <span class="nn">ryvencore.Base</span> <span class="kn">import</span> <span class="n">Base</span>
 <span class="kn">from</span> <span class="nn">ryvencore.utils</span> <span class="kn">import</span> <span class="n">serialize</span><span class="p">,</span> <span class="n">deserialize</span><span class="p">,</span> <span class="n">print_err</span>
 
@@ -209,14 +211,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">payload</span> <span class="o">=</span> <span class="n">data</span>     <span class="c1"># naive default implementation</span></div>
 
-<div class="viewcode-block" id="Data.data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Data.Data.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="Data.data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Data.Data.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(),</span>
             <span class="s1">&#39;identifier&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span>
             <span class="s1">&#39;serialized&#39;</span><span class="p">:</span> <span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="Data.load"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Data.Data.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="Data.load"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Data.Data.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;identifier&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span> <span class="ow">and</span> \

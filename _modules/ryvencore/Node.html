@@ -83,13 +83,12 @@
             
   <h1>Source code for ryvencore.Node</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">traceback</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span>
 
 <span class="kn">from</span> <span class="nn">.Base</span> <span class="kn">import</span> <span class="n">Base</span>
 
 <span class="kn">from</span> <span class="nn">.NodePort</span> <span class="kn">import</span> <span class="n">NodeInput</span><span class="p">,</span> <span class="n">NodeOutput</span>
 <span class="kn">from</span> <span class="nn">.NodePortType</span> <span class="kn">import</span> <span class="n">NodeInputType</span><span class="p">,</span> <span class="n">NodeOutputType</span>
-<span class="kn">from</span> <span class="nn">.RC</span> <span class="kn">import</span> <span class="n">FlowAlg</span>
 <span class="kn">from</span> <span class="nn">.Data</span> <span class="kn">import</span> <span class="n">Data</span>
 <span class="kn">from</span> <span class="nn">.InfoMsgs</span> <span class="kn">import</span> <span class="n">InfoMsgs</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">serialize</span><span class="p">,</span> <span class="n">deserialize</span>
@@ -256,7 +255,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">executor</span><span class="o">.</span><span class="n">exec_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Node.set_output_val"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.set_output_val">[docs]</a>    <span class="k">def</span> <span class="nf">set_output_val</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.set_output_val"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.set_output_val">[docs]</a>    <span class="k">def</span> <span class="nf">set_output_val</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the value of a data output causing activation of all connections in data mode.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -307,7 +306,7 @@
 
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Node.additional_data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.additional_data">[docs]</a>    <span class="k">def</span> <span class="nf">additional_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="Node.additional_data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.additional_data">[docs]</a>    <span class="k">def</span> <span class="nf">additional_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
@@ -319,7 +318,7 @@
 
         <span class="k">return</span> <span class="p">{}</span></div>
 
-<div class="viewcode-block" id="Node.load_additional_data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.load_additional_data">[docs]</a>    <span class="k">def</span> <span class="nf">load_additional_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.load_additional_data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.load_additional_data">[docs]</a>    <span class="k">def</span> <span class="nf">load_additional_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
@@ -327,7 +326,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Node.get_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.get_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="Node.get_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.get_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
@@ -336,7 +335,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{}</span></div>
 
-<div class="viewcode-block" id="Node.set_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.set_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
+<div class="viewcode-block" id="Node.set_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.set_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
@@ -493,7 +492,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">loaded</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="Node.data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="Node.data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Serializes the node&#39;s metadata, current configuration, and user state into</span>
 <span class="sd">        a JSON-compatible dict, from which the node can be loaded later using</span>
