@@ -3,7 +3,7 @@ import glob
 import os.path
 from typing import List, Dict, Type
 
-from . import Data
+from .Data import Data
 from .Base import Base, Event
 from .Flow import Flow
 from .InfoMsgs import InfoMsgs
