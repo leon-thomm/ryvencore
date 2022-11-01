@@ -61,7 +61,7 @@ class Node2(NodeBase):
         print('var1 successfully updated:', val)
 
 
-class DataFlowBasic(unittest.TestCase):
+class VariablesBasic(unittest.TestCase):
 
     def runTest(self):
         s = rc.Session()

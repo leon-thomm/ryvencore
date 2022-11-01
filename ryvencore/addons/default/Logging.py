@@ -70,9 +70,9 @@ class LoggingAddon(AddOn):
         # self.logger_created.emit(logger)
         return logger
 
-    def _on_node_created(self, flow, node):
-        if node.init_data and 'Logging' in node.init_data:
-            for title in node.init_data['Logging']['loggers']:
+    def on_node_created(self, flow, node):
+        if node.load_data and 'Logging' in node.load_data:
+            for title in node.load_data['Logging']['loggers']:
                 self.new_logger(node, title)
                 # in case the node already created the logger,
                 # new_logger() will have no effect
@@ -80,7 +80,7 @@ class LoggingAddon(AddOn):
     def _node_is_registered(self, node):
         return node in self.loggers
 
-    def _on_node_added(self, flow, node):
+    def on_node_added(self, node):
         if not self._node_is_registered(node):
             return
 
@@ -88,7 +88,7 @@ class LoggingAddon(AddOn):
         for logger in self.loggers[node].values():
             logger.enable()
 
-    def _on_node_removed(self, flow, node):
+    def on_node_removed(self, flow, node):
         if not self._node_is_registered(node):
             return
 
@@ -96,7 +96,7 @@ class LoggingAddon(AddOn):
         for logger in self.loggers[node].values():
             logger.disable()
 
-    def _extend_node_data(self, node, data: dict):
+    def extend_node_data(self, node, data: dict):
         if not self._node_is_registered(node):
             return
 
@@ -104,4 +104,4 @@ class LoggingAddon(AddOn):
             'loggers': [name for name in self.loggers[node].keys()]
         }
 
-addon = LoggingAddon()
+# addon = LoggingAddon()
