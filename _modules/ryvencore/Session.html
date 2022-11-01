@@ -122,14 +122,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">gui</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">init_data</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">load_addons</span><span class="p">(</span><span class="n">pkg_path</span><span class="p">(</span><span class="s1">&#39;addons/default/&#39;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">load_addons</span><span class="p">(</span><span class="n">pkg_path</span><span class="p">(</span><span class="s1">&#39;addons/&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_addons</span><span class="p">(</span><span class="n">pkg_path</span><span class="p">(</span><span class="s1">&#39;addons/default/&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_addons</span><span class="p">(</span><span class="n">pkg_path</span><span class="p">(</span><span class="s1">&#39;addons/&#39;</span><span class="p">))</span>
 
 
-<div class="viewcode-block" id="Session.load_addons"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.load_addons">[docs]</a>    <span class="k">def</span> <span class="nf">load_addons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="Session.register_addons"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.register_addons">[docs]</a>    <span class="k">def</span> <span class="nf">register_addons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Loads all addons from the given location. ``location`` can be an absolute path to any readable directory.</span>
-<span class="sd">        See ``ryvencore.AddOn``.</span>
+<span class="sd">        Loads all addons from the given location. :code:`location` can</span>
+<span class="sd">        be an absolute path to any readable directory. New addons can be</span>
+<span class="sd">        registered at any time.</span>
+<span class="sd">        See :code:`ryvencore.AddOn`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># discover all top-level modules in the given location</span>
@@ -147,7 +149,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">addons</span><span class="p">[</span><span class="n">modname</span><span class="p">]</span> <span class="o">=</span> <span class="n">addon</span>
 
             <span class="n">addon</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="n">addon</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">addon</span><span class="p">)</span></div>
+            <span class="c1"># setattr(Node, addon.name, addon)</span>
+
+            <span class="c1"># establish event connections</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">new_flow_created</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">addon</span><span class="o">.</span><span class="n">on_flow_created</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flow_deleted</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">addon</span><span class="o">.</span><span class="n">on_flow_destroyed</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flows</span><span class="p">:</span>
+                <span class="n">addon</span><span class="o">.</span><span class="n">connect_flow_events</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Session.register_nodes"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.register_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">register_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_classes</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
@@ -219,10 +227,10 @@
         <span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span><span class="n">session</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_flow_created</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
             <span class="n">flow</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">new_flow_created</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">flow</span></div>
 
@@ -285,6 +293,13 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">init_data</span> <span class="o">=</span> <span class="n">data</span>
 
+        <span class="c1"># load addons</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">addon_data</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;addons&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">addons</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">addons</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">addon_data</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;found missing addon: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">; attempting to load anyway&#39;</span><span class="p">)</span>
+
         <span class="c1"># load flows</span>
         <span class="n">new_flows</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -299,13 +314,6 @@
 
         <span class="k">for</span> <span class="n">fd</span> <span class="ow">in</span> <span class="n">flows_data</span><span class="p">:</span>
             <span class="n">new_flows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_flow</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">fd</span><span class="p">))</span>
-
-        <span class="c1"># load addons</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">addon_data</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;addons&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">addons</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">addons</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">addon_data</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;found missing addon: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">; attempting to load anyway&#39;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">new_flows</span></div>
 

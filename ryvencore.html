@@ -70,6 +70,13 @@
 <li><a class="reference internal" href="#module-ryvencore.AddOn">ryvencore.AddOn module</a><ul>
 <li><a class="reference internal" href="#ryvencore.AddOn.AddOn"><code class="docutils literal notranslate"><span class="pre">AddOn</span></code></a><ul>
 <li><a class="reference internal" href="#ryvencore.AddOn.AddOn.register"><code class="docutils literal notranslate"><span class="pre">AddOn.register()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.connect_flow_events"><code class="docutils literal notranslate"><span class="pre">AddOn.connect_flow_events()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.on_flow_created"><code class="docutils literal notranslate"><span class="pre">AddOn.on_flow_created()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.on_flow_destroyed"><code class="docutils literal notranslate"><span class="pre">AddOn.on_flow_destroyed()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.on_node_created"><code class="docutils literal notranslate"><span class="pre">AddOn.on_node_created()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.on_node_added"><code class="docutils literal notranslate"><span class="pre">AddOn.on_node_added()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.on_node_removed"><code class="docutils literal notranslate"><span class="pre">AddOn.on_node_removed()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.AddOn.AddOn.extend_node_data"><code class="docutils literal notranslate"><span class="pre">AddOn.extend_node_data()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.AddOn.AddOn.get_state"><code class="docutils literal notranslate"><span class="pre">AddOn.get_state()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.AddOn.AddOn.set_state"><code class="docutils literal notranslate"><span class="pre">AddOn.set_state()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.AddOn.AddOn.data"><code class="docutils literal notranslate"><span class="pre">AddOn.data()</span></code></a></li>
@@ -120,7 +127,6 @@
 <li><a class="reference internal" href="#ryvencore.Node.Node.identifier"><code class="docutils literal notranslate"><span class="pre">Node.identifier</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.legacy_identifiers"><code class="docutils literal notranslate"><span class="pre">Node.legacy_identifiers</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.identifier_prefix"><code class="docutils literal notranslate"><span class="pre">Node.identifier_prefix</span></code></a></li>
-<li><a class="reference internal" href="#ryvencore.Node.Node.initialize"><code class="docutils literal notranslate"><span class="pre">Node.initialize()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.after_placement"><code class="docutils literal notranslate"><span class="pre">Node.after_placement()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.prepare_removal"><code class="docutils literal notranslate"><span class="pre">Node.prepare_removal()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.update"><code class="docutils literal notranslate"><span class="pre">Node.update()</span></code></a></li>
@@ -139,6 +145,7 @@
 <li><a class="reference internal" href="#ryvencore.Node.Node.create_output"><code class="docutils literal notranslate"><span class="pre">Node.create_output()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.delete_output"><code class="docutils literal notranslate"><span class="pre">Node.delete_output()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.get_addon"><code class="docutils literal notranslate"><span class="pre">Node.get_addon()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Node.Node.load"><code class="docutils literal notranslate"><span class="pre">Node.load()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Node.Node.data"><code class="docutils literal notranslate"><span class="pre">Node.data()</span></code></a></li>
 </ul>
 </li>
@@ -146,7 +153,7 @@
 </li>
 <li><a class="reference internal" href="#module-ryvencore.Session">ryvencore.Session module</a><ul>
 <li><a class="reference internal" href="#ryvencore.Session.Session"><code class="docutils literal notranslate"><span class="pre">Session</span></code></a><ul>
-<li><a class="reference internal" href="#ryvencore.Session.Session.load_addons"><code class="docutils literal notranslate"><span class="pre">Session.load_addons()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.Session.Session.register_addons"><code class="docutils literal notranslate"><span class="pre">Session.register_addons()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Session.Session.register_nodes"><code class="docutils literal notranslate"><span class="pre">Session.register_nodes()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Session.Session.register_node"><code class="docutils literal notranslate"><span class="pre">Session.register_node()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.Session.Session.unregister_node"><code class="docutils literal notranslate"><span class="pre">Session.unregister_node()</span></code></a></li>
@@ -252,27 +259,27 @@ can be added and registered in the Session.</p>
 <dt>An add-on</dt><dd><ul class="simple">
 <li>has a name and a version</li>
 <li>is session-local, not flow-local (but you can of course implement per-flow functionality)</li>
-<li>manages its own state (in particular <code class="docutils literal notranslate"><span class="pre">get_state()</span></code> and <code class="docutils literal notranslate"><span class="pre">set_state()</span></code>)</li>
-<li>can store additional node-specific data in the node’s <code class="docutils literal notranslate"><span class="pre">data</span></code> dict when it’s serialized</li>
-<li>will be accessible through the nodes API: <code class="docutils literal notranslate"><span class="pre">self.get_addon('your_addon')</span></code> in your nodes</li>
+<li>manages its own state (in particular <code class="code docutils literal notranslate"><span class="pre">get_state()</span></code> and <code class="code docutils literal notranslate"><span class="pre">set_state()</span></code>)</li>
+<li>can store additional node-specific data in the node’s <code class="code docutils literal notranslate"><span class="pre">data</span></code> dict when it’s serialized</li>
+<li>will be accessible through the nodes API: <code class="code docutils literal notranslate"><span class="pre">self.get_addon('your_addon')</span></code> in your nodes</li>
 </ul>
 </dd>
 </dl>
 <p>Add-on access is blocked during loading (deserialization), so nodes should not access any
-add-ons during the execution of <code class="docutils literal notranslate"><span class="pre">Node.__init__</span></code> or <code class="docutils literal notranslate"><span class="pre">Node.set_data</span></code>.
+add-ons during the execution of <code class="code docutils literal notranslate"><span class="pre">Node.__init__</span></code> or <code class="code docutils literal notranslate"><span class="pre">Node.set_data</span></code>.
 This prevents inconsistent states. Nodes are loaded first, then the add-ons.
 Therefore, the add-on should be sufficiently isolated and self-contained.</p>
 <dl class="docutils">
 <dt>To define a custom add-on:</dt><dd><ul class="simple">
-<li>create a directory <code class="docutils literal notranslate"><span class="pre">your_addons</span></code> for you addons or use ryvencore’s addon directory</li>
-<li>create a module for your addon <code class="docutils literal notranslate"><span class="pre">YourAddon.py</span></code> in <code class="docutils literal notranslate"><span class="pre">your_addons</span></code></li>
-<li>create a class <code class="docutils literal notranslate"><span class="pre">YourAddon(ryvencore.AddOn)</span></code> that defines your add-on’s functionality</li>
-<li>instantiate it into a top-level variable: <code class="docutils literal notranslate"><span class="pre">addon</span> <span class="pre">=</span> <span class="pre">YourAddon()</span></code> at the end of the module</li>
-<li>register your addon directory in the Session: <code class="docutils literal notranslate"><span class="pre">session.register_addon_dir('path/to/your_addons')</span></code></li>
+<li>create a directory <code class="code docutils literal notranslate"><span class="pre">your_addons</span></code> for you addons or use ryvencore’s addon directory</li>
+<li>create a module for your addon <code class="code docutils literal notranslate"><span class="pre">YourAddon.py</span></code> in <code class="code docutils literal notranslate"><span class="pre">your_addons</span></code></li>
+<li>create a class <code class="code docutils literal notranslate"><span class="pre">YourAddon(ryvencore.AddOn)</span></code> that defines your add-on’s functionality</li>
+<li>instantiate it into a top-level variable: <code class="code docutils literal notranslate"><span class="pre">addon</span> <span class="pre">=</span> <span class="pre">YourAddon()</span></code> at the end of the module</li>
+<li>register your addon directory in the Session: <code class="code docutils literal notranslate"><span class="pre">session.register_addon_dir('path/to/your_addons')</span></code></li>
 </ul>
 </dd>
 </dl>
-<p>See <code class="docutils literal notranslate"><span class="pre">ryvencore.addons.default</span></code> for examples.</p>
+<p>See <code class="code docutils literal notranslate"><span class="pre">ryvencore.addons.default</span></code> for examples.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ryvencore.AddOn.AddOn">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><code class="sig-name descname"><span class="pre">AddOn</span></code><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn" title="Permalink to this definition">¶</a></dt>
@@ -281,6 +288,62 @@ Therefore, the add-on should be sufficiently isolated and self-contained.</p>
 <dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.register">
 <code class="sig-name descname"><span class="pre">register</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn.register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn.register" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called when the add-on is registered with a session.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.connect_flow_events">
+<code class="sig-name descname"><span class="pre">connect_flow_events</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ryvencore.Flow.Flow" title="ryvencore.Flow.Flow"><span class="pre">Flow</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn.connect_flow_events"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn.connect_flow_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connects flow events to the add-on.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.on_flow_created">
+<code class="sig-name descname"><span class="pre">on_flow_created</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn.on_flow_created"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn.on_flow_created" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Called when a flow is created.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.on_flow_destroyed">
+<code class="sig-name descname"><span class="pre">on_flow_destroyed</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn.on_flow_destroyed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn.on_flow_destroyed" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Called when a flow is destroyed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.on_node_created">
+<code class="sig-name descname"><span class="pre">on_node_created</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn.on_node_created"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn.on_node_created" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Called when a node is created and fully initialized
+(<code class="code docutils literal notranslate"><span class="pre">Node.load()</span></code> has already been called, if necessary),
+but not yet added to the flow. Therefore, this is a good place
+to initialize the node with add-on-specific data.</p>
+<p>This happens only once per node, whereas it can be added and
+removed multiple times, see <code class="code docutils literal notranslate"><span class="pre">AddOn.on_node_added()</span></code> and
+<code class="code docutils literal notranslate"><span class="pre">AddOn.on_node_removed()</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.on_node_added">
+<code class="sig-name descname"><span class="pre">on_node_added</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn.on_node_added"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn.on_node_added" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Called when a node is added to a flow.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.on_node_removed">
+<code class="sig-name descname"><span class="pre">on_node_removed</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span></em>, <em><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn.on_node_removed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn.on_node_removed" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Called when a node is removed from a flow.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.AddOn.AddOn.extend_node_data">
+<code class="sig-name descname"><span class="pre">extend_node_data</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node</span></span></em>, <em><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn.extend_node_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn.extend_node_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Invoked whenever any node is serialized. This method can be
+used to extend the node’s data dict with additional
+add-on.related data.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -296,7 +359,11 @@ This dict will be extended by <code class="code docutils literal notranslate"><s
 <code class="sig-name descname"><span class="pre">set_state</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/AddOn.html#AddOn.set_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.AddOn.AddOn.set_state" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>VIRTUAL</em></p>
 <p>Set the state of the add-on from the dict generated in
-<code class="code docutils literal notranslate"><span class="pre">AddOn.get_state()</span></code>.</p>
+<code class="code docutils literal notranslate"><span class="pre">AddOn.get_state()</span></code>. Notice that add-ons are loaded
+<em>before</em> the flows. If you need to re-establish any sort
+of connections between flows or nodes and your add-on,
+you should store <code class="code docutils literal notranslate"><span class="pre">state</span></code> and do so in the according
+slot methods (e.g. <code class="code docutils literal notranslate"><span class="pre">on_node_added()</span></code>).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -426,6 +493,13 @@ Reserved field names are ‘GID’ and ‘version’.</p>
 <dt class="sig sig-object py" id="ryvencore.Data.Data.load">
 <code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Data.html#Data.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Data.Data.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Recreate the object state from the data dict returned by <code class="code docutils literal notranslate"><span class="pre">data()</span></code>.</p>
+<p>Convention: don’t call this method in the constructor, invoke it manually
+from outside, if other components can depend on it (and be notified of its
+creation).
+Reason: If another component <cite>X</cite> depends on this one (and
+gets notified when this one is created), <cite>X</cite> should be notified <em>before</em>
+it gets notified of creation or loading of subcomponents created during
+this load. (E.g. add-ons need to know the flow before nodes are loaded.)</p>
 </dd></dl>
 
 </dd></dl>
@@ -665,19 +739,6 @@ backward compatibility to load old projects that rely on the old identifier</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ryvencore.Node.Node.initialize">
-<code class="sig-name descname"><span class="pre">initialize</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Node.html#Node.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Node.Node.initialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called by the Flow. This method</p>
-<ul class="simple">
-<li>loads all default properties from initial data if it was provided</li>
-<li>sets up inputs and outputs</li>
-<li>loads user_data</li>
-</ul>
-<p>It does not crash on exception when loading user_data,
-as this is not uncommon when developing nodes.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.Node.Node.after_placement">
 <code class="sig-name descname"><span class="pre">after_placement</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Node.html#Node.after_placement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Node.Node.after_placement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called from Flow when the nodes gets added.</p>
@@ -773,7 +834,9 @@ dict that encodes your node’s state. The dict will be passed to <code class="d
 <dt class="sig sig-object py" id="ryvencore.Node.Node.set_state">
 <code class="sig-name descname"><span class="pre">set_state</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Node.html#Node.set_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Node.Node.set_state" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>VIRTUAL</em></p>
-<p>Opposite of <code class="docutils literal notranslate"><span class="pre">get_state()</span></code>, reconstruct any custom internal state here.</p>
+<p>Opposite of <code class="docutils literal notranslate"><span class="pre">get_state()</span></code>, reconstruct any custom internal state here.
+Notice, that add-ons might not yet be fully available here, but in
+<code class="docutils literal notranslate"><span class="pre">place_event()</span></code> the should be.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -807,10 +870,20 @@ dict that encodes your node’s state. The dict will be passed to <code class="d
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.Node.Node.load">
+<code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Node.html#Node.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Node.Node.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the node from the data dict returned by <code class="code docutils literal notranslate"><span class="pre">Node.data()</span></code>.
+Called by the flow, before the node is added to it.
+It does not crash on exception when loading user_data,
+as this is not uncommon when developing nodes.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.Node.Node.data">
 <code class="sig-name descname"><span class="pre">data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/ryvencore/Node.html#Node.data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Node.Node.data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns all metadata of the node in JSON-compatible dict, including custom state.
-Used to rebuild the Flow when loading a project or pasting components.</p>
+<dd><p>Serializes the node’s metadata, current configuration, and user state into
+a JSON-compatible dict, from which the node can be loaded later using
+<code class="code docutils literal notranslate"><span class="pre">Node.load()</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -825,10 +898,12 @@ Used to rebuild the Flow when loading a project or pasting components.</p>
 <p>The Session is the top level interface to your project. It mainly manages flows, nodes, and add-ons and
 provides methods for serialization and deserialization of the project.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="ryvencore.Session.Session.load_addons">
-<code class="sig-name descname"><span class="pre">load_addons</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Session.html#Session.load_addons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Session.Session.load_addons" title="Permalink to this definition">¶</a></dt>
-<dd><p>Loads all addons from the given location. <code class="docutils literal notranslate"><span class="pre">location</span></code> can be an absolute path to any readable directory.
-See <code class="docutils literal notranslate"><span class="pre">ryvencore.AddOn</span></code>.</p>
+<dt class="sig sig-object py" id="ryvencore.Session.Session.register_addons">
+<code class="sig-name descname"><span class="pre">register_addons</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/Session.html#Session.register_addons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.Session.Session.register_addons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads all addons from the given location. <code class="code docutils literal notranslate"><span class="pre">location</span></code> can
+be an absolute path to any readable directory. New addons can be
+registered at any time.
+See <code class="code docutils literal notranslate"><span class="pre">ryvencore.AddOn</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">

@@ -195,6 +195,7 @@
         <span class="c1"># events</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">node_added</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">node_removed</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_created</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">connection_added</span> <span class="o">=</span> <span class="n">Event</span><span class="p">((</span><span class="n">NodeOutput</span><span class="p">,</span> <span class="n">NodeInput</span><span class="p">))</span>        <span class="c1"># Event(Connection)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">connection_removed</span> <span class="o">=</span> <span class="n">Event</span><span class="p">((</span><span class="n">NodeOutput</span><span class="p">,</span> <span class="n">NodeInput</span><span class="p">))</span>      <span class="c1"># Event (Connection)</span>
 
@@ -203,6 +204,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">connections_created_from_data</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_mode_changed</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+        <span class="c1"># connect events to add-ons</span>
+        <span class="k">for</span> <span class="n">addon</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">addons</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">addon</span><span class="o">.</span><span class="n">connect_flow_events</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># general attributes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span>
@@ -283,13 +288,11 @@
             <span class="n">print_err</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Node class </span><span class="si">{</span><span class="n">node_class</span><span class="si">}</span><span class="s1"> not in session nodes&#39;</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="n">node</span> <span class="o">=</span> <span class="n">node_class</span><span class="p">((</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
-        <span class="n">node</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">node_class</span><span class="p">((</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_created</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
-
-        <span class="c1"># notify addons</span>
-        <span class="k">for</span> <span class="n">addon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">addons</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">addon</span><span class="o">.</span><span class="n">_on_node_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">node</span></div>
 
@@ -311,10 +314,6 @@
 
         <span class="n">node</span><span class="o">.</span><span class="n">after_placement</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_flow_changed</span><span class="p">()</span>
-
-        <span class="c1"># notify addons</span>
-        <span class="k">for</span> <span class="n">addon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">addons</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">addon</span><span class="o">.</span><span class="n">_on_node_added</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">node_added</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
 
@@ -338,7 +337,7 @@
 
         <span class="c1"># notify addons</span>
         <span class="k">for</span> <span class="n">addon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">addons</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">addon</span><span class="o">.</span><span class="n">_on_node_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+            <span class="n">addon</span><span class="o">.</span><span class="n">on_node_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">node_removed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
 

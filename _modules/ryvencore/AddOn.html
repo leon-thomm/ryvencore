@@ -92,25 +92,25 @@
 <span class="sd">An add-on</span>
 <span class="sd">    - has a name and a version</span>
 <span class="sd">    - is session-local, not flow-local (but you can of course implement per-flow functionality)</span>
-<span class="sd">    - manages its own state (in particular ``get_state()`` and ``set_state()``)</span>
-<span class="sd">    - can store additional node-specific data in the node&#39;s ``data`` dict when it&#39;s serialized</span>
-<span class="sd">    - will be accessible through the nodes API: ``self.get_addon(&#39;your_addon&#39;)`` in your nodes</span>
+<span class="sd">    - manages its own state (in particular :code:`get_state()` and :code:`set_state()`)</span>
+<span class="sd">    - can store additional node-specific data in the node&#39;s :code:`data` dict when it&#39;s serialized</span>
+<span class="sd">    - will be accessible through the nodes API: :code:`self.get_addon(&#39;your_addon&#39;)` in your nodes</span>
 
 <span class="sd">Add-on access is blocked during loading (deserialization), so nodes should not access any</span>
-<span class="sd">add-ons during the execution of ``Node.__init__`` or ``Node.set_data``.</span>
+<span class="sd">add-ons during the execution of :code:`Node.__init__` or :code:`Node.set_data`.</span>
 <span class="sd">This prevents inconsistent states. Nodes are loaded first, then the add-ons. </span>
 <span class="sd">Therefore, the add-on should be sufficiently isolated and self-contained.</span>
 
 <span class="sd">To define a custom add-on:</span>
-<span class="sd">    - create a directory ``your_addons`` for you addons or use ryvencore&#39;s addon directory</span>
-<span class="sd">    - create a module for your addon ``YourAddon.py`` in ``your_addons``</span>
-<span class="sd">    - create a class ``YourAddon(ryvencore.AddOn)`` that defines your add-on&#39;s functionality</span>
-<span class="sd">    - instantiate it into a top-level variable: ``addon = YourAddon()`` at the end of the module</span>
-<span class="sd">    - register your addon directory in the Session: ``session.register_addon_dir(&#39;path/to/your_addons&#39;)``</span>
+<span class="sd">    - create a directory :code:`your_addons` for you addons or use ryvencore&#39;s addon directory</span>
+<span class="sd">    - create a module for your addon :code:`YourAddon.py` in :code:`your_addons`</span>
+<span class="sd">    - create a class :code:`YourAddon(ryvencore.AddOn)` that defines your add-on&#39;s functionality</span>
+<span class="sd">    - instantiate it into a top-level variable: :code:`addon = YourAddon()` at the end of the module</span>
+<span class="sd">    - register your addon directory in the Session: :code:`session.register_addon_dir(&#39;path/to/your_addons&#39;)`</span>
 
-<span class="sd">See ``ryvencore.addons.default`` for examples.</span>
+<span class="sd">See :code:`ryvencore.addons.default` for examples.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
+<span class="kn">from</span> <span class="nn">ryvencore</span> <span class="kn">import</span> <span class="n">Flow</span>
 <span class="kn">from</span> <span class="nn">ryvencore.Base</span> <span class="kn">import</span> <span class="n">Base</span>
 
 
@@ -124,40 +124,70 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span></div>
 
-    <span class="k">def</span> <span class="nf">_on_node_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<div class="viewcode-block" id="AddOn.connect_flow_events"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.connect_flow_events">[docs]</a>    <span class="k">def</span> <span class="nf">connect_flow_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Connects flow events to the add-on.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flow</span><span class="o">.</span><span class="n">node_created</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_node_created</span><span class="p">)</span>
+        <span class="n">flow</span><span class="o">.</span><span class="n">node_added</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_node_added</span><span class="p">)</span>
+        <span class="n">flow</span><span class="o">.</span><span class="n">node_removed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_node_removed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AddOn.on_flow_created"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_flow_created">[docs]</a>    <span class="k">def</span> <span class="nf">on_flow_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
-<span class="sd">        Called when a node is created. This happens only once, whereas</span>
-<span class="sd">        a node can be added and removed multiple times, see</span>
-<span class="sd">        on_node_added() and</span>
-<span class="sd">        on_node_removed().</span>
+<span class="sd">        Called when a flow is created.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
+        <span class="k">pass</span></div>
 
-    <span class="k">def</span> <span class="nf">_on_node_added</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<div class="viewcode-block" id="AddOn.on_flow_destroyed"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_flow_destroyed">[docs]</a>    <span class="k">def</span> <span class="nf">on_flow_destroyed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *VIRTUAL*</span>
+
+<span class="sd">        Called when a flow is destroyed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="AddOn.on_node_created"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_node_created">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *VIRTUAL*</span>
+
+<span class="sd">        Called when a node is created and fully initialized</span>
+<span class="sd">        (:code:`Node.load()` has already been called, if necessary),</span>
+<span class="sd">        but not yet added to the flow. Therefore, this is a good place</span>
+<span class="sd">        to initialize the node with add-on-specific data.</span>
+
+<span class="sd">        This happens only once per node, whereas it can be added and</span>
+<span class="sd">        removed multiple times, see :code:`AddOn.on_node_added()` and</span>
+<span class="sd">        :code:`AddOn.on_node_removed()`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="AddOn.on_node_added"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_node_added">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_added</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
 <span class="sd">        Called when a node is added to a flow.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
+        <span class="k">pass</span></div>
 
-    <span class="k">def</span> <span class="nf">_on_node_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<div class="viewcode-block" id="AddOn.on_node_removed"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_node_removed">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
 <span class="sd">        Called when a node is removed from a flow.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
+        <span class="k">pass</span></div>
 
-    <span class="k">def</span> <span class="nf">_extend_node_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="AddOn.extend_node_data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.extend_node_data">[docs]</a>    <span class="k">def</span> <span class="nf">extend_node_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
-<span class="sd">        Extend the node data dict with additional add-on-related data.</span>
+<span class="sd">        Invoked whenever any node is serialized. This method can be</span>
+<span class="sd">        used to extend the node&#39;s data dict with additional</span>
+<span class="sd">        add-on.related data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
+        <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="AddOn.get_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.get_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -173,7 +203,11 @@
 <span class="sd">        *VIRTUAL*</span>
 
 <span class="sd">        Set the state of the add-on from the dict generated in</span>
-<span class="sd">        :code:`AddOn.get_state()`.</span>
+<span class="sd">        :code:`AddOn.get_state()`. Notice that add-ons are loaded</span>
+<span class="sd">        *before* the flows. If you need to re-establish any sort</span>
+<span class="sd">        of connections between flows or nodes and your add-on,</span>
+<span class="sd">        you should store :code:`state` and do so in the according</span>
+<span class="sd">        slot methods (e.g. :code:`on_node_added()`).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 

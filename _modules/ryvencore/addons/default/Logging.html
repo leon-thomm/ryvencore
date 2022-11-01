@@ -111,10 +111,10 @@
 
 <div class="viewcode-block" id="LoggingAddon"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Logging.LoggingAddon">[docs]</a><span class="k">class</span> <span class="nc">LoggingAddon</span><span class="p">(</span><span class="n">AddOn</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This addon implements very basic some logging functionality.</span>
+<span class="sd">    This addon implements some very basic logging functionality.</span>
 
-<span class="sd">    It provides an API to create and delete loggers that are owned</span>
-<span class="sd">    by a particular node. The logger gets enabled/disabled</span>
+<span class="sd">    It provides functions to create and delete loggers that are owned</span>
+<span class="sd">    by a particular node. The loggers get enabled/disabled</span>
 <span class="sd">    automatically when the owning node is added to/removed from</span>
 <span class="sd">    the flow.</span>
 
@@ -122,7 +122,7 @@
 <span class="sd">    preserves its global ID throughout save and load.</span>
 
 <span class="sd">    The contents of logs are currently not preserved. If a log&#39;s</span>
-<span class="sd">    content should be preserved, it should be saved in a file.</span>
+<span class="sd">    content should be preserved, it should be saved explicitly.</span>
 
 <span class="sd">    Refer to Python&#39;s logging module documentation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -154,39 +154,39 @@
         <span class="c1"># self.logger_created.emit(logger)</span>
         <span class="k">return</span> <span class="n">logger</span></div>
 
-    <span class="k">def</span> <span class="nf">_on_node_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">init_data</span> <span class="ow">and</span> <span class="s1">&#39;Logging&#39;</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">init_data</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">title</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">init_data</span><span class="p">[</span><span class="s1">&#39;Logging&#39;</span><span class="p">][</span><span class="s1">&#39;loggers&#39;</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">new_logger</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+<div class="viewcode-block" id="LoggingAddon.on_node_created"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Logging.LoggingAddon.on_node_created">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">load_data</span> <span class="ow">and</span> <span class="s1">&#39;Logging&#39;</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">load_data</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">title</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">load_data</span><span class="p">[</span><span class="s1">&#39;Logging&#39;</span><span class="p">][</span><span class="s1">&#39;loggers&#39;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">new_logger</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span></div>
                 <span class="c1"># in case the node already created the logger,</span>
                 <span class="c1"># new_logger() will have no effect</span>
 
     <span class="k">def</span> <span class="nf">_node_is_registered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">loggers</span>
 
-    <span class="k">def</span> <span class="nf">_on_node_added</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<div class="viewcode-block" id="LoggingAddon.on_node_added"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Logging.LoggingAddon.on_node_added">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_added</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_is_registered</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
             <span class="k">return</span>
 
         <span class="c1"># enable the node&#39;s loggers</span>
         <span class="k">for</span> <span class="n">logger</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">loggers</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">_on_node_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<div class="viewcode-block" id="LoggingAddon.on_node_removed"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Logging.LoggingAddon.on_node_removed">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_is_registered</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
             <span class="k">return</span>
 
         <span class="c1"># disable the node&#39;s loggers</span>
         <span class="k">for</span> <span class="n">logger</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">loggers</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">disable</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">disable</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">_extend_node_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="LoggingAddon.extend_node_data"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Logging.LoggingAddon.extend_node_data">[docs]</a>    <span class="k">def</span> <span class="nf">extend_node_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_is_registered</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
             <span class="k">return</span>
 
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Logging&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;loggers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">loggers</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
-        <span class="p">}</span></div>
+        <span class="p">}</span></div></div>
 
 <span class="n">addon</span> <span class="o">=</span> <span class="n">LoggingAddon</span><span class="p">()</span>
 </pre></div>

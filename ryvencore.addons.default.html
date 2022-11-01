@@ -77,6 +77,10 @@
 <li><a class="reference internal" href="#ryvencore.addons.default.Logging.LoggingAddon.name"><code class="docutils literal notranslate"><span class="pre">LoggingAddon.name</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.addons.default.Logging.LoggingAddon.version"><code class="docutils literal notranslate"><span class="pre">LoggingAddon.version</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.addons.default.Logging.LoggingAddon.new_logger"><code class="docutils literal notranslate"><span class="pre">LoggingAddon.new_logger()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.addons.default.Logging.LoggingAddon.on_node_created"><code class="docutils literal notranslate"><span class="pre">LoggingAddon.on_node_created()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.addons.default.Logging.LoggingAddon.on_node_added"><code class="docutils literal notranslate"><span class="pre">LoggingAddon.on_node_added()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.addons.default.Logging.LoggingAddon.on_node_removed"><code class="docutils literal notranslate"><span class="pre">LoggingAddon.on_node_removed()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.addons.default.Logging.LoggingAddon.extend_node_data"><code class="docutils literal notranslate"><span class="pre">LoggingAddon.extend_node_data()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -91,12 +95,20 @@
 <li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon"><code class="docutils literal notranslate"><span class="pre">VarsAddon</span></code></a><ul>
 <li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.name"><code class="docutils literal notranslate"><span class="pre">VarsAddon.name</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.version"><code class="docutils literal notranslate"><span class="pre">VarsAddon.version</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.on_flow_created"><code class="docutils literal notranslate"><span class="pre">VarsAddon.on_flow_created()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.on_flow_deleted"><code class="docutils literal notranslate"><span class="pre">VarsAddon.on_flow_deleted()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.on_node_created"><code class="docutils literal notranslate"><span class="pre">VarsAddon.on_node_created()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.on_node_added"><code class="docutils literal notranslate"><span class="pre">VarsAddon.on_node_added()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.on_node_removed"><code class="docutils literal notranslate"><span class="pre">VarsAddon.on_node_removed()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.var_name_valid"><code class="docutils literal notranslate"><span class="pre">VarsAddon.var_name_valid()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.create_var"><code class="docutils literal notranslate"><span class="pre">VarsAddon.create_var()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.delete_var"><code class="docutils literal notranslate"><span class="pre">VarsAddon.delete_var()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.var_exists"><code class="docutils literal notranslate"><span class="pre">VarsAddon.var_exists()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.var"><code class="docutils literal notranslate"><span class="pre">VarsAddon.var()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.update_subscribers"><code class="docutils literal notranslate"><span class="pre">VarsAddon.update_subscribers()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.subscribe"><code class="docutils literal notranslate"><span class="pre">VarsAddon.subscribe()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.unsubscribe"><code class="docutils literal notranslate"><span class="pre">VarsAddon.unsubscribe()</span></code></a></li>
+<li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.extend_node_data"><code class="docutils literal notranslate"><span class="pre">VarsAddon.extend_node_data()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.get_state"><code class="docutils literal notranslate"><span class="pre">VarsAddon.get_state()</span></code></a></li>
 <li><a class="reference internal" href="#ryvencore.addons.default.Variables.VarsAddon.set_state"><code class="docutils literal notranslate"><span class="pre">VarsAddon.set_state()</span></code></a></li>
 </ul>
@@ -188,15 +200,15 @@
 <dt class="sig sig-object py" id="ryvencore.addons.default.Logging.LoggingAddon">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><code class="sig-name descname"><span class="pre">LoggingAddon</span></code><a class="reference internal" href="_modules/ryvencore/addons/default/Logging.html#LoggingAddon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Logging.LoggingAddon" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ryvencore.html#ryvencore.AddOn.AddOn" title="ryvencore.AddOn.AddOn"><code class="xref py py-class docutils literal notranslate"><span class="pre">AddOn</span></code></a></p>
-<p>This addon implements very basic some logging functionality.</p>
-<p>It provides an API to create and delete loggers that are owned
-by a particular node. The logger gets enabled/disabled
+<p>This addon implements some very basic logging functionality.</p>
+<p>It provides functions to create and delete loggers that are owned
+by a particular node. The loggers get enabled/disabled
 automatically when the owning node is added to/removed from
 the flow.</p>
 <p>Ownership might eventually be expanded to any component that
 preserves its global ID throughout save and load.</p>
 <p>The contents of logs are currently not preserved. If a log’s
-content should be preserved, it should be saved in a file.</p>
+content should be preserved, it should be saved explicitly.</p>
 <p>Refer to Python’s logging module documentation.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ryvencore.addons.default.Logging.LoggingAddon.name">
@@ -213,6 +225,42 @@ content should be preserved, it should be saved in a file.</p>
 <code class="sig-name descname"><span class="pre">new_logger</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node</span></span></em>, <em><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ryvencore.addons.default.Logging.Logger" title="ryvencore.addons.default.Logging.Logger"><span class="pre">Logger</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ryvencore/addons/default/Logging.html#LoggingAddon.new_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Logging.LoggingAddon.new_logger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a new logger owned by the node, returns None if
 one with the given name already exists.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.addons.default.Logging.LoggingAddon.on_node_created">
+<code class="sig-name descname"><span class="pre">on_node_created</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Logging.html#LoggingAddon.on_node_created"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Logging.LoggingAddon.on_node_created" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Called when a node is created and fully initialized
+(<code class="code docutils literal notranslate"><span class="pre">Node.load()</span></code> has already been called, if necessary),
+but not yet added to the flow. Therefore, this is a good place
+to initialize the node with add-on-specific data.</p>
+<p>This happens only once per node, whereas it can be added and
+removed multiple times, see <code class="code docutils literal notranslate"><span class="pre">AddOn.on_node_added()</span></code> and
+<code class="code docutils literal notranslate"><span class="pre">AddOn.on_node_removed()</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.addons.default.Logging.LoggingAddon.on_node_added">
+<code class="sig-name descname"><span class="pre">on_node_added</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Logging.html#LoggingAddon.on_node_added"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Logging.LoggingAddon.on_node_added" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Called when a node is added to a flow.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.addons.default.Logging.LoggingAddon.on_node_removed">
+<code class="sig-name descname"><span class="pre">on_node_removed</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span></em>, <em><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Logging.html#LoggingAddon.on_node_removed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Logging.LoggingAddon.on_node_removed" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Called when a node is removed from a flow.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.addons.default.Logging.LoggingAddon.extend_node_data">
+<code class="sig-name descname"><span class="pre">extend_node_data</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node</span></span></em>, <em><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Logging.html#LoggingAddon.extend_node_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Logging.LoggingAddon.extend_node_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Invoked whenever any node is serialized. This method can be
+used to extend the node’s data dict with additional
+add-on.related data.</p>
 </dd></dl>
 
 </dd></dl>
@@ -236,7 +284,7 @@ Storing other data will break save&amp;load.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.addons.default.Variables.Variable.set">
-<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#Variable.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.Variable.set" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">val</span></span></em>, <em><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#Variable.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.Variable.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the value of the variable</p>
 </dd></dl>
 
@@ -300,18 +348,55 @@ optimization. Variables are flow-local.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.version">
-<code class="sig-name descname"><span class="pre">version</span></code><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'0.0.3'</span></em><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.version" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">version</span></code><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'0.4'</span></em><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.version" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.on_flow_created">
+<code class="sig-name descname"><span class="pre">on_flow_created</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.on_flow_created"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.on_flow_created" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Called when a flow is created.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.on_flow_deleted">
+<code class="sig-name descname"><span class="pre">on_flow_deleted</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.on_flow_deleted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.on_flow_deleted" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.on_node_created">
+<code class="sig-name descname"><span class="pre">on_node_created</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.on_node_created"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.on_node_created" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>VIRTUAL</em></p>
+<p>Called when a node is created and fully initialized
+(<code class="code docutils literal notranslate"><span class="pre">Node.load()</span></code> has already been called, if necessary),
+but not yet added to the flow. Therefore, this is a good place
+to initialize the node with add-on-specific data.</p>
+<p>This happens only once per node, whereas it can be added and
+removed multiple times, see <code class="code docutils literal notranslate"><span class="pre">AddOn.on_node_added()</span></code> and
+<code class="code docutils literal notranslate"><span class="pre">AddOn.on_node_removed()</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.on_node_added">
+<code class="sig-name descname"><span class="pre">on_node_added</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.on_node_added"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.on_node_added" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstruction of subscriptions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.on_node_removed">
+<code class="sig-name descname"><span class="pre">on_node_removed</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span></em>, <em><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.on_node_removed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.on_node_removed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all subscriptions of the node.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.var_name_valid">
 <code class="sig-name descname"><span class="pre">var_name_valid</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span></em>, <em><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.var_name_valid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.var_name_valid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if <code class="docutils literal notranslate"><span class="pre">name</span></code> is a valid variable identifier and hasn’t been take yet.</p>
+<dd><p>Checks if <code class="code docutils literal notranslate"><span class="pre">name</span></code> is a valid variable identifier and hasn’t been take yet.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.create_var">
-<code class="sig-name descname"><span class="pre">create_var</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span></em>, <em><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em><span class="n"><span class="pre">val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ryvencore.addons.default.Variables.Variable" title="ryvencore.addons.default.Variables.Variable"><span class="pre">Variable</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.create_var"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.create_var" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">create_var</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="ryvencore.html#ryvencore.Flow.Flow" title="ryvencore.Flow.Flow"><span class="pre">Flow</span></a></span></em>, <em><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em><span class="n"><span class="pre">val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em><span class="n"><span class="pre">load_from</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#ryvencore.addons.default.Variables.Variable" title="ryvencore.addons.default.Variables.Variable"><span class="pre">Variable</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.create_var"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.create_var" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates and returns a new variable and None if the name isn’t valid.</p>
 </dd></dl>
 
@@ -322,9 +407,20 @@ optimization. Variables are flow-local.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.var_exists">
+<code class="sig-name descname"><span class="pre">var_exists</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span></em>, <em><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.var_exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.var_exists" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.var">
 <code class="sig-name descname"><span class="pre">var</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span></em>, <em><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.var"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.var" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the variable with the given name or None if it doesn’t exist.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.update_subscribers">
+<code class="sig-name descname"><span class="pre">update_subscribers</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">flow</span></span></em>, <em><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.update_subscribers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.update_subscribers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when a Variable object changes or when the var is created or deleted.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -340,6 +436,12 @@ optimization. Variables are flow-local.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.extend_node_data">
+<code class="sig-name descname"><span class="pre">extend_node_data</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">node</span></span></em>, <em><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.extend_node_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.extend_node_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extends the node data with the variable subscriptions.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.get_state">
 <code class="sig-name descname"><span class="pre">get_state</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.get_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.get_state" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>VIRTUAL</em></p>
@@ -349,10 +451,14 @@ This dict will be extended by <code class="code docutils literal notranslate"><s
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ryvencore.addons.default.Variables.VarsAddon.set_state">
-<code class="sig-name descname"><span class="pre">set_state</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.set_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.set_state" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set_state</span></code><span class="sig-paren">(</span><em><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ryvencore/addons/default/Variables.html#VarsAddon.set_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ryvencore.addons.default.Variables.VarsAddon.set_state" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>VIRTUAL</em></p>
 <p>Set the state of the add-on from the dict generated in
-<code class="code docutils literal notranslate"><span class="pre">AddOn.get_state()</span></code>.</p>
+<code class="code docutils literal notranslate"><span class="pre">AddOn.get_state()</span></code>. Notice that add-ons are loaded
+<em>before</em> the flows. If you need to re-establish any sort
+of connections between flows or nodes and your add-on,
+you should store <code class="code docutils literal notranslate"><span class="pre">state</span></code> and do so in the according
+slot methods (e.g. <code class="code docutils literal notranslate"><span class="pre">on_node_added()</span></code>).</p>
 </dd></dl>
 
 </dd></dl>
