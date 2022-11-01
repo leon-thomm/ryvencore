@@ -1,10 +1,12 @@
-from typing import Optional
+from typing import Optional, Union
+from packaging.version import parse as parse_version
 
-from ryvencore import Node
-from ryvencore.Base import Base, Event
-from ryvencore.utils import serialize, deserialize
-from ryvencore import AddOn
+from ryvencore import Node, Data, AddOn, Flow
+from ryvencore.Base import Base
+from ryvencore.utils import print_err
 
+
+ADDON_VERSION = '0.4'
 
 
 class Variable:
@@ -20,26 +22,24 @@ class Variable:
         self.addon = addon
         self.flow = flow
         self.name = name
-        self.val = val
-
-        if data and 'serialized' in data.keys():
-            self.val = deserialize(data['serialized'])
+        self.data: Data = Data(value=val, load_from=data)
 
     def get(self):
         """
         Returns the value of the variable
         """
-        return self.val
+        return self.data.payload
 
-    def set(self, val):
+    def set(self, val, silent=False):
         """
         Sets the value of the variable
         """
-        self.val = val
-        self.addon._var_updated(self.flow, self.name)
+        self.data = Data(val)
+        if not silent:
+            self.addon.update_subscribers(self.flow, self.name)
 
     def serialize(self):
-        return serialize(self.val)
+        return self.data.data()
 
 
 
@@ -93,67 +93,146 @@ class VarsAddon(AddOn):
     """
 
     name = 'Variables'
-    version = '0.0.3'
+    version = ADDON_VERSION
 
     def __init__(self):
         AddOn.__init__(self)
 
-        # {
-        #   Flow: {
-        #       'variable name': {
-        #           'var': Variable,
-        #           'subscriptions': [Node method]
-        #        },
-        # }
+        # layout:
+        #   {
+        #       Flow: {
+        #           'variable name': {
+        #               'var': Variable,
+        #               'subscriptions': [(node, method)]
+        #           },
+        #   }
         self.flow_variables = {}
+
+        # nodes can be removed and re-added, so we need to keep track of the broken
+        # subscriptions when nodes get removed, because they might get re-added
+        # in which case we need to re-establish their subscriptions
+        # layout:
+        #   {
+        #       Node: {
+        #          'variable name': 'callback name'
+        #       }
+        #   }
+        self.removed_subscriptions = {}
+
+        # state data of variables that need to be recreated once their flow is
+        # available, see :code:`on_flow_created()`
+        self.flow_vars__pending = {}
+
+    """
+    flow management
+    """
+
+    def on_flow_created(self, flow):
+        self.flow_variables[flow] = {}
+
+    def on_flow_deleted(self, flow):
+        del self.flow_variables[flow]
+
+    """
+    subscription management
+    """
+
+    def on_node_created(self, node):
+        flow = node.flow
+
+        # is invoked *before* the node is added to the flow
+
+        # unfortunately, I cannot do this in on_flow_created because there
+        # the flow doesn't have it's prev_global_id yet, but here it does
+        if flow.prev_global_id in self.flow_vars__pending:
+            for name, data in self.flow_vars__pending[flow.prev_global_id].items():
+                self.create_var(flow, name, load_from=data)
+            del self.flow_vars__pending[flow.prev_global_id]
+
+
+
+    def on_node_added(self, node):
+        """
+        Reconstruction of subscriptions.
+        """
+
+        # if node had subscriptions previously (so it was removed)
+        if node in self.removed_subscriptions:
+            for name, cb in self.removed_subscriptions[node].items():
+                self.subscribe(node, name, cb)
+            del self.removed_subscriptions[node]
+
+        # otherwise, check if it has load data and reconstruct subscriptions
+        elif node.load_data and 'Variables' in node.load_data:
+            for name, cb_name in node.load_data['Variables']['subscriptions'].items():
+                self.subscribe(node, name, getattr(node, cb_name))
+
+    def on_node_removed(self, flow, node):
+        """
+        Remove all subscriptions of the node.
+        """
+
+        # store subscription in removed_subscriptions
+        # because the node might get re-added later
+        self.removed_subscriptions[node] = {}
+
+        for name, varname in self.flow_variables[flow].items():
+            for node, cb in varname['subscriptions'].items():
+                if node == node:
+                    self.removed_subscriptions[node][name] = cb.__name__
+                    self.unsubscribe(node, name, cb)
+
+    """
+    variables api
+    """
 
     def var_name_valid(self, flow, name: str) -> bool:
         """
-        Checks if ``name`` is a valid variable identifier and hasn't been take yet.
+        Checks if :code:`name` is a valid variable identifier and hasn't been take yet.
         """
 
-        return name.isidentifier() and not self._var_exists(flow, name)
+        return name.isidentifier() and not self.var_exists(flow, name)
 
-    def create_var(self, flow, name: str, val=None, data=None) -> Optional[Variable]:
+    def create_var(self, flow: Flow, name: str, val=None, load_from=None) -> Optional[Variable]:
         """
         Creates and returns a new variable and None if the name isn't valid.
         """
 
-        if flow not in self.flow_variables:
-            self.flow_variables[flow] = {}
-
         if self.var_name_valid(flow, name):
-            v = Variable(self, flow, name, val, data)
+            v = Variable(self, flow, name, val, load_from)
             self.flow_variables[flow][name] = {
                 'var': v,
                 'subscriptions': []
             }
             return v
         else:
+            print_err(f'Variable name {name} is not valid.')
             return None
 
     def delete_var(self, flow, name: str):
         """
         Deletes a variable and causes subscription update. Subscriptions are preserved.
         """
-        if not self._var_exists(flow, name):
+        if not self.var_exists(flow, name):
+            print_err(f'Variable {name} does not exist.')
             return
 
         del self.flow_variables[flow][name]['var']
 
-    def _var_exists(self, flow, name: str) -> bool:
+    def var_exists(self, flow, name: str) -> bool:
         return flow in self.flow_variables and name in self.flow_variables[flow]
 
     def var(self, flow, name: str):
         """
         Returns the variable with the given name or None if it doesn't exist.
         """
-        if not self._var_exists(flow, name):
+        if not self.var_exists(flow, name):
+            print_err(f'Variable {name} does not exist.')
             return None
 
         return self.flow_variables[flow][name]['var']
 
-    def _var_updated(self, flow, name: str):
+    def update_subscribers(self, flow, name: str):
         """
         Called when a Variable object changes or when the var is created or deleted.
         """
@@ -161,13 +240,14 @@ class VarsAddon(AddOn):
         v = self.flow_variables[flow][name]['var']
 
         for (node, cb) in self.flow_variables[flow][name]['subscriptions']:
-            cb(v.val)
+            cb(v.get())
 
     def subscribe(self, node: Node, name: str, callback):
         """
         Subscribe to a variable. ``callback`` must be a method of the node.
         """
-        if not self._var_exists(node.flow, name):
+        if not self.var_exists(node.flow, name):
+            print_err(f'Variable {name} does not exist.')
             return
 
         self.flow_variables[node.flow][name]['subscriptions'].append((node, callback))
@@ -176,15 +256,23 @@ class VarsAddon(AddOn):
         """
         Unsubscribe from a variable.
         """
-        if not self._var_exists(node.flow, name):
+        if not self.var_exists(node.flow, name):
+            print_err(f'Variable {name} does not exist.')
             return
 
         self.flow_variables[node.flow][name]['subscriptions'].remove((node, callback))
 
-    def _extend_node_data(self, node, data: dict):
+    """
+    serialization
+    """
+
+    def extend_node_data(self, node, data: dict):
         """
         Extends the node data with the variable subscriptions.
         """
+
+        if self.flow_variables.get(node.flow) == {}:
+            return
 
         data['Variables'] = {
             'subscriptions': {
@@ -195,39 +283,22 @@ class VarsAddon(AddOn):
             }
         }
 
-        if data['Variables']['subscriptions'] == {}:
-            del data['Variables']
-
-    def _on_node_created(self, flow, node):
-        """
-        Reconstruction of subscriptions.
-        """
-        if node.init_data and 'Variables' in node.init_data:
-            for name, cb_name in node.init_data['Variables']['subscriptions'].items():
-                self.subscribe(node, name, getattr(node, cb_name))
-
     def get_state(self) -> dict:
         return {
-            f.GLOBAL_ID: {
-                name: {
-                    'serialized': var['var'].serialize()
-                }
+            f.global_id: {
+                name: var['var'].serialize()
                 for name, var in self.flow_variables[f].items()
             }
             for f in self.flow_variables.keys()
         }
 
-    def set_state(self, state: dict):
+    def set_state(self, state: dict, version: str):
 
-        for pref_flow_id, variables in state.items():
-            f = Base.obj_from_prev_id(pref_flow_id)
+        if parse_version(version) < parse_version('0.4'):
+            print_err('Variables addon state version too old, skipping')
+            return
 
-            # recreate variables
-            for name, var in variables.items():
-                if self._var_exists(f, name):
-                    self.var(f, name).set(deserialize(var['serialized']))
-                else:
-                    self.create_var(f, name, data=var)
+        self.flow_vars__pending = state
 
 
-# addon = VarsAddon()
+addon = VarsAddon()

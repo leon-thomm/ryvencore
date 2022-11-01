@@ -211,18 +211,18 @@ class DtypesAddon(AddOn):
 
         self.dtype_inputs[inp] = dtype
 
-    def _on_node_created(self, flow, node):
+    def on_node_created(self, flow, node):
         """
         Restores the node's dtypes.
         """
 
         for i, inp in enumerate(node.inputs):
-            if inp.type_ == 'data' and 'dtype' in node.init_data['inputs'][i]:
-                dtype = DType.from_str(node.init_data['inputs'][i]['dtype'])
-                dtype.set_state(node.init_data['inputs'][i]['dtype']['state'])
+            if inp.type_ == 'data' and 'dtype' in node.load_data['inputs'][i]:
+                dtype = DType.from_str(node.load_data['inputs'][i]['dtype'])
+                dtype.set_state(node.load_data['inputs'][i]['dtype']['state'])
                 self.dtype_inputs[inp] = dtype
 
-    def _extend_node_data(self, node, data: dict):
+    def extend_node_data(self, node, data: dict):
         for i, inp in enumerate(node.inputs):
             if inp in self.dtype_inputs:
                 data['inputs'][i]['dtype'] = {

@@ -27,10 +27,10 @@ class Logger(PyLogger):
 
 class LoggingAddon(AddOn):
     """
-    This addon implements very basic some logging functionality.
+    This addon implements some very basic logging functionality.
 
-    It provides an API to create and delete loggers that are owned
-    by a particular node. The logger gets enabled/disabled
+    It provides functions to create and delete loggers that are owned
+    by a particular node. The loggers get enabled/disabled
     automatically when the owning node is added to/removed from
     the flow.
 
@@ -38,7 +38,7 @@ class LoggingAddon(AddOn):
     preserves its global ID throughout save and load.
 
     The contents of logs are currently not preserved. If a log's
-    content should be preserved, it should be saved in a file.
+    content should be preserved, it should be saved explicitly.
 
     Refer to Python's logging module documentation.
     """
@@ -70,9 +70,9 @@ class LoggingAddon(AddOn):
         # self.logger_created.emit(logger)
         return logger
 
-    def _on_node_created(self, flow, node):
-        if node.init_data and 'Logging' in node.init_data:
-            for title in node.init_data['Logging']['loggers']:
+    def on_node_created(self, node):
+        if node.load_data and 'Logging' in node.load_data:
+            for title in node.load_data['Logging']['loggers']:
                 self.new_logger(node, title)
                 # in case the node already created the logger,
                 # new_logger() will have no effect
@@ -80,7 +80,7 @@ class LoggingAddon(AddOn):
     def _node_is_registered(self, node):
         return node in self.loggers
 
-    def _on_node_added(self, flow, node):
+    def on_node_added(self, node):
         if not self._node_is_registered(node):
             return
 
@@ -88,7 +88,7 @@ class LoggingAddon(AddOn):
         for logger in self.loggers[node].values():
             logger.enable()
 
-    def _on_node_removed(self, flow, node):
+    def on_node_removed(self, flow, node):
         if not self._node_is_registered(node):
             return
 
@@ -96,7 +96,7 @@ class LoggingAddon(AddOn):
         for logger in self.loggers[node].values():
             logger.disable()
 
-    def _extend_node_data(self, node, data: dict):
+    def extend_node_data(self, node, data: dict):
         if not self._node_is_registered(node):
             return
 
