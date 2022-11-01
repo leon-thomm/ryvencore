@@ -8,25 +8,25 @@ can be added and registered in the Session.
 An add-on
     - has a name and a version
     - is session-local, not flow-local (but you can of course implement per-flow functionality)
-    - manages its own state (in particular ``get_state()`` and ``set_state()``)
-    - can store additional node-specific data in the node's ``data`` dict when it's serialized
-    - will be accessible through the nodes API: ``self.get_addon('your_addon')`` in your nodes
+    - manages its own state (in particular :code:`get_state()` and :code:`set_state()`)
+    - can store additional node-specific data in the node's :code:`data` dict when it's serialized
+    - will be accessible through the nodes API: :code:`self.get_addon('your_addon')` in your nodes
 
 Add-on access is blocked during loading (deserialization), so nodes should not access any
-add-ons during the execution of ``Node.__init__`` or ``Node.set_data``.
+add-ons during the execution of :code:`Node.__init__` or :code:`Node.set_data`.
 This prevents inconsistent states. Nodes are loaded first, then the add-ons. 
 Therefore, the add-on should be sufficiently isolated and self-contained.
 
 To define a custom add-on:
-    - create a directory ``your_addons`` for you addons or use ryvencore's addon directory
-    - create a module for your addon ``YourAddon.py`` in ``your_addons``
-    - create a class ``YourAddon(ryvencore.AddOn)`` that defines your add-on's functionality
-    - instantiate it into a top-level variable: ``addon = YourAddon()`` at the end of the module
-    - register your addon directory in the Session: ``session.register_addon_dir('path/to/your_addons')``
+    - create a directory :code:`your_addons` for you addons or use ryvencore's addon directory
+    - create a module for your addon :code:`YourAddon.py` in :code:`your_addons`
+    - create a class :code:`YourAddon(ryvencore.AddOn)` that defines your add-on's functionality
+    - instantiate it into a top-level variable: :code:`addon = YourAddon()` at the end of the module
+    - register your addon directory in the Session: :code:`session.register_addon_dir('path/to/your_addons')`
 
-See ``ryvencore.addons.default`` for examples.
+See :code:`ryvencore.addons.default` for examples.
 """
-
+from ryvencore import Flow
 from ryvencore.Base import Base
 
 
@@ -40,18 +40,46 @@ class AddOn(Base):
         """
         self.session = session
 
-    def _on_node_created(self, flow, node):
+    def connect_flow_events(self, flow: Flow):
+        """
+        Connects flow events to the add-on.
+        """
+        flow.node_created.connect(self.on_node_created)
+        flow.node_added.connect(self.on_node_added)
+        flow.node_removed.connect(self.on_node_removed)
+
+    def on_flow_created(self, flow):
         """
         *VIRTUAL*
 
-        Called when a node is created. This happens only once, whereas
-        a node can be added and removed multiple times, see
-        on_node_added() and
-        on_node_removed().
+        Called when a flow is created.
         """
         pass
 
-    def _on_node_added(self, flow, node):
+    def on_flow_destroyed(self, flow):
+        """
+        *VIRTUAL*
+
+        Called when a flow is destroyed.
+        """
+        pass
+
+    def on_node_created(self, node):
+        """
+        *VIRTUAL*
+
+        Called when a node is created and fully initialized
+        (:code:`Node.load()` has already been called, if necessary),
+        but not yet added to the flow. Therefore, this is a good place
+        to initialize the node with add-on-specific data.
+
+        This happens only once per node, whereas it can be added and
+        removed multiple times, see :code:`AddOn.on_node_added()` and
+        :code:`AddOn.on_node_removed()`.
+        """
+        pass
+
+    def on_node_added(self, node):
         """
         *VIRTUAL*
 
@@ -59,7 +87,7 @@ class AddOn(Base):
         """
         pass
 
-    def _on_node_removed(self, flow, node):
+    def on_node_removed(self, flow, node):
         """
         *VIRTUAL*
 
@@ -67,11 +95,13 @@ class AddOn(Base):
         """
         pass
 
-    def _extend_node_data(self, node, data: dict):
+    def extend_node_data(self, node, data: dict):
         """
         *VIRTUAL*
 
-        Extend the node data dict with additional add-on-related data.
+        Invoked whenever any node is serialized. This method can be
+        used to extend the node's data dict with additional
+        add-on.related data.
         """
         pass
 
@@ -89,7 +119,11 @@ class AddOn(Base):
         *VIRTUAL*
 
         Set the state of the add-on from the dict generated in
-        :code:`AddOn.get_state()`.
+        :code:`AddOn.get_state()`. Notice that add-ons are loaded
+        *before* the flows. If you need to re-establish any sort
+        of connections between flows or nodes and your add-on,
+        you should store :code:`state` and do so in the according
+        slot methods (e.g. :code:`on_node_added()`).
         """
         pass
 
