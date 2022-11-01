@@ -88,7 +88,7 @@ Assumptions:
     * no non-terminating feedback loops with exec connections
 
 """
-
+from . import Session
 from .Base import Base, Event
 from .Data import Data
 from .FlowExecutor import DataFlowNaive, DataFlowOptimized, FlowExecutor, executor_from_flow_alg
@@ -96,7 +96,7 @@ from .Node import Node
 from .NodePort import NodeOutput, NodeInput
 from .RC import FlowAlg, PortObjPos
 from .utils import *
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Type
 
 
 class Flow(Base):
@@ -105,7 +105,7 @@ class Flow(Base):
     and exposes methods for modification.
     """
 
-    def __init__(self, session, title):
+    def __init__(self, session: Session, title: str):
         Base.__init__(self)
 
         # events
@@ -137,7 +137,7 @@ class Flow(Base):
         self.alg_mode = FlowAlg.DATA
         self.executor: FlowExecutor = executor_from_flow_alg(self.alg_mode)(self)
 
-    def load(self, data: dict):
+    def load(self, data: Dict):
         """Loading a flow from data as previously returned by ``Flow.data()``."""
         super().load(data)
 
@@ -197,7 +197,7 @@ class Flow(Base):
                     data_type(load_from=d['data'])
 
 
-    def create_node(self, node_class, data=None):
+    def create_node(self, node_class: Type[Node], data=None):
         """Creates, adds and returns a new node object"""
 
         if node_class not in self.session.nodes:
@@ -284,17 +284,22 @@ class Flow(Base):
         return connections
 
 
-    def check_connection_validity(self, p1: NodeOutput, p2: NodeInput) -> bool:
+    def check_connection_validity(self, c: Tuple[NodeOutput, NodeInput]) -> bool:
         """
         Checks whether a considered connect action is legal.
         """
 
+        out, inp = c
+
         valid = True
 
-        if p1.node == p2.node:
+        if out.node == inp.node:
             valid = False
 
-        if p1.io_pos == p2.io_pos or p1.type_ != p2.type_:
+        if out.io_pos == inp.io_pos or out.type_ != inp.type_:
+            valid = False
+
+        if out.io_pos != PortObjPos.OUTPUT:
             valid = False
 
         self.connection_request_valid.emit(valid)
@@ -307,11 +312,8 @@ class Flow(Base):
         Connects two node ports. Returns the connection if successful, None otherwise.
         """
 
-        if not self.check_connection_validity(out, inp):
-            return None
-
-        if (out.io_pos, inp.io_pos) != (PortObjPos.OUTPUT, PortObjPos.INPUT):
-            print_err('Invalid arguments: expected output and input ports')
+        if not self.check_connection_validity((out, inp)):
+            print_err('Invalid connect request.')
             return None
 
         if inp in self.graph_adj[out]:
@@ -327,9 +329,9 @@ class Flow(Base):
         Disconnects two node ports.
         """
 
-        if (out.io_pos, inp.io_pos) != (PortObjPos.OUTPUT, PortObjPos.INPUT):
-            print_err('Invalid arguments: expected output and input ports')
-            return None
+        if not self.check_connection_validity((out, inp)):
+            print_err('Invalid disconnect request.')
+            return
 
         if inp not in self.graph_adj[out]:
             return

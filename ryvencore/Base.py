@@ -3,6 +3,7 @@ This module defines the :code:`Base` class for most internal components,
 implementing features such as a unique ID, a system for save and load,
 and a very minimal event system.
 """
+from typing import Dict
 
 
 class IDCtr:
@@ -116,7 +117,7 @@ class Base:
         self.prev_global_id = None
         self.prev_version = None
 
-    def data(self) -> dict:
+    def data(self) -> Dict:
         """
         Convert the object to a JSON compatible dict.
         Reserved field names are 'GID' and 'version'.
@@ -130,7 +131,7 @@ class Base:
                else {})
         }
 
-    def load(self, data: dict):
+    def load(self, data: Dict):
         """
         Recreate the object state from the data dict returned by :code:`data()`.
 
@@ -143,7 +144,7 @@ class Base:
         this load. (E.g. add-ons need to know the flow before nodes are loaded.)
         """
 
-        if dict is not None:
+        if data is not None:
             self.prev_global_id = data['GID']
             self._prev_id_objs[self.prev_global_id] = self
             self.prev_version = data.get('version')

@@ -1,11 +1,10 @@
 import traceback
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from .Base import Base
 
 from .NodePort import NodeInput, NodeOutput
 from .NodePortType import NodeInputType, NodeOutputType
-from .RC import FlowAlg
 from .Data import Data
 from .InfoMsgs import InfoMsgs
 from .utils import serialize, deserialize
@@ -172,7 +171,7 @@ class Node(Base):
 
         self.flow.executor.exec_output(self, index)
 
-    def set_output_val(self, index, data: Data):
+    def set_output_val(self, index: int, data: Data):
         """
         Sets the value of a data output causing activation of all connections in data mode.
         """
@@ -223,7 +222,7 @@ class Node(Base):
 
         pass
 
-    def additional_data(self) -> dict:
+    def additional_data(self) -> Dict:
         """
         *VIRTUAL*
 
@@ -235,7 +234,7 @@ class Node(Base):
 
         return {}
 
-    def load_additional_data(self, data: dict):
+    def load_additional_data(self, data: Dict):
         """
         *VIRTUAL*
 
@@ -243,7 +242,7 @@ class Node(Base):
         """
         pass
 
-    def get_state(self) -> dict:
+    def get_state(self) -> Dict:
         """
         *VIRTUAL*
 
@@ -252,7 +251,7 @@ class Node(Base):
         """
         return {}
 
-    def set_state(self, data: dict, version):
+    def set_state(self, data: Dict, version):
         """
         *VIRTUAL*
 
@@ -409,7 +408,7 @@ class Node(Base):
 
         self.loaded = True
 
-    def data(self) -> dict:
+    def data(self) -> Dict:
         """
         Serializes the node's metadata, current configuration, and user state into
         a JSON-compatible dict, from which the node can be loaded later using

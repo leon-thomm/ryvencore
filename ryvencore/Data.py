@@ -4,6 +4,8 @@ It should be subclassed to define custom data types. In particular, serializatio
 and deserialization must be implemented for each respective type. Types that are
 pickle serializable by default can be used directly with :code`Data(my_data)`.
 """
+from typing import Dict
+
 from ryvencore.Base import Base
 from ryvencore.utils import serialize, deserialize, print_err
 
@@ -125,14 +127,14 @@ class Data(Base):
         """
         self.payload = data     # naive default implementation
 
-    def data(self) -> dict:
+    def data(self) -> Dict:
         return {
             **super().data(),
             'identifier': self.identifier,
             'serialized': serialize(self.get_data())
         }
 
-    def load(self, data: dict):
+    def load(self, data: Dict):
         super().load(data)
 
         if data['identifier'] != self.identifier and \
