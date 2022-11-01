@@ -302,24 +302,19 @@ class Flow(Base):
         return valid
 
 
-    def connect_nodes(self, p1: NodeOutput, p2: NodeInput, silent: bool = False) -> Optional[Tuple[NodeOutput, NodeInput]]:
+    def connect_nodes(self, out: NodeOutput, inp: NodeInput, silent=False) -> Optional[Tuple[NodeOutput, NodeInput]]:
         """
-        Connects nodes or disconnects them if they are already connected.
-
-        TODO: change this; rather introduce ``disconnect_nodes()`` instead
+        Connects two node ports. Returns the connection if successful, None otherwise.
         """
 
-        if not self.check_connection_validity(p1, p2):
+        if not self.check_connection_validity(out, inp):
             return None
 
-        out = p1
-        inp = p2
-        if out.io_pos == PortObjPos.INPUT:
-            out, inp = inp, out
+        if (out.io_pos, inp.io_pos) != (PortObjPos.OUTPUT, PortObjPos.INPUT):
+            print_err('Invalid arguments: expected output and input ports')
+            return None
 
         if inp in self.graph_adj[out]:
-            # disconnect
-            self.remove_connection((out, inp))
             return None
 
         self.add_connection((out, inp), silent=silent)
@@ -327,7 +322,22 @@ class Flow(Base):
         return out, inp
 
 
-    def add_connection(self, c: Tuple[NodeOutput, NodeInput], silent: bool = False):
+    def disconnect_nodes(self, out: NodeOutput, inp: NodeInput, silent=False):
+        """
+        Disconnects two node ports.
+        """
+
+        if (out.io_pos, inp.io_pos) != (PortObjPos.OUTPUT, PortObjPos.INPUT):
+            print_err('Invalid arguments: expected output and input ports')
+            return None
+
+        if inp not in self.graph_adj[out]:
+            return
+
+        self.remove_connection((out, inp), silent=silent)
+
+
+    def add_connection(self, c: Tuple[NodeOutput, NodeInput], silent=False):
         """
         Adds an edge between two node ports.
         """
@@ -346,7 +356,7 @@ class Flow(Base):
         self.connection_added.emit((out, inp))
 
 
-    def remove_connection(self, c: Tuple[NodeOutput, NodeInput]):
+    def remove_connection(self, c: Tuple[NodeOutput, NodeInput], silent=False):
         """
         Removes an edge.
         """
@@ -359,7 +369,7 @@ class Flow(Base):
         self.node_successors[out.node].remove(inp.node)
         self._flow_changed()
 
-        self.executor.conn_removed(out, inp)
+        self.executor.conn_removed(out, inp, silent=silent)
 #
         self.connection_removed.emit((out, inp))
 

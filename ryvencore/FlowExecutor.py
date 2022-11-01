@@ -44,7 +44,7 @@ class FlowExecutor:
     def conn_added(self, out, inp, silent=False):
         pass
 
-    def conn_removed(self, out, inp):
+    def conn_removed(self, out, inp, silent=False):
         pass
 
 
@@ -100,9 +100,10 @@ class DataFlowNaive(FlowExecutor):
             # update input
             inp.node.update(inp=inp.node.inputs.index(inp))
 
-    def conn_removed(self, out, inp):
-        # update input
-        inp.node.update(inp=inp.node.inputs.index(inp))
+    def conn_removed(self, out, inp, silent=False):
+        if not silent:
+            # update input
+            inp.node.update(inp=inp.node.inputs.index(inp))
 
 
 class DataFlowOptimized(DataFlowNaive):
