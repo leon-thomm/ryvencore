@@ -1,6 +1,6 @@
 from typing import Optional
 
-from ryvencore import Data
+from .Data import Data
 
 
 # TODO: make this a dataclass
