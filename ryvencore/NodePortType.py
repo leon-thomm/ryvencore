@@ -1,3 +1,7 @@
+from typing import Optional
+
+from ryvencore import Data
+
 
 # TODO: make this a dataclass
 class NodePortType:
@@ -14,10 +18,10 @@ class NodePortType:
 
 
 class NodeInputType(NodePortType):
-    def __init__(self, label: str = '', type_: str = 'data', add_data={}):
+    def __init__(self, label: str = '', type_: str = 'data', default: Optional[Data] = None):
         super().__init__(label, type_)
 
-        self.add_data = add_data
+        self.default: Optional[Data] = default
 
 
 class NodeOutputType(NodePortType):

@@ -87,7 +87,7 @@ class Node(Base):
             for i in range(len(self.init_inputs)):
                 inp = self.init_inputs[i]
 
-                self.create_input(inp.label, inp.type_, add_data=self.init_inputs[i].add_data)
+                self.create_input(label=inp.label, type_=inp.type_, default=inp.default)
 
             for o in range(len(self.init_outputs)):
                 out = self.init_outputs[o]
@@ -98,7 +98,7 @@ class Node(Base):
             # initial ports specifications are irrelevant then
 
             for inp in inputs_data:
-                self.create_input(label=inp['label'], type_=inp['type'], add_data=inp)
+                self.create_input(load_from=inp)
 
                 # if 'val' in inp:
                 #     # this means the input is 'data' and did not have any connections,
@@ -107,7 +107,7 @@ class Node(Base):
                 #     self.inputs[-1].val = deserialize(inp['val'])
 
             for out in outputs_data:
-                self.create_output(out['label'], out['type'])
+                self.create_output(load_from=out)
 
     def after_placement(self):
         """Called from Flow when the nodes gets added."""
@@ -269,18 +269,16 @@ class Node(Base):
 
     #   PORTS
 
-    def create_input(self, label: str = '', type_: str = 'data', add_data={}, insert: int = None):
+    def create_input(self, label: str = '', type_: str = 'data', default: Optional[Data] = None, load_from = None, insert: int = None):
         """
         Creates and adds a new input at the end or index ``insert`` if specified.
         """
         # InfoMsgs.write('create_input called')
 
-        inp = NodeInput(
-            node=self,
-            type_=type_,
-            label_str=label,
-            add_data=add_data,
-        )
+        inp = NodeInput(node=self, type_=type_, label_str=label, default=default)
+
+        if load_from is not None:
+            inp.load(load_from)
 
         if insert is not None:
             self.inputs.insert(insert, inp)
@@ -306,16 +304,19 @@ class Node(Base):
 
         self.inputs.remove(inp)
 
-    def create_output(self, label: str = '', type_: str = 'data', insert: int = None):
+    def create_output(self, label: str = '', type_: str = 'data', load_from=None, insert: int = None):
         """
         Creates and adds a new output at the end or index ``insert`` if specified.
         """
 
         out = NodeOutput(
-              node=self,
-              type_=type_,
-              label_str=label
+            node=self,
+            type_=type_,
+            label_str=label,
         )
+
+        if load_from is not None:
+            out.load(load_from)
 
         if insert is not None:
             self.outputs.insert(insert, out)

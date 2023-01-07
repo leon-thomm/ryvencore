@@ -185,7 +185,7 @@ class DtypesAddon(AddOn):
 
     class NodeInputType(NodeInputType):
         def __init__(self, dtype=None, *args, **kwargs):
-            super().__init__(*args, **kwargs)
+            super().__init__(**kwargs)
 
             self.dtype = dtype
 
