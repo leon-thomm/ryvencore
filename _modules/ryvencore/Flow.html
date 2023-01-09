@@ -19,9 +19,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/maisie.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -183,7 +180,7 @@
 
 
 <div class="viewcode-block" id="Flow"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow">[docs]</a><span class="k">class</span> <span class="nc">Flow</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages all abstract flow components (nodes, edges, executors, etc.)</span>
 <span class="sd">    and exposes methods for modification.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -221,7 +218,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="p">:</span> <span class="n">FlowExecutor</span> <span class="o">=</span> <span class="n">executor_from_flow_alg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alg_mode</span><span class="p">)(</span><span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Flow.load"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Loading a flow from data as previously returned by ``Flow.data()``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loading a flow from data as previously returned by ``Flow.data()``.&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
         <span class="c1"># set algorithm mode</span>
@@ -237,7 +234,7 @@
 
 
     <span class="k">def</span> <span class="nf">_create_nodes_from_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes_data</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;create nodes from nodes_data as previously returned by data()&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;create nodes from nodes_data as previously returned by data()&quot;&quot;&quot;</span>
 
         <span class="n">nodes</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -281,7 +278,7 @@
 
 
 <div class="viewcode-block" id="Flow.create_node"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.create_node">[docs]</a>    <span class="k">def</span> <span class="nf">create_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Node</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates, adds and returns a new node object&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates, adds and returns a new node object&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">node_class</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
             <span class="n">print_err</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Node class </span><span class="si">{</span><span class="n">node_class</span><span class="si">}</span><span class="s1"> not in session nodes&#39;</span><span class="p">)</span>
@@ -297,7 +294,7 @@
 
 
 <div class="viewcode-block" id="Flow.add_node"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.add_node">[docs]</a>    <span class="k">def</span> <span class="nf">add_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Places the node object in the graph, Stores it, and causes the node&#39;s</span>
 <span class="sd">        ``Node.place_event()`` to be executed. ``Flow.create_node()`` automatically</span>
 <span class="sd">        adds the node already, so no need to call this manually.</span>
@@ -318,7 +315,7 @@
 
 
 <div class="viewcode-block" id="Flow.remove_node"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.remove_node">[docs]</a>    <span class="k">def</span> <span class="nf">remove_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes a node from the flow without deleting it. Can be added again</span>
 <span class="sd">        with ``Flow.add_node()``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -368,7 +365,7 @@
 
 
 <div class="viewcode-block" id="Flow.check_connection_validity"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.check_connection_validity">[docs]</a>    <span class="k">def</span> <span class="nf">check_connection_validity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">NodeOutput</span><span class="p">,</span> <span class="n">NodeInput</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks whether a considered connect action is legal.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -391,7 +388,7 @@
 
 
 <div class="viewcode-block" id="Flow.connect_nodes"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.connect_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">connect_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">NodeOutput</span><span class="p">,</span> <span class="n">inp</span><span class="p">:</span> <span class="n">NodeInput</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">NodeOutput</span><span class="p">,</span> <span class="n">NodeInput</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Connects two node ports. Returns the connection if successful, None otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -408,7 +405,7 @@
 
 
 <div class="viewcode-block" id="Flow.disconnect_nodes"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.disconnect_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">disconnect_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">NodeOutput</span><span class="p">,</span> <span class="n">inp</span><span class="p">:</span> <span class="n">NodeInput</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Disconnects two node ports.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -423,7 +420,7 @@
 
 
 <div class="viewcode-block" id="Flow.add_connection"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.add_connection">[docs]</a>    <span class="k">def</span> <span class="nf">add_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">NodeOutput</span><span class="p">,</span> <span class="n">NodeInput</span><span class="p">],</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds an edge between two node ports.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -442,7 +439,7 @@
 
 
 <div class="viewcode-block" id="Flow.remove_connection"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.remove_connection">[docs]</a>    <span class="k">def</span> <span class="nf">remove_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">NodeOutput</span><span class="p">,</span> <span class="n">NodeInput</span><span class="p">],</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes an edge.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -460,14 +457,14 @@
 
 
 <div class="viewcode-block" id="Flow.connected_inputs"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.connected_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">connected_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">NodeOutput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeInput</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a list of all connected inputs to the given output port.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_adj</span><span class="p">[</span><span class="n">out</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Flow.connected_output"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.connected_output">[docs]</a>    <span class="k">def</span> <span class="nf">connected_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inp</span><span class="p">:</span> <span class="n">NodeInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NodeOutput</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the connected output port to the given input port, or</span>
 <span class="sd">        ``None`` if it is not connected.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -475,7 +472,7 @@
 
 
 <div class="viewcode-block" id="Flow.algorithm_mode"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.algorithm_mode">[docs]</a>    <span class="k">def</span> <span class="nf">algorithm_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the current algorithm mode of the flow as string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -483,7 +480,7 @@
 
 
 <div class="viewcode-block" id="Flow.set_algorithm_mode"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.set_algorithm_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_algorithm_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the algorithm mode of the flow from a string, possible values</span>
 <span class="sd">        are &#39;data&#39;, &#39;data opt&#39;, and &#39;exec&#39;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -504,7 +501,7 @@
 
 
 <div class="viewcode-block" id="Flow.data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Serializes the flow: returns a JSON compatible dict containing all</span>
 <span class="sd">        data of the flow.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -518,13 +515,13 @@
 
 
     <span class="k">def</span> <span class="nf">_gen_nodes_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Node</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Returns the data dicts of the nodes given&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the data dicts of the nodes given&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">data</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">]</span>
 
 
     <span class="k">def</span> <span class="nf">_gen_conns_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Node</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Generates the connections data between and relative to the nodes passed&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates the connections data between and relative to the nodes passed&quot;&quot;&quot;</span>
 
         <span class="c1"># notice that this is intentionally not part of Connection, because connection data</span>
         <span class="c1"># is generated always for a specific set of nodes (like all currently selected ones)</span>
@@ -546,7 +543,7 @@
 
 
     <span class="k">def</span> <span class="nf">_gen_output_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Node</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Serializes output data of the nodes&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Serializes output data of the nodes&quot;&quot;&quot;</span>
 
         <span class="n">outputs_data</span> <span class="o">=</span> <span class="p">{}</span>
 

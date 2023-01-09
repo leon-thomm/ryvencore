@@ -19,9 +19,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/maisie.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -123,13 +120,13 @@
     <span class="n">version</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
 <div class="viewcode-block" id="AddOn.register"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">Session</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Called when the add-on is registered with a session.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span></div>
 
 <div class="viewcode-block" id="AddOn.connect_flow_events"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.connect_flow_events">[docs]</a>    <span class="k">def</span> <span class="nf">connect_flow_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Connects flow events to the add-on.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">flow</span><span class="o">.</span><span class="n">node_created</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_node_created</span><span class="p">)</span>
@@ -137,7 +134,7 @@
         <span class="n">flow</span><span class="o">.</span><span class="n">node_removed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_node_removed</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AddOn.on_flow_created"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_flow_created">[docs]</a>    <span class="k">def</span> <span class="nf">on_flow_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
 <span class="sd">        Called when a flow is created.</span>
@@ -145,7 +142,7 @@
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="AddOn.on_flow_destroyed"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_flow_destroyed">[docs]</a>    <span class="k">def</span> <span class="nf">on_flow_destroyed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
 <span class="sd">        Called when a flow is destroyed.</span>
@@ -153,7 +150,7 @@
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="AddOn.on_node_created"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_node_created">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
 <span class="sd">        Called when a node is created and fully initialized</span>
@@ -168,7 +165,7 @@
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="AddOn.on_node_added"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_node_added">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_added</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
 <span class="sd">        Called when a node is added to a flow.</span>
@@ -176,7 +173,7 @@
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="AddOn.on_node_removed"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_node_removed">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
 <span class="sd">        Called when a node is removed from a flow.</span>
@@ -184,7 +181,7 @@
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="AddOn.extend_node_data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.extend_node_data">[docs]</a>    <span class="k">def</span> <span class="nf">extend_node_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
 <span class="sd">        Invoked whenever any node is serialized. This method can be</span>
@@ -194,7 +191,7 @@
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="AddOn.get_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.get_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
 <span class="sd">        Return the state of the add-on as JSON-compatible a dict.</span>
@@ -203,7 +200,7 @@
         <span class="k">return</span> <span class="p">{}</span></div>
 
 <div class="viewcode-block" id="AddOn.set_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.set_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
 <span class="sd">        Set the state of the add-on from the dict generated in</span>
@@ -216,7 +213,7 @@
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="AddOn.data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Supplements the data dict with additional data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -225,7 +222,7 @@
         <span class="p">}</span></div>
 
 <div class="viewcode-block" id="AddOn.load"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Loads the data dict generated in :code:`AddOn.data()`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;custom state&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">])</span></div></div>

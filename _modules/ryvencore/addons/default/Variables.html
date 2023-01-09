@@ -19,9 +19,6 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/maisie.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
     <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-    <script src="../../../../_static/jquery.js"></script>
-    <script src="../../../../_static/underscore.js"></script>
-    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../../../_static/doctools.js"></script>
     <script src="../../../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -94,7 +91,7 @@
 
 
 <div class="viewcode-block" id="Variable"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.Variable">[docs]</a><span class="k">class</span> <span class="nc">Variable</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implementation of flow variables.</span>
 <span class="sd">    A Variable can currently only hold pickle serializable data.</span>
 <span class="sd">    Storing other data will break save&amp;load.</span>
@@ -107,13 +104,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span> <span class="n">Data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">val</span><span class="p">,</span> <span class="n">load_from</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Variable.get"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.Variable.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the value of the variable</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">payload</span></div>
 
 <div class="viewcode-block" id="Variable.set"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.Variable.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the value of the variable</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
@@ -127,7 +124,7 @@
 
 
 <div class="viewcode-block" id="VarsAddon"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon">[docs]</a><span class="k">class</span> <span class="nc">VarsAddon</span><span class="p">(</span><span class="n">AddOn</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This addon provides a simple variable system.</span>
 
 <span class="sd">    It provides an API to create Variable objects which can wrap any Python object.</span>
@@ -205,7 +202,7 @@
         <span class="c1"># available, see :code:`on_flow_created()`</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flow_vars__pending</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    flow management</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -215,7 +212,7 @@
 <div class="viewcode-block" id="VarsAddon.on_flow_deleted"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.on_flow_deleted">[docs]</a>    <span class="k">def</span> <span class="nf">on_flow_deleted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">):</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_variables</span><span class="p">[</span><span class="n">flow</span><span class="p">]</span></div>
 
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    subscription management</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -234,7 +231,7 @@
 
 
 <div class="viewcode-block" id="VarsAddon.on_node_added"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.on_node_added">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_added</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reconstruction of subscriptions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -250,7 +247,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">cb_name</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="VarsAddon.on_node_removed"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.on_node_removed">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove all subscriptions of the node.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -264,19 +261,19 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">removed_subscriptions</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cb</span><span class="o">.</span><span class="vm">__name__</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">cb</span><span class="p">)</span></div>
 
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    variables api</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="VarsAddon.var_name_valid"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.var_name_valid">[docs]</a>    <span class="k">def</span> <span class="nf">var_name_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if :code:`name` is a valid variable identifier and hasn&#39;t been take yet.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">isidentifier</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_exists</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VarsAddon.create_var"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.create_var">[docs]</a>    <span class="k">def</span> <span class="nf">create_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_from</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Variable</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates and returns a new variable and None if the name isn&#39;t valid.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -292,7 +289,7 @@
             <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="VarsAddon.delete_var"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.delete_var">[docs]</a>    <span class="k">def</span> <span class="nf">delete_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Deletes a variable and causes subscription update. Subscriptions are preserved.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_exists</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -305,7 +302,7 @@
         <span class="k">return</span> <span class="n">flow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_variables</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_variables</span><span class="p">[</span><span class="n">flow</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="VarsAddon.var"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.var">[docs]</a>    <span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the variable with the given name or None if it doesn&#39;t exist.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_exists</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -315,7 +312,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_variables</span><span class="p">[</span><span class="n">flow</span><span class="p">][</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;var&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="VarsAddon.update_subscribers"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.update_subscribers">[docs]</a>    <span class="k">def</span> <span class="nf">update_subscribers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Called when a Variable object changes or when the var is created or deleted.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -325,7 +322,7 @@
             <span class="n">cb</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="VarsAddon.subscribe"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.subscribe">[docs]</a>    <span class="k">def</span> <span class="nf">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Subscribe to a variable. ``callback`` must be a method of the node.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_exists</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">flow</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -335,7 +332,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">flow_variables</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">flow</span><span class="p">][</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;subscriptions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node</span><span class="p">,</span> <span class="n">callback</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="VarsAddon.unsubscribe"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.unsubscribe">[docs]</a>    <span class="k">def</span> <span class="nf">unsubscribe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Unsubscribe from a variable.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_exists</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">flow</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -344,12 +341,12 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">flow_variables</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">flow</span><span class="p">][</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;subscriptions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">node</span><span class="p">,</span> <span class="n">callback</span><span class="p">))</span></div>
 
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    serialization</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="VarsAddon.extend_node_data"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.extend_node_data">[docs]</a>    <span class="k">def</span> <span class="nf">extend_node_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extends the node data with the variable subscriptions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -366,7 +363,7 @@
         <span class="p">}</span></div>
 
 <div class="viewcode-block" id="VarsAddon.get_state"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.get_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
         
         <span class="k">return</span> <span class="p">{</span>
             <span class="n">f</span><span class="o">.</span><span class="n">global_id</span><span class="p">:</span> <span class="p">{</span>
@@ -377,7 +374,7 @@
         <span class="p">}</span></div>
 
 <div class="viewcode-block" id="VarsAddon.set_state"><a class="viewcode-back" href="../../../../ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.set_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">parse_version</span><span class="p">(</span><span class="n">version</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">parse_version</span><span class="p">(</span><span class="s1">&#39;0.4&#39;</span><span class="p">):</span>
             <span class="n">print_err</span><span class="p">(</span><span class="s1">&#39;Variables addon state version too old, skipping&#39;</span><span class="p">)</span>

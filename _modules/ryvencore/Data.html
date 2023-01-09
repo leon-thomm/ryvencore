@@ -19,9 +19,6 @@
     <link rel="stylesheet" type="text/css" href="../../_static/maisie.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -95,7 +92,7 @@
 
 
 <div class="viewcode-block" id="Data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Data.Data">[docs]</a><span class="k">class</span> <span class="nc">Data</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for data objects.</span>
 
 <span class="sd">    Subclass this class and implement serialization and deserialization accordingly</span>
@@ -165,11 +162,11 @@
 
     <span class="c1"># will be &#39;Data&#39; by default, see :code:`_build_identifier()`</span>
     <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;unique Data identifier; you can set this manually in subclasses, if</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;unique Data identifier; you can set this manually in subclasses, if</span>
 <span class="sd">    you don&#39;t the class name will be used&quot;&quot;&quot;</span>
 
     <span class="n">legacy_identifiers</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="sd">&quot;&quot;&quot;a list of compatible identifiers in case you change the identifier&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;a list of compatible identifiers in case you change the identifier&quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_build_identifier</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
@@ -195,7 +192,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_payload</span> <span class="o">=</span> <span class="n">value</span>
 
 <div class="viewcode-block" id="Data.get_data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Data.Data.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
 <span class="sd">        Transform the data object to a :code:`pickle` serializable object.</span>
@@ -204,7 +201,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">payload</span>     <span class="c1"># naive default implementation</span></div>
 
 <div class="viewcode-block" id="Data.set_data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Data.Data.set_data">[docs]</a>    <span class="k">def</span> <span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
 <span class="sd">        Deserialize the data object from the dict created in :code:`get_data()`.</span>
