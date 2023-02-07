@@ -88,7 +88,6 @@ Assumptions:
     * no non-terminating feedback loops with exec connections
 
 """
-from . import Session
 from .Base import Base, Event
 from .Data import Data
 from .FlowExecutor import DataFlowNaive, DataFlowOptimized, FlowExecutor, executor_from_flow_alg
@@ -105,7 +104,7 @@ class Flow(Base):
     and exposes methods for modification.
     """
 
-    def __init__(self, session: Session, title: str):
+    def __init__(self, session, title: str):
         Base.__init__(self)
 
         # events

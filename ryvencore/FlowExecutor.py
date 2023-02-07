@@ -76,7 +76,7 @@ class DataFlowNaive(FlowExecutor):
         if conn_out:
             return conn_out.val
         else:
-            return None
+            return inp.default
 
     # Node.set_output_val() =>
     def set_output_val(self, node: Node, index: int, data):

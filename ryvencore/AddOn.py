@@ -28,8 +28,10 @@ See :code:`ryvencore.addons.default` for examples.
 """
 from typing import Dict
 
-from ryvencore import Flow, Session, Node
-from ryvencore.Base import Base
+from .Session import Session
+from .Flow import Flow
+from .Node import Node
+from .Base import Base
 
 
 class AddOn(Base):

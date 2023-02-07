@@ -3,6 +3,7 @@ from typing import Optional, Dict
 from . import Node
 from .Data import Data
 from .Base import Base
+from .utils import serialize, deserialize
 
 from .RC import PortObjPos
 
@@ -18,6 +19,10 @@ class NodePort(Base):
         self.type_ = type_
         self.label_str = label_str
 
+    def load(self, data: Dict):
+        self.type_ = data['type']
+        self.label_str = data['label']
+
     def data(self) -> dict:
         return {
             **super().data(),
@@ -28,16 +33,23 @@ class NodePort(Base):
 
 class NodeInput(NodePort):
 
-    def __init__(self, node: Node, type_: str, label_str: str = '', add_data=None):
+    def __init__(self, node: Node, type_: str, label_str: str = '', default: Optional[Data] = None):
         super().__init__(node, PortObjPos.INPUT, type_, label_str)
 
-        # data can be used to store additional data for enhanced data input ports
-        self.add_data = add_data
+        self.default: Optional[Data] = default
+
+    def load(self, data: Dict):
+        super().load(data)
+
+        self.default = Data(load_from=data['default']) if 'default' in data else None
 
     def data(self) -> Dict:
-        d = super().data()
-        return d
+        default = {'default': self.default.data()} if self.default is not None else {}
 
+        return {
+            **super().data(),
+            **default,
+        }
 
 class NodeOutput(NodePort):
     def __init__(self, node: Node, type_: str, label_str: str = ''):

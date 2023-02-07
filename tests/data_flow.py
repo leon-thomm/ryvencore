@@ -20,7 +20,7 @@ class Node1(NodeBase):
 
 class Node2(NodeBase):
     title = 'node 2'
-    init_inputs = [rc.NodeInputType()]
+    init_inputs = [rc.NodeInputType(default=rc.Data('default value'))]
     init_outputs = []
 
     def update_event(self, inp=-1):
@@ -39,6 +39,8 @@ class DataFlowBasic(unittest.TestCase):
         n2 = f.create_node(Node2)
         n3 = f.create_node(Node2)
         n4 = f.create_node(Node2)
+
+        n2.update()
 
         f.connect_nodes(n1.outputs[0], n2.inputs[0])
         f.connect_nodes(n1.outputs[1], n3.inputs[0])
