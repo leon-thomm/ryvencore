@@ -69,8 +69,8 @@ class Session(Base):
             # setattr(Node, addon.name, addon)
 
             # establish event connections
-            self.new_flow_created.connect(addon.on_flow_created)
-            self.flow_deleted.connect(addon.on_flow_destroyed)
+            self.new_flow_created.sub(addon.on_flow_created)
+            self.flow_deleted.sub(addon.on_flow_destroyed)
             for f in self.flows:
                 addon.connect_flow_events(f)
 

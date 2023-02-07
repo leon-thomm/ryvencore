@@ -32,15 +32,15 @@ class IDCtr:
 class Event:
     def __init__(self, *args):
         self.args = args
-        self._slots = []
+        self._slots = set()
 
-    def connect(self, callback):
+    def sub(self, callback):
         """
         Registers a callback function. The callback must accept compatible arguments.
         """
-        self._slots.append(callback)
+        self._slots.add(callback)
 
-    def disconnect(self, callback):
+    def unsub(self, callback):
         """
         De-registers a callback function. The function must have been added previously.
         """
@@ -48,8 +48,8 @@ class Event:
 
     def emit(self, *args):
         """
-        Emits an event by calling all registered callback functions in the order they
-        were registered, with parameters given by *args.
+        Emits an event by calling all registered callback functions with parameters
+        given by :code:`args`.
         """
 
         # I am assuming that the for-each loop keeps the overhead small in case
