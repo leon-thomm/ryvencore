@@ -112,7 +112,7 @@ class Session(Base):
 
         nodes = []
         for s in self.flows:
-            for n in s.flow.nodes:
+            for n in s.nodes:
                 nodes.append(n)
         return nodes
 
