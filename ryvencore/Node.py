@@ -1,7 +1,7 @@
 import traceback
 from typing import List, Optional, Dict
 
-from .Base import Base
+from .Base import Base, Event
 
 from .NodePort import NodeInput, NodeOutput
 from .NodePortType import NodeInputType, NodeOutputType
@@ -77,6 +77,14 @@ class Node(Base):
         self.block_init_updates = False
         self.block_updates = False
 
+        # events
+        self.updating = Event(int)
+        self.update_error = Event(Exception)
+        self.input_added = Event(int, NodeInput)
+        self.input_removed = Event(int, NodeInput)
+        self.output_added = Event(int, NodeOutput)
+        self.output_removed = Event(int, NodeOutput)
+
         self._setup_ports()
 
     def _setup_ports(self, inputs_data=None, outputs_data=None):
@@ -144,10 +152,12 @@ class Node(Base):
         InfoMsgs.write('update in', self.title, 'node on input', inp)
 
         # invoke update_event
+        self.updating.emit(inp)
         self.flow.executor.update_node(self, inp)
 
     def update_error(self, e):
         InfoMsgs.write_err('EXCEPTION in', self.title, '\n', traceback.format_exc())
+        self.update_error.emit(e)
 
     def input(self, index: int) -> Optional[Data]:
         """
