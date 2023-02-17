@@ -26,7 +26,7 @@ class Session(Base):
         Base.__init__(self)
 
         # events
-        self.new_flow_created = Event(Flow)
+        self.flow_created = Event(Flow)
         self.flow_renamed = Event(Flow)
         self.flow_deleted = Event(Flow)
 
@@ -69,7 +69,7 @@ class Session(Base):
             # setattr(Node, addon.name, addon)
 
             # establish event connections
-            self.new_flow_created.sub(addon.on_flow_created)
+            self.flow_created.sub(addon.on_flow_created)
             self.flow_deleted.sub(addon.on_flow_destroyed)
             for f in self.flows:
                 addon.connect_flow_events(f)
@@ -144,7 +144,7 @@ class Session(Base):
         flow = Flow(session=self, title=title)
         self.flows.append(flow)
 
-        self.new_flow_created.emit(flow)
+        self.flow_created.emit(flow)
 
         if data:
             flow.load(data)
