@@ -128,6 +128,7 @@ class Flow(Base):
         self.session = session
         self.title = title
         self.nodes: [Node] = []
+        self.load_data = None
 
         self.node_successors = {}   # additional data structure for executors
         self.graph_adj = {}         # directed adjacency list relating node ports
@@ -139,16 +140,14 @@ class Flow(Base):
     def load(self, data: Dict):
         """Loading a flow from data as previously returned by ``Flow.data()``."""
         super().load(data)
+        self.load_data = data
 
         # set algorithm mode
         self.alg_mode = FlowAlg.from_str(data['algorithm mode'])
 
         # build flow
-
         new_nodes = self._create_nodes_from_data(data['nodes'])
-
         self._set_output_values_from_data(new_nodes, data['output data'])
-
         self._connect_nodes_from_data(new_nodes, data['connections'])
 
 
