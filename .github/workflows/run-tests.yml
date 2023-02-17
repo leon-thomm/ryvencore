@@ -5,7 +5,7 @@ on: [push]
 jobs:
 
   # version 3.6 is not supported beyond ubuntu 20.04
-  build-python-3.6:
+  build-python-3_6:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -21,7 +21,7 @@ jobs:
         run: |
           pytest tests/*
   
-  build-python-3.10-3.11:
+  build-python:
     runs-on: ubuntu-latest
     strategy:
       matrix:
