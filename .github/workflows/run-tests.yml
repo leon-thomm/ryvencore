@@ -3,12 +3,29 @@ name: Python package
 on: [push]
 
 jobs:
-  build:
 
+  # version 3.6 is not supported beyond ubuntu 20.04
+  build-python-3.6:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.6'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest
+          pip install .
+      - name: Test with pytest
+        run: |
+          pytest tests/*
+  
+  build-python-3.10-3.11:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.6", "3.10"]
+        python-version: ["3.9", "3.10"]
 
     steps:
       - uses: actions/checkout@v3
