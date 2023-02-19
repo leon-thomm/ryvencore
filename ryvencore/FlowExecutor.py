@@ -66,7 +66,7 @@ class DataFlowNaive(FlowExecutor):
         try:
             node.update_event(inp)
         except Exception as e:
-            node.update_error(e)
+            node.update_err(e)
 
     # Node.input() =>
     def input(self, node: Node, index: int):
@@ -330,7 +330,7 @@ class ExecFlowNaive(FlowExecutor):
         try:
             node.update_event(inp)
         except Exception as e:
-            node.update_error(e)
+            node.update_err(e)
 
         if execution_starter:
             self.updated_nodes = None

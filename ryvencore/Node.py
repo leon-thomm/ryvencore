@@ -155,7 +155,7 @@ class Node(Base):
         self.updating.emit(inp)
         self.flow.executor.update_node(self, inp)
 
-    def update_error(self, e):
+    def update_err(self, e):
         InfoMsgs.write_err('EXCEPTION in', self.title, '\n', traceback.format_exc())
         self.update_error.emit(e)
 
