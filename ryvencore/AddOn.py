@@ -91,7 +91,7 @@ class AddOn(Base):
         """
         pass
 
-    def on_node_removed(self, flow: Flow, node: Node):
+    def on_node_removed(self, node: Node):
         """
         *VIRTUAL*
 

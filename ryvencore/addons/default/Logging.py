@@ -88,7 +88,7 @@ class LoggingAddon(AddOn):
         for logger in self.loggers[node].values():
             logger.enable()
 
-    def on_node_removed(self, flow, node):
+    def on_node_removed(self, node):
         if not self._node_is_registered(node):
             return
 

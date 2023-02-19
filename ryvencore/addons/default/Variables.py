@@ -165,7 +165,7 @@ class VarsAddon(AddOn):
             for name, cb_name in node.load_data['Variables']['subscriptions'].items():
                 self.subscribe(node, name, getattr(node, cb_name))
 
-    def on_node_removed(self, flow, node):
+    def on_node_removed(self, node):
         """
         Remove all subscriptions of the node.
         """
@@ -174,7 +174,7 @@ class VarsAddon(AddOn):
         # because the node might get re-added later
         self.removed_subscriptions[node] = {}
 
-        for name, varname in self.flow_variables[flow].items():
+        for name, varname in self.flow_variables[node.flow].items():
             for node, cb in varname['subscriptions'].items():
                 if node == node:
                     self.removed_subscriptions[node][name] = cb.__name__

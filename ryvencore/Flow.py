@@ -251,7 +251,7 @@ class Flow(Base):
 
         # notify addons
         for addon in self.session.addons.values():
-            addon.on_node_removed(self, node)
+            addon.on_node_removed(node)
 
         self.node_removed.emit(node)
 
@@ -384,7 +384,7 @@ class Flow(Base):
     def connected_output(self, inp: NodeInput) -> Optional[NodeOutput]:
         """
         Returns the connected output port to the given input port, or
-        ``None`` if it is not connected.
+        :code:`None` if it is not connected.
         """
         return self.graph_adj_rev[inp]
 
