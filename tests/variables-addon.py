@@ -5,7 +5,7 @@ from utils import check_addon_available
 
 check_addon_available('Variables', __file__)
 
-from ryvencore.addons.default.Variables import addon as Variables
+from ryvencore.addons.Variables import addon as Variables
 
 
 class NodeBase(rc.Node):

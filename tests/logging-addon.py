@@ -4,7 +4,7 @@ from utils import check_addon_available
 
 check_addon_available('Logging', __file__)
 
-from ryvencore.addons.default.Logging import addon as Logging
+from ryvencore.addons.Logging import addon as Logging
 
 
 class NodeBase(rc.Node):

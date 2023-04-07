@@ -2,7 +2,7 @@
 *ALPHA*
 
 This module defines a simple add-on system to extend ryvencore's functionalities.
-Some default add-ons are provided in the addons.default package, and additional add-ons
+Some add-ons are provided in the addons package, and additional add-ons
 can be added and registered in the Session.
 
 An add-on
@@ -24,7 +24,7 @@ To define a custom add-on:
     - instantiate it into a top-level variable: :code:`addon = YourAddon()` at the end of the module
     - register your addon directory in the Session: :code:`session.register_addon_dir('path/to/your_addons')`
 
-See :code:`ryvencore.addons.default` for examples.
+See :code:`ryvencore.addons` for examples.
 """
 from typing import Dict
 

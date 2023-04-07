@@ -1,7 +1,7 @@
 import importlib
 import glob
 import os.path
-from typing import List, Dict, Type
+from typing import List, Dict, Type, Optional
 
 from .Data import Data
 from .Base import Base, Event
@@ -22,6 +22,7 @@ class Session(Base):
     def __init__(
             self,
             gui: bool = False,
+            load_addons: bool = False,
     ):
         Base.__init__(self)
 
@@ -39,17 +40,24 @@ class Session(Base):
         self.gui: bool = gui
         self.init_data = None
 
-        self.register_addons(pkg_path('addons/default/'))
-        self.register_addons(pkg_path('addons/'))
+        # self.register_addons(pkg_path('addons/legacy/'))
+        # self.register_addons(pkg_path('addons/'))
+        if load_addons:
+            self.register_addons()
 
 
-    def register_addons(self, location: str):
+    def register_addons(self, location: Optional[str] = None):
         """
-        Loads all addons from the given location. :code:`location` can
-        be an absolute path to any readable directory. New addons can be
-        registered at any time.
+        Loads all addons from the given location, or from ryvencore's
+        *addons* directory if :code:`location` is :code:`None`.
+        :code:`location` can be an absolute path to any readable directory.
+        New addons can be registered at any time.
+        Addons cannot be de-registered.
         See :code:`ryvencore.AddOn`.
         """
+
+        if location is None:
+            location = pkg_path('addons/')
 
         # discover all top-level modules in the given location
         addons = filter(lambda p: not p.endswith('__init__.py'), glob.glob(location + '/*.py'))

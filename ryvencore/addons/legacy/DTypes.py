@@ -23,7 +23,7 @@ class DType:
         if _load_state:
             self.set_state(_load_state)
 
-        self._data = ['default', 'val', 'doc', 'bounds']
+        self._data = ['legacy', 'val', 'doc', 'bounds']
 
     def __str__(self):
         return 'DType.'+self.__class__.__name__
