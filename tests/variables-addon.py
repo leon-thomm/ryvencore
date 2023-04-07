@@ -64,7 +64,7 @@ class Node2(NodeBase):
 class VariablesBasic(unittest.TestCase):
 
     def runTest(self):
-        s = rc.Session()
+        s = rc.Session(load_addons=True)
         s.register_nodes([Node1, Node2])
 
         f = s.create_flow('main')
@@ -100,7 +100,7 @@ class VariablesBasic(unittest.TestCase):
         print(json.dumps(project, indent=4))
         del s
 
-        s2 = rc.Session()
+        s2 = rc.Session(load_addons=True)
         s2.register_nodes([Node1, Node2])
         s2.load(project)
 
