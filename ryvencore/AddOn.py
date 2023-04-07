@@ -48,9 +48,9 @@ class AddOn(Base):
         """
         Connects flow events to the add-on.
         """
-        flow.node_created.sub(self.on_node_created)
-        flow.node_added.sub(self.on_node_added)
-        flow.node_removed.sub(self.on_node_removed)
+        flow.node_created.sub(self.on_node_created, nice=-4)
+        flow.node_added.sub(self.on_node_added, nice=-4)
+        flow.node_removed.sub(self.on_node_removed, nice=-4)
 
     def on_flow_created(self, flow: Flow):
         """
