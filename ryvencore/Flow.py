@@ -146,9 +146,23 @@ class Flow(Base):
         self.alg_mode = FlowAlg.from_str(data['algorithm mode'])
 
         # build flow
-        new_nodes = self._create_nodes_from_data(data['nodes'])
-        self._set_output_values_from_data(new_nodes, data['output data'])
-        self._connect_nodes_from_data(new_nodes, data['connections'])
+        self.load_components(data['nodes'], data['connections'], data['output data'])
+
+
+    def load_components(self, nodes_data, conns_data, output_data):
+        """Loading nodes and their connections from data as previously returned
+        by :code:`Flow.data()`. This method will call :code:`Node.rebuilt()` after
+        connections are established on all nodes.
+        Returns the new nodes and connections."""
+
+        new_nodes = self._create_nodes_from_data(nodes_data)
+        self._set_output_values_from_data(new_nodes, output_data)
+        new_conns = self._connect_nodes_from_data(new_nodes, conns_data)
+
+        for n in new_nodes:
+            n.rebuilt()
+
+        return new_nodes, new_conns
 
 
     def _create_nodes_from_data(self, nodes_data: List):

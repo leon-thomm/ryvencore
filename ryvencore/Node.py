@@ -214,11 +214,10 @@ class Node(Base):
         *VIRTUAL*
 
         Called once the node object has been fully initialized and placed in the flow.
-        When loading content, ``place_event()`` is executed *before* connections are built,
-        so updating output values here will not cause any other nodes to be updated during loading.
+        When loading content, :code:`place_event()` is executed *before* connections are built.
 
         Notice that this method gets executed *every time* the node is added to the flow, which can happen
-        multiple times for the same object (e.g. due to undo/redo operations).
+        more than once if the node was subsequently removed (e.g. due to undo/redo operations).
         """
 
         pass
@@ -268,6 +267,16 @@ class Node(Base):
         Opposite of ``get_state()``, reconstruct any custom internal state here.
         Notice, that add-ons might not yet be fully available here, but in
         ``place_event()`` the should be.
+        """
+        pass
+
+    def rebuilt(self):
+        """
+        *VIRTUAL*
+
+        If the node was created by loading components in the flow (see :code:`Flow.load_components()`),
+        this method will be called after the node has been added to the graph and incident connections
+        are established.
         """
         pass
 
