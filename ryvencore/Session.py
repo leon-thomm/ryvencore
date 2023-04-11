@@ -119,8 +119,8 @@ class Session(Base):
         """
 
         nodes = []
-        for s in self.flows:
-            for n in s.flow.nodes:
+        for f in self.flows:
+            for n in f.nodes:
                 nodes.append(n)
         return nodes
 
