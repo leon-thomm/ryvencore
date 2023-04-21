@@ -216,9 +216,19 @@ class Flow(Base):
             print_err(f'Node class {node_class} not in session nodes')
             return
 
+        # instantiate node
         node = node_class((self, self.session))
+        # connect to node events
+        node.input_added.sub(lambda n, i, inp: self.add_node_input(n, inp), nice=-5)
+        node.output_added.sub(lambda n, i, out: self.add_node_output(n, out), nice=-5)
+        node.input_removed.sub(lambda n, i, inp: self.remove_node_input(n, inp), nice=-5)
+        node.output_removed.sub(lambda n, i, out: self.remove_node_output(n, out), nice=-5)
+        # initialize node ports
+        node.initialize()
+        # load node
         if data is not None:
             node.load(data)
+
         self.node_created.emit(node)
         self.add_node(node)
 
@@ -235,10 +245,16 @@ class Flow(Base):
         self.nodes.append(node)
 
         self.node_successors[node] = []
+
+        # catch up on node ports
+        # notice that add_node_output() and add_node_input() are called by Node.
+        # but it's ignored when the node is not currently placed in the flow
         for out in node.outputs:
-            self.graph_adj[out] = []
+            self.add_node_output(node, out, False)
+            # self.graph_adj[out] = []
         for inp in node.inputs:
-            self.graph_adj_rev[inp] = None
+            self.add_node_input(node, inp, False)
+            # self.graph_adj_rev[inp] = None
 
         node.after_placement()
         self._flow_changed()
@@ -257,9 +273,11 @@ class Flow(Base):
 
         del self.node_successors[node]
         for out in node.outputs:
-            del self.graph_adj[out]
+            self.remove_node_output(node, out, False)
+            # del self.graph_adj[out]
         for inp in node.inputs:
-            del self.graph_adj_rev[inp]
+            self.remove_node_input(node, inp, False)
+            # del self.graph_adj_rev[inp]
 
         self._flow_changed()
 
@@ -268,6 +286,38 @@ class Flow(Base):
             addon.on_node_removed(node)
 
         self.node_removed.emit(node)
+
+
+    def add_node_input(self, node: Node, inp: NodeInput, _call_flow_changed=True):
+        """updates internal data structures"""
+        if node in self.node_successors:
+            self.graph_adj_rev[inp] = None
+            if _call_flow_changed:
+                self._flow_changed()
+
+
+    def add_node_output(self, node: Node, out: NodeOutput, _call_flow_changed=True):
+        """updates internal data structures."""
+        if node in self.node_successors:
+            self.graph_adj[out] = []
+            if _call_flow_changed:
+                self._flow_changed()
+
+
+    def remove_node_input(self, node: Node, inp: NodeInput, _call_flow_changed=True):
+        """updates internal data structures."""
+        if node in self.node_successors:
+            del self.graph_adj_rev[inp]
+            if _call_flow_changed:
+                self._flow_changed()
+
+
+    def remove_node_output(self, node: Node, out: NodeOutput, _call_flow_changed=True):
+        """updates internal data structures."""
+        if node in self.node_successors:
+            del self.graph_adj[out]
+            if _call_flow_changed:
+                self._flow_changed()
 
 
     def _connect_nodes_from_data(self, nodes: List[Node], data: List):

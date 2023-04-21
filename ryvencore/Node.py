@@ -80,11 +80,15 @@ class Node(Base):
         # events
         self.updating = Event(int)
         self.update_error = Event(Exception)
-        self.input_added = Event(int, NodeInput)
-        self.input_removed = Event(int, NodeInput)
-        self.output_added = Event(int, NodeOutput)
-        self.output_removed = Event(int, NodeOutput)
+        self.input_added = Event(Node, int, NodeInput)
+        self.input_removed = Event(Node, int, NodeInput)
+        self.output_added = Event(Node, int, NodeOutput)
+        self.output_removed = Event(Node, int, NodeOutput)
 
+    def initialize(self):
+        """
+        Sets up the node ports.
+        """
         self._setup_ports()
 
     def _setup_ports(self, inputs_data=None, outputs_data=None):
@@ -301,8 +305,12 @@ class Node(Base):
 
         if insert is not None:
             self.inputs.insert(insert, inp)
+            index = insert
         else:
             self.inputs.append(inp)
+            index = len(self.inputs) - 1
+
+        self.input_added.emit(self, index, inp)
 
         return inp
 
@@ -323,6 +331,8 @@ class Node(Base):
 
         self.inputs.remove(inp)
 
+        self.input_removed.emit(self, index, inp)
+
     def create_output(self, label: str = '', type_: str = 'data', load_from=None, insert: int = None):
         """
         Creates and adds a new output at the end or index ``insert`` if specified.
@@ -339,8 +349,12 @@ class Node(Base):
 
         if insert is not None:
             self.outputs.insert(insert, out)
+            index = insert
         else:
             self.outputs.append(out)
+            index = len(self.outputs) - 1
+
+        self.output_added.emit(self, index, out)
 
         return out
 
@@ -359,6 +373,8 @@ class Node(Base):
             self.flow.connect_nodes(out, inp)
 
         self.outputs.remove(out)
+
+        self.output_removed.emit(self, index, out)
 
     #   VARIABLES
 
