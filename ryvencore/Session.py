@@ -125,7 +125,7 @@ class Session(Base):
         return nodes
 
 
-    def register_data(self, data_type_class: Type[Data]):
+    def register_data_type(self, data_type_class: Type[Data]):
         """
         Registers a new :code:`Data` subclass which will then be available
         in the flows.
@@ -141,6 +141,16 @@ class Session(Base):
             return
 
         self.data_types[id] = data_type_class
+
+
+    def register_data_types(self, data_type_classes: List[Type[Data]]):
+        """
+        Registers a list of :code:`Data` subclasses which will then be available
+        in the flows.
+        """
+
+        for d in data_type_classes:
+            self.register_data_type(d)
 
 
     def create_flow(self, title: str = None, data: Dict = None) -> Flow:
