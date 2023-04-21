@@ -83,17 +83,17 @@ class Session(Base):
                 addon.connect_flow_events(f)
 
 
-    def register_nodes(self, node_classes: List[Type[Node]]):
+    def register_node_types(self, node_types: List[Type[Node]]):
         """
         Registers a list of Nodes which then become available in the flows.
         Do not attempt to place nodes in flows that haven't been registered in the session before.
         """
 
-        for n in node_classes:
-            self.register_node(n)
+        for n in node_types:
+            self.register_node_type(n)
 
 
-    def register_node(self, node_class: Type[Node]):
+    def register_node_type(self, node_class: Type[Node]):
         """
         Registers a single node.
         """

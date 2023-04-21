@@ -77,7 +77,7 @@ class VarsAddon(AddOn):
     ...         self.var_val = val
     >>>
     >>> s = rc.Session()
-    >>> s.register_node(MyNode)
+    >>> s.register_node_type(MyNode)
     >>> f = s.create_flow('main')
     >>>
     >>> Vars = s.addons['Variables']

@@ -23,7 +23,7 @@ class DataTypesBasic(unittest.TestCase):
 
     def runTest(self):
         s = rc.Session()
-        s.register_nodes([self.Producer, self.Consumer])
+        s.register_node_types([self.Producer, self.Consumer])
         f = s.create_flow('main')
         n1 = f.create_node(self.Producer)
         n2 = f.create_node(self.Consumer)
@@ -64,7 +64,7 @@ class DataTypesCustom(unittest.TestCase):
 
     def runTest(self):
         s = rc.Session()
-        s.register_nodes([self.Producer, self.Consumer])
+        s.register_node_types([self.Producer, self.Consumer])
         s.register_data_type(self.MyData)
         f = s.create_flow('main')
         n1 = f.create_node(self.Producer)
@@ -78,7 +78,7 @@ class DataTypesCustom(unittest.TestCase):
         rc.utils.json_print(project)
 
         s2 = rc.Session()
-        s2.register_nodes([self.Producer, self.Consumer])
+        s2.register_node_types([self.Producer, self.Consumer])
         s2.register_data_type(self.MyData)
         s2.load(project)
         f2 = s2.flows[0]
