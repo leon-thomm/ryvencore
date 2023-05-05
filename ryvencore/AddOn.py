@@ -12,6 +12,9 @@ An add-on
     - can store additional node-specific data in the node's :code:`data` dict when it's serialized
     - will be accessible through the nodes API: :code:`self.get_addon('your_addon')` in your nodes
 
+TODO: The below statement is not true, I think. Add-ons are loaded first, and nodes can access
+ them during their initialization (but it may be a bad idea).
+
 Add-on access is blocked during loading (deserialization), so nodes should not access any
 add-ons during the execution of :code:`Node.__init__` or :code:`Node.set_data`.
 This prevents inconsistent states. Nodes are loaded first, then the add-ons. 

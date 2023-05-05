@@ -7,6 +7,7 @@ from ryvencore.utils import print_err
 
 
 ADDON_VERSION = '0.4'
+# TODO: replace print_err with InfoMsgs
 
 
 class Variable:
@@ -204,7 +205,7 @@ class VarsAddon(AddOn):
             }
             return v
         else:
-            print_err(f'Variable name {name} is not valid.')
+            # print_err(f'Variable name {name} is not valid.')
             return None
 
     def delete_var(self, flow, name: str):
@@ -212,7 +213,7 @@ class VarsAddon(AddOn):
         Deletes a variable and causes subscription update. Subscriptions are preserved.
         """
         if not self.var_exists(flow, name):
-            print_err(f'Variable {name} does not exist.')
+            # print_err(f'Variable {name} does not exist.')
             return
 
         del self.flow_variables[flow][name]['var']
@@ -220,12 +221,12 @@ class VarsAddon(AddOn):
     def var_exists(self, flow, name: str) -> bool:
         return flow in self.flow_variables and name in self.flow_variables[flow]
 
-    def var(self, flow, name: str):
+    def var(self, flow, name: str) -> Optional[Variable]:
         """
         Returns the variable with the given name or None if it doesn't exist.
         """
         if not self.var_exists(flow, name):
-            print_err(f'Variable {name} does not exist.')
+            # print_err(f'Variable {name} does not exist.')
             return None
 
         return self.flow_variables[flow][name]['var']
@@ -245,7 +246,7 @@ class VarsAddon(AddOn):
         Subscribe to a variable. ``callback`` must be a method of the node.
         """
         if not self.var_exists(node.flow, name):
-            print_err(f'Variable {name} does not exist.')
+            # print_err(f'Variable {name} does not exist.')
             return
 
         self.flow_variables[node.flow][name]['subscriptions'].append((node, callback))
@@ -255,7 +256,7 @@ class VarsAddon(AddOn):
         Unsubscribe from a variable.
         """
         if not self.var_exists(node.flow, name):
-            print_err(f'Variable {name} does not exist.')
+            # print_err(f'Variable {name} does not exist.')
             return
 
         self.flow_variables[node.flow][name]['subscriptions'].remove((node, callback))
