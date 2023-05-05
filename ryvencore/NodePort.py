@@ -18,8 +18,10 @@ class NodePort(Base):
         self.io_pos = io_pos
         self.type_ = type_
         self.label_str = label_str
+        self.load_data = None
 
     def load(self, data: Dict):
+        self.load_data = data
         self.type_ = data['type']
         self.label_str = data['label']
 
