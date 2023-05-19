@@ -244,11 +244,16 @@ class Session(Base):
                 title: script_data['flow']
                 for title, script_data in data['scripts'].items()
             }
+        elif isinstance(data['flows'], list):
+            flows_data = {
+                f'Flow {i}': flow_data
+                for i, flow_data in enumerate(data['flows'])
+            }
         else:
             flows_data = data['flows']
 
-        for fd in flows_data:
-            new_flows.append(self.create_flow(data=fd))
+        for title, data in flows_data.items():
+            new_flows.append(self.create_flow(title=title, data=data))
 
         return new_flows
 
@@ -271,9 +276,10 @@ class Session(Base):
 
         return {
             **super().data(),
-            'flows': [
-                s.data() for s in self.flows
-            ],
+            'flows': {
+                f.title: f.data()
+                for f in self.flows
+            },
             'addons': {
                 name: addon.data() for name, addon in self.addons.items()
             }
