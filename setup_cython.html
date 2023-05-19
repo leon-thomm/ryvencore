@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   
   <!-- Licensed under the Apache 2.0 License -->
   <link rel="stylesheet" type="text/css" href="_static/fonts/open-sans/stylesheet.css" />
@@ -91,7 +91,7 @@
           
           <div class="document clearer body">
             
-  <div class="section" id="module-setup_cython">
+  <section id="module-setup_cython">
 <span id="compile-with-cython"></span><h1>compile with cython<a class="headerlink" href="#module-setup_cython" title="Permalink to this heading">¶</a></h1>
 <p>This setup file can be used to manually compile ryvencore to a C extension using Cython, behavior should be the same.</p>
 <p>Follow the below process to compile ryvencore with Cython and install it as a regular package.
@@ -99,51 +99,51 @@ Points 1 - 4 are only necessary if they are not satisfied already.
 Run all commands from the top level ‘ryvencore’ directory. The process is shown for Ubuntu Linux.
 Assuming only Python is installed already:</p>
 <ol class="arabic simple">
-<li>Remove old ryvencore versions</li>
+<li><p>Remove old ryvencore versions</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>uninstall<span class="w"> </span>ryvencore
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
-<li>Install GCC</li>
+<li><p>Install GCC</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>build-essential
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
-<li>Install Python dev tools</li>
+<li><p>Install Python dev tools</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>python3-dev
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
-<li>Install Python dependencies</li>
+<li><p>Install Python dependencies</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>cython<span class="w"> </span>wheel
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
-<li>Compile</li>
+<li><p>Compile</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>setup_cython<span class="w"> </span>build_ext<span class="w"> </span>--inplace
 </pre></div>
 </div>
 <ol class="arabic simple" start="6">
-<li>Build wheel</li>
+<li><p>Build wheel</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python<span class="w"> </span>setup_cython.py<span class="w"> </span>sdist<span class="w"> </span>bdist_wheel
 </pre></div>
 </div>
 <ol class="arabic simple" start="7">
-<li>Install package from wheel</li>
+<li><p>Install package from wheel</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>./dist/ryvencore-&lt;version&gt;-&lt;platform&gt;.whl
 </pre></div>
 </div>
 <p>NOTE</p>
 <ul class="simple">
-<li>if you don’t want to keep the source files (.py and compiled .c) in the installed package (only the compiled .so files), simply comment out the line <cite>packages = find:</cite> in setup.cfg</li>
-<li>you can remove all the generated files and directories by running <code class="code docutils literal notranslate"><span class="pre">python</span> <span class="pre">cleanup_cython.py</span></code></li>
+<li><p>if you don’t want to keep the source files (.py and compiled .c) in the installed package (only the compiled .so files), simply comment out the line <cite>packages = find:</cite> in setup.cfg</p></li>
+<li><p>you can remove all the generated files and directories by running <code class="code docutils literal notranslate"><span class="pre">python</span> <span class="pre">cleanup_cython.py</span></code></p></li>
 </ul>
 <p>To verify that the package successfully runs from the compiled C extension modules you can check whether
 the imported ryvencore package shows the <code class="code docutils literal notranslate"><span class="pre">__init__.so</span></code> file and not <code class="code docutils literal notranslate"><span class="pre">__init__.py</span></code>.</p>
@@ -157,7 +157,7 @@ the imported ryvencore package shows the <code class="code docutils literal notr
 </pre></div>
 </div>
 <p>and check whether you can successfully load the package from Python.</p>
-</div>
+</section>
 
 
           </div>
