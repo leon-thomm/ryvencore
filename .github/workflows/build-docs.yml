@@ -21,6 +21,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r docs/requirements.txt
         pip install .
+    - name: Run doctests
+      run: |
+        cd docs
+        make doctest
+        cd ..
     - name: Build docs
       run: |
         cd docs
