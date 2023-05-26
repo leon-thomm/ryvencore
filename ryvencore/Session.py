@@ -98,9 +98,7 @@ class Session(Base):
         Registers a single node.
         """
 
-        # build node class identifier
         node_class._build_identifier()
-
         self.nodes.add(node_class)
 
 
@@ -118,11 +116,7 @@ class Session(Base):
         Returns a list of all node objects instantiated in any flow.
         """
 
-        nodes = []
-        for f in self.flows:
-            for n in f.nodes:
-                nodes.append(n)
-        return nodes
+        return [n for f in self.flows for n in f.nodes]
 
 
     def register_data_type(self, data_type_class: Type[Data]):
