@@ -70,6 +70,17 @@ class LoggingAddon(AddOn):
         # self.logger_created.emit(logger)
         return logger
 
+    def get(self, node, title: str) -> Optional[Logger]:
+        """
+        Returns the logger with the given name owned by the node,
+        or None if it doesn't exist.
+        """
+
+        if not self._node_is_registered(node):
+            return None
+
+        return self.loggers[node][title]
+
     def on_node_created(self, node):
         if node.load_data and 'Logging' in node.load_data:
             for title in node.load_data['Logging']['loggers']:
