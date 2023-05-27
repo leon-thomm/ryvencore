@@ -2,7 +2,7 @@ from typing import Optional, Union
 from packaging.version import parse as parse_version
 
 from ryvencore import Node, Data, AddOn, Flow
-from ryvencore.Base import Base
+from ryvencore.Base import Base, Event
 from ryvencore.utils import print_err
 
 
@@ -122,6 +122,10 @@ class VarsAddon(AddOn):
         # available, see :code:`on_flow_created()`
         self.flow_vars__pending = {}
 
+        # events
+        self.var_created = Event(Flow, str, Variable)
+        self.var_deleted = Event(Flow, str)
+
     """
     flow management
     """
@@ -203,10 +207,8 @@ class VarsAddon(AddOn):
                 'var': v,
                 'subscriptions': []
             }
+            self.var_created.emit(flow, name, v)
             return v
-        else:
-            # print_err(f'Variable name {name} is not valid.')
-            return None
 
     def delete_var(self, flow, name: str):
         """
@@ -216,7 +218,8 @@ class VarsAddon(AddOn):
             # print_err(f'Variable {name} does not exist.')
             return
 
-        del self.flow_variables[flow][name]['var']
+        del self.flow_variables[flow][name]
+        self.var_deleted.emit(flow, name)
 
     def var_exists(self, flow, name: str) -> bool:
         return flow in self.flow_variables and name in self.flow_variables[flow]
