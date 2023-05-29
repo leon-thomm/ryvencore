@@ -52,6 +52,8 @@ class Data(Base):
     >>>
     >>> def build_and_run(D):
     ...     s = rc.Session()
+    ...     s.register_node(Producer)
+    ...     s.register_node(Consumer)
     ...     f = s.create_flow('main')
     ...     producer =  f.create_node(Producer)
     ...     consumer1 = f.create_node(Consumer)
