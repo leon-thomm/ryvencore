@@ -152,8 +152,6 @@ class VarsAddon(AddOn):
                 self.create_var(flow, name, load_from=data)
             del self.flow_vars__pending[flow.prev_global_id]
 
-
-
     def on_node_added(self, node):
         """
         Reconstruction of subscriptions.
@@ -180,8 +178,8 @@ class VarsAddon(AddOn):
         self.removed_subscriptions[node] = {}
 
         for name, varname in self.flow_variables[node.flow].items():
-            for node, cb in varname['subscriptions'].items():
-                if node == node:
+            for (n, cb) in varname['subscriptions']:
+                if n == node:
                     self.removed_subscriptions[node][name] = cb.__name__
                     self.unsubscribe(node, name, cb)
 
@@ -242,7 +240,7 @@ class VarsAddon(AddOn):
         v = self.flow_variables[flow][name]['var']
 
         for (node, cb) in self.flow_variables[flow][name]['subscriptions']:
-            cb(v.get())
+            cb(v)
 
     def subscribe(self, node: Node, name: str, callback):
         """
