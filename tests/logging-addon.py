@@ -4,7 +4,7 @@ from utils import check_addon_available
 
 check_addon_available('Logging', __file__)
 
-from ryvencore.addons.default.Logging import addon as Logging
+from ryvencore.addons.Logging import addon as Logging
 
 
 class NodeBase(rc.Node):
@@ -44,8 +44,8 @@ class Node2(NodeBase):
 class DataFlowBasic(unittest.TestCase):
 
     def runTest(self):
-        s = rc.Session()
-        s.register_nodes([Node1, Node2])
+        s = rc.Session(load_addons=True)
+        s.register_node_types([Node1, Node2])
 
         f = s.create_flow('main')
 

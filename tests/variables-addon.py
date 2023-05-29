@@ -5,7 +5,7 @@ from utils import check_addon_available
 
 check_addon_available('Variables', __file__)
 
-from ryvencore.addons.default.Variables import addon as Variables
+from ryvencore.addons.Variables import addon as Variables
 
 
 class NodeBase(rc.Node):
@@ -64,8 +64,8 @@ class Node2(NodeBase):
 class VariablesBasic(unittest.TestCase):
 
     def runTest(self):
-        s = rc.Session()
-        s.register_nodes([Node1, Node2])
+        s = rc.Session(load_addons=True)
+        s.register_node_types([Node1, Node2])
 
         f = s.create_flow('main')
 
@@ -90,7 +90,7 @@ class VariablesBasic(unittest.TestCase):
 
         n1.subscribe_to_var1()
         n2.update_var1(42)
-        assert n1.var_val == 42
+        assert n1.var_val.get() == 42
 
         print('----------------------------------------------------------')
 
@@ -100,8 +100,8 @@ class VariablesBasic(unittest.TestCase):
         print(json.dumps(project, indent=4))
         del s
 
-        s2 = rc.Session()
-        s2.register_nodes([Node1, Node2])
+        s2 = rc.Session(load_addons=True)
+        s2.register_node_types([Node1, Node2])
         s2.load(project)
 
         vars = s2.addons.get('Variables')
@@ -112,14 +112,14 @@ class VariablesBasic(unittest.TestCase):
         n1_2, n2_2, n3_2, n4_2 = f2.nodes
         n2_2.update_var1('test')
 
-        self.assertEqual(n1_2.var_val, 'test')
+        self.assertEqual(n1_2.var_val.get(), 'test')
         self.assertEqual(n3_2.input(0).payload, 42)
         self.assertEqual(n4_2.input(0).payload, 42)
 
         n1_2.update()
         n2_2.update_var1(43)
 
-        self.assertEqual(n1_2.var_val, 43)
+        self.assertEqual(n1_2.var_val.get(), 43)
 
 
 if __name__ == '__main__':

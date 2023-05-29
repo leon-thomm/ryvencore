@@ -30,33 +30,51 @@ class IDCtr:
 
 
 class Event:
+    """
+    Implements a generalization of the observer pattern, with additional
+    priority support. The lower the value, the earlier the callback
+    is called. The default priority is 0.
+    ryvencore itself may use negative priorities internally to ensure
+    precedence of internal observers over all user-defined ones.
+    """
+
     def __init__(self, *args):
         self.args = args
-        self._slots = []
+        self._slots = {i: set() for i in range(-5, 11)}
+        self._slot_priorities = {}
 
-    def connect(self, callback):
+    def sub(self, callback, nice=0):
         """
         Registers a callback function. The callback must accept compatible arguments.
+        The optional :code:`nice` parameter can be used to set the priority of the
+        callback. The lower the priority, the earlier the callback is called.
+        :code:`nice` can range from -5 to 10.
+        Users of ryvencore are not allowed to use negative priorities.
         """
-        self._slots.append(callback)
+        assert -5 <= nice <= 10
+        assert self._slot_priorities.get(callback) is None
 
-    def disconnect(self, callback):
+        self._slots[nice].add(callback)
+        self._slot_priorities[callback] = nice
+
+    def unsub(self, callback):
         """
         De-registers a callback function. The function must have been added previously.
         """
-        self._slots.remove(callback)
+        nice = self._slot_priorities[callback]
+        self._slots[nice].remove(callback)
+        del self._slot_priorities[callback]
 
     def emit(self, *args):
         """
-        Emits an event by calling all registered callback functions in the order they
-        were registered, with parameters given by *args.
+        Emits an event by calling all registered callback functions with parameters
+        given by :code:`args`.
         """
 
-        # I am assuming that the for-each loop keeps the overhead small in case
-        # there are no slots registered, but one might want to profile that.
-
-        for cb in self._slots:
-            cb(*args)
+        # notice that dicts are insertion ordered since python 3.6
+        for nice, cb_set in self._slots.items():
+            for cb in cb_set:
+                cb(*args)
 
 
 class Base:

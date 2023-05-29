@@ -1,7 +1,7 @@
 import traceback
 from typing import List, Optional, Dict
 
-from .Base import Base
+from .Base import Base, Event
 
 from .NodePort import NodeInput, NodeOutput
 from .NodePortType import NodeInputType, NodeOutputType
@@ -77,6 +77,18 @@ class Node(Base):
         self.block_init_updates = False
         self.block_updates = False
 
+        # events
+        self.updating = Event(int)
+        self.update_error = Event(Exception)
+        self.input_added = Event(Node, int, NodeInput)
+        self.input_removed = Event(Node, int, NodeInput)
+        self.output_added = Event(Node, int, NodeOutput)
+        self.output_removed = Event(Node, int, NodeOutput)
+
+    def initialize(self):
+        """
+        Sets up the node ports.
+        """
         self._setup_ports()
 
     def _setup_ports(self, inputs_data=None, outputs_data=None):
@@ -144,10 +156,12 @@ class Node(Base):
         InfoMsgs.write('update in', self.title, 'node on input', inp)
 
         # invoke update_event
+        self.updating.emit(inp)
         self.flow.executor.update_node(self, inp)
 
-    def update_error(self, e):
+    def update_err(self, e):
         InfoMsgs.write_err('EXCEPTION in', self.title, '\n', traceback.format_exc())
+        self.update_error.emit(e)
 
     def input(self, index: int) -> Optional[Data]:
         """
@@ -204,11 +218,10 @@ class Node(Base):
         *VIRTUAL*
 
         Called once the node object has been fully initialized and placed in the flow.
-        When loading content, ``place_event()`` is executed *before* connections are built,
-        so updating output values here will not cause any other nodes to be updated during loading.
+        When loading content, :code:`place_event()` is executed *before* connections are built.
 
         Notice that this method gets executed *every time* the node is added to the flow, which can happen
-        multiple times for the same object (e.g. due to undo/redo operations).
+        more than once if the node was subsequently removed (e.g. due to undo/redo operations).
         """
 
         pass
@@ -261,6 +274,16 @@ class Node(Base):
         """
         pass
 
+    def rebuilt(self):
+        """
+        *VIRTUAL*
+
+        If the node was created by loading components in the flow (see :code:`Flow.load_components()`),
+        this method will be called after the node has been added to the graph and incident connections
+        are established.
+        """
+        pass
+
     """
     
     API
@@ -282,8 +305,12 @@ class Node(Base):
 
         if insert is not None:
             self.inputs.insert(insert, inp)
+            index = insert
         else:
             self.inputs.append(inp)
+            index = len(self.inputs) - 1
+
+        self.input_added.emit(self, index, inp)
 
         return inp
 
@@ -304,6 +331,8 @@ class Node(Base):
 
         self.inputs.remove(inp)
 
+        self.input_removed.emit(self, index, inp)
+
     def create_output(self, label: str = '', type_: str = 'data', load_from=None, insert: int = None):
         """
         Creates and adds a new output at the end or index ``insert`` if specified.
@@ -320,8 +349,12 @@ class Node(Base):
 
         if insert is not None:
             self.outputs.insert(insert, out)
+            index = insert
         else:
             self.outputs.append(out)
+            index = len(self.outputs) - 1
+
+        self.output_added.emit(self, index, out)
 
         return out
 
@@ -340,6 +373,8 @@ class Node(Base):
             self.flow.connect_nodes(out, inp)
 
         self.outputs.remove(out)
+
+        self.output_removed.emit(self, index, out)
 
     #   VARIABLES
 

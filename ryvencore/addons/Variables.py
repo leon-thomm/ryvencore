@@ -2,11 +2,12 @@ from typing import Optional, Union
 from packaging.version import parse as parse_version
 
 from ryvencore import Node, Data, AddOn, Flow
-from ryvencore.Base import Base
+from ryvencore.Base import Base, Event
 from ryvencore.utils import print_err
 
 
 ADDON_VERSION = '0.4'
+# TODO: replace print_err with InfoMsgs
 
 
 class Variable:
@@ -77,7 +78,7 @@ class VarsAddon(AddOn):
     ...         self.var_val = val
     >>>
     >>> s = rc.Session()
-    >>> s.register_node(MyNode)
+    >>> s.register_node_type(MyNode)
     >>> f = s.create_flow('main')
     >>>
     >>> Vars = s.addons['Variables']
@@ -121,6 +122,10 @@ class VarsAddon(AddOn):
         # available, see :code:`on_flow_created()`
         self.flow_vars__pending = {}
 
+        # events
+        self.var_created = Event(Flow, str, Variable)
+        self.var_deleted = Event(Flow, str)
+
     """
     flow management
     """
@@ -147,8 +152,6 @@ class VarsAddon(AddOn):
                 self.create_var(flow, name, load_from=data)
             del self.flow_vars__pending[flow.prev_global_id]
 
-
-
     def on_node_added(self, node):
         """
         Reconstruction of subscriptions.
@@ -165,7 +168,7 @@ class VarsAddon(AddOn):
             for name, cb_name in node.load_data['Variables']['subscriptions'].items():
                 self.subscribe(node, name, getattr(node, cb_name))
 
-    def on_node_removed(self, flow, node):
+    def on_node_removed(self, node):
         """
         Remove all subscriptions of the node.
         """
@@ -174,9 +177,9 @@ class VarsAddon(AddOn):
         # because the node might get re-added later
         self.removed_subscriptions[node] = {}
 
-        for name, varname in self.flow_variables[flow].items():
-            for node, cb in varname['subscriptions'].items():
-                if node == node:
+        for name, varname in self.flow_variables[node.flow].items():
+            for (n, cb) in varname['subscriptions']:
+                if n == node:
                     self.removed_subscriptions[node][name] = cb.__name__
                     self.unsubscribe(node, name, cb)
 
@@ -202,30 +205,29 @@ class VarsAddon(AddOn):
                 'var': v,
                 'subscriptions': []
             }
+            self.var_created.emit(flow, name, v)
             return v
-        else:
-            print_err(f'Variable name {name} is not valid.')
-            return None
 
     def delete_var(self, flow, name: str):
         """
         Deletes a variable and causes subscription update. Subscriptions are preserved.
         """
         if not self.var_exists(flow, name):
-            print_err(f'Variable {name} does not exist.')
+            # print_err(f'Variable {name} does not exist.')
             return
 
-        del self.flow_variables[flow][name]['var']
+        del self.flow_variables[flow][name]
+        self.var_deleted.emit(flow, name)
 
     def var_exists(self, flow, name: str) -> bool:
         return flow in self.flow_variables and name in self.flow_variables[flow]
 
-    def var(self, flow, name: str):
+    def var(self, flow, name: str) -> Optional[Variable]:
         """
         Returns the variable with the given name or None if it doesn't exist.
         """
         if not self.var_exists(flow, name):
-            print_err(f'Variable {name} does not exist.')
+            # print_err(f'Variable {name} does not exist.')
             return None
 
         return self.flow_variables[flow][name]['var']
@@ -238,14 +240,14 @@ class VarsAddon(AddOn):
         v = self.flow_variables[flow][name]['var']
 
         for (node, cb) in self.flow_variables[flow][name]['subscriptions']:
-            cb(v.get())
+            cb(v)
 
     def subscribe(self, node: Node, name: str, callback):
         """
         Subscribe to a variable. ``callback`` must be a method of the node.
         """
         if not self.var_exists(node.flow, name):
-            print_err(f'Variable {name} does not exist.')
+            # print_err(f'Variable {name} does not exist.')
             return
 
         self.flow_variables[node.flow][name]['subscriptions'].append((node, callback))
@@ -255,7 +257,7 @@ class VarsAddon(AddOn):
         Unsubscribe from a variable.
         """
         if not self.var_exists(node.flow, name):
-            print_err(f'Variable {name} does not exist.')
+            # print_err(f'Variable {name} does not exist.')
             return
 
         self.flow_variables[node.flow][name]['subscriptions'].remove((node, callback))
@@ -298,6 +300,12 @@ class VarsAddon(AddOn):
         if parse_version(version) < parse_version('0.4'):
             print_err('Variables addon state version too old, skipping')
             return
+
+        # JSON converts int keys to strings, so we need to convert them back
+        state = {
+            int(flow_id): flow_vars
+            for flow_id, flow_vars in state.items()
+        }
 
         self.flow_vars__pending = state
 

@@ -34,7 +34,7 @@ class ExecFlowBasic(unittest.TestCase):
     def runTest(self):
         # rc.InfoMsgs.enable(True)
         s = rc.Session()
-        s.register_nodes([Node1, Node2])
+        s.register_node_types([Node1, Node2])
         f = s.create_flow('main')
         f.set_algorithm_mode('exec')
 

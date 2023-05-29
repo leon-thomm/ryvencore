@@ -110,7 +110,7 @@ if __name__ == '__main__':
     setup(
         cmaclass={'build_ext': build_ext},
         ext_modules=cythonize(
-            get_ext_paths('ryvencore', exclude_files=['ryvencore/addons/default/DTypes.py']),
+            get_ext_paths('ryvencore', exclude_files=['ryvencore/addons/legacy/DTypes.py']),
             compiler_directives={'language_level': 3},
             annotate=True,
         )

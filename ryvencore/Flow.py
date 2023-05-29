@@ -128,6 +128,7 @@ class Flow(Base):
         self.session = session
         self.title = title
         self.nodes: [Node] = []
+        self.load_data = None
 
         self.node_successors = {}   # additional data structure for executors
         self.graph_adj = {}         # directed adjacency list relating node ports
@@ -139,17 +140,29 @@ class Flow(Base):
     def load(self, data: Dict):
         """Loading a flow from data as previously returned by ``Flow.data()``."""
         super().load(data)
+        self.load_data = data
 
         # set algorithm mode
         self.alg_mode = FlowAlg.from_str(data['algorithm mode'])
 
         # build flow
+        self.load_components(data['nodes'], data['connections'], data['output data'])
 
-        new_nodes = self._create_nodes_from_data(data['nodes'])
 
-        self._set_output_values_from_data(new_nodes, data['output data'])
+    def load_components(self, nodes_data, conns_data, output_data):
+        """Loading nodes and their connections from data as previously returned
+        by :code:`Flow.data()`. This method will call :code:`Node.rebuilt()` after
+        connections are established on all nodes.
+        Returns the new nodes and connections."""
 
-        self._connect_nodes_from_data(new_nodes, data['connections'])
+        new_nodes = self._create_nodes_from_data(nodes_data)
+        self._set_output_values_from_data(new_nodes, output_data)
+        new_conns = self._connect_nodes_from_data(new_nodes, conns_data)
+
+        for n in new_nodes:
+            n.rebuilt()
+
+        return new_nodes, new_conns
 
 
     def _create_nodes_from_data(self, nodes_data: List):
@@ -203,9 +216,19 @@ class Flow(Base):
             print_err(f'Node class {node_class} not in session nodes')
             return
 
+        # instantiate node
         node = node_class((self, self.session))
+        # connect to node events
+        node.input_added.sub(lambda n, i, inp: self.add_node_input(n, inp), nice=-5)
+        node.output_added.sub(lambda n, i, out: self.add_node_output(n, out), nice=-5)
+        node.input_removed.sub(lambda n, i, inp: self.remove_node_input(n, inp), nice=-5)
+        node.output_removed.sub(lambda n, i, out: self.remove_node_output(n, out), nice=-5)
+        # initialize node ports
+        node.initialize()
+        # load node
         if data is not None:
             node.load(data)
+
         self.node_created.emit(node)
         self.add_node(node)
 
@@ -222,10 +245,16 @@ class Flow(Base):
         self.nodes.append(node)
 
         self.node_successors[node] = []
+
+        # catch up on node ports
+        # notice that add_node_output() and add_node_input() are called by Node.
+        # but it's ignored when the node is not currently placed in the flow
         for out in node.outputs:
-            self.graph_adj[out] = []
+            self.add_node_output(node, out, False)
+            # self.graph_adj[out] = []
         for inp in node.inputs:
-            self.graph_adj_rev[inp] = None
+            self.add_node_input(node, inp, False)
+            # self.graph_adj_rev[inp] = None
 
         node.after_placement()
         self._flow_changed()
@@ -244,17 +273,51 @@ class Flow(Base):
 
         del self.node_successors[node]
         for out in node.outputs:
-            del self.graph_adj[out]
+            self.remove_node_output(node, out, False)
+            # del self.graph_adj[out]
         for inp in node.inputs:
-            del self.graph_adj_rev[inp]
+            self.remove_node_input(node, inp, False)
+            # del self.graph_adj_rev[inp]
 
         self._flow_changed()
 
         # notify addons
         for addon in self.session.addons.values():
-            addon.on_node_removed(self, node)
+            addon.on_node_removed(node)
 
         self.node_removed.emit(node)
+
+
+    def add_node_input(self, node: Node, inp: NodeInput, _call_flow_changed=True):
+        """updates internal data structures"""
+        if node in self.node_successors:
+            self.graph_adj_rev[inp] = None
+            if _call_flow_changed:
+                self._flow_changed()
+
+
+    def add_node_output(self, node: Node, out: NodeOutput, _call_flow_changed=True):
+        """updates internal data structures."""
+        if node in self.node_successors:
+            self.graph_adj[out] = []
+            if _call_flow_changed:
+                self._flow_changed()
+
+
+    def remove_node_input(self, node: Node, inp: NodeInput, _call_flow_changed=True):
+        """updates internal data structures."""
+        if node in self.node_successors:
+            del self.graph_adj_rev[inp]
+            if _call_flow_changed:
+                self._flow_changed()
+
+
+    def remove_node_output(self, node: Node, out: NodeOutput, _call_flow_changed=True):
+        """updates internal data structures."""
+        if node in self.node_successors:
+            del self.graph_adj[out]
+            if _call_flow_changed:
+                self._flow_changed()
 
 
     def _connect_nodes_from_data(self, nodes: List[Node], data: List):
@@ -385,7 +448,7 @@ class Flow(Base):
     def connected_output(self, inp: NodeInput) -> Optional[NodeOutput]:
         """
         Returns the connected output port to the given input port, or
-        ``None`` if it is not connected.
+        :code:`None` if it is not connected.
         """
         return self.graph_adj_rev[inp]
 

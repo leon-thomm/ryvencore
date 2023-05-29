@@ -31,7 +31,7 @@ class DataFlowBasic(unittest.TestCase):
 
     def runTest(self):
         s = rc.Session()
-        s.register_nodes([Node1, Node2])
+        s.register_node_types([Node1, Node2])
 
         f = s.create_flow('main')
 
@@ -64,7 +64,7 @@ class DataFlowBasic(unittest.TestCase):
         del s
 
         s2 = rc.Session()
-        s2.register_nodes([Node1, Node2])
+        s2.register_node_types([Node1, Node2])
         s2.load(project)
         f2 = s2.flows[0]
 

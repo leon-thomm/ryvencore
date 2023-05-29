@@ -1,7 +1,7 @@
 import importlib
 import glob
 import os.path
-from typing import List, Dict, Type
+from typing import List, Dict, Type, Optional
 
 from .Data import Data
 from .Base import Base, Event
@@ -22,12 +22,13 @@ class Session(Base):
     def __init__(
             self,
             gui: bool = False,
+            load_addons: bool = False,
     ):
         Base.__init__(self)
 
         # events
-        self.new_flow_created = Event(Flow)
-        self.flow_renamed = Event(Flow)
+        self.flow_created = Event(Flow)
+        self.flow_renamed = Event(Flow, str)
         self.flow_deleted = Event(Flow)
 
         # ATTRIBUTES
@@ -39,17 +40,24 @@ class Session(Base):
         self.gui: bool = gui
         self.init_data = None
 
-        self.register_addons(pkg_path('addons/default/'))
-        self.register_addons(pkg_path('addons/'))
+        # self.register_addons(pkg_path('addons/legacy/'))
+        # self.register_addons(pkg_path('addons/'))
+        if load_addons:
+            self.register_addons()
 
 
-    def register_addons(self, location: str):
+    def register_addons(self, location: Optional[str] = None):
         """
-        Loads all addons from the given location. :code:`location` can
-        be an absolute path to any readable directory. New addons can be
-        registered at any time.
+        Loads all addons from the given location, or from ryvencore's
+        *addons* directory if :code:`location` is :code:`None`.
+        :code:`location` can be an absolute path to any readable directory.
+        New addons can be registered at any time.
+        Addons cannot be de-registered.
         See :code:`ryvencore.AddOn`.
         """
+
+        if location is None:
+            location = pkg_path('addons/')
 
         # discover all top-level modules in the given location
         addons = filter(lambda p: not p.endswith('__init__.py'), glob.glob(location + '/*.py'))
@@ -69,30 +77,28 @@ class Session(Base):
             # setattr(Node, addon.name, addon)
 
             # establish event connections
-            self.new_flow_created.connect(addon.on_flow_created)
-            self.flow_deleted.connect(addon.on_flow_destroyed)
+            self.flow_created.sub(addon.on_flow_created, nice=-5)
+            self.flow_deleted.sub(addon.on_flow_destroyed, nice=-5)
             for f in self.flows:
                 addon.connect_flow_events(f)
 
 
-    def register_nodes(self, node_classes: List[Type[Node]]):
+    def register_node_types(self, node_types: List[Type[Node]]):
         """
         Registers a list of Nodes which then become available in the flows.
         Do not attempt to place nodes in flows that haven't been registered in the session before.
         """
 
-        for n in node_classes:
-            self.register_node(n)
+        for n in node_types:
+            self.register_node_type(n)
 
 
-    def register_node(self, node_class: Type[Node]):
+    def register_node_type(self, node_class: Type[Node]):
         """
         Registers a single node.
         """
 
-        # build node class identifier
         node_class._build_identifier()
-
         self.nodes.add(node_class)
 
 
@@ -110,14 +116,10 @@ class Session(Base):
         Returns a list of all node objects instantiated in any flow.
         """
 
-        nodes = []
-        for s in self.flows:
-            for n in s.nodes:
-                nodes.append(n)
-        return nodes
+        return [n for f in self.flows for n in f.nodes]
 
 
-    def register_data(self, data_type_class: Type[Data]):
+    def register_data_type(self, data_type_class: Type[Data]):
         """
         Registers a new :code:`Data` subclass which will then be available
         in the flows.
@@ -135,6 +137,16 @@ class Session(Base):
         self.data_types[id] = data_type_class
 
 
+    def register_data_types(self, data_type_classes: List[Type[Data]]):
+        """
+        Registers a list of :code:`Data` subclasses which will then be available
+        in the flows.
+        """
+
+        for d in data_type_classes:
+            self.register_data_type(d)
+
+
     def create_flow(self, title: str = None, data: Dict = None) -> Flow:
         """
         Creates and returns a new flow.
@@ -144,7 +156,7 @@ class Session(Base):
         flow = Flow(session=self, title=title)
         self.flows.append(flow)
 
-        self.new_flow_created.emit(flow)
+        self.flow_created.emit(flow)
 
         if data:
             flow.load(data)
@@ -163,7 +175,7 @@ class Session(Base):
             flow.title = title
             success = True
 
-        self.flow_renamed.emit(flow)
+        self.flow_renamed.emit(flow, title)
 
         return success
 
@@ -226,11 +238,16 @@ class Session(Base):
                 title: script_data['flow']
                 for title, script_data in data['scripts'].items()
             }
+        elif isinstance(data['flows'], list):
+            flows_data = {
+                f'Flow {i}': flow_data
+                for i, flow_data in enumerate(data['flows'])
+            }
         else:
             flows_data = data['flows']
 
-        for fd in flows_data:
-            new_flows.append(self.create_flow(data=fd))
+        for title, data in flows_data.items():
+            new_flows.append(self.create_flow(title=title, data=data))
 
         return new_flows
 
@@ -253,9 +270,10 @@ class Session(Base):
 
         return {
             **super().data(),
-            'flows': [
-                s.data() for s in self.flows
-            ],
+            'flows': {
+                f.title: f.data()
+                for f in self.flows
+            },
             'addons': {
                 name: addon.data() for name, addon in self.addons.items()
             }

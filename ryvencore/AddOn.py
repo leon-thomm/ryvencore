@@ -2,7 +2,7 @@
 *ALPHA*
 
 This module defines a simple add-on system to extend ryvencore's functionalities.
-Some default add-ons are provided in the addons.default package, and additional add-ons
+Some add-ons are provided in the addons package, and additional add-ons
 can be added and registered in the Session.
 
 An add-on
@@ -11,6 +11,9 @@ An add-on
     - manages its own state (in particular :code:`get_state()` and :code:`set_state()`)
     - can store additional node-specific data in the node's :code:`data` dict when it's serialized
     - will be accessible through the nodes API: :code:`self.get_addon('your_addon')` in your nodes
+
+TODO: The below statement is not true, I think. Add-ons are loaded first, and nodes can access
+ them during their initialization (but it may be a bad idea).
 
 Add-on access is blocked during loading (deserialization), so nodes should not access any
 add-ons during the execution of :code:`Node.__init__` or :code:`Node.set_data`.
@@ -24,7 +27,7 @@ To define a custom add-on:
     - instantiate it into a top-level variable: :code:`addon = YourAddon()` at the end of the module
     - register your addon directory in the Session: :code:`session.register_addon_dir('path/to/your_addons')`
 
-See :code:`ryvencore.addons.default` for examples.
+See :code:`ryvencore.addons` for examples.
 """
 from typing import Dict
 
@@ -48,9 +51,9 @@ class AddOn(Base):
         """
         Connects flow events to the add-on.
         """
-        flow.node_created.connect(self.on_node_created)
-        flow.node_added.connect(self.on_node_added)
-        flow.node_removed.connect(self.on_node_removed)
+        flow.node_created.sub(self.on_node_created, nice=-4)
+        flow.node_added.sub(self.on_node_added, nice=-4)
+        flow.node_removed.sub(self.on_node_removed, nice=-4)
 
     def on_flow_created(self, flow: Flow):
         """
@@ -91,7 +94,7 @@ class AddOn(Base):
         """
         pass
 
-    def on_node_removed(self, flow: Flow, node: Node):
+    def on_node_removed(self, node: Node):
         """
         *VIRTUAL*
 
