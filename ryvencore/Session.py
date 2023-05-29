@@ -28,7 +28,7 @@ class Session(Base):
 
         # events
         self.flow_created = Event(Flow)
-        self.flow_renamed = Event(Flow)
+        self.flow_renamed = Event(Flow, str)
         self.flow_deleted = Event(Flow)
 
         # ATTRIBUTES
@@ -175,7 +175,7 @@ class Session(Base):
             flow.title = title
             success = True
 
-        self.flow_renamed.emit(flow)
+        self.flow_renamed.emit(flow, title)
 
         return success
 
