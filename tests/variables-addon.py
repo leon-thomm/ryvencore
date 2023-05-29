@@ -90,7 +90,7 @@ class VariablesBasic(unittest.TestCase):
 
         n1.subscribe_to_var1()
         n2.update_var1(42)
-        assert n1.var_val == 42
+        assert n1.var_val.get() == 42
 
         print('----------------------------------------------------------')
 
@@ -112,14 +112,14 @@ class VariablesBasic(unittest.TestCase):
         n1_2, n2_2, n3_2, n4_2 = f2.nodes
         n2_2.update_var1('test')
 
-        self.assertEqual(n1_2.var_val, 'test')
+        self.assertEqual(n1_2.var_val.get(), 'test')
         self.assertEqual(n3_2.input(0).payload, 42)
         self.assertEqual(n4_2.input(0).payload, 42)
 
         n1_2.update()
         n2_2.update_var1(43)
 
-        self.assertEqual(n1_2.var_val, 43)
+        self.assertEqual(n1_2.var_val.get(), 43)
 
 
 if __name__ == '__main__':
