@@ -132,8 +132,8 @@
 <span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; def build_and_run(D):</span>
 <span class="sd">    ...     s = rc.Session()</span>
-<span class="sd">    ...     s.register_node(Producer)</span>
-<span class="sd">    ...     s.register_node(Consumer)</span>
+<span class="sd">    ...     s.register_node_type(Producer)</span>
+<span class="sd">    ...     s.register_node_type(Consumer)</span>
 <span class="sd">    ...     f = s.create_flow(&#39;main&#39;)</span>
 <span class="sd">    ...     producer =  f.create_node(Producer)</span>
 <span class="sd">    ...     consumer1 = f.create_node(Consumer)</span>

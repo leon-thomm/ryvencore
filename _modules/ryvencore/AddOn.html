@@ -82,7 +82,7 @@
 <span class="sd">*ALPHA*</span>
 
 <span class="sd">This module defines a simple add-on system to extend ryvencore&#39;s functionalities.</span>
-<span class="sd">Some default add-ons are provided in the addons.default package, and additional add-ons</span>
+<span class="sd">Some add-ons are provided in the addons package, and additional add-ons</span>
 <span class="sd">can be added and registered in the Session.</span>
 
 <span class="sd">An add-on</span>
@@ -91,6 +91,9 @@
 <span class="sd">    - manages its own state (in particular :code:`get_state()` and :code:`set_state()`)</span>
 <span class="sd">    - can store additional node-specific data in the node&#39;s :code:`data` dict when it&#39;s serialized</span>
 <span class="sd">    - will be accessible through the nodes API: :code:`self.get_addon(&#39;your_addon&#39;)` in your nodes</span>
+
+<span class="sd">TODO: The below statement is not true, I think. Add-ons are loaded first, and nodes can access</span>
+<span class="sd"> them during their initialization (but it may be a bad idea).</span>
 
 <span class="sd">Add-on access is blocked during loading (deserialization), so nodes should not access any</span>
 <span class="sd">add-ons during the execution of :code:`Node.__init__` or :code:`Node.set_data`.</span>
@@ -104,7 +107,7 @@
 <span class="sd">    - instantiate it into a top-level variable: :code:`addon = YourAddon()` at the end of the module</span>
 <span class="sd">    - register your addon directory in the Session: :code:`session.register_addon_dir(&#39;path/to/your_addons&#39;)`</span>
 
-<span class="sd">See :code:`ryvencore.addons.default` for examples.</span>
+<span class="sd">See :code:`ryvencore.addons` for examples.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
 
@@ -128,9 +131,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Connects flow events to the add-on.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">flow</span><span class="o">.</span><span class="n">node_created</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_node_created</span><span class="p">)</span>
-        <span class="n">flow</span><span class="o">.</span><span class="n">node_added</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_node_added</span><span class="p">)</span>
-        <span class="n">flow</span><span class="o">.</span><span class="n">node_removed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_node_removed</span><span class="p">)</span></div>
+        <span class="n">flow</span><span class="o">.</span><span class="n">node_created</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_node_created</span><span class="p">,</span> <span class="n">nice</span><span class="o">=-</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">flow</span><span class="o">.</span><span class="n">node_added</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_node_added</span><span class="p">,</span> <span class="n">nice</span><span class="o">=-</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">flow</span><span class="o">.</span><span class="n">node_removed</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_node_removed</span><span class="p">,</span> <span class="n">nice</span><span class="o">=-</span><span class="mi">4</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AddOn.on_flow_created"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_flow_created">[docs]</a>    <span class="k">def</span> <span class="nf">on_flow_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -171,7 +174,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="AddOn.on_node_removed"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_node_removed">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
+<div class="viewcode-block" id="AddOn.on_node_removed"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_node_removed">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 

@@ -104,10 +104,14 @@
 </li>
       <li><a href="ryvencore.html#ryvencore.Flow.Flow.add_node">add_node() (Flow method)</a>
 </li>
-      <li><a href="ryvencore.html#ryvencore.Node.Node.additional_data">additional_data() (Node method)</a>
+      <li><a href="ryvencore.html#ryvencore.Flow.Flow.add_node_input">add_node_input() (Flow method)</a>
+</li>
+      <li><a href="ryvencore.html#ryvencore.Flow.Flow.add_node_output">add_node_output() (Flow method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ryvencore.html#ryvencore.Node.Node.additional_data">additional_data() (Node method)</a>
+</li>
       <li><a href="ryvencore.html#ryvencore.AddOn.AddOn">AddOn (class in ryvencore.AddOn)</a>
 </li>
       <li><a href="ryvencore.html#ryvencore.Node.Node.after_placement">after_placement() (Node method)</a>
@@ -130,10 +134,10 @@
 </li>
       <li><a href="ryvencore.html#ryvencore.Flow.Flow.connected_inputs">connected_inputs() (Flow method)</a>
 </li>
-      <li><a href="ryvencore.html#ryvencore.Flow.Flow.connected_output">connected_output() (Flow method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ryvencore.html#ryvencore.Flow.Flow.connected_output">connected_output() (Flow method)</a>
+</li>
       <li><a href="ryvencore.html#ryvencore.Session.Session.create_flow">create_flow() (Session method)</a>
 </li>
       <li><a href="ryvencore.html#ryvencore.Node.Node.create_input">create_input() (Node method)</a>
@@ -141,8 +145,6 @@
       <li><a href="ryvencore.html#ryvencore.Flow.Flow.create_node">create_node() (Flow method)</a>
 </li>
       <li><a href="ryvencore.html#ryvencore.Node.Node.create_output">create_output() (Node method)</a>
-</li>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.create_var">create_var() (VarsAddon method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -172,10 +174,6 @@
 </li>
       <li><a href="ryvencore.html#ryvencore.Node.Node.delete_output">delete_output() (Node method)</a>
 </li>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.delete_var">delete_var() (VarsAddon method)</a>
-</li>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Logging.Logger.disable">disable() (Logger method)</a>
-</li>
       <li><a href="ryvencore.html#ryvencore.Flow.Flow.disconnect_nodes">disconnect_nodes() (Flow method)</a>
 </li>
   </ul></td>
@@ -184,20 +182,12 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Logging.Logger.enable">enable() (Logger method)</a>
-</li>
       <li><a href="ryvencore.html#ryvencore.Node.Node.exec_output">exec_output() (Node method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ryvencore.html#ryvencore.AddOn.AddOn.extend_node_data">extend_node_data() (AddOn method)</a>
-
-      <ul>
-        <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Logging.LoggingAddon.extend_node_data">(LoggingAddon method)</a>
 </li>
-        <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.extend_node_data">(VarsAddon method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -216,8 +206,6 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.Variable.get">get() (Variable method)</a>
-</li>
       <li><a href="ryvencore.html#ryvencore.Node.Node.get_addon">get_addon() (Node method)</a>
 </li>
       <li><a href="ryvencore.html#ryvencore.Data.Data.get_data">get_data() (Data method)</a>
@@ -228,8 +216,6 @@
 
       <ul>
         <li><a href="ryvencore.html#ryvencore.Node.Node.get_state">(Node method)</a>
-</li>
-        <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.get_state">(VarsAddon method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -251,6 +237,8 @@
       <li><a href="ryvencore.html#ryvencore.Node.Node.init_inputs">init_inputs (Node attribute)</a>
 </li>
       <li><a href="ryvencore.html#ryvencore.Node.Node.init_outputs">init_outputs (Node attribute)</a>
+</li>
+      <li><a href="ryvencore.html#ryvencore.Node.Node.initialize">initialize() (Node method)</a>
 </li>
       <li><a href="ryvencore.html#ryvencore.Node.Node.input">input() (Node method)</a>
 </li>
@@ -282,9 +270,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ryvencore.html#ryvencore.Node.Node.load_additional_data">load_additional_data() (Node method)</a>
 </li>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Logging.Logger">Logger (class in ryvencore.addons.default.Logging)</a>
-</li>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Logging.LoggingAddon">LoggingAddon (class in ryvencore.addons.default.Logging)</a>
+      <li><a href="ryvencore.html#ryvencore.Flow.Flow.load_components">load_components() (Flow method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -301,12 +287,6 @@
         <li><a href="ryvencore.html#module-ryvencore.AddOn">ryvencore.AddOn</a>
 </li>
         <li><a href="ryvencore.addons.html#module-ryvencore.addons">ryvencore.addons</a>
-</li>
-        <li><a href="ryvencore.addons.default.html#module-ryvencore.addons.default">ryvencore.addons.default</a>
-</li>
-        <li><a href="ryvencore.addons.default.html#module-ryvencore.addons.default.Logging">ryvencore.addons.default.Logging</a>
-</li>
-        <li><a href="ryvencore.addons.default.html#module-ryvencore.addons.default.Variables">ryvencore.addons.default.Variables</a>
 </li>
         <li><a href="ryvencore.html#module-ryvencore.Data">ryvencore.Data</a>
 </li>
@@ -325,16 +305,6 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Logging.LoggingAddon.name">name (LoggingAddon attribute)</a>
-
-      <ul>
-        <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.name">(VarsAddon attribute)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Logging.LoggingAddon.new_logger">new_logger() (LoggingAddon method)</a>
-</li>
       <li><a href="ryvencore.html#ryvencore.Node.Node">Node (class in ryvencore.Node)</a>
 </li>
   </ul></td>
@@ -344,41 +314,17 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ryvencore.html#ryvencore.AddOn.AddOn.on_flow_created">on_flow_created() (AddOn method)</a>
-
-      <ul>
-        <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.on_flow_created">(VarsAddon method)</a>
-</li>
-      </ul></li>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.on_flow_deleted">on_flow_deleted() (VarsAddon method)</a>
 </li>
       <li><a href="ryvencore.html#ryvencore.AddOn.AddOn.on_flow_destroyed">on_flow_destroyed() (AddOn method)</a>
 </li>
-      <li><a href="ryvencore.html#ryvencore.AddOn.AddOn.on_node_added">on_node_added() (AddOn method)</a>
-
-      <ul>
-        <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Logging.LoggingAddon.on_node_added">(LoggingAddon method)</a>
-</li>
-        <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.on_node_added">(VarsAddon method)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ryvencore.html#ryvencore.AddOn.AddOn.on_node_added">on_node_added() (AddOn method)</a>
+</li>
       <li><a href="ryvencore.html#ryvencore.AddOn.AddOn.on_node_created">on_node_created() (AddOn method)</a>
-
-      <ul>
-        <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Logging.LoggingAddon.on_node_created">(LoggingAddon method)</a>
 </li>
-        <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.on_node_created">(VarsAddon method)</a>
-</li>
-      </ul></li>
       <li><a href="ryvencore.html#ryvencore.AddOn.AddOn.on_node_removed">on_node_removed() (AddOn method)</a>
-
-      <ul>
-        <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Logging.LoggingAddon.on_node_removed">(LoggingAddon method)</a>
 </li>
-        <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.on_node_removed">(VarsAddon method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -397,15 +343,19 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ryvencore.html#ryvencore.Node.Node.rebuilt">rebuilt() (Node method)</a>
+</li>
       <li><a href="ryvencore.html#ryvencore.AddOn.AddOn.register">register() (AddOn method)</a>
 </li>
       <li><a href="ryvencore.html#ryvencore.Session.Session.register_addons">register_addons() (Session method)</a>
 </li>
-      <li><a href="ryvencore.html#ryvencore.Session.Session.register_data">register_data() (Session method)</a>
+      <li><a href="ryvencore.html#ryvencore.Session.Session.register_data_type">register_data_type() (Session method)</a>
 </li>
-      <li><a href="ryvencore.html#ryvencore.Session.Session.register_node">register_node() (Session method)</a>
+      <li><a href="ryvencore.html#ryvencore.Session.Session.register_data_types">register_data_types() (Session method)</a>
 </li>
-      <li><a href="ryvencore.html#ryvencore.Session.Session.register_nodes">register_nodes() (Session method)</a>
+      <li><a href="ryvencore.html#ryvencore.Session.Session.register_node_type">register_node_type() (Session method)</a>
+</li>
+      <li><a href="ryvencore.html#ryvencore.Session.Session.register_node_types">register_node_types() (Session method)</a>
 </li>
       <li><a href="ryvencore.html#ryvencore.Flow.Flow.remove_connection">remove_connection() (Flow method)</a>
 </li>
@@ -413,8 +363,14 @@
 </li>
       <li><a href="ryvencore.html#ryvencore.Flow.Flow.remove_node">remove_node() (Flow method)</a>
 </li>
+      <li><a href="ryvencore.html#ryvencore.Flow.Flow.remove_node_input">remove_node_input() (Flow method)</a>
+</li>
+      <li><a href="ryvencore.html#ryvencore.Flow.Flow.remove_node_output">remove_node_output() (Flow method)</a>
+</li>
       <li><a href="ryvencore.html#ryvencore.Session.Session.rename_flow">rename_flow() (Session method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     ryvencore
 
@@ -434,29 +390,6 @@
 
       <ul>
         <li><a href="ryvencore.addons.html#module-ryvencore.addons">module</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    ryvencore.addons.default
-
-      <ul>
-        <li><a href="ryvencore.addons.default.html#module-ryvencore.addons.default">module</a>
-</li>
-      </ul></li>
-      <li>
-    ryvencore.addons.default.Logging
-
-      <ul>
-        <li><a href="ryvencore.addons.default.html#module-ryvencore.addons.default.Logging">module</a>
-</li>
-      </ul></li>
-      <li>
-    ryvencore.addons.default.Variables
-
-      <ul>
-        <li><a href="ryvencore.addons.default.html#module-ryvencore.addons.default.Variables">module</a>
 </li>
       </ul></li>
       <li>
@@ -494,14 +427,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ryvencore.html#ryvencore.Session.Session.serialize">serialize() (Session method)</a>
-
-      <ul>
-        <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.Variable.serialize">(Variable method)</a>
 </li>
-      </ul></li>
       <li><a href="ryvencore.html#ryvencore.Session.Session">Session (class in ryvencore.Session)</a>
-</li>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.Variable.set">set() (Variable method)</a>
 </li>
       <li><a href="ryvencore.html#ryvencore.Flow.Flow.set_algorithm_mode">set_algorithm_mode() (Flow method)</a>
 </li>
@@ -516,8 +443,6 @@
       <ul>
         <li><a href="ryvencore.html#ryvencore.Node.Node.set_state">(Node method)</a>
 </li>
-        <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.set_state">(VarsAddon method)</a>
-</li>
       </ul></li>
       <li>
     setup_cython
@@ -526,8 +451,6 @@
         <li><a href="setup_cython.html#module-setup_cython">module</a>
 </li>
       </ul></li>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.subscribe">subscribe() (VarsAddon method)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -548,15 +471,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ryvencore.html#ryvencore.Session.Session.unregister_node">unregister_node() (Session method)</a>
 </li>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.unsubscribe">unsubscribe() (VarsAddon method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ryvencore.html#ryvencore.Node.Node.update">update() (Node method)</a>
 </li>
       <li><a href="ryvencore.html#ryvencore.Node.Node.update_event">update_event() (Node method)</a>
-</li>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.update_subscribers">update_subscribers() (VarsAddon method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -564,26 +483,8 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.var">var() (VarsAddon method)</a>
+      <li><a href="ryvencore.html#ryvencore.Node.Node.version">version (Node attribute)</a>
 </li>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.var_exists">var_exists() (VarsAddon method)</a>
-</li>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.var_name_valid">var_name_valid() (VarsAddon method)</a>
-</li>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.Variable">Variable (class in ryvencore.addons.default.Variables)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon">VarsAddon (class in ryvencore.addons.default.Variables)</a>
-</li>
-      <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Logging.LoggingAddon.version">version (LoggingAddon attribute)</a>
-
-      <ul>
-        <li><a href="ryvencore.html#ryvencore.Node.Node.version">(Node attribute)</a>
-</li>
-        <li><a href="ryvencore.addons.default.html#ryvencore.addons.default.Variables.VarsAddon.version">(VarsAddon attribute)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 

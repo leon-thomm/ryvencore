@@ -81,7 +81,7 @@
 <span></span><span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span>
 
-<span class="kn">from</span> <span class="nn">.Base</span> <span class="kn">import</span> <span class="n">Base</span>
+<span class="kn">from</span> <span class="nn">.Base</span> <span class="kn">import</span> <span class="n">Base</span><span class="p">,</span> <span class="n">Event</span>
 
 <span class="kn">from</span> <span class="nn">.NodePort</span> <span class="kn">import</span> <span class="n">NodeInput</span><span class="p">,</span> <span class="n">NodeOutput</span>
 <span class="kn">from</span> <span class="nn">.NodePortType</span> <span class="kn">import</span> <span class="n">NodeInputType</span><span class="p">,</span> <span class="n">NodeOutputType</span>
@@ -157,7 +157,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">block_init_updates</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">block_updates</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_ports</span><span class="p">()</span>
+        <span class="c1"># events</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updating</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_error</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_added</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">NodeInput</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_removed</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">NodeInput</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_added</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">NodeOutput</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_removed</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">NodeOutput</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Node.initialize"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets up the node ports.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_ports</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">_setup_ports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outputs_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
@@ -224,10 +236,12 @@
         <span class="n">InfoMsgs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;update in&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="s1">&#39;node on input&#39;</span><span class="p">,</span> <span class="n">inp</span><span class="p">)</span>
 
         <span class="c1"># invoke update_event</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updating</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">executor</span><span class="o">.</span><span class="n">update_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inp</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">update_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">update_err</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
         <span class="n">InfoMsgs</span><span class="o">.</span><span class="n">write_err</span><span class="p">(</span><span class="s1">&#39;EXCEPTION in&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_error</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Node.input"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.input">[docs]</a>    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Data</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -284,11 +298,10 @@
 <span class="sd">        *VIRTUAL*</span>
 
 <span class="sd">        Called once the node object has been fully initialized and placed in the flow.</span>
-<span class="sd">        When loading content, ``place_event()`` is executed *before* connections are built,</span>
-<span class="sd">        so updating output values here will not cause any other nodes to be updated during loading.</span>
+<span class="sd">        When loading content, :code:`place_event()` is executed *before* connections are built.</span>
 
 <span class="sd">        Notice that this method gets executed *every time* the node is added to the flow, which can happen</span>
-<span class="sd">        multiple times for the same object (e.g. due to undo/redo operations).</span>
+<span class="sd">        more than once if the node was subsequently removed (e.g. due to undo/redo operations).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">pass</span></div>
@@ -341,6 +354,16 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
+<div class="viewcode-block" id="Node.rebuilt"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.rebuilt">[docs]</a>    <span class="k">def</span> <span class="nf">rebuilt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *VIRTUAL*</span>
+
+<span class="sd">        If the node was created by loading components in the flow (see :code:`Flow.load_components()`),</span>
+<span class="sd">        this method will be called after the node has been added to the graph and incident connections</span>
+<span class="sd">        are established.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    </span>
 <span class="sd">    API</span>
@@ -362,8 +385,12 @@
 
         <span class="k">if</span> <span class="n">insert</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">insert</span><span class="p">,</span> <span class="n">inp</span><span class="p">)</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">insert</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_added</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">inp</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">inp</span></div>
 
@@ -382,7 +409,9 @@
         <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">connect_nodes</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">inp</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_removed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">inp</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Node.create_output"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Node.Node.create_output">[docs]</a>    <span class="k">def</span> <span class="nf">create_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">load_from</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">insert</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -400,8 +429,12 @@
 
         <span class="k">if</span> <span class="n">insert</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">insert</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">insert</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_added</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">out</span></div>
 
@@ -419,7 +452,9 @@
         <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">connected_inputs</span><span class="p">(</span><span class="n">out</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">connect_nodes</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">inp</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_removed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span></div>
 
     <span class="c1">#   VARIABLES</span>
 

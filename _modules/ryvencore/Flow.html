@@ -208,6 +208,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span> <span class="p">[</span><span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">node_successors</span> <span class="o">=</span> <span class="p">{}</span>   <span class="c1"># additional data structure for executors</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">graph_adj</span> <span class="o">=</span> <span class="p">{}</span>         <span class="c1"># directed adjacency list relating node ports</span>
@@ -219,17 +220,29 @@
 <div class="viewcode-block" id="Flow.load"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Loading a flow from data as previously returned by ``Flow.data()``.&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span> <span class="o">=</span> <span class="n">data</span>
 
         <span class="c1"># set algorithm mode</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alg_mode</span> <span class="o">=</span> <span class="n">FlowAlg</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;algorithm mode&#39;</span><span class="p">])</span>
 
         <span class="c1"># build flow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_components</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;nodes&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;connections&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;output data&#39;</span><span class="p">])</span></div>
 
-        <span class="n">new_nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_nodes_from_data</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;nodes&#39;</span><span class="p">])</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_output_values_from_data</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;output data&#39;</span><span class="p">])</span>
+<div class="viewcode-block" id="Flow.load_components"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.load_components">[docs]</a>    <span class="k">def</span> <span class="nf">load_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes_data</span><span class="p">,</span> <span class="n">conns_data</span><span class="p">,</span> <span class="n">output_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loading nodes and their connections from data as previously returned</span>
+<span class="sd">        by :code:`Flow.data()`. This method will call :code:`Node.rebuilt()` after</span>
+<span class="sd">        connections are established on all nodes.</span>
+<span class="sd">        Returns the new nodes and connections.&quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_connect_nodes_from_data</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;connections&#39;</span><span class="p">])</span></div>
+        <span class="n">new_nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_nodes_from_data</span><span class="p">(</span><span class="n">nodes_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_output_values_from_data</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">,</span> <span class="n">output_data</span><span class="p">)</span>
+        <span class="n">new_conns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connect_nodes_from_data</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">,</span> <span class="n">conns_data</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">new_nodes</span><span class="p">:</span>
+            <span class="n">n</span><span class="o">.</span><span class="n">rebuilt</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">new_nodes</span><span class="p">,</span> <span class="n">new_conns</span></div>
 
 
     <span class="k">def</span> <span class="nf">_create_nodes_from_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes_data</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
@@ -283,9 +296,19 @@
             <span class="n">print_err</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Node class </span><span class="si">{</span><span class="n">node_class</span><span class="si">}</span><span class="s1"> not in session nodes&#39;</span><span class="p">)</span>
             <span class="k">return</span>
 
+        <span class="c1"># instantiate node</span>
         <span class="n">node</span> <span class="o">=</span> <span class="n">node_class</span><span class="p">((</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">))</span>
+        <span class="c1"># connect to node events</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">input_added</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="k">lambda</span> <span class="n">n</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">inp</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_node_input</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">inp</span><span class="p">),</span> <span class="n">nice</span><span class="o">=-</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">output_added</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="k">lambda</span> <span class="n">n</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_node_output</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">out</span><span class="p">),</span> <span class="n">nice</span><span class="o">=-</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">input_removed</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="k">lambda</span> <span class="n">n</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">inp</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_node_input</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">inp</span><span class="p">),</span> <span class="n">nice</span><span class="o">=-</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">output_removed</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="k">lambda</span> <span class="n">n</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_node_output</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">out</span><span class="p">),</span> <span class="n">nice</span><span class="o">=-</span><span class="mi">5</span><span class="p">)</span>
+        <span class="c1"># initialize node ports</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+        <span class="c1"># load node</span>
         <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">node</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">node_created</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 
@@ -302,10 +325,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">node_successors</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># catch up on node ports</span>
+        <span class="c1"># notice that add_node_output() and add_node_input() are called by Node.</span>
+        <span class="c1"># but it&#39;s ignored when the node is not currently placed in the flow</span>
         <span class="k">for</span> <span class="n">out</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">graph_adj</span><span class="p">[</span><span class="n">out</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_node_output</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># self.graph_adj[out] = []</span>
         <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">inputs</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">graph_adj_rev</span><span class="p">[</span><span class="n">inp</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_node_input</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># self.graph_adj_rev[inp] = None</span>
 
         <span class="n">node</span><span class="o">.</span><span class="n">after_placement</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_flow_changed</span><span class="p">()</span>
@@ -324,17 +353,51 @@
 
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_successors</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">out</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_adj</span><span class="p">[</span><span class="n">out</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_node_output</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># del self.graph_adj[out]</span>
         <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">inputs</span><span class="p">:</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_adj_rev</span><span class="p">[</span><span class="n">inp</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_node_input</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># del self.graph_adj_rev[inp]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_flow_changed</span><span class="p">()</span>
 
         <span class="c1"># notify addons</span>
         <span class="k">for</span> <span class="n">addon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">addons</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">addon</span><span class="o">.</span><span class="n">on_node_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+            <span class="n">addon</span><span class="o">.</span><span class="n">on_node_removed</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">node_removed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Flow.add_node_input"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.add_node_input">[docs]</a>    <span class="k">def</span> <span class="nf">add_node_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">inp</span><span class="p">:</span> <span class="n">NodeInput</span><span class="p">,</span> <span class="n">_call_flow_changed</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;updates internal data structures&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_successors</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph_adj_rev</span><span class="p">[</span><span class="n">inp</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">_call_flow_changed</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_flow_changed</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Flow.add_node_output"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.add_node_output">[docs]</a>    <span class="k">def</span> <span class="nf">add_node_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">NodeOutput</span><span class="p">,</span> <span class="n">_call_flow_changed</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;updates internal data structures.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_successors</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph_adj</span><span class="p">[</span><span class="n">out</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">_call_flow_changed</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_flow_changed</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Flow.remove_node_input"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.remove_node_input">[docs]</a>    <span class="k">def</span> <span class="nf">remove_node_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">inp</span><span class="p">:</span> <span class="n">NodeInput</span><span class="p">,</span> <span class="n">_call_flow_changed</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;updates internal data structures.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_successors</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_adj_rev</span><span class="p">[</span><span class="n">inp</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">_call_flow_changed</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_flow_changed</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Flow.remove_node_output"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.remove_node_output">[docs]</a>    <span class="k">def</span> <span class="nf">remove_node_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">NodeOutput</span><span class="p">,</span> <span class="n">_call_flow_changed</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;updates internal data structures.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_successors</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_adj</span><span class="p">[</span><span class="n">out</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">_call_flow_changed</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_flow_changed</span><span class="p">()</span></div>
 
 
     <span class="k">def</span> <span class="nf">_connect_nodes_from_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Node</span><span class="p">],</span> <span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
@@ -465,7 +528,7 @@
 <div class="viewcode-block" id="Flow.connected_output"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Flow.Flow.connected_output">[docs]</a>    <span class="k">def</span> <span class="nf">connected_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inp</span><span class="p">:</span> <span class="n">NodeInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NodeOutput</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the connected output port to the given input port, or</span>
-<span class="sd">        ``None`` if it is not connected.</span>
+<span class="sd">        :code:`None` if it is not connected.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_adj_rev</span><span class="p">[</span><span class="n">inp</span><span class="p">]</span></div>
 
