@@ -301,6 +301,12 @@ class VarsAddon(AddOn):
             print_err('Variables addon state version too old, skipping')
             return
 
+        # JSON converts int keys to strings, so we need to convert them back
+        state = {
+            int(flow_id): flow_vars
+            for flow_id, flow_vars in state.items()
+        }
+
         self.flow_vars__pending = state
 
 
