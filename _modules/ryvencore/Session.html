@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,13 +13,13 @@
   <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>ryvencore.Session &#8212; ryvencore v0.4.0a13 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/maisie.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <title>ryvencore.Session &#8212; ryvencore v0.4.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8e8a900e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/maisie.css?v=e05a0192" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=342dd957" />
+    <script src="../../_static/documentation_options.js?v=97b6c874"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
   
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0a13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">ryvencore.Session</a></li> 
       </ul>
@@ -91,7 +91,9 @@
 <span class="kn">from</span> <span class="nn">.Node</span> <span class="kn">import</span> <span class="n">Node</span>
 
 
-<div class="viewcode-block" id="Session"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session">[docs]</a><span class="k">class</span> <span class="nc">Session</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+<div class="viewcode-block" id="Session">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session">[docs]</a>
+<span class="k">class</span> <span class="nc">Session</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The Session is the top level interface to your project. It mainly manages flows, nodes, and add-ons and</span>
 <span class="sd">    provides methods for serialization and deserialization of the project.</span>
@@ -126,7 +128,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">register_addons</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="Session.register_addons"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.register_addons">[docs]</a>    <span class="k">def</span> <span class="nf">register_addons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Session.register_addons">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.register_addons">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_addons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Loads all addons from the given location, or from ryvencore&#39;s</span>
 <span class="sd">        *addons* directory if :code:`location` is :code:`None`.</span>
@@ -163,7 +167,10 @@
                 <span class="n">addon</span><span class="o">.</span><span class="n">connect_flow_events</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Session.register_node_types"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.register_node_types">[docs]</a>    <span class="k">def</span> <span class="nf">register_node_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_types</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Node</span><span class="p">]]):</span>
+
+<div class="viewcode-block" id="Session.register_node_types">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.register_node_types">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_node_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_types</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Node</span><span class="p">]]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Registers a list of Nodes which then become available in the flows.</span>
 <span class="sd">        Do not attempt to place nodes in flows that haven&#39;t been registered in the session before.</span>
@@ -173,7 +180,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">register_node_type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Session.register_node_type"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.register_node_type">[docs]</a>    <span class="k">def</span> <span class="nf">register_node_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Node</span><span class="p">]):</span>
+
+<div class="viewcode-block" id="Session.register_node_type">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.register_node_type">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_node_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Node</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Registers a single node.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -182,7 +192,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node_class</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Session.unregister_node"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.unregister_node">[docs]</a>    <span class="k">def</span> <span class="nf">unregister_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Node</span><span class="p">]):</span>
+
+<div class="viewcode-block" id="Session.unregister_node">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.unregister_node">[docs]</a>
+    <span class="k">def</span> <span class="nf">unregister_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Node</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Unregisters a node which will then be removed from the available list.</span>
 <span class="sd">        Existing instances won&#39;t be affected.</span>
@@ -191,7 +204,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">node_class</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Session.all_node_objects"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.all_node_objects">[docs]</a>    <span class="k">def</span> <span class="nf">all_node_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Node</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="Session.all_node_objects">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.all_node_objects">[docs]</a>
+    <span class="k">def</span> <span class="nf">all_node_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Node</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a list of all node objects instantiated in any flow.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -199,7 +215,10 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flows</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">nodes</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="Session.register_data_type"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.register_data_type">[docs]</a>    <span class="k">def</span> <span class="nf">register_data_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_type_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Data</span><span class="p">]):</span>
+
+<div class="viewcode-block" id="Session.register_data_type">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.register_data_type">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_data_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_type_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Data</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Registers a new :code:`Data` subclass which will then be available</span>
 <span class="sd">        in the flows.</span>
@@ -217,7 +236,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data_types</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_type_class</span></div>
 
 
-<div class="viewcode-block" id="Session.register_data_types"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.register_data_types">[docs]</a>    <span class="k">def</span> <span class="nf">register_data_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_type_classes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Data</span><span class="p">]]):</span>
+
+<div class="viewcode-block" id="Session.register_data_types">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.register_data_types">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_data_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_type_classes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Data</span><span class="p">]]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Registers a list of :code:`Data` subclasses which will then be available</span>
 <span class="sd">        in the flows.</span>
@@ -227,7 +249,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">register_data_type</span><span class="p">(</span><span class="n">d</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Session.create_flow"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.create_flow">[docs]</a>    <span class="k">def</span> <span class="nf">create_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flow</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Session.create_flow">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.create_flow">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flow</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates and returns a new flow.</span>
 <span class="sd">        If data is provided the title parameter will be ignored.</span>
@@ -244,7 +269,10 @@
         <span class="k">return</span> <span class="n">flow</span></div>
 
 
-<div class="viewcode-block" id="Session.rename_flow"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.rename_flow">[docs]</a>    <span class="k">def</span> <span class="nf">rename_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Session.rename_flow">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.rename_flow">[docs]</a>
+    <span class="k">def</span> <span class="nf">rename_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Renames an existing flow and returns success boolean.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -260,7 +288,10 @@
         <span class="k">return</span> <span class="n">success</span></div>
 
 
-<div class="viewcode-block" id="Session.flow_title_valid"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.flow_title_valid">[docs]</a>    <span class="k">def</span> <span class="nf">flow_title_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Session.flow_title_valid">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.flow_title_valid">[docs]</a>
+    <span class="k">def</span> <span class="nf">flow_title_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks whether a considered title for a new flow is valid (unique) or not.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -274,7 +305,10 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="Session.delete_flow"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.delete_flow">[docs]</a>    <span class="k">def</span> <span class="nf">delete_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Session.delete_flow">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.delete_flow">[docs]</a>
+    <span class="k">def</span> <span class="nf">delete_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Deletes an existing flow.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -282,6 +316,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">flow_deleted</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span></div>
+
 
 
     <span class="k">def</span> <span class="nf">_info_messenger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -292,7 +327,9 @@
         <span class="k">return</span> <span class="n">InfoMsgs</span>
 
 
-<div class="viewcode-block" id="Session.load"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Flow</span><span class="p">]:</span>
+<div class="viewcode-block" id="Session.load">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.load">[docs]</a>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Flow</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Loads a project and raises an exception if required nodes are missing</span>
 <span class="sd">        (not registered).</span>
@@ -331,7 +368,10 @@
 
         <span class="k">return</span> <span class="n">new_flows</span></div>
 
-<div class="viewcode-block" id="Session.serialize"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Session.serialize">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.serialize">[docs]</a>
+    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the project as JSON compatible dict to be saved and</span>
 <span class="sd">        loaded again using load()</span>
@@ -340,7 +380,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">complete_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">())</span></div>
 
 
-<div class="viewcode-block" id="Session.data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Session.data">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.Session.Session.data">[docs]</a>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Serializes the project&#39;s abstract state into a JSON compatible</span>
 <span class="sd">        dict. Pass to :code:`load()` in a new session to restore.</span>
@@ -357,7 +400,9 @@
             <span class="s1">&#39;addons&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="n">name</span><span class="p">:</span> <span class="n">addon</span><span class="o">.</span><span class="n">data</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">addon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">addons</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">}</span>
-        <span class="p">}</span></div></div>
+        <span class="p">}</span></div>
+</div>
+
 </pre></div>
 
           </div>
@@ -374,7 +419,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0a13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">ryvencore.Session</a></li> 
       </ul>

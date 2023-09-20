@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,13 +13,13 @@
   <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>ryvencore.AddOn &#8212; ryvencore v0.4.0a13 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/maisie.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <title>ryvencore.AddOn &#8212; ryvencore v0.4.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8e8a900e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/maisie.css?v=e05a0192" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=342dd957" />
+    <script src="../../_static/documentation_options.js?v=97b6c874"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
   
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0a13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">ryvencore.AddOn</a></li> 
       </ul>
@@ -117,17 +117,24 @@
 <span class="kn">from</span> <span class="nn">.Base</span> <span class="kn">import</span> <span class="n">Base</span>
 
 
-<div class="viewcode-block" id="AddOn"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn">[docs]</a><span class="k">class</span> <span class="nc">AddOn</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+<div class="viewcode-block" id="AddOn">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn">[docs]</a>
+<span class="k">class</span> <span class="nc">AddOn</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="n">version</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
-<div class="viewcode-block" id="AddOn.register"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">Session</span><span class="p">):</span>
+<div class="viewcode-block" id="AddOn.register">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.register">[docs]</a>
+    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">Session</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Called when the add-on is registered with a session.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span></div>
 
-<div class="viewcode-block" id="AddOn.connect_flow_events"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.connect_flow_events">[docs]</a>    <span class="k">def</span> <span class="nf">connect_flow_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AddOn.connect_flow_events">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.connect_flow_events">[docs]</a>
+    <span class="k">def</span> <span class="nf">connect_flow_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Connects flow events to the add-on.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -135,7 +142,10 @@
         <span class="n">flow</span><span class="o">.</span><span class="n">node_added</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_node_added</span><span class="p">,</span> <span class="n">nice</span><span class="o">=-</span><span class="mi">4</span><span class="p">)</span>
         <span class="n">flow</span><span class="o">.</span><span class="n">node_removed</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_node_removed</span><span class="p">,</span> <span class="n">nice</span><span class="o">=-</span><span class="mi">4</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AddOn.on_flow_created"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_flow_created">[docs]</a>    <span class="k">def</span> <span class="nf">on_flow_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AddOn.on_flow_created">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_flow_created">[docs]</a>
+    <span class="k">def</span> <span class="nf">on_flow_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
@@ -143,7 +153,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="AddOn.on_flow_destroyed"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_flow_destroyed">[docs]</a>    <span class="k">def</span> <span class="nf">on_flow_destroyed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AddOn.on_flow_destroyed">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_flow_destroyed">[docs]</a>
+    <span class="k">def</span> <span class="nf">on_flow_destroyed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="n">Flow</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
@@ -151,7 +164,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="AddOn.on_node_created"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_node_created">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AddOn.on_node_created">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_node_created">[docs]</a>
+    <span class="k">def</span> <span class="nf">on_node_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
@@ -166,7 +182,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="AddOn.on_node_added"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_node_added">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_added</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AddOn.on_node_added">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_node_added">[docs]</a>
+    <span class="k">def</span> <span class="nf">on_node_added</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
@@ -174,7 +193,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="AddOn.on_node_removed"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_node_removed">[docs]</a>    <span class="k">def</span> <span class="nf">on_node_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AddOn.on_node_removed">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.on_node_removed">[docs]</a>
+    <span class="k">def</span> <span class="nf">on_node_removed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
@@ -182,7 +204,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="AddOn.extend_node_data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.extend_node_data">[docs]</a>    <span class="k">def</span> <span class="nf">extend_node_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AddOn.extend_node_data">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.extend_node_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">extend_node_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
@@ -192,7 +217,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="AddOn.get_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.get_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="AddOn.get_state">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.get_state">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
@@ -201,7 +229,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{}</span></div>
 
-<div class="viewcode-block" id="AddOn.set_state"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.set_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AddOn.set_state">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.set_state">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        *VIRTUAL*</span>
 
@@ -214,7 +245,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="AddOn.data"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="AddOn.data">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.data">[docs]</a>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Supplements the data dict with additional data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -223,11 +257,16 @@
             <span class="s1">&#39;custom state&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="AddOn.load"><a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AddOn.load">
+<a class="viewcode-back" href="../../ryvencore.html#ryvencore.AddOn.AddOn.load">[docs]</a>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Loads the data dict generated in :code:`AddOn.data()`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;custom state&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">])</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;custom state&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">])</span></div>
+</div>
+
 </pre></div>
 
           </div>
@@ -244,7 +283,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0a13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">ryvencore.AddOn</a></li> 
       </ul>
