@@ -19,7 +19,7 @@ class DataTypesBasic(unittest.TestCase):
             self.x = None
 
         def update_event(self, inp=-1):
-            self.x = self.input(0).payload
+            self.x = self.input_value(0).payload
 
     def runTest(self):
         s = rc.Session()
@@ -60,7 +60,7 @@ class DataTypesCustom(unittest.TestCase):
             self.x = None
 
         def update_event(self, inp=-1):
-            self.x = self.input(0).payload
+            self.x = self.input_value(0).payload
 
     def runTest(self):
         s = rc.Session()

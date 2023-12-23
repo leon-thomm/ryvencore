@@ -31,8 +31,12 @@ class FlowExecutor:
     def update_node(self, node: Node, inp: int):
         pass
 
-    # Node.input() =>
-    def input(self, node: Node, index: int):
+    # Node.input_value() =>
+    def input_value(self, node: Node, index: int):
+        pass
+    
+    # Node.input_values() =>
+    def input_values(self, node: Node, index: int):
         pass
 
     # Node.set_output_val() =>
@@ -68,16 +72,28 @@ class DataFlowNaive(FlowExecutor):
         except Exception as e:
             node.update_err(e)
 
-    # Node.input() =>
-    def input(self, node: Node, index: int):
+    # Node.input_value() =>
+    def input_value(self, node: Node, index: int):
         inp = node.inputs[index]
-        conn_out = self.graph_rev[inp]
+        conn_outs = self.graph_rev[inp]
 
-        if conn_out:
-            return conn_out.val
+        if len(conn_outs) != 0:
+            conn_out = conn_outs[0]
+            if conn_out:
+                return conn_out.val
         else:
             return inp.default
 
+    # Node.input_values() =>
+    def input_values(self, node: Node, index: int):
+        inp = node.inputs[index]
+        conn_outs = self.graph_rev[inp]
+        
+        if len(conn_outs) == 0:
+            return None
+        
+        return [conn_out.val for conn_out in conn_outs]
+        
     # Node.set_output_val() =>
     def set_output_val(self, node: Node, index: int, data):
         out = node.outputs[index]
@@ -336,17 +352,18 @@ class ExecFlowNaive(FlowExecutor):
             self.updated_nodes = None
 
     # Node.input() =>
-    def input(self, node, index):
+    def input_value(self, node, index):
         inp = node.inputs[index]
-        out = self.graph_rev[inp]
-        if out:
+        out_ports = self.graph_rev[inp]
+        
+        result = []
+        for out in out_ports:
             n = out.node
             if n not in self.updated_nodes:
                 n.update(-1)
+            result.append(out.val)
 
-            return out.val
-        else:
-            return None
+        return result if len(result) > 0 else None
 
     # Node.set_output_val() =>
     def set_output_val(self, node, index, data):

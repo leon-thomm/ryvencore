@@ -72,7 +72,7 @@ but without any data being propagated, so it's just a trigger signal.
 Pushing output data, however, does not cause updates in successor nodes.
 
 When a node is updated (it received an *update event* through an *exec connection*), once it
-needs input data (it calls ``self.input(index)``), if that input is connected to some
+needs input data (it calls ``self.input_value(index)``), if that input is connected to some
 predecessor node `P`, then `P` receives an *update event* with ``inp=-1``, during which
 it should push the output data.
 Therefore, data is not forward propagated on change (``node.set_output_val(index, value)``),
@@ -127,12 +127,12 @@ class Flow(Base):
         # general attributes
         self.session = session
         self.title = title
-        self.nodes: [Node] = []
+        self.nodes: List[Node] = []
         self.load_data = None
 
-        self.node_successors = {}   # additional data structure for executors
-        self.graph_adj = {}         # directed adjacency list relating node ports
-        self.graph_adj_rev = {}     # reverse adjacency; reverse of graph_adj
+        self.node_successors: Dict[Node, List[Node]] = {}   # additional data structure for executors
+        self.graph_adj: Dict[NodeOutput, List[NodeInput]] = {}         # directed adjacency list relating node ports
+        self.graph_adj_rev: Dict[NodeInput, List[NodeOutput]] = {}     # reverse adjacency; reverse of graph_adj
 
         self.alg_mode = FlowAlg.DATA
         self.executor: FlowExecutor = executor_from_flow_alg(self.alg_mode)(self)
@@ -165,7 +165,7 @@ class Flow(Base):
         return new_nodes, new_conns
 
 
-    def _create_nodes_from_data(self, nodes_data: List):
+    def _create_nodes_from_data(self, nodes_data: List) -> List[Node]:
         """create nodes from nodes_data as previously returned by data()"""
 
         nodes = []
@@ -291,7 +291,7 @@ class Flow(Base):
     def add_node_input(self, node: Node, inp: NodeInput, _call_flow_changed=True):
         """updates internal data structures"""
         if node in self.node_successors:
-            self.graph_adj_rev[inp] = None
+            self.graph_adj_rev[inp] = []
             if _call_flow_changed:
                 self._flow_changed()
 
@@ -325,10 +325,10 @@ class Flow(Base):
 
         for c in data:
 
-            c_parent_node_index = c['parent node index']
-            c_connected_node_index = c['connected node']
-            c_output_port_index = c['output port index']
-            c_connected_input_port_index = c['connected input port index']
+            c_parent_node_index: int = c['parent node index']
+            c_connected_node_index: int = c['connected node']
+            c_output_port_index: int = c['output port index']
+            c_connected_input_port_index: int = c['connected input port index']
 
             if c_connected_node_index is not None:  # which can be the case when pasting
                 parent_node = nodes[c_parent_node_index]
@@ -409,9 +409,11 @@ class Flow(Base):
         out, inp = c
 
         self.graph_adj[out].append(inp)
-        self.graph_adj_rev[inp] = out
+        self.graph_adj_rev[inp].append(out)
 
-        self.node_successors[out.node].append(inp.node)
+        successor = self.node_successors[out.node]
+        if inp.node not in successor:
+            self.node_successors[out.node].append(inp.node)
         self._flow_changed()
 
 
@@ -427,10 +429,20 @@ class Flow(Base):
 
         out, inp = c
 
-        self.graph_adj[out].remove(inp)
-        self.graph_adj_rev[inp] = None
-
-        self.node_successors[out.node].remove(inp.node)
+        out_inputs = self.graph_adj[out]
+        out_inputs.remove(inp)
+        self.graph_adj_rev[inp].remove(out)
+        
+        # find if the nodes are still connected via another connection
+        node_found_count = 0
+        for inp_port in out_inputs:
+            if inp_port.node == inp.node:
+                node_found_count += 1
+        
+        # remove the node only if it isn't connected
+        if node_found_count == 0:
+            self.node_successors[out.node].remove(inp.node)
+        
         self._flow_changed()
 
         self.executor.conn_removed(out, inp, silent=silent)
@@ -445,13 +457,21 @@ class Flow(Base):
         return self.graph_adj[out]
 
 
-    def connected_output(self, inp: NodeInput) -> Optional[NodeOutput]:
+    def connected_outputs(self, inp: NodeInput) -> List[NodeOutput]:
         """
-        Returns the connected output port to the given input port, or
-        :code:`None` if it is not connected.
+        Returns a list of all connected outputs to the given input port.
         """
         return self.graph_adj_rev[inp]
 
+
+    def connection_exists(self, out: NodeOutput, inp: NodeInput):
+        return inp in self.graph_adj[out]
+    
+    
+    def connection_exists_tuple(self, connection: Tuple[NodeOutput, NodeInput]):
+        out, inp = connection
+        return self.connection_exists(out, inp)
+    
 
     def algorithm_mode(self) -> str:
         """

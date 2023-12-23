@@ -38,7 +38,7 @@ class Node2(NodeBase):
     init_outputs = []
 
     def update_event(self, inp=-1):
-        print(f'received data on input {inp}: {self.input(inp)}')
+        print(f'received data on input {inp}: {self.input_value(inp)}')
 
 
 class DataFlowBasic(unittest.TestCase):
