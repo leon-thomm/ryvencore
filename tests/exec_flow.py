@@ -25,8 +25,8 @@ class Node2(rc.Node):
         self.data = None
 
     def update_event(self, inp=-1):
-        self.data = self.input_value(1).payload
-        print(f'received data on input {inp}: {self.input_value(inp)}')
+        self.data = self.input(1).payload
+        print(f'received data on input {inp}: {self.input(inp)}')
 
 
 class ExecFlowBasic(unittest.TestCase):

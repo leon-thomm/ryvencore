@@ -163,29 +163,16 @@ class Node(Base):
         InfoMsgs.write_err('EXCEPTION in', self.title, '\n', traceback.format_exc())
         self.update_error.emit(e)
 
-    def input_value(self, index: int) -> Optional[Data]:
+    def input(self, index: int) -> Optional[Data]:
         """
-        Returns the data residing at the first input of given index. This is 
-        essentially the value at the first connection made to this input.
+        Returns the data residing at the data input of given index.
 
         Do not call on exec inputs.
         """
 
-        InfoMsgs.write('first input called in', self.title, ':', index)
+        InfoMsgs.write('input called in', self.title, ':', index)
 
-        return self.flow.executor.input_value(self, index)
-    
-    def input_values(self, index: int) -> Optional[List[Data]]:
-        """
-        Returns a new list of data for all connections to this input.
-        Ordered from first connection made to last
-        
-        Do not call on exec inputs.
-        """
-        
-        InfoMsgs.write('multi input called in', self.title, ':', index)
-        
-        return self.flow.executor.input_values(self, index)
+        return self.flow.executor.input(self, index)
 
     def exec_output(self, index: int):
         """

@@ -54,7 +54,7 @@ class Node2(NodeBase):
     init_outputs = []
 
     def update_event(self, inp=-1):
-        print(f'received data on input {inp}: {self.input_value(inp)}')
+        print(f'received data on input {inp}: {self.input(inp)}')
 
     def update_var1(self, val):
         self.Vars.var(self.flow, 'var1').set(val)
@@ -84,7 +84,7 @@ class VariablesBasic(unittest.TestCase):
 
         self.assertEqual(n1.outputs[0].val.payload, 'Hello, World!')
         self.assertEqual(n1.outputs[1].val.payload, 42)
-        self.assertEqual(n3.input_value(0), n4.input_value(0))
+        self.assertEqual(n3.input(0), n4.input(0))
 
         # test variables addon
 
@@ -113,8 +113,8 @@ class VariablesBasic(unittest.TestCase):
         n2_2.update_var1('test')
 
         self.assertEqual(n1_2.var_val.get(), 'test')
-        self.assertEqual(n3_2.input_value(0).payload, 42)
-        self.assertEqual(n4_2.input_value(0).payload, 42)
+        self.assertEqual(n3_2.input(0).payload, 42)
+        self.assertEqual(n4_2.input(0).payload, 42)
 
         n1_2.update()
         n2_2.update_var1(43)

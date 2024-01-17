@@ -24,7 +24,7 @@ class Node2(NodeBase):
     init_outputs = []
 
     def update_event(self, inp=-1):
-        print(f'received data on input {inp}: {self.input_value(inp)}')
+        print(f'received data on input {inp}: {self.input(inp)}')
 
 
 class DataFlowBasic(unittest.TestCase):
@@ -55,7 +55,7 @@ class DataFlowBasic(unittest.TestCase):
 
         self.assertEqual(n1.outputs[0].val.payload, 'Hello, World!')
         self.assertEqual(n1.outputs[1].val.payload, 42)
-        self.assertEqual(n3.input_value(0), n4.input_value(0))
+        self.assertEqual(n3.input(0), n4.input(0))
 
         # test save and load
 
@@ -70,9 +70,9 @@ class DataFlowBasic(unittest.TestCase):
 
         n1_2, n2_2, n3_2, n4_2 = f2.nodes
 
-        assert n2_2.input_value(0).payload == 'Hello, World!'
-        assert n3_2.input_value(0).payload == 42
-        assert n4_2.input_value(0).payload == 42
+        assert n2_2.input(0).payload == 'Hello, World!'
+        assert n3_2.input(0).payload == 42
+        assert n4_2.input(0).payload == 42
 
         n1_2.update()
 
