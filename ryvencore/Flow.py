@@ -77,7 +77,7 @@ predecessor node `P`, then `P` receives an *update event* with ``inp=-1``, durin
 it should push the output data.
 Therefore, data is not forward propagated on change (``node.set_output_val(index, value)``),
 but generated on request (backwards,
-``node.input_value()`` -> ``pred.update_event()`` -> ``pred.set_output_val()`` -> return).
+``node.input()`` -> ``pred.update_event()`` -> ``pred.set_output_val()`` -> return).
 
 The *exec mode* is still somewhat experimental, because the *data mode* is the far more
 common use case. It is not yet clear how to best implement the *exec mode* in a way that
