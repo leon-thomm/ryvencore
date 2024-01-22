@@ -127,12 +127,12 @@ class Flow(Base):
         # general attributes
         self.session = session
         self.title = title
-        self.nodes: [Node] = []
+        self.nodes: List[Node] = []
         self.load_data = None
 
-        self.node_successors = {}   # additional data structure for executors
-        self.graph_adj = {}         # directed adjacency list relating node ports
-        self.graph_adj_rev = {}     # reverse adjacency; reverse of graph_adj
+        self.node_successors: Dict[Node, List[Node]] = {}   # additional data structure for executors
+        self.graph_adj: Dict[NodeOutput, List[NodeInput]] = {}         # directed adjacency list relating node ports
+        self.graph_adj_rev: Dict[NodeInput, NodeOutput] = {}     # reverse adjacency; reverse of graph_adj
 
         self.alg_mode = FlowAlg.DATA
         self.executor: FlowExecutor = executor_from_flow_alg(self.alg_mode)(self)
@@ -165,7 +165,7 @@ class Flow(Base):
         return new_nodes, new_conns
 
 
-    def _create_nodes_from_data(self, nodes_data: List):
+    def _create_nodes_from_data(self, nodes_data: List) -> List[Node]:
         """create nodes from nodes_data as previously returned by data()"""
 
         nodes = []
@@ -325,10 +325,10 @@ class Flow(Base):
 
         for c in data:
 
-            c_parent_node_index = c['parent node index']
-            c_connected_node_index = c['connected node']
-            c_output_port_index = c['output port index']
-            c_connected_input_port_index = c['connected input port index']
+            c_parent_node_index: int = c['parent node index']
+            c_connected_node_index: int = c['connected node']
+            c_output_port_index: int = c['output port index']
+            c_connected_input_port_index: int = c['connected input port index']
 
             if c_connected_node_index is not None:  # which can be the case when pasting
                 parent_node = nodes[c_parent_node_index]

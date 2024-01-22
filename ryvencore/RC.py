@@ -1,6 +1,6 @@
 """Namespace for enum types etc."""
 
-from enum import IntEnum
+from enum import IntEnum, auto
 
 
 class FlowAlg(IntEnum):
@@ -40,3 +40,22 @@ class PortObjPos(IntEnum):
 
     INPUT = 1
     OUTPUT = 2
+
+
+class ConnValidType(IntEnum):
+    """
+    Result from a connection validity test between two node ports
+    """
+
+    VALID = auto()
+    """Valid Connection"""
+    SAME_NODE = auto()
+    """Invalid Connection due to same node"""
+    SAME_IO = auto()
+    """Invalid Connection due to both ports being input or output"""
+    IO_MISSMATCH = auto()
+    """Invalid Connection due to output being an input and vice-versa"""
+    DIFF_ALG_TYPE = auto()
+    """Invalid Connection due to different algorithm types (data or exec)"""
+    DATA_MISSMATCH = auto()
+    """Invalid Connection due to input / output not accepting the same family of Data"""

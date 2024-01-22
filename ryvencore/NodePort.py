@@ -1,4 +1,4 @@
-from typing import Optional, Dict
+from typing import Optional, Dict, Type
 
 from . import Node
 from .Data import Data
@@ -11,7 +11,7 @@ from .RC import PortObjPos
 class NodePort(Base):
     """Base class for inputs and outputs of nodes"""
 
-    def __init__(self, node: Node, io_pos: PortObjPos, type_: str, label_str: str):
+    def __init__(self, node: Node, io_pos: PortObjPos, type_: str, label_str: str, allowed_data: Optional[Type[Data]] = None):
         Base.__init__(self)
 
         self.node = node
@@ -19,6 +19,7 @@ class NodePort(Base):
         self.type_ = type_
         self.label_str = label_str
         self.load_data = None
+        self.allowed_data = allowed_data
 
     def load(self, data: Dict):
         self.load_data = data
@@ -35,8 +36,8 @@ class NodePort(Base):
 
 class NodeInput(NodePort):
 
-    def __init__(self, node: Node, type_: str, label_str: str = '', default: Optional[Data] = None):
-        super().__init__(node, PortObjPos.INPUT, type_, label_str)
+    def __init__(self, node: Node, type_: str, label_str: str = '', default: Optional[Data] = None, allowed_data: Optional[Type[Data]] = None):
+        super().__init__(node, PortObjPos.INPUT, type_, label_str, allowed_data)
 
         self.default: Optional[Data] = default
 
@@ -54,8 +55,8 @@ class NodeInput(NodePort):
         }
 
 class NodeOutput(NodePort):
-    def __init__(self, node: Node, type_: str, label_str: str = ''):
-        super().__init__(node, PortObjPos.OUTPUT, type_, label_str)
+    def __init__(self, node: Node, type_: str, label_str: str = '', allowed_data: Optional[Type[Data]] = None):
+        super().__init__(node, PortObjPos.OUTPUT, type_, label_str, allowed_data)
 
         self.val: Optional[Data] = None
 

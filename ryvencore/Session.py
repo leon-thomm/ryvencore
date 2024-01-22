@@ -1,7 +1,7 @@
 import importlib
 import glob
 import os.path
-from typing import List, Dict, Type, Optional
+from typing import List, Dict, Type, Optional, Set
 
 from .Data import Data
 from .Base import Base, Event
@@ -33,10 +33,10 @@ class Session(Base):
 
         # ATTRIBUTES
         self.addons = {}
-        self.flows: [Flow] = []
-        self.nodes = set()      # list of node CLASSES
+        self.flows: List[Flow] = []
+        self.nodes: Set[Type[Node]] = set()      # list of node CLASSES
         self.invisible_nodes = set()
-        self.data_types = {}
+        self.data_types: Dict[Data] = {}
         self.gui: bool = gui
         self.init_data = None
 
