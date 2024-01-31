@@ -5,11 +5,8 @@ import json
 import pickle
 import sys
 from os.path import dirname, abspath, join, basename
-from typing import List, Tuple, Optional, Dict, Type
+from typing import List, Tuple, Dict
 from packaging.version import Version, parse as _parse_version
-from .RC import ConnValidType, PortObjPos
-from .NodePort import NodePort, NodeInput, NodeOutput
-from .Data import Data, check_valid_data
 import importlib.util
 
 if sys.version_info < (3, 8):
@@ -50,24 +47,6 @@ def json_print(d: Dict):
     print(json.dumps(d, indent=4))
 
 
-def node_from_identifier(identifier: str, nodes: List):
-
-    for nc in nodes:
-        if nc.identifier == identifier:
-            return nc
-    else:  # couldn't find a node with this identifier => search for identifier_comp
-        for nc in nodes:
-            if identifier in nc.legacy_identifiers:
-                return nc
-        else:
-            raise Exception(
-                f'could not find node class with identifier \'{identifier}\'. '
-                f'if you changed your node\'s class name, make sure to add the old '
-                f'identifier to the identifier_comp list attribute to provide '
-                f'backwards compatibility.'
-            )
-
-
 def load_from_file(file: str, comps: List[str]) -> Tuple:
     """
     Imports components with name in ``comps`` from a python module.
@@ -95,35 +74,5 @@ def load_from_file(file: str, comps: List[str]) -> Tuple:
     return tuple([get_comp(c) for c in comps])
 
 
-def check_valid_conn(out: NodeOutput, inp: NodeInput) -> Tuple[ConnValidType, str]:
-    """
-    Checks if a connection is valid between two node ports.
-
-    Returns:
-        A tuple with the result of the check and a detailed reason, if it exists.
-    """
-    
-    if out.node == inp.node:
-        return (ConnValidType.SAME_NODE, "Ports from the same node cannot be connected!")
-    
-    if out.io_pos == inp.io_pos:
-        return (ConnValidType.SAME_IO, "Connections cannot be made between ports of the same pos (inp-inp) or (out-out)")
-    
-    if out.io_pos != PortObjPos.OUTPUT:
-        return (ConnValidType.IO_MISSMATCH, f"Output io_pos should be {PortObjPos.OUTPUT} but instead is {out.io_pos}")
-    
-    if out.type_ != inp.type_:
-        return (ConnValidType.DIFF_ALG_TYPE, "Input and output must both be either exec ports or data ports")
-    
-    if not check_valid_data(out.allowed_data, inp.allowed_data):
-        return (ConnValidType.DATA_MISSMATCH, 
-                f"When input type is defined, output type must be a (sub)class of input type\n [out={out.allowed_data}, inp={inp.allowed_data}]")
-    
-    return (ConnValidType.VALID, "Connection is valid!")
-
-
-def check_valid_conn_tuple(connection: Tuple[NodeOutput, NodeInput]):
-    out, inp = connection
-    return check_valid_conn(out, inp)
 
     

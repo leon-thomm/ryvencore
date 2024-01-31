@@ -4,11 +4,10 @@ It should be subclassed to define custom data types. In particular, serializatio
 and deserialization must be implemented for each respective type. Types that are
 pickle serializable by default can be used directly with :code`Data(my_data)`.
 """
-from typing import Dict, Type
+from typing import Dict, Type, Iterable, Set
 
-from ryvencore.Base import Base
-from ryvencore.utils import serialize, deserialize, print_err
-
+from ..Base import Base
+from ..utils import serialize, deserialize, print_err
 
 class Data(Base):
     """
@@ -80,7 +79,7 @@ class Data(Base):
     [1, 2, 3, 4]
     [1, 2, 3, 4]
     """
-
+    
     # will be 'Data' by default, see :code:`_build_identifier()`
     identifier: str = None
     """unique Data identifier; you can set this manually in subclasses, if
@@ -88,7 +87,7 @@ class Data(Base):
 
     legacy_identifiers = []
     """a list of compatible identifiers in case you change the identifier"""
-
+    
     @classmethod
     def _build_identifier(cls):
         cls.identifier = cls.__name__
@@ -99,8 +98,8 @@ class Data(Base):
         if load_from is not None:
             self.load(load_from)
         else:
-            self._payload = value
-
+            self.payload = value
+                
     def __str__(self):
         return f'<{self.__class__.__name__}({self.payload}) object, GID: {self.global_id}>'
 
@@ -149,6 +148,19 @@ class Data(Base):
 
         self.set_data(deserialize(data['serialized']))
 
+# build identifier for Data
+Data._build_identifier()
+
+
+class _BuiltInData(Data):
+    """Identifier type for built-in data types"""
+    
+    @classmethod
+    def _build_identifier(cls):
+        cls.identifier = f'data.built_in.{cls.__name__}'
+
+_BuiltInData._build_identifier()
+
 
 def check_valid_data(out_data_type: Type[Data], inp_data_type: Type[Data]) -> bool:
     """Returns true if input data can accept the output data, otherwise false"""
@@ -157,7 +169,5 @@ def check_valid_data(out_data_type: Type[Data], inp_data_type: Type[Data]) -> bo
         return True
     
     return issubclass(out_data_type, inp_data_type) 
-    
-    
-# build identifier for Data
-Data._build_identifier()
+
+

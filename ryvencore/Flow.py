@@ -89,11 +89,11 @@ Assumptions:
 
 """
 from .Base import Base, Event
-from .Data import Data
+from .data.Data import Data
 from .FlowExecutor import DataFlowNaive, DataFlowOptimized, FlowExecutor, executor_from_flow_alg
-from .Node import Node
-from .NodePort import NodeOutput, NodeInput
-from .RC import FlowAlg, PortObjPos
+from .Node import Node, node_from_identifier
+from .NodePort import NodeOutput, NodeInput, check_valid_conn
+from .RC import FlowAlg, PortObjPos, ConnValidType
 from .utils import *
 from typing import List, Dict, Optional, Tuple, Type
 
@@ -353,17 +353,9 @@ class Flow(Base):
 
         out, inp = c
 
-        valid = True
-
-        if out.node == inp.node:
-            valid = False
-
-        if out.io_pos == inp.io_pos or out.type_ != inp.type_:
-            valid = False
-
-        if out.io_pos != PortObjPos.OUTPUT:
-            valid = False
-
+        valid_type, message = check_valid_conn(out, inp)
+        valid = valid_type == ConnValidType.VALID
+        
         self.connection_request_valid.emit(valid)
 
         return valid

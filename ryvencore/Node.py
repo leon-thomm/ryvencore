@@ -5,7 +5,7 @@ from .Base import Base, Event
 
 from .NodePort import NodeInput, NodeOutput
 from .NodePortType import NodeInputType, NodeOutputType
-from .Data import Data
+from .data import Data
 from .InfoMsgs import InfoMsgs
 from .utils import serialize, deserialize
 
@@ -99,11 +99,11 @@ class Node(Base):
             for i in range(len(self.init_inputs)):
                 inp = self.init_inputs[i]
 
-                self.create_input(label=inp.label, type_=inp.type_, default=inp.default)
+                self.create_input(label=inp.label, type_=inp.type_, default=inp.default, allowed_data=inp.allowed_data)
 
             for o in range(len(self.init_outputs)):
                 out = self.init_outputs[o]
-                self.create_output(out.label, out.type_)
+                self.create_output(out.label, out.type_, allowed_data=out.allowed_data)
 
         else:
             # load from data
@@ -292,13 +292,14 @@ class Node(Base):
 
     #   PORTS
 
-    def create_input(self, label: str = '', type_: str = 'data', default: Optional[Data] = None, load_from = None, insert: int = None):
+    def create_input(self, label: str = '', type_: str = 'data', default: Optional[Data] = None, load_from = None, insert: int = None,
+                     allowed_data: Optional[Data] = None):
         """
         Creates and adds a new input at the end or index ``insert`` if specified.
         """
         # InfoMsgs.write('create_input called')
 
-        inp = NodeInput(node=self, type_=type_, label_str=label, default=default)
+        inp = NodeInput(node=self, type_=type_, label_str=label, default=default, allowed_data=allowed_data)
 
         if load_from is not None:
             inp.load(load_from)
@@ -333,7 +334,8 @@ class Node(Base):
 
         self.input_removed.emit(self, index, inp)
 
-    def create_output(self, label: str = '', type_: str = 'data', load_from=None, insert: int = None):
+    def create_output(self, label: str = '', type_: str = 'data', load_from=None, insert: int = None,
+                      allowed_data: Optional[Data] = None):
         """
         Creates and adds a new output at the end or index ``insert`` if specified.
         """
@@ -342,6 +344,7 @@ class Node(Base):
             node=self,
             type_=type_,
             label_str=label,
+            allowed_data=allowed_data
         )
 
         if load_from is not None:
@@ -470,3 +473,21 @@ class Node(Base):
             addon.extend_node_data(self, d)
 
         return d
+
+
+def node_from_identifier(identifier: str, nodes: List[Node]):
+
+    for nc in nodes:
+        if nc.identifier == identifier:
+            return nc
+    else:  # couldn't find a node with this identifier => search for identifier_comp
+        for nc in nodes:
+            if identifier in nc.legacy_identifiers:
+                return nc
+        else:
+            raise Exception(
+                f'could not find node class with identifier \'{identifier}\'. '
+                f'if you changed your node\'s class name, make sure to add the old '
+                f'identifier to the identifier_comp list attribute to provide '
+                f'backwards compatibility.'
+            )

@@ -1,6 +1,10 @@
 import unittest
 import ryvencore as rc
 
+from ryvencore.data.built_in import *
+from ryvencore.data.built_in.collections.abc import *
+from ryvencore.data.Data import check_valid_data
+from ryvencore.NodePort import check_valid_conn
 
 class DataTypesBasic(unittest.TestCase):
 
@@ -88,5 +92,43 @@ class DataTypesCustom(unittest.TestCase):
         self.assertEqual(n2_2.x, 42)
 
 
+class DataTypesBuiltIn(unittest.TestCase):
+    
+    class Producer(rc.Node):
+        init_outputs = [rc.NodeOutputType(allowed_data=ComplexData)]
+
+        def update_event(self, inp=-1):
+            self.set_output_val(0, rc.Data(42))
+
+    class Consumer(rc.Node):
+        init_inputs = [
+            rc.NodeInputType(allowed_data=NumberData),
+            rc.NodeInputType(allowed_data=ListData),
+        ]
+
+        def __init__(self, params):
+            super().__init__(params)
+
+            self.x = None
+
+        def update_event(self, inp=-1):
+            self.x = self.input(0).payload
+            
+    def runTest(self):
+        self.assertTrue(check_valid_data(ListData, SequenceData))
+        self.assertFalse(check_valid_data(NumberData, IntegerData))
+        self.assertTrue(check_valid_data(IntegerData, ComplexData))
+        
+        s = rc.Session()
+        self.assertTrue(s.get_data_type(ListData.identifier) is not None)
+        
+        s.register_node_types([DataTypesBuiltIn.Producer, DataTypesBuiltIn.Consumer])
+        f = s.create_flow('flow')
+        n1 = f.create_node(self.Producer)
+        n2 = f.create_node(self.Consumer)
+        
+        self.assertIsNotNone(f.connect_nodes(n1.outputs[0], n2.inputs[0])) # ComplexData -> NumberData should be ok
+        self.assertIsNone(f.connect_nodes(n1.outputs[0], n2.inputs[1])) # ComplexData -> ListData should not be ok
+        
 if __name__ == '__main__':
     unittest.main()

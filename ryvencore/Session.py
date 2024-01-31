@@ -3,7 +3,8 @@ import glob
 import os.path
 from typing import List, Dict, Type, Optional, Set
 
-from .Data import Data
+from .data import Data 
+from .data.built_in import get_built_in_data_types 
 from .Base import Base, Event
 from .Flow import Flow
 from .InfoMsgs import InfoMsgs
@@ -35,11 +36,14 @@ class Session(Base):
         self.addons = {}
         self.flows: List[Flow] = []
         self.nodes: Set[Type[Node]] = set()      # list of node CLASSES
-        self.invisible_nodes = set()
-        self.data_types: Dict[Data] = {}
+        self.invisible_nodes: Set[Type[Node]] = set()
+        self.data_types: Dict[str, Type[Data]] = {}
         self.gui: bool = gui
         self.init_data = None
 
+        # Register Built-In Data Types
+        self.register_data_types(get_built_in_data_types())
+        
         # self.register_addons(pkg_path('addons/legacy/'))
         # self.register_addons(pkg_path('addons/'))
         if load_addons:
@@ -146,7 +150,24 @@ class Session(Base):
         for d in data_type_classes:
             self.register_data_type(d)
 
-
+    
+    def register_data_types_by_base(self, base_type: Type[Data]):
+        """
+        Registers :code:`Data` subclasses that belong to a base class.
+        """
+        
+        self.register_data_type(base_type)
+        for data_type in base_type.__subclasses__():
+            self.register_data_type(data_type)
+            
+    
+    def get_data_type(self, id: str) -> Optional[Type[Data]]:
+        """
+        Retrieves a data type with a specific id, if it exists
+        """
+        
+        return self.data_types.get(id)
+        
     def create_flow(self, title: str = None, data: Dict = None) -> Flow:
         """
         Creates and returns a new flow.
