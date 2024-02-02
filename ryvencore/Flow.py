@@ -346,7 +346,7 @@ class Flow(Base):
         return connections
 
 
-    def check_connection_validity(self, c: Tuple[NodeOutput, NodeInput]):
+    def check_connection_validity(self, c: Tuple[NodeOutput, NodeInput]) -> Tuple[ConnValidType, str]:
         """
         Checks whether a considered connect action is legal.
         """

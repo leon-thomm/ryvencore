@@ -1,7 +1,7 @@
 """Namespace for enum types etc."""
 
 from enum import IntEnum, auto
-
+from numbers import Real
 
 class FlowAlg(IntEnum):
     """Used for performance reasons"""
@@ -59,3 +59,49 @@ class ConnValidType(IntEnum):
     """Invalid Connection due to different algorithm types (data or exec)"""
     DATA_MISSMATCH = auto()
     """Invalid Connection due to input / output Data type checking"""
+
+
+class ProgressState:
+    """
+    Represents a progress state / bar.
+    
+    A negative value indicates indefinite progress
+    """
+    
+    def __init__(self, max_value: Real = 1, value: Real = 0, message: str = ''):
+        self._max_value = max_value
+        self._value = value
+        self.message = message
+    
+    @property
+    def max_value(self):
+        """Max value of the progress."""
+        return self._max_value
+    
+    @max_value.setter
+    def max_value(self, max_value: Real):
+        self._max_value = max_value
+    
+    @property
+    def value(self):
+        """Current value of the progress. A negative value indicates indefinite progress"""
+        return self._value
+
+    @value.setter
+    def value(self, value: Real):
+        if value < 0:
+            self._value = value
+            return
+        
+        self._value = max(self._max_value, min(0, value))
+    
+    def is_indefinite(self) -> bool:
+        """Returns true if there is indefinite progress"""
+        return self._value < 0
+    
+    def percentage(self):
+        return self._value / self._max_value
+    
+    def as_percentage(self):
+        """Returns a new progress state so that max_value = 1"""
+        return ProgressState(1, self._value / self.max_value, self.message)

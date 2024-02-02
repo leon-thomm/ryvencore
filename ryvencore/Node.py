@@ -1,5 +1,5 @@
 import traceback
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Union
 
 from .Base import Base, Event
 
@@ -8,6 +8,10 @@ from .NodePortType import NodeInputType, NodeOutputType
 from .data import Data
 from .InfoMsgs import InfoMsgs
 from .utils import serialize, deserialize
+from .RC import ProgressState
+
+from numbers import Real
+from copy import copy
 
 
 class Node(Base):
@@ -77,6 +81,8 @@ class Node(Base):
         self.block_init_updates = False
         self.block_updates = False
 
+        self._progress = None
+        
         # events
         self.updating = Event(int)
         self.updated = Event(int)
@@ -85,7 +91,8 @@ class Node(Base):
         self.input_removed = Event(Node, int, NodeInput)
         self.output_added = Event(Node, int, NodeOutput)
         self.output_removed = Event(Node, int, NodeOutput)
-        self.output_changed = Event(Node, int, NodeOutput, Data)
+        self.output_updated = Event(Node, int, NodeOutput, Data)
+        self.progress_updated = Event(ProgressState)
 
     def initialize(self):
         """
@@ -198,7 +205,7 @@ class Node(Base):
 
         self.flow.executor.set_output_val(self, index, data)
         
-        self.output_changed.emit(self, index, self.outputs[index], data)
+        self.output_updated.emit(self, index, self.outputs[index], data)
 
     """
     
@@ -391,10 +398,40 @@ class Node(Base):
         Returns an add-on registered in the session by name, or None if it wasn't found.
         """
         return self.session.addons.get(name)
-
+    
+    #   PROGRESS
+    
+    @property
+    def progress(self) -> Union[ProgressState, None]:
+        """Copy of the current progress of execution in the node, or None if there's no active progress"""
+        return copy(self._progress) if self._progress is not None else None
+    
+    @progress.setter
+    def progress(self, progress_state: Union[ProgressState, None]):
+        """Sets the current progress"""
+        self._progress = progress_state
+        self.progress_updated.emit(self._progress)
+    
+    def set_progress(self, progress_state: Union[ProgressState, None], as_percentage: bool = False):
+        """Sets the progress, allowing to turn it into a percentage"""
+        if progress_state is not None and as_percentage:
+            progress_state = progress_state.as_percentage()
+        self._progress.value = progress_state
+        self.progress_updated.emit(self._progress)
+    
+    def set_progress_value(self, value: Real, message: str = None, as_percentage: bool = False):
+        """
+        Sets the value of an existing progress
+        Sets the message as well if it isn't None
+        """
+        self._progress.value = value
+        if message:
+            self._progress.message = message
+        self.set_progress(self._progress, as_percentage)
+            
     """
     
-    UTILITY METHODS
+    UTILITY METHODS1
     
     """
 
