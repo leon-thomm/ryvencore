@@ -5,7 +5,7 @@ from .Base import Base, Event
 
 from .NodePort import NodeInput, NodeOutput
 from .NodePortType import NodeInputType, NodeOutputType
-from .data import Data
+from .data.Data import Data, payload_to_data
 from .InfoMsgs import InfoMsgs
 from .utils import serialize, deserialize
 from .RC import ProgressState
@@ -183,6 +183,17 @@ class Node(Base):
         InfoMsgs.write('input called in', self.title, ':', index)
 
         return self.flow.executor.input(self, index)
+    
+    def input_payload(self, index: int):
+        """
+        Returns the payload residing at the data input of given index.
+
+        Do not call on exec inputs
+        """
+        
+        data = self.input(index)
+        
+        return data.payload if data else None
 
     def exec_output(self, index: int):
         """
@@ -199,7 +210,13 @@ class Node(Base):
         """
         Sets the value of a data output causing activation of all connections in data mode.
         """
-        assert isinstance(data, Data), "Output value must be of type ryvencore.Data"
+        
+        out = self.outputs[index]
+        data_type = (out.allowed_data 
+                    if out.allowed_data and issubclass(out.allowed_data, Data)
+                    else Data) 
+        
+        assert isinstance(data, data_type), f"Output value must be of type {data_type.__module__}.{data_type.__name__}"
 
         InfoMsgs.write('setting output', index, 'in', self.title)
 
@@ -207,6 +224,21 @@ class Node(Base):
         
         self.output_updated.emit(self, index, self.outputs[index], data)
 
+    def set_output_payload(self, index: int, payload):
+        """
+        Wrapper of :code:`set_output_val()` that creates the data type from the payload type.
+        
+        Data and payload types must be associated with register_payload_to_data found in Data module.
+        
+        This function assumes the derived Data type's constructor works at least with a payload argument.
+        Defaults to the base Data type if an association isn't found 
+        """
+        
+        data_type = payload_to_data.get(type(payload))
+        data = data_type(payload) if data_type else Data(payload)
+        
+        self.set_output_val(index, data)
+    
     """
     
     EVENT SLOTS
@@ -422,6 +454,7 @@ class Node(Base):
     def set_progress_value(self, value: Real, message: str = None, as_percentage: bool = False):
         """
         Sets the value of an existing progress
+        
         Sets the message as well if it isn't None
         """
         self._progress.value = value

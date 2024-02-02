@@ -9,6 +9,7 @@ from .abc import (
     SetData_ABC,
 )
 from collections import OrderedDict, deque
+from ...Data import register_payload_to_data_multi
 
 class ListData(MutableSequenceData):
     collection_type = list
@@ -16,7 +17,7 @@ class ListData(MutableSequenceData):
 class TupleData(SequenceData):
     collection_type = tuple
 
-class DictData(MappingData):
+class DictData(MutableMappingData):
     collection_type = dict
 
 class OrderedDictData(MutableMappingData):
@@ -30,6 +31,18 @@ class FrozenSetData(SetData_ABC):
 
 class QueueData(MutableSequenceData):
     collection_type = deque
+
+register_payload_to_data_multi(
+    {
+        list: ListData,
+        tuple: TupleData,
+        dict: DictData,
+        OrderedDict: OrderedDictData,
+        set: SetData,
+        frozenset: FrozenSetData,
+        deque: QueueData,
+    }
+)
 
 
 

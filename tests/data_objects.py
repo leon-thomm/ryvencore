@@ -130,6 +130,11 @@ class DataTypesBuiltIn(unittest.TestCase):
         self.assertIsNotNone(f.connect_nodes(n1.outputs[0], n2.inputs[0])) # ComplexData -> NumberData should be ok
         self.assertIsNone(f.connect_nodes(n1.outputs[0], n2.inputs[1])) # ComplexData -> ListData should not be ok
         
+        n1.set_output_payload(0, 23.0)
+        self.assertTrue(n2.input_payload(0) == 23)
+        self.assertTrue(isinstance(n2.input(0), ComplexData))
+        self.assertFalse(isinstance(n2.input(0), IntegerData))
+
         
 if __name__ == '__main__':
     unittest.main()

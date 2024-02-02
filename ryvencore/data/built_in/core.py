@@ -1,6 +1,6 @@
 """Defines common data types based on python standard types"""
 
-from ..Data import Data, _BuiltInData
+from ..Data import Data, _BuiltInData, register_payload_to_data
 from typing import Iterable
 from .collections.abc import SequenceData
  
@@ -14,7 +14,12 @@ class PayloadData(_BuiltInData):
     """
     Type used to assert that the value is a (sub)class of that type
     Not used for type-checking
-    """  
+    """
+    
+    @classmethod
+    def register_payload_type(cls):
+        if cls.payload_type:
+            register_payload_to_data(cls.payload_type, cls)
     
     def __init__(self, value=None, load_from=None):
         super().__init__(value, load_from)
@@ -27,10 +32,12 @@ class PayloadData(_BuiltInData):
 class StringData(SequenceData):
     collection_type = str
 
+register_payload_to_data(str, StringData)
 
 class BytesData(SequenceData):
     collection_type = bytes
  
+register_payload_to_data(bytes, BytesData)
 
 def __get_all_subclasses(cls):
     subclasses = set(cls.__subclasses__())
