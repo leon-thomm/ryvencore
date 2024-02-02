@@ -3,7 +3,7 @@ import ryvencore as rc
 
 from ryvencore.data.built_in import *
 from ryvencore.data.built_in.collections.abc import *
-from ryvencore.data.Data import check_valid_data
+from ryvencore.data import Data, check_valid_data
 from ryvencore.NodePort import check_valid_conn
 
 class DataTypesBasic(unittest.TestCase):
@@ -129,6 +129,7 @@ class DataTypesBuiltIn(unittest.TestCase):
         
         self.assertIsNotNone(f.connect_nodes(n1.outputs[0], n2.inputs[0])) # ComplexData -> NumberData should be ok
         self.assertIsNone(f.connect_nodes(n1.outputs[0], n2.inputs[1])) # ComplexData -> ListData should not be ok
+        
         
 if __name__ == '__main__':
     unittest.main()

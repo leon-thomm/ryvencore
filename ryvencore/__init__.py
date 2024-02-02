@@ -2,7 +2,7 @@ from .InfoMsgs import InfoMsgs
 from .RC import *
 from .Session import Session
 from .Flow import Flow
-from .data import Data
+from .data.Data import Data
 from .AddOn import AddOn
 from .Node import Node
 from .NodePortType import NodeInputType, NodeOutputType

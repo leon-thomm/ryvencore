@@ -58,4 +58,4 @@ class ConnValidType(IntEnum):
     DIFF_ALG_TYPE = auto()
     """Invalid Connection due to different algorithm types (data or exec)"""
     DATA_MISSMATCH = auto()
-    """Invalid Connection due to input / output not accepting the same family of Data"""
+    """Invalid Connection due to input / output Data type checking"""

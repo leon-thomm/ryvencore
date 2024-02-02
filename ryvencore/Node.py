@@ -79,11 +79,13 @@ class Node(Base):
 
         # events
         self.updating = Event(int)
+        self.updated = Event(int)
         self.update_error = Event(Exception)
         self.input_added = Event(Node, int, NodeInput)
         self.input_removed = Event(Node, int, NodeInput)
         self.output_added = Event(Node, int, NodeOutput)
         self.output_removed = Event(Node, int, NodeOutput)
+        self.output_changed = Event(Node, int, NodeOutput, Data)
 
     def initialize(self):
         """
@@ -158,6 +160,7 @@ class Node(Base):
         # invoke update_event
         self.updating.emit(inp)
         self.flow.executor.update_node(self, inp)
+        self.updated.emit(inp)
 
     def update_err(self, e):
         InfoMsgs.write_err('EXCEPTION in', self.title, '\n', traceback.format_exc())
@@ -194,6 +197,8 @@ class Node(Base):
         InfoMsgs.write('setting output', index, 'in', self.title)
 
         self.flow.executor.set_output_val(self, index, data)
+        
+        self.output_changed.emit(self, index, self.outputs[index], data)
 
     """
     

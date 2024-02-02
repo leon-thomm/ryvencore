@@ -114,7 +114,7 @@ class Flow(Base):
         self.connection_added = Event((NodeOutput, NodeInput))        # Event(Connection)
         self.connection_removed = Event((NodeOutput, NodeInput))      # Event (Connection)
 
-        self.connection_request_valid = Event(bool)
+        self.connection_request_valid = Event((ConnValidType, str))
         self.nodes_created_from_data = Event(list)
         self.connections_created_from_data = Event(list)
 
@@ -346,19 +346,18 @@ class Flow(Base):
         return connections
 
 
-    def check_connection_validity(self, c: Tuple[NodeOutput, NodeInput]) -> bool:
+    def check_connection_validity(self, c: Tuple[NodeOutput, NodeInput]):
         """
         Checks whether a considered connect action is legal.
         """
 
         out, inp = c
 
-        valid_type, message = check_valid_conn(out, inp)
-        valid = valid_type == ConnValidType.VALID
+        valid_result = check_valid_conn(out, inp)
         
-        self.connection_request_valid.emit(valid)
+        self.connection_request_valid.emit(valid_result)
 
-        return valid
+        return valid_result
 
 
     def connect_nodes(self, out: NodeOutput, inp: NodeInput, silent=False) -> Optional[Tuple[NodeOutput, NodeInput]]:
@@ -366,11 +365,14 @@ class Flow(Base):
         Connects two node ports. Returns the connection if successful, None otherwise.
         """
 
-        if not self.check_connection_validity((out, inp)):
-            print_err('Invalid connect request.')
+        valid_type, message = self.check_connection_validity((out, inp))
+        
+        if valid_type != ConnValidType.VALID:
+            print_err(f'Invalid connect request, [{message}]')
             return None
 
         if inp in self.graph_adj[out]:
+            print_err(f'Already connected! Aborting Connect request')
             return None
 
         self.add_connection((out, inp), silent=silent)
@@ -383,11 +385,14 @@ class Flow(Base):
         Disconnects two node ports.
         """
 
-        if not self.check_connection_validity((out, inp)):
-            print_err('Invalid disconnect request.')
+        valid_type, message = self.check_connection_validity((out, inp))
+        
+        if valid_type != ConnValidType.VALID:
+            print_err(f'Invalid disconnect request, [{message}]')
             return
 
         if inp not in self.graph_adj[out]:
+            print_err(f'Not connected! Aborting Disconnect request')
             return
 
         self.remove_connection((out, inp), silent=silent)
