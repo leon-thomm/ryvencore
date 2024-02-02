@@ -95,15 +95,19 @@ class DataTypesCustom(unittest.TestCase):
 class DataTypesBuiltIn(unittest.TestCase):
     
     class Producer(rc.Node):
-        init_outputs = [rc.NodeOutputType(allowed_data=ComplexData)]
+        init_outputs = [
+            rc.NodeOutputType(allowed_data=ComplexData),
+            rc.NodeOutputType(allowed_data=ListData),
+        ]
 
         def update_event(self, inp=-1):
-            self.set_output_val(0, rc.Data(42))
+            self.set_output_payload(0, 42 + 2j)
 
     class Consumer(rc.Node):
         init_inputs = [
             rc.NodeInputType(allowed_data=NumberData),
             rc.NodeInputType(allowed_data=ListData),
+            rc.NodeInputType(allowed_data=SequenceData),
         ]
 
         def __init__(self, params):
@@ -130,10 +134,16 @@ class DataTypesBuiltIn(unittest.TestCase):
         self.assertIsNotNone(f.connect_nodes(n1.outputs[0], n2.inputs[0])) # ComplexData -> NumberData should be ok
         self.assertIsNone(f.connect_nodes(n1.outputs[0], n2.inputs[1])) # ComplexData -> ListData should not be ok
         
-        n1.set_output_payload(0, 23.0)
+        n1.set_output_payload(0, 23.0) # automatic data type detection
         self.assertTrue(n2.input_payload(0) == 23)
         self.assertTrue(isinstance(n2.input(0), ComplexData))
         self.assertFalse(isinstance(n2.input(0), IntegerData))
+        
+        self.assertIsNotNone(f.connect_nodes(n1.outputs[1], n2.inputs[1])) # ListData -> ListData should be ok
+        self.assertIsNotNone(f.connect_nodes(n1.outputs[1], n2.inputs[2])) # ListData -> SequenceData should be ok 
+        
+        n1.set_output_payload(1, [1, 2, 3])
+        self.assertTrue(isinstance(n2.input(1), ListData))
 
         
 if __name__ == '__main__':
