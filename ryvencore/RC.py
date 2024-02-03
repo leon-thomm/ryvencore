@@ -59,6 +59,18 @@ class ConnValidType(IntEnum):
     """Invalid Connection due to different algorithm types (data or exec)"""
     DATA_MISSMATCH = auto()
     """Invalid Connection due to input / output Data type checking"""
+    ALREADY_CONNECTED = auto()
+    """
+    Invalid Connect check
+    
+    Optional Check - A connect action was attempted but nodes were already connected!
+    """
+    ALREADY_DISCONNECTED = auto()
+    """
+    Invalid Disconnect check
+    
+    Optional Check - A disconnect action was attemped on disconnected ports!
+    """
 
 
 class ProgressState:

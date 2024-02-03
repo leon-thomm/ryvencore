@@ -349,6 +349,8 @@ class Flow(Base):
     def check_connection_validity(self, c: Tuple[NodeOutput, NodeInput]) -> Tuple[ConnValidType, str]:
         """
         Checks whether a considered connect action is legal.
+        
+        Does not check if the ports are connected or disconnected
         """
 
         out, inp = c
@@ -359,6 +361,37 @@ class Flow(Base):
 
         return valid_result
 
+    
+    def can_nodes_connect(self, c: Tuple[NodeOutput, NodeInput]) -> Tuple[ConnValidType, str]:
+        """
+        Same as :code:`Flow.check_connection_validity()` - Also checks if nodes already connected
+        """
+        
+        out, inp = c
+        
+        valid_type, _ = valid_result = check_valid_conn(out, inp)
+        if valid_type == ConnValidType.VALID and inp in self.graph_adj[out]:
+            valid_result = (ConnValidType.ALREADY_CONNECTED, "Connect action invalid on already connected nodes!")
+        
+        self.connection_request_valid.emit(valid_result)
+        
+        return valid_result
+    
+    
+    def can_nodes_disconnect(self, c: Tuple[NodeOutput, NodeInput]) -> Tuple[ConnValidType, str]:
+        """
+        Same as :code:`Flow.check_connection_validity()` - Also checks if nodes already disconnected
+        """
+        
+        out, inp = c
+        
+        valid_type, _ = valid_result = check_valid_conn(out, inp)
+        if valid_type == ConnValidType.VALID and inp not in self.graph_adj[out]:
+            valid_result = (ConnValidType.ALREADY_DISCONNECTED, "Disconnect action invalid on already disconnected nodes!")
+        
+        self.connection_request_valid.emit(valid_result)
+        
+        return valid_result
 
     def connect_nodes(self, out: NodeOutput, inp: NodeInput, silent=False) -> Optional[Tuple[NodeOutput, NodeInput]]:
         """
@@ -369,10 +402,6 @@ class Flow(Base):
         
         if valid_type != ConnValidType.VALID:
             print_err(f'Invalid connect request, [{message}]')
-            return None
-
-        if inp in self.graph_adj[out]:
-            print_err(f'Already connected! Aborting Connect request')
             return None
 
         self.add_connection((out, inp), silent=silent)
@@ -389,10 +418,6 @@ class Flow(Base):
         
         if valid_type != ConnValidType.VALID:
             print_err(f'Invalid disconnect request, [{message}]')
-            return
-
-        if inp not in self.graph_adj[out]:
-            print_err(f'Not connected! Aborting Disconnect request')
             return
 
         self.remove_connection((out, inp), silent=silent)
