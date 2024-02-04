@@ -80,6 +80,13 @@ class ProgressState:
     A negative value indicates indefinite progress
     """
     
+    __INDEFINITE_PROGRESS: int = -1
+    
+    @classmethod
+    @property
+    def IMMUTABLE_PROGRESS(cls):
+        return cls.__INDEFINITE_PROGRESS
+    
     def __init__(self, max_value: Real = 1, value: Real = 0, message: str = ''):
         self._max_value = max_value
         self._value = value
