@@ -173,10 +173,16 @@ _BuiltInData._build_identifier()
 
 
 def check_valid_data(out_data_type: Type[Data], inp_data_type: Type[Data]) -> bool:
-    """Returns true if input data can accept the output data, otherwise false"""
+    """
+    Returns true if input data can accept the output data, otherwise false
     
-    if inp_data_type is None or out_data_type is Data:
-        return True
+    None type is treated as the default Data type
+    """
+    
+    if inp_data_type is None:
+        inp_data_type = Data
+    if out_data_type is None:
+        out_data_type = Data
     
     return issubclass(out_data_type, inp_data_type)
 
