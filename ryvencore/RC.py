@@ -49,22 +49,32 @@ class ConnValidType(IntEnum):
 
     VALID = auto()
     """Valid Connection"""
+    
     SAME_NODE = auto()
     """Invalid Connection due to same node"""
+    
     SAME_IO = auto()
     """Invalid Connection due to both ports being input or output"""
+    
     IO_MISSMATCH = auto()
     """Invalid Connection due to output being an input and vice-versa"""
+    
     DIFF_ALG_TYPE = auto()
     """Invalid Connection due to different algorithm types (data or exec)"""
+    
     DATA_MISSMATCH = auto()
     """Invalid Connection due to input / output Data type checking"""
+    
+    INPUT_TAKEN = auto()
+    """Invalid Connection due to input being connected to another output"""
+    
     ALREADY_CONNECTED = auto()
     """
     Invalid Connect check
     
     Optional Check - A connect action was attempted but nodes were already connected!
     """
+    
     ALREADY_DISCONNECTED = auto()
     """
     Invalid Disconnect check
@@ -72,7 +82,7 @@ class ConnValidType(IntEnum):
     Optional Check - A disconnect action was attemped on disconnected ports!
     """
 
-
+    
 class ProgressState:
     """
     Represents a progress state / bar.
@@ -84,7 +94,7 @@ class ProgressState:
     
     @classmethod
     @property
-    def IMMUTABLE_PROGRESS(cls):
+    def INDEFINITE_PROGRESS(cls):
         return cls.__INDEFINITE_PROGRESS
     
     def __init__(self, max_value: Real = 1, value: Real = 0, message: str = ''):

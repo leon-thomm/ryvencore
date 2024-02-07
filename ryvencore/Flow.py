@@ -364,15 +364,20 @@ class Flow(Base):
     
     def can_nodes_connect(self, c: Tuple[NodeOutput, NodeInput]) -> Tuple[ConnValidType, str]:
         """
-        Same as :code:`Flow.check_connection_validity()` - Also checks if nodes already connected
+        Same as :code:`Flow.check_connection_validity()`
+        
+        Also checks if nodes already connected or if input is connected to another output
         """
         
         out, inp = c
         
-        valid_type, _ = valid_result = check_valid_conn(out, inp)
-        if valid_type == ConnValidType.VALID and inp in self.graph_adj[out]:
+        if inp in self.graph_adj[out]:
             valid_result = (ConnValidType.ALREADY_CONNECTED, "Connect action invalid on already connected nodes!")
-        
+        elif self.graph_adj_rev.get(inp) is not None:
+            valid_result = (ConnValidType.INPUT_TAKEN, "Input is connected to another output")
+        else:
+            valid_result = check_valid_conn(out, inp)
+            
         self.connection_request_valid.emit(valid_result)
         
         return valid_result
@@ -380,15 +385,18 @@ class Flow(Base):
     
     def can_nodes_disconnect(self, c: Tuple[NodeOutput, NodeInput]) -> Tuple[ConnValidType, str]:
         """
-        Same as :code:`Flow.check_connection_validity()` - Also checks if nodes already disconnected
+        Same as :code:`Flow.check_connection_validity()`
+        
+        Also checks if nodes already disconnected
         """
         
         out, inp = c
         
-        valid_type, _ = valid_result = check_valid_conn(out, inp)
-        if valid_type == ConnValidType.VALID and inp not in self.graph_adj[out]:
+        if inp not in self.graph_adj[out]:
             valid_result = (ConnValidType.ALREADY_DISCONNECTED, "Disconnect action invalid on already disconnected nodes!")
-        
+        else:
+            valid_result = check_valid_conn(out, inp)
+            
         self.connection_request_valid.emit(valid_result)
         
         return valid_result
