@@ -371,13 +371,14 @@ class Flow(Base):
         
         out, inp = c
         
-        if inp in self.graph_adj[out]:
-            valid_result = (ConnValidType.ALREADY_CONNECTED, "Connect action invalid on already connected nodes!")
-        elif self.graph_adj_rev.get(inp) is not None:
-            valid_result = (ConnValidType.INPUT_TAKEN, "Input is connected to another output")
-        else:
-            valid_result = check_valid_conn(out, inp)
-            
+        valid_type, _ = valid_result = check_valid_conn(out, inp)
+        
+        if valid_type == ConnValidType.VALID: 
+            if inp in self.graph_adj[out]:
+                valid_result = (ConnValidType.ALREADY_CONNECTED, "Connect action invalid on already connected nodes!")
+            elif self.graph_adj_rev.get(inp) is not None:
+                valid_result = (ConnValidType.INPUT_TAKEN, "Input is connected to another output")
+        
         self.connection_request_valid.emit(valid_result)
         
         return valid_result
