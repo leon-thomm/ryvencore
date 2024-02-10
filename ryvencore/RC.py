@@ -93,7 +93,6 @@ class ProgressState:
     __INDEFINITE_PROGRESS: int = -1
     
     @classmethod
-    @property
     def INDEFINITE_PROGRESS(cls):
         return cls.__INDEFINITE_PROGRESS
     
@@ -101,6 +100,9 @@ class ProgressState:
         self._max_value = max_value
         self._value = value
         self.message = message
+    
+    def __str__(self) -> str:
+        return f'Value:{self._value} Max:{self._max_value} Message: {self.message}'
     
     @property
     def max_value(self):
@@ -122,7 +124,7 @@ class ProgressState:
             self._value = value
             return
         
-        self._value = max(self._max_value, min(0, value))
+        self._value = min(value, self._max_value)
     
     def is_indefinite(self) -> bool:
         """Returns true if there is indefinite progress"""

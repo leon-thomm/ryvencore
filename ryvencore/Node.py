@@ -448,7 +448,7 @@ class Node(Base):
         """Sets the progress, allowing to turn it into a percentage"""
         if progress_state is not None and as_percentage:
             progress_state = progress_state.as_percentage()
-        self._progress.value = progress_state
+        self._progress = progress_state
         self.progress_updated.emit(self._progress)
     
     def set_progress_value(self, value: Real, message: str = None, as_percentage: bool = False):
