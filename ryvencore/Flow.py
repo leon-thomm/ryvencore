@@ -95,7 +95,10 @@ from .Node import Node, node_from_identifier
 from .NodePort import NodeOutput, NodeInput, check_valid_conn
 from .RC import FlowAlg, PortObjPos, ConnValidType
 from .utils import *
-from typing import List, Dict, Optional, Tuple, Type
+from typing import List, Dict, Optional, Tuple, Type, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .Session import Session
 
 
 class Flow(Base):
@@ -114,7 +117,7 @@ class Flow(Base):
         self.connection_added = Event((NodeOutput, NodeInput))        # Event(Connection)
         self.connection_removed = Event((NodeOutput, NodeInput))      # Event (Connection)
 
-        self.connection_request_valid = Event((ConnValidType, str))
+        self.connection_request_valid = Event(ConnValidType)
         self.nodes_created_from_data = Event(list)
         self.connections_created_from_data = Event(list)
 
@@ -125,7 +128,7 @@ class Flow(Base):
             addon.connect_flow_events(self)
 
         # general attributes
-        self.session = session
+        self.session: Session = session
         self.title = title
         self.nodes: List[Node] = []
         self.load_data = None
@@ -249,10 +252,10 @@ class Flow(Base):
         # catch up on node ports
         # notice that add_node_output() and add_node_input() are called by Node.
         # but it's ignored when the node is not currently placed in the flow
-        for out in node.outputs:
+        for out in node._outputs:
             self.add_node_output(node, out, False)
             # self.graph_adj[out] = []
-        for inp in node.inputs:
+        for inp in node._inputs:
             self.add_node_input(node, inp, False)
             # self.graph_adj_rev[inp] = None
 
@@ -272,10 +275,10 @@ class Flow(Base):
         self.nodes.remove(node)
 
         del self.node_successors[node]
-        for out in node.outputs:
+        for out in node._outputs:
             self.remove_node_output(node, out, False)
             # del self.graph_adj[out]
-        for inp in node.inputs:
+        for inp in node._inputs:
             self.remove_node_input(node, inp, False)
             # del self.graph_adj_rev[inp]
 
@@ -336,8 +339,8 @@ class Flow(Base):
 
                 connections.append(
                     self.connect_nodes(
-                        parent_node.outputs[c_output_port_index],
-                        connected_node.inputs[c_connected_input_port_index],
+                        parent_node._outputs[c_output_port_index],
+                        connected_node._inputs[c_connected_input_port_index],
                         silent=True
                     ))
 
@@ -346,7 +349,7 @@ class Flow(Base):
         return connections
 
 
-    def check_connection_validity(self, c: Tuple[NodeOutput, NodeInput]) -> Tuple[ConnValidType, str]:
+    def check_connection_validity(self, c: Tuple[NodeOutput, NodeInput]) -> ConnValidType:
         """
         Checks whether a considered connect action is legal.
         
@@ -362,7 +365,7 @@ class Flow(Base):
         return valid_result
 
     
-    def can_nodes_connect(self, c: Tuple[NodeOutput, NodeInput]) -> Tuple[ConnValidType, str]:
+    def can_nodes_connect(self, c: Tuple[NodeOutput, NodeInput]) -> ConnValidType:
         """
         Same as :code:`Flow.check_connection_validity()`
         
@@ -371,20 +374,22 @@ class Flow(Base):
         
         out, inp = c
         
-        valid_type, _ = valid_result = check_valid_conn(out, inp)
+        valid_result = check_valid_conn(out, inp)
         
-        if valid_type == ConnValidType.VALID: 
+        if valid_result == ConnValidType.VALID: 
             if inp in self.graph_adj[out]:
-                valid_result = (ConnValidType.ALREADY_CONNECTED, "Connect action invalid on already connected nodes!")
+                # Connect action invalid on already connected nodes!
+                valid_result = ConnValidType.ALREADY_CONNECTED 
             elif self.graph_adj_rev.get(inp) is not None:
-                valid_result = (ConnValidType.INPUT_TAKEN, "Input is connected to another output")
+                # Input is connected to another output
+                valid_result = ConnValidType.INPUT_TAKEN
         
         self.connection_request_valid.emit(valid_result)
         
         return valid_result
     
     
-    def can_nodes_disconnect(self, c: Tuple[NodeOutput, NodeInput]) -> Tuple[ConnValidType, str]:
+    def can_nodes_disconnect(self, c: Tuple[NodeOutput, NodeInput]) -> ConnValidType:
         """
         Same as :code:`Flow.check_connection_validity()`
         
@@ -394,7 +399,8 @@ class Flow(Base):
         out, inp = c
         
         if inp not in self.graph_adj[out]:
-            valid_result = (ConnValidType.ALREADY_DISCONNECTED, "Disconnect action invalid on already disconnected nodes!")
+            # Disconnect action invalid on already disconnected nodes!
+            valid_result = ConnValidType.ALREADY_DISCONNECTED
         else:
             valid_result = check_valid_conn(out, inp)
             
@@ -407,10 +413,10 @@ class Flow(Base):
         Connects two node ports. Returns the connection if successful, None otherwise.
         """
 
-        valid_type, message = self.check_connection_validity((out, inp))
+        valid_result = self.can_nodes_connect((out, inp))
         
-        if valid_type != ConnValidType.VALID:
-            print_err(f'Invalid connect request, [{message}]')
+        if valid_result != ConnValidType.VALID:
+            print_err(f'Invalid connect request')
             return None
 
         self.add_connection((out, inp), silent=silent)
@@ -423,10 +429,10 @@ class Flow(Base):
         Disconnects two node ports.
         """
 
-        valid_type, message = self.check_connection_validity((out, inp))
+        valid_result = self.can_nodes_disconnect((out, inp))
         
-        if valid_type != ConnValidType.VALID:
-            print_err(f'Invalid disconnect request, [{message}]')
+        if valid_result != ConnValidType.VALID:
+            print_err(f'Invalid disconnect request')
             return
 
         self.remove_connection((out, inp), silent=silent)
@@ -542,7 +548,7 @@ class Flow(Base):
 
         data = []
         for i, n in enumerate(nodes):
-            for j, out in enumerate(n.outputs):
+            for j, out in enumerate(n._outputs):
                 for inp in self.graph_adj[out]:
                     if inp.node in nodes:
                         data.append({
@@ -561,7 +567,7 @@ class Flow(Base):
         outputs_data = {}
 
         for i_n, n in enumerate(nodes):
-            for i_o, out in enumerate(n.outputs):
+            for i_o, out in enumerate(n._outputs):
                 d = out.val
                 if isinstance(d, Data) and d not in outputs_data:
                     outputs_data[d] = {

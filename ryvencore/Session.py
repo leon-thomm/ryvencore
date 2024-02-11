@@ -1,7 +1,7 @@
 import importlib
 import glob
 import os.path
-from typing import List, Dict, Type, Optional, Set
+from typing import List, Dict, Type, Optional, Set, TYPE_CHECKING
 
 from .data import Data 
 from .data.built_in import get_built_in_data_types 
@@ -11,7 +11,9 @@ from .InfoMsgs import InfoMsgs
 from .utils import pkg_version, pkg_path, load_from_file, print_err
 from .Node import Node
 
-
+if TYPE_CHECKING:
+    from AddOn import AddOn
+    
 class Session(Base):
     """
     The Session is the top level interface to your project. It mainly manages flows, nodes, and add-ons and
@@ -33,7 +35,7 @@ class Session(Base):
         self.flow_deleted = Event(Flow)
 
         # ATTRIBUTES
-        self.addons = {}
+        self.addons: Dict[str, AddOn] = {}
         self.flows: List[Flow] = []
         self.nodes: Set[Type[Node]] = set()      # list of node CLASSES
         self.invisible_nodes: Set[Type[Node]] = set()

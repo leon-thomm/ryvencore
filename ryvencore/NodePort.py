@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Type, Tuple
+from typing import Optional, Dict, Type, Tuple, TYPE_CHECKING
 
 from .Base import Base
 from .utils import serialize, deserialize
@@ -6,13 +6,16 @@ from .utils import serialize, deserialize
 from .RC import PortObjPos, ConnValidType
 from .data import Data, check_valid_data
 
+if TYPE_CHECKING:
+    from .Node import Node
+
 class NodePort(Base):
     """Base class for inputs and outputs of nodes"""
 
     def __init__(self, node, io_pos: PortObjPos, type_: str, label_str: str, allowed_data: Optional[Type[Data]] = None):
         Base.__init__(self)
 
-        self.node = node
+        self.node: Node = node
         self.io_pos = io_pos
         self.type_ = type_
         self.label_str = label_str
@@ -70,33 +73,48 @@ class NodeOutput(NodePort):
     #
     #     return data
 
-def check_valid_conn(out: NodeOutput, inp: NodeInput) -> Tuple[ConnValidType, str]:
+def check_valid_conn(out: NodeOutput, inp: NodeInput) -> ConnValidType:
     """
     Checks if a connection is valid between two node ports.
 
     Returns:
-        A tuple with the result of the check and a detailed reason, if it exists.
+        An enum representing the check result
     """
     
     if out.node == inp.node:
-        return (ConnValidType.SAME_NODE, "Ports from the same node cannot be connected!")
+        return ConnValidType.SAME_NODE
     
     if out.io_pos == inp.io_pos:
-        return (ConnValidType.SAME_IO, "Connections cannot be made between ports of the same pos (inp-inp) or (out-out)")
+        return ConnValidType.SAME_IO
     
     if out.io_pos != PortObjPos.OUTPUT:
-        return (ConnValidType.IO_MISSMATCH, f"Output io_pos should be {PortObjPos.OUTPUT} but instead is {out.io_pos}")
+        return ConnValidType.IO_MISSMATCH
     
     if out.type_ != inp.type_:
-        return (ConnValidType.DIFF_ALG_TYPE, "Input and output must both be either exec ports or data ports")
+        return ConnValidType.DIFF_ALG_TYPE
     
     if not check_valid_data(out.allowed_data, inp.allowed_data):
-        return (ConnValidType.DATA_MISSMATCH, 
-                f"When input type is defined, output type must be a (sub)class of input type\n [out={out.allowed_data}, inp={inp.allowed_data}]")
+        return ConnValidType.DATA_MISSMATCH
     
-    return (ConnValidType.VALID, "Connection is valid!")
-
+    return ConnValidType.VALID
 
 def check_valid_conn_tuple(connection: Tuple[NodeOutput, NodeInput]):
     out, inp = connection
     return check_valid_conn(out, inp)
+
+def get_error_message(conn_valid_type: ConnValidType, out: NodeOutput, inp: NodeInput) -> str:
+    """An error message for the various ConnValidType types"""
+    
+    if conn_valid_type == ConnValidType.SAME_NODE: 
+        return "Ports from the same node cannot be connected!"
+    elif conn_valid_type == ConnValidType.SAME_IO:
+        return "Connections cannot be made between ports of the same pos (inp-inp) or (out-out)"
+    elif conn_valid_type == ConnValidType.IO_MISSMATCH:
+        return f"Output io_pos should be {PortObjPos.OUTPUT} but instead is {out.io_pos}"
+    elif conn_valid_type == ConnValidType.DIFF_ALG_TYPE:
+        return "Input and output must both be either exec ports or data ports"
+    elif conn_valid_type == ConnValidType.DATA_MISSMATCH:
+        return f"When input type is defined, output type must be a (sub)class of input type\n [out={out.allowed_data}, inp={inp.allowed_data}]"
+    
+    return "Valid!"
+    

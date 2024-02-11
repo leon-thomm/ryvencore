@@ -31,10 +31,10 @@ class DataTypesBasic(unittest.TestCase):
         f = s.create_flow('main')
         n1 = f.create_node(self.Producer)
         n2 = f.create_node(self.Consumer)
-        f.connect_nodes(n1.outputs[0], n2.inputs[0])
+        f.connect_nodes(n1._outputs[0], n2._inputs[0])
         n1.update()
 
-        self.assertTrue(isinstance(n1.outputs[0].val, rc.Data))
+        self.assertTrue(isinstance(n1._outputs[0].val, rc.Data))
         self.assertEqual(n2.x, 42)
 
 
@@ -73,10 +73,10 @@ class DataTypesCustom(unittest.TestCase):
         f = s.create_flow('main')
         n1 = f.create_node(self.Producer)
         n2 = f.create_node(self.Consumer)
-        f.connect_nodes(n1.outputs[0], n2.inputs[0])
+        f.connect_nodes(n1._outputs[0], n2._inputs[0])
         n1.update()
-        self.assertTrue(isinstance(n1.outputs[0].val, DataTypesCustom.MyData))
-        self.assertTrue(isinstance(n1.outputs[0].val, self.MyData))
+        self.assertTrue(isinstance(n1._outputs[0].val, DataTypesCustom.MyData))
+        self.assertTrue(isinstance(n1._outputs[0].val, self.MyData))
 
         project = s.serialize()
         rc.utils.json_print(project)
@@ -87,7 +87,7 @@ class DataTypesCustom(unittest.TestCase):
         s2.load(project)
         f2 = s2.flows[0]
         n2_1, n2_2 = f2.nodes
-        self.assertTrue(isinstance(n2_1.outputs[0].val, self.MyData))
+        self.assertTrue(isinstance(n2_1._outputs[0].val, self.MyData))
         n2_1.update()
         self.assertEqual(n2_2.x, 42)
 
@@ -131,16 +131,16 @@ class DataTypesBuiltIn(unittest.TestCase):
         n1 = f.create_node(self.Producer)
         n2 = f.create_node(self.Consumer)
         
-        self.assertIsNotNone(f.connect_nodes(n1.outputs[0], n2.inputs[0])) # ComplexData -> NumberData should be ok
-        self.assertIsNone(f.connect_nodes(n1.outputs[0], n2.inputs[1])) # ComplexData -> ListData should not be ok
+        self.assertIsNotNone(f.connect_nodes(n1._outputs[0], n2._inputs[0])) # ComplexData -> NumberData should be ok
+        self.assertIsNone(f.connect_nodes(n1._outputs[0], n2._inputs[1])) # ComplexData -> ListData should not be ok
         
         n1.set_output_payload(0, 23.0) # automatic data type detection
         self.assertTrue(n2.input_payload(0) == 23)
         self.assertTrue(isinstance(n2.input(0), ComplexData))
         self.assertFalse(isinstance(n2.input(0), IntegerData))
         
-        self.assertIsNotNone(f.connect_nodes(n1.outputs[1], n2.inputs[1])) # ListData -> ListData should be ok
-        self.assertIsNotNone(f.connect_nodes(n1.outputs[1], n2.inputs[2])) # ListData -> SequenceData should be ok 
+        self.assertIsNotNone(f.connect_nodes(n1._outputs[1], n2._inputs[1])) # ListData -> ListData should be ok
+        self.assertIsNotNone(f.connect_nodes(n1._outputs[1], n2._inputs[2])) # ListData -> SequenceData should be ok 
         
         n1.set_output_payload(1, [1, 2, 3])
         self.assertTrue(isinstance(n2.input(1), ListData))

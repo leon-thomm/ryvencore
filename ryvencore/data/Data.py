@@ -167,7 +167,7 @@ class _BuiltInData(Data):
     
     @classmethod
     def _build_identifier(cls):
-        cls.identifier = f'data.built_in.{cls.__name__}'
+        cls.identifier = f'built_in.{cls.__name__}'
 
 _BuiltInData._build_identifier()
 

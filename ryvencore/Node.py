@@ -1,5 +1,5 @@
 import traceback
-from typing import List, Optional, Dict, Union
+from typing import List, Optional, Dict, Union, TYPE_CHECKING
 
 from .Base import Base, Event
 
@@ -13,6 +13,8 @@ from .RC import ProgressState
 from numbers import Real
 from copy import copy
 
+if TYPE_CHECKING:
+    from .Flow import Flow
 
 class Node(Base):
     """
@@ -72,8 +74,10 @@ class Node(Base):
         Base.__init__(self)
 
         self.flow, self.session = params
-        self.inputs: List[NodeInput] = []
-        self.outputs: List[NodeOutput] = []
+        self.flow: Flow = self.flow
+        
+        self._inputs: List[NodeInput] = []
+        self._outputs: List[NodeOutput] = []
 
         self.loaded = False
         self.load_data = None
@@ -85,7 +89,6 @@ class Node(Base):
         
         # events
         self.updating = Event(int)
-        self.updated = Event(int)
         self.update_error = Event(Exception)
         self.input_added = Event(Node, int, NodeInput)
         self.input_removed = Event(Node, int, NodeInput)
@@ -167,7 +170,6 @@ class Node(Base):
         # invoke update_event
         self.updating.emit(inp)
         self.flow.executor.update_node(self, inp)
-        self.updated.emit(inp)
 
     def update_err(self, e):
         InfoMsgs.write_err('EXCEPTION in', self.title, '\n', traceback.format_exc())
@@ -211,7 +213,7 @@ class Node(Base):
         Sets the value of a data output causing activation of all connections in data mode.
         """
         
-        out = self.outputs[index]
+        out = self._outputs[index]
         data_type = (out.allowed_data 
                     if out.allowed_data and issubclass(out.allowed_data, Data)
                     else Data) 
@@ -222,7 +224,7 @@ class Node(Base):
 
         self.flow.executor.set_output_val(self, index, data)
         
-        self.output_updated.emit(self, index, self.outputs[index], data)
+        self.output_updated.emit(self, index, self._outputs[index], data)
 
     def set_output_payload(self, index: int, payload):
         """
@@ -349,32 +351,32 @@ class Node(Base):
             inp.load(load_from)
 
         if insert is not None:
-            self.inputs.insert(insert, inp)
+            self._inputs.insert(insert, inp)
             index = insert
         else:
-            self.inputs.append(inp)
-            index = len(self.inputs) - 1
+            self._inputs.append(inp)
+            index = len(self._inputs) - 1
 
         self.input_added.emit(self, index, inp)
 
         return inp
 
     def rename_input(self, index: int, label: str):
-        self.inputs[index].label_str = label
+        self._inputs[index].label_str = label
 
     def delete_input(self, index: int):
         """
         Disconnects and removes an input.
         """
 
-        inp: NodeInput = self.inputs[index]
+        inp: NodeInput = self._inputs[index]
 
         # break all connections
         out = self.flow.connected_output(inp)
         if out is not None:
             self.flow.connect_nodes(out, inp)
 
-        self.inputs.remove(inp)
+        self._inputs.remove(inp)
 
         self.input_removed.emit(self, index, inp)
 
@@ -395,31 +397,31 @@ class Node(Base):
             out.load(load_from)
 
         if insert is not None:
-            self.outputs.insert(insert, out)
+            self._outputs.insert(insert, out)
             index = insert
         else:
-            self.outputs.append(out)
-            index = len(self.outputs) - 1
+            self._outputs.append(out)
+            index = len(self._outputs) - 1
 
         self.output_added.emit(self, index, out)
 
         return out
 
     def rename_output(self, index: int, label: str):
-        self.outputs[index].label_str = label
+        self._outputs[index].label_str = label
 
     def delete_output(self, index: int):
         """
         Disconnects and removes output.
         """
 
-        out: NodeOutput = self.outputs[index]
+        out: NodeOutput = self._outputs[index]
 
         # break all connections
         for inp in self.flow.connected_inputs(out):
             self.flow.connect_nodes(out, inp)
 
-        self.outputs.remove(out)
+        self._outputs.remove(out)
 
         self.output_removed.emit(self, index, out)
 
@@ -469,16 +471,16 @@ class Node(Base):
     """
 
     def is_active(self):
-        for i in self.inputs:
+        for i in self._inputs:
             if i.type_ == 'exec':
                 return True
-        for o in self.outputs:
+        for o in self._outputs:
             if o.type_ == 'exec':
                 return True
         return False
 
     def _inp_connected(self, index):
-        return self.flow.connected_output(self.inputs[index]) is not None
+        return self.flow.connected_output(self._inputs[index]) is not None
 
     """
     
@@ -499,8 +501,8 @@ class Node(Base):
 
         # setup ports
         #   remove initial ports
-        self.inputs = []
-        self.outputs = []
+        self._inputs = []
+        self._outputs = []
         #   load from data
         self._setup_ports(data['inputs'], data['outputs'])
 
@@ -538,8 +540,8 @@ class Node(Base):
             'state data': serialize(self.get_state()),
             'additional data': self.additional_data(),
 
-            'inputs': [i.data() for i in self.inputs],
-            'outputs': [o.data() for o in self.outputs],
+            'inputs': [i.data() for i in self._inputs],
+            'outputs': [o.data() for o in self._outputs],
         }
 
         # extend with data from addons
