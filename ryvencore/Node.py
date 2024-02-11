@@ -15,6 +15,7 @@ from copy import copy
 
 if TYPE_CHECKING:
     from .Flow import Flow
+    from .Session import Session
 
 class Node(Base):
     """
@@ -73,8 +74,9 @@ class Node(Base):
     def __init__(self, params):
         Base.__init__(self)
 
-        self.flow, self.session = params
-        self.flow: Flow = self.flow
+        flow, session = params
+        self.flow: Flow = flow
+        self.session: Session = session
         
         self._inputs: List[NodeInput] = []
         self._outputs: List[NodeOutput] = []
