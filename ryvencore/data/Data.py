@@ -4,11 +4,10 @@ It should be subclassed to define custom data types. In particular, serializatio
 and deserialization must be implemented for each respective type. Types that are
 pickle serializable by default can be used directly with :code`Data(my_data)`.
 """
-from typing import Dict, Type, Iterable, Set
+from typing import Dict, Type
 
 from ..Base import Base
 from ..utils import serialize, deserialize, print_err
-from types import MappingProxyType
 
 class Data(Base):
     """
@@ -92,15 +91,6 @@ class Data(Base):
     @classmethod
     def _build_identifier(cls):
         cls.identifier = cls.__name__
-
-    @classmethod
-    def register_payload_type(cls):
-        """
-        *VIRTUAL*
-        
-        Override this class method to register a payload type to a data type
-        """
-        pass
     
     def __init__(self, value=None, load_from=None):
         super().__init__()
@@ -185,28 +175,5 @@ def check_valid_data(out_data_type: Type[Data], inp_data_type: Type[Data]) -> bo
         out_data_type = Data
     
     return issubclass(out_data_type, inp_data_type)
-
-# dictionaries that associate payload to data
-__payload_to_data: Dict[type, Data] = {}
-__data_to_payload: Dict[Data, type] = {}
-
-payload_to_data = MappingProxyType(__payload_to_data)
-"""Maps payload types to data types"""
-
-data_to_payload = MappingProxyType(__data_to_payload)
-"""Inverse of payload_to_data"""
-
-def register_payload_to_data(payload_type: type, data_type: Data):
-    """Associates a payload type to a data type"""
-    
-    assert issubclass(data_type, Data), "Argument data_type must be of type Data"
-    
-    __payload_to_data[payload_type] = data_type
-    __data_to_payload[data_type] = payload_type
-
-def register_payload_to_data_multi(assoc_dict: Dict[type, Data]):
-    
-    for payload_type, data_type in assoc_dict.items():
-        register_payload_to_data(payload_type, data_type)
  
 

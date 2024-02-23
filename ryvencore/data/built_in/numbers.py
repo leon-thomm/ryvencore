@@ -1,6 +1,6 @@
 """Defines basic numeric data types"""
 
-from ..Data import _BuiltInData, register_payload_to_data
+from ..Data import _BuiltInData
 from numbers import Number, Complex, Real, Rational, Integral
 from fractions import Fraction
 
@@ -12,10 +12,6 @@ class NumberData(_BuiltInData):
     
     fallback_type = None
     """Fallback type to attempt instantiation if the value is not of number_type"""
-    
-    @classmethod
-    def register_payload_type(cls):
-        register_payload_to_data(cls.fallback_type, cls)
     
     def __init__(self, value: number_type, load_from=None):
         super().__init__(value, load_from)

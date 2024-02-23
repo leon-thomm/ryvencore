@@ -5,7 +5,7 @@ from .Base import Base, Event
 
 from .NodePort import NodeInput, NodeOutput
 from .NodePortType import NodeInputType, NodeOutputType
-from .data.Data import Data, payload_to_data
+from .data.Data import Data
 from .InfoMsgs import InfoMsgs
 from .utils import serialize, deserialize
 from .RC import ProgressState
@@ -227,21 +227,6 @@ class Node(Base):
         self.flow.executor.set_output_val(self, index, data)
         
         self.output_updated.emit(self, index, self._outputs[index], data)
-
-    def set_output_payload(self, index: int, payload):
-        """
-        Wrapper of :code:`set_output_val()` that creates the data type from the payload type.
-        
-        Data and payload types must be associated with register_payload_to_data found in Data module.
-        
-        This function assumes the derived Data type's constructor works at least with a payload argument.
-        Defaults to the base Data type if an association isn't found 
-        """
-        
-        data_type = payload_to_data.get(type(payload))
-        data = data_type(payload) if data_type else Data(payload)
-        
-        self.set_output_val(index, data)
     
     """
     

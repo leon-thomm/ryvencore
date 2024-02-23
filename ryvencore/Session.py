@@ -132,7 +132,6 @@ class Session(Base):
         """
 
         data_type_class._build_identifier()
-        data_type_class.register_payload_type()
         
         id = data_type_class.identifier
         if id == 'Data' or id in self.data_types:

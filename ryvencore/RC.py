@@ -2,6 +2,10 @@
 
 from enum import IntEnum, auto
 from numbers import Real
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .NodePort import NodeOutput, NodeInput
 
 class FlowAlg(IntEnum):
     """Used for performance reasons"""
@@ -81,6 +85,23 @@ class ConnValidType(IntEnum):
     
     Optional Check - A disconnect action was attemped on disconnected ports!
     """
+    
+    @classmethod
+    def get_error_message(cls, conn_valid_type: 'ConnValidType', out: 'NodeOutput', inp: 'NodeInput') -> str:
+        """An error message for the various ConnValidType types"""
+    
+        if conn_valid_type == ConnValidType.SAME_NODE: 
+            return "Ports from the same node cannot be connected!"
+        elif conn_valid_type == ConnValidType.SAME_IO:
+            return "Connections cannot be made between ports of the same pos (inp-inp) or (out-out)"
+        elif conn_valid_type == ConnValidType.IO_MISSMATCH:
+            return f"Output io_pos should be {PortObjPos.OUTPUT} but instead is {out.io_pos}"
+        elif conn_valid_type == ConnValidType.DIFF_ALG_TYPE:
+            return "Input and output must both be either exec ports or data ports"
+        elif conn_valid_type == ConnValidType.DATA_MISSMATCH:
+            return f"When input type is defined, output type must be a (sub)class of input type\n [out={out.allowed_data}, inp={inp.allowed_data}]"
+    
+        return "Valid!"
 
     
 class ProgressState:

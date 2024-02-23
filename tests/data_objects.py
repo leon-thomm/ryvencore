@@ -134,7 +134,7 @@ class DataTypesBuiltIn(unittest.TestCase):
         self.assertIsNotNone(f.connect_nodes(n1._outputs[0], n2._inputs[0])) # ComplexData -> NumberData should be ok
         self.assertIsNone(f.connect_nodes(n1._outputs[0], n2._inputs[1])) # ComplexData -> ListData should not be ok
         
-        n1.set_output_payload(0, 23.0) # automatic data type detection
+        n1.set_output_val(0, RealData(23.0))
         self.assertTrue(n2.input_payload(0) == 23)
         self.assertTrue(isinstance(n2.input(0), ComplexData))
         self.assertFalse(isinstance(n2.input(0), IntegerData))
@@ -142,7 +142,7 @@ class DataTypesBuiltIn(unittest.TestCase):
         self.assertIsNotNone(f.connect_nodes(n1._outputs[1], n2._inputs[1])) # ListData -> ListData should be ok
         self.assertIsNotNone(f.connect_nodes(n1._outputs[1], n2._inputs[2])) # ListData -> SequenceData should be ok 
         
-        n1.set_output_payload(1, [1, 2, 3])
+        n1.set_output_val(1, ListData([1, 2, 3]))
         self.assertTrue(isinstance(n2.input(1), ListData))
 
         
