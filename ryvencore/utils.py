@@ -5,7 +5,7 @@ import json
 import pickle
 import sys
 from os.path import dirname, abspath, join, basename
-from typing import List, Tuple, Optional, Dict
+from typing import List, Tuple, Dict
 from packaging.version import Version, parse as _parse_version
 import importlib.util
 
@@ -47,24 +47,6 @@ def json_print(d: Dict):
     print(json.dumps(d, indent=4))
 
 
-def node_from_identifier(identifier: str, nodes: List):
-
-    for nc in nodes:
-        if nc.identifier == identifier:
-            return nc
-    else:  # couldn't find a node with this identifier => search for identifier_comp
-        for nc in nodes:
-            if identifier in nc.legacy_identifiers:
-                return nc
-        else:
-            raise Exception(
-                f'could not find node class with identifier \'{identifier}\'. '
-                f'if you changed your node\'s class name, make sure to add the old '
-                f'identifier to the identifier_comp list attribute to provide '
-                f'backwards compatibility.'
-            )
-
-
 def load_from_file(file: str, comps: List[str]) -> Tuple:
     """
     Imports components with name in ``comps`` from a python module.
@@ -90,3 +72,7 @@ def load_from_file(file: str, comps: List[str]) -> Tuple:
             return None
 
     return tuple([get_comp(c) for c in comps])
+
+
+
+    

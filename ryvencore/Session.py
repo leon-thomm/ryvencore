@@ -1,16 +1,19 @@
 import importlib
 import glob
 import os.path
-from typing import List, Dict, Type, Optional
+from typing import List, Dict, Type, Optional, Set, TYPE_CHECKING
 
-from .Data import Data
+from .data import Data 
+from .data.built_in import get_built_in_data_types 
 from .Base import Base, Event
 from .Flow import Flow
 from .InfoMsgs import InfoMsgs
 from .utils import pkg_version, pkg_path, load_from_file, print_err
 from .Node import Node
 
-
+if TYPE_CHECKING:
+    from AddOn import AddOn
+    
 class Session(Base):
     """
     The Session is the top level interface to your project. It mainly manages flows, nodes, and add-ons and
@@ -32,14 +35,17 @@ class Session(Base):
         self.flow_deleted = Event(Flow)
 
         # ATTRIBUTES
-        self.addons = {}
-        self.flows: [Flow] = []
-        self.nodes = set()      # list of node CLASSES
-        self.invisible_nodes = set()
-        self.data_types = {}
+        self.addons: Dict[str, AddOn] = {}
+        self.flows: List[Flow] = []
+        self.nodes: Set[Type[Node]] = set()      # list of node CLASSES
+        self.invisible_nodes: Set[Type[Node]] = set()
+        self.data_types: Dict[str, Type[Data]] = {}
         self.gui: bool = gui
         self.init_data = None
 
+        # Register Built-In Data Types
+        self.register_data_types(get_built_in_data_types())
+        
         # self.register_addons(pkg_path('addons/legacy/'))
         # self.register_addons(pkg_path('addons/'))
         if load_addons:
@@ -126,6 +132,7 @@ class Session(Base):
         """
 
         data_type_class._build_identifier()
+        
         id = data_type_class.identifier
         if id == 'Data' or id in self.data_types:
             print_err(
@@ -146,7 +153,24 @@ class Session(Base):
         for d in data_type_classes:
             self.register_data_type(d)
 
-
+    
+    def register_data_types_by_base(self, base_type: Type[Data]):
+        """
+        Registers :code:`Data` subclasses that belong to a base class.
+        """
+        
+        self.register_data_type(base_type)
+        for data_type in base_type.__subclasses__():
+            self.register_data_type(data_type)
+            
+    
+    def get_data_type(self, id: str) -> Optional[Type[Data]]:
+        """
+        Retrieves a data type with a specific id, if it exists
+        """
+        
+        return self.data_types.get(id)
+        
     def create_flow(self, title: str = None, data: Dict = None) -> Flow:
         """
         Creates and returns a new flow.

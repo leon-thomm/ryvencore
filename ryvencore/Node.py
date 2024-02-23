@@ -1,14 +1,21 @@
 import traceback
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Union, TYPE_CHECKING
 
 from .Base import Base, Event
 
 from .NodePort import NodeInput, NodeOutput
 from .NodePortType import NodeInputType, NodeOutputType
-from .Data import Data
+from .data.Data import Data
 from .InfoMsgs import InfoMsgs
 from .utils import serialize, deserialize
+from .RC import ProgressState
 
+from numbers import Real
+from copy import copy
+
+if TYPE_CHECKING:
+    from .Flow import Flow
+    from .Session import Session
 
 class Node(Base):
     """
@@ -67,9 +74,12 @@ class Node(Base):
     def __init__(self, params):
         Base.__init__(self)
 
-        self.flow, self.session = params
-        self.inputs: List[NodeInput] = []
-        self.outputs: List[NodeOutput] = []
+        flow, session = params
+        self.flow: Flow = flow
+        self.session: Session = session
+        
+        self._inputs: List[NodeInput] = []
+        self._outputs: List[NodeOutput] = []
 
         self.loaded = False
         self.load_data = None
@@ -77,6 +87,8 @@ class Node(Base):
         self.block_init_updates = False
         self.block_updates = False
 
+        self._progress = None
+        
         # events
         self.updating = Event(int)
         self.update_error = Event(Exception)
@@ -84,6 +96,8 @@ class Node(Base):
         self.input_removed = Event(Node, int, NodeInput)
         self.output_added = Event(Node, int, NodeOutput)
         self.output_removed = Event(Node, int, NodeOutput)
+        self.output_updated = Event(Node, int, NodeOutput, Data)
+        self.progress_updated = Event(ProgressState)
 
     def initialize(self):
         """
@@ -99,11 +113,11 @@ class Node(Base):
             for i in range(len(self.init_inputs)):
                 inp = self.init_inputs[i]
 
-                self.create_input(label=inp.label, type_=inp.type_, default=inp.default)
+                self.create_input(label=inp.label, type_=inp.type_, default=inp.default, allowed_data=inp.allowed_data)
 
             for o in range(len(self.init_outputs)):
                 out = self.init_outputs[o]
-                self.create_output(out.label, out.type_)
+                self.create_output(out.label, out.type_, allowed_data=out.allowed_data)
 
         else:
             # load from data
@@ -173,6 +187,17 @@ class Node(Base):
         InfoMsgs.write('input called in', self.title, ':', index)
 
         return self.flow.executor.input(self, index)
+    
+    def input_payload(self, index: int):
+        """
+        Returns the payload residing at the data input of given index.
+
+        Do not call on exec inputs
+        """
+        
+        data = self.input(index)
+        
+        return data.payload if data else None
 
     def exec_output(self, index: int):
         """
@@ -189,12 +214,20 @@ class Node(Base):
         """
         Sets the value of a data output causing activation of all connections in data mode.
         """
-        assert isinstance(data, Data), "Output value must be of type ryvencore.Data"
+        
+        out = self._outputs[index]
+        data_type = (out.allowed_data 
+                    if out.allowed_data and issubclass(out.allowed_data, Data)
+                    else Data) 
+        
+        assert isinstance(data, data_type), f"Output value must be of type {data_type.__module__}.{data_type.__name__}"
 
         InfoMsgs.write('setting output', index, 'in', self.title)
 
         self.flow.executor.set_output_val(self, index, data)
-
+        
+        self.output_updated.emit(self, index, self._outputs[index], data)
+    
     """
     
     EVENT SLOTS
@@ -292,48 +325,50 @@ class Node(Base):
 
     #   PORTS
 
-    def create_input(self, label: str = '', type_: str = 'data', default: Optional[Data] = None, load_from = None, insert: int = None):
+    def create_input(self, label: str = '', type_: str = 'data', default: Optional[Data] = None, load_from = None, insert: int = None,
+                     allowed_data: Optional[Data] = None):
         """
         Creates and adds a new input at the end or index ``insert`` if specified.
         """
         # InfoMsgs.write('create_input called')
 
-        inp = NodeInput(node=self, type_=type_, label_str=label, default=default)
+        inp = NodeInput(node=self, type_=type_, label_str=label, default=default, allowed_data=allowed_data)
 
         if load_from is not None:
             inp.load(load_from)
 
         if insert is not None:
-            self.inputs.insert(insert, inp)
+            self._inputs.insert(insert, inp)
             index = insert
         else:
-            self.inputs.append(inp)
-            index = len(self.inputs) - 1
+            self._inputs.append(inp)
+            index = len(self._inputs) - 1
 
         self.input_added.emit(self, index, inp)
 
         return inp
 
     def rename_input(self, index: int, label: str):
-        self.inputs[index].label_str = label
+        self._inputs[index].label_str = label
 
     def delete_input(self, index: int):
         """
         Disconnects and removes an input.
         """
 
-        inp: NodeInput = self.inputs[index]
+        inp: NodeInput = self._inputs[index]
 
         # break all connections
         out = self.flow.connected_output(inp)
         if out is not None:
             self.flow.connect_nodes(out, inp)
 
-        self.inputs.remove(inp)
+        self._inputs.remove(inp)
 
         self.input_removed.emit(self, index, inp)
 
-    def create_output(self, label: str = '', type_: str = 'data', load_from=None, insert: int = None):
+    def create_output(self, label: str = '', type_: str = 'data', load_from=None, insert: int = None,
+                      allowed_data: Optional[Data] = None):
         """
         Creates and adds a new output at the end or index ``insert`` if specified.
         """
@@ -342,37 +377,38 @@ class Node(Base):
             node=self,
             type_=type_,
             label_str=label,
+            allowed_data=allowed_data
         )
 
         if load_from is not None:
             out.load(load_from)
 
         if insert is not None:
-            self.outputs.insert(insert, out)
+            self._outputs.insert(insert, out)
             index = insert
         else:
-            self.outputs.append(out)
-            index = len(self.outputs) - 1
+            self._outputs.append(out)
+            index = len(self._outputs) - 1
 
         self.output_added.emit(self, index, out)
 
         return out
 
     def rename_output(self, index: int, label: str):
-        self.outputs[index].label_str = label
+        self._outputs[index].label_str = label
 
     def delete_output(self, index: int):
         """
         Disconnects and removes output.
         """
 
-        out: NodeOutput = self.outputs[index]
+        out: NodeOutput = self._outputs[index]
 
         # break all connections
         for inp in self.flow.connected_inputs(out):
             self.flow.connect_nodes(out, inp)
 
-        self.outputs.remove(out)
+        self._outputs.remove(out)
 
         self.output_removed.emit(self, index, out)
 
@@ -383,24 +419,55 @@ class Node(Base):
         Returns an add-on registered in the session by name, or None if it wasn't found.
         """
         return self.session.addons.get(name)
-
+    
+    #   PROGRESS
+    
+    @property
+    def progress(self) -> Union[ProgressState, None]:
+        """Copy of the current progress of execution in the node, or None if there's no active progress"""
+        return copy(self._progress) if self._progress is not None else None
+    
+    @progress.setter
+    def progress(self, progress_state: Union[ProgressState, None]):
+        """Sets the current progress"""
+        self._progress = progress_state
+        self.progress_updated.emit(self._progress)
+    
+    def set_progress(self, progress_state: Union[ProgressState, None], as_percentage: bool = False):
+        """Sets the progress, allowing to turn it into a percentage"""
+        if progress_state is not None and as_percentage:
+            progress_state = progress_state.as_percentage()
+        self._progress = progress_state
+        self.progress_updated.emit(self._progress)
+    
+    def set_progress_value(self, value: Real, message: str = None, as_percentage: bool = False):
+        """
+        Sets the value of an existing progress
+        
+        Sets the message as well if it isn't None
+        """
+        self._progress.value = value
+        if message:
+            self._progress.message = message
+        self.set_progress(self._progress, as_percentage)
+            
     """
     
-    UTILITY METHODS
+    UTILITY METHODS1
     
     """
 
     def is_active(self):
-        for i in self.inputs:
+        for i in self._inputs:
             if i.type_ == 'exec':
                 return True
-        for o in self.outputs:
+        for o in self._outputs:
             if o.type_ == 'exec':
                 return True
         return False
 
     def _inp_connected(self, index):
-        return self.flow.connected_output(self.inputs[index]) is not None
+        return self.flow.connected_output(self._inputs[index]) is not None
 
     """
     
@@ -421,8 +488,8 @@ class Node(Base):
 
         # setup ports
         #   remove initial ports
-        self.inputs = []
-        self.outputs = []
+        self._inputs = []
+        self._outputs = []
         #   load from data
         self._setup_ports(data['inputs'], data['outputs'])
 
@@ -460,8 +527,8 @@ class Node(Base):
             'state data': serialize(self.get_state()),
             'additional data': self.additional_data(),
 
-            'inputs': [i.data() for i in self.inputs],
-            'outputs': [o.data() for o in self.outputs],
+            'inputs': [i.data() for i in self._inputs],
+            'outputs': [o.data() for o in self._outputs],
         }
 
         # extend with data from addons
@@ -470,3 +537,21 @@ class Node(Base):
             addon.extend_node_data(self, d)
 
         return d
+
+
+def node_from_identifier(identifier: str, nodes: List[Node]):
+
+    for nc in nodes:
+        if nc.identifier == identifier:
+            return nc
+    else:  # couldn't find a node with this identifier => search for identifier_comp
+        for nc in nodes:
+            if identifier in nc.legacy_identifiers:
+                return nc
+        else:
+            raise Exception(
+                f'could not find node class with identifier \'{identifier}\'. '
+                f'if you changed your node\'s class name, make sure to add the old '
+                f'identifier to the identifier_comp list attribute to provide '
+                f'backwards compatibility.'
+            )
