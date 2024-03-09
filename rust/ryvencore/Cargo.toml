@@ -1,0 +1,13 @@
+[package]
+name = "ryvencore"
+version = "0.5.0"
+edition = "2021"
+
+[lib]
+name = "ryvencore"
+path = "src/lib.rs"
+
+[dependencies]
+
+[dev-dependencies]
+util = { path = "tests/util" }

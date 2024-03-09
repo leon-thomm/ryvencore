@@ -5,3 +5,5 @@ build/
 dist/
 ryvencore.egg-info/
 site/
+target/
+Cargo.lock
