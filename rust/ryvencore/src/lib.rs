@@ -239,7 +239,7 @@ pub mod flows {
         Out,
     }
 
-    type NodePortAlias = (NodeId, Direction, usize);
+    pub type NodePortAlias = (NodeId, Direction, usize);
 
     struct NodeInternal<T> {
         id: NodeId,
