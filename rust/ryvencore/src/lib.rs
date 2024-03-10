@@ -49,11 +49,10 @@ macro_rules! expect {
 pub mod flows {
     use super::*;
     use super::nodes::*;
-    use std::iter::FromIterator;
 
     /// The flow keeps nodes and their connections, and is responsible for executing the flow.
     /// by invoking a node.
-    #[derive(Default)]
+    #[allow(dead_code)]
     pub struct Flow<T> {
         title: String,
         nodes: Map<NodeId, NodeInternal<T>>,
@@ -61,6 +60,19 @@ pub mod flows {
         node_pred: Map<NodeId, Vec<NodeId>>,
         port_succ: Map<NodePortAlias, Vec<NodePortAlias>>,
         port_pred: Map<NodePortAlias, Option<NodePortAlias>>,
+    }
+
+    impl<T> Default for Flow<T> {
+        fn default() -> Self {
+            Self {
+                title: String::new(),
+                nodes: Map::new(),
+                node_succ: Map::new(),
+                node_pred: Map::new(),
+                port_succ: Map::new(),
+                port_pred: Map::new(),
+            }
+        }
     }
 
     impl<T> Flow<T> {
@@ -262,6 +274,7 @@ pub mod flows {
             }
         }
 
+        #[allow(non_snake_case)]
         impl TopoWithLoops {
             /// Returns the nodes that can be reached in the flow from any node
             /// in I, in topological order, ignoring back edges (i.e. loops).
@@ -323,17 +336,17 @@ pub mod flows {
             /// * It is up to the user to ensure that an invocation in a cyclic graph will 
             /// terminate.
             fn invoke(&mut self, flow: &mut Flow<T>, n: NodeId) -> RcRes<()> {
-                let mut Q = OrderedMaskedQueue::new();
-                Q.enqueue(n);
-                while !Q.is_empty() {
-                    Q.set_mask(self.topo(&Q.queued, flow)?);
-                    while let Some(n) = Q.dequeue() {
+                let mut q = OrderedMaskedQueue::new();
+                q.enqueue(n);
+                while !q.is_empty() {
+                    q.set_mask(self.topo(&q.queued, flow)?);
+                    while let Some(n) = q.dequeue() {
                         // update the node
                         let mut env = NodeInvocationEnv::new(flow.input_values_of(n)?);
                         flow.update_node(n, &mut env)?;
                         // udpate queue
                         self.successor_nodes(&flow, &n, &env)?
-                            .iter().for_each(|x| Q.enqueue(*x));
+                            .iter().for_each(|x| q.enqueue(*x));
                         // store updated output values
                         for (i, val) in env.get_updates() {
                             flow.set_output_val_of(n, *i, val.clone())?;
