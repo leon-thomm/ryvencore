@@ -184,17 +184,40 @@ pub mod flows {
                 Ok(None)
             }
         }
-
+        /// Returns the the input values of a node, in the order of the inputs.
         pub fn input_values_of(&self, node_id: NodeId) -> RcRes<Vec<Option<Rc<T>>>> {
             let node = expect!(self.nodes.get(&node_id));
             Ok(node.inputs.iter().enumerate().map(
                 |(i, _)| self.input_val_of(node_id, i).unwrap()
             ).collect())
         }
-
+        /// Updates a node, given its id and the environment.
         pub fn update_node(&mut self, node_id: NodeId, env: &mut NodeInvocationEnv<T>) -> RcRes<()> {
             let node = expect!(self.nodes.get_mut(&node_id));
             node.node.on_update(env)
+        }
+        /// Returns the ids of the direct successor nodes of a given output port.
+        /// Returns an error if the port doesn't exist or isn't an output port.
+        pub fn succ_nodes_of_port(&self, port: NodePortAlias) -> RcRes<Vec<NodeId>> {
+            let (_, dir, _) = &port;
+            if dir == &Direction::In {
+                return Err(RcErr::InvalidPort);
+            }
+            Ok(self
+                .port_succ
+                .get(&port).ok_or(RcErr::InvalidPort)?
+                .iter().map(|(n, _, _)| n.clone())
+                .collect()
+            )
+        }
+        /// Returns the ids of the direct successor nodes of a given set of output ports.
+        /// Returns an error if any of the ports doesn't exist or isn't an output port.
+        pub fn succ_nodes_of_ports(&self, ports: Set<NodePortAlias>) -> RcRes<Vec<NodeId>> {
+            let mut res = Vec::new();
+            for p in ports {
+                res.extend(self.succ_nodes_of_port(p)?);
+            }
+            Ok(res)
         }
     }
 
@@ -290,43 +313,74 @@ pub mod flows {
             /// * It is up to the user to ensure that an invocation in a cyclic graph will 
             /// terminate.
             fn invoke(&mut self, flow: &mut Flow<T>, n: NodeId) -> RcRes<()> {
-                // TODO: eliminate unnecessary cloning
                 macro_rules! set {
                     ($x:expr) => {
                         Set::from($x)
                     };
                 }
-                let mut I = set!([n]);
-                while !I.is_empty() {
-                    let S = self.topo(&I, flow)?;
-                    loop {
-                        // get the node that is in both S and I with the smallest index in S
-                        let S_set: Set<NodeId> = Set::from_iter(S.iter().cloned());
-                        let SI: Set<NodeId> = S_set.intersection(&I).cloned().collect();
-                        let n = SI.iter().min_by_key(|x| S.iter().position(|y| *x == y));
-                        // if there is no such node, stop
-                        if n.is_none() { break; } let n = *n.unwrap();
+                let mut Q = OrderedQueue::new();
+                Q.enqueue(n);
+                while !Q.queue_empty() {
+                    Q.set_mask(self.topo(&Q.queued, flow)?);
+                    while let Some(n) = Q.dequeue() {
                         // update the node
                         let mut env = NodeInvocationEnv::new(flow.input_values_of(n)?);
                         flow.update_node(n, &mut env)?;
-                        let queued_successors = env
-                            .get_updates().iter()
-                            .map(|(i, _)| (n, Direction::Out, *i))
-                            .map(|o| flow.port_succ.get(&o).unwrap().iter().map(|(n, _, _)| n.clone()))
-                            .flatten()
-                            .collect::<Set<NodeId>>();
-                        // update the node outputs
+                        // udpate queue
+                        flow.succ_nodes_of_ports(
+                            env.get_updates().iter()
+                                .map(|(i, _)| (n, Direction::Out, *i))
+                                .collect()
+                        )?.iter().for_each(|x| { Q.enqueue(*x); });
+                        // store updated output values
                         for (i, val) in env.get_updates() {
                             flow.set_output_val_of(n, *i, val.clone())?;
                         }
-                        // update I
-                        I = I.difference(&Set::from([n]))
-                            .cloned().collect::<Set<NodeId>>()
-                            .union(&queued_successors)
-                            .cloned().collect::<Set<NodeId>>();
                     }
                 }
                 Ok(())
+            }
+        }
+
+        /// Implements a queue of nodes where a separate set masks and
+        /// orders the nodes that are queued.
+        struct OrderedQueue<T>
+        where
+            T: Clone + PartialEq + Eq + std::hash::Hash,
+        {
+            allowed: Vec<T>,
+            queued: Set<T>,
+        }
+
+        impl<T> OrderedQueue<T>
+        where
+            T: Clone + PartialEq + Eq + std::hash::Hash,
+         {
+            fn new() -> Self {
+                Self {
+                    allowed: Vec::new(),
+                    queued: Set::new(),
+                }
+            }
+            fn enqueue(&mut self, n: T) {
+                self.queued.insert(n);
+            }
+            /// Return the first element in `allowed` that is also in
+            /// `queued`, and remove it from `queued`.
+            /// If no such element exists, return None.
+            fn dequeue(&mut self) -> Option<T> {
+                // TODO: make this efficient
+                if let Some(x) = self.allowed.iter().find(|x| self.queued.contains(x)) {
+                    self.queued.remove(x);
+                    return Some(x.clone());
+                }
+                None
+            }
+            fn queue_empty(&self) -> bool {
+                self.queued.is_empty()
+            }
+            fn set_mask(&mut self, allowed: Vec<T>) {
+                self.allowed = allowed;
             }
         }
     }
