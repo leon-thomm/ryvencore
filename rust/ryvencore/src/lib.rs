@@ -299,6 +299,16 @@ pub mod flows {
                 res.push(n);
                 Ok(())
             }
+            /// Returns successor nodes of n who received data from one of n's outputs
+            /// during the last invocation of n, according to env.
+            fn successor_nodes<T>(&self, flow: &Flow<T>, n: &NodeId, env: &NodeInvocationEnv<T>) -> RcRes<Set<NodeId>> {
+                let mut res = Set::new();
+                for (i, _) in env.get_updates() {
+                    let succs = flow.succ_nodes_of_port((*n, Direction::Out, *i))?;
+                    res.extend(succs);
+                }
+                Ok(res)
+            }
         }
 
         impl<T> Executor<T> for TopoWithLoops {
@@ -313,25 +323,17 @@ pub mod flows {
             /// * It is up to the user to ensure that an invocation in a cyclic graph will 
             /// terminate.
             fn invoke(&mut self, flow: &mut Flow<T>, n: NodeId) -> RcRes<()> {
-                macro_rules! set {
-                    ($x:expr) => {
-                        Set::from($x)
-                    };
-                }
-                let mut Q = OrderedQueue::new();
+                let mut Q = OrderedMaskedQueue::new();
                 Q.enqueue(n);
-                while !Q.queue_empty() {
+                while !Q.is_empty() {
                     Q.set_mask(self.topo(&Q.queued, flow)?);
                     while let Some(n) = Q.dequeue() {
                         // update the node
                         let mut env = NodeInvocationEnv::new(flow.input_values_of(n)?);
                         flow.update_node(n, &mut env)?;
                         // udpate queue
-                        flow.succ_nodes_of_ports(
-                            env.get_updates().iter()
-                                .map(|(i, _)| (n, Direction::Out, *i))
-                                .collect()
-                        )?.iter().for_each(|x| { Q.enqueue(*x); });
+                        self.successor_nodes(&flow, &n, &env)?
+                            .iter().for_each(|x| Q.enqueue(*x));
                         // store updated output values
                         for (i, val) in env.get_updates() {
                             flow.set_output_val_of(n, *i, val.clone())?;
@@ -344,21 +346,21 @@ pub mod flows {
 
         /// Implements a queue of nodes where a separate set masks and
         /// orders the nodes that are queued.
-        struct OrderedQueue<T>
+        struct OrderedMaskedQueue<T>
         where
             T: Clone + PartialEq + Eq + std::hash::Hash,
         {
-            allowed: Vec<T>,
+            mask: Vec<T>,
             queued: Set<T>,
         }
 
-        impl<T> OrderedQueue<T>
+        impl<T> OrderedMaskedQueue<T>
         where
             T: Clone + PartialEq + Eq + std::hash::Hash,
          {
             fn new() -> Self {
                 Self {
-                    allowed: Vec::new(),
+                    mask: Vec::new(),
                     queued: Set::new(),
                 }
             }
@@ -369,18 +371,17 @@ pub mod flows {
             /// `queued`, and remove it from `queued`.
             /// If no such element exists, return None.
             fn dequeue(&mut self) -> Option<T> {
-                // TODO: make this efficient
-                if let Some(x) = self.allowed.iter().find(|x| self.queued.contains(x)) {
+                if let Some(x) = self.mask.iter().find(|x| self.queued.contains(x)) {
                     self.queued.remove(x);
                     return Some(x.clone());
                 }
                 None
             }
-            fn queue_empty(&self) -> bool {
+            fn is_empty(&self) -> bool {
                 self.queued.is_empty()
             }
             fn set_mask(&mut self, allowed: Vec<T>) {
-                self.allowed = allowed;
+                self.mask = allowed;
             }
         }
     }
