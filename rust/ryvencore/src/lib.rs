@@ -130,9 +130,9 @@ pub mod flows {
             Ok(())
         }
         /// Connects two ports. This function fails if
-        /// - the `from` port is not a valid node output
-        /// - the `to` port is not a valid node input
-        /// - the `to` port is already connected
+        /// * the `from` port is not a valid node output
+        /// * the `to` port is not a valid node input
+        /// * the `to` port is already connected
         /// - the types of the two ports do not match
         pub fn connect(&mut self, from: NodePortAlias, to: NodePortAlias) -> RcRes<()> {
             let (fr_nid, fr_dir, fr_prt) = from;
@@ -160,9 +160,9 @@ pub mod flows {
             Ok(())
         }
         /// Disconnects two ports. This function fails if
-        /// - the `from` port is not a valid node output
-        /// - the `to` port is not a valid node input
-        /// - the ports are not connected
+        /// * the `from` port is not a valid node output
+        /// * the `to` port is not a valid node input
+        /// * the ports are not connected
         pub fn disconnect(&mut self, from: NodePortAlias, to: NodePortAlias) -> RcRes<()> {
             if !self.port_succ.contains_key(&from) || !self.port_pred.contains_key(&to) {
                 return Err(RcErr::InvalidPort);
@@ -207,6 +207,16 @@ pub mod flows {
         pub fn update_node(&mut self, node_id: NodeId, env: &mut NodeInvocationEnv<T>) -> RcRes<()> {
             let node = expect!(self.nodes.get_mut(&node_id));
             node.node.on_update(env)
+        }
+        /// Returns the ids of the direct predecessor nodes of a given node.
+        pub fn succ_nodes(&self, node_id: NodeId) -> RcRes<Vec<NodeId>> {
+            let succs = self.node_succ.get(&node_id).ok_or(RcErr::NodeNotFound)?;
+            Ok(succs.values().flatten().cloned().collect())
+        }
+        /// Returns the ids of the direct predecessor nodes of a given node.
+        pub fn pred_nodes(&self, node_id: NodeId) -> RcRes<Vec<NodeId>> {
+            let preds = self.node_pred.get(&node_id).ok_or(RcErr::NodeNotFound)?;
+            Ok(preds.values().flatten().cloned().collect())
         }
         /// Returns the ids of the direct successor nodes of a given output port.
         /// Returns an error if the port doesn't exist or isn't an output port.
@@ -304,8 +314,8 @@ pub mod flows {
                 if done.contains(&n) {  return Ok(());  }
                 if curr.contains(&n) {  return Ok(());  }   // back edge; ignore
                 curr.insert(n.clone());
-                for succ in expect!(flow.node_succ.get(&n)) {
-                    self.visit(*succ, done, curr, res, flow)?;
+                for succ in flow.succ_nodes(n)? {
+                    self.visit(succ, done, curr, res, flow)?;
                 }
                 curr.remove(&n);
                 done.insert(n.clone());
@@ -341,7 +351,7 @@ pub mod flows {
                 while !q.is_empty() {
                     q.set_mask(self.topo(&q.queued, flow)?);
                     while let Some(n) = q.dequeue() {
-                        // update the node
+                        // update node
                         let mut env = NodeInvocationEnv::new(flow.input_values_of(n)?);
                         flow.update_node(n, &mut env)?;
                         // udpate queue
