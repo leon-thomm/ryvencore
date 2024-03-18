@@ -29,7 +29,7 @@ pub enum RcErr {
     Err,
     InputAlreadyConnected,
     InvalidPort,
-    PortTypesMismatch,
+    PortsMissmatch,
     NodeNotFound,
 }
 
@@ -82,7 +82,7 @@ pub mod flows {
             node.init(id);
             let node_internal = NodeInternal { 
                 id: id.clone(), 
-                inputs: node.init_inputs(),
+                inputs: node.init_inputs().into_iter().map(|i| (i, InputState::Active)).collect(),
                 outputs: node.init_outputs(),
                 node,
             };
@@ -133,14 +133,11 @@ pub mod flows {
         /// * the `from` port is not a valid node output
         /// * the `to` port is not a valid node input
         /// * the `to` port is already connected
-        /// - the types of the two ports do not match
         pub fn connect(&mut self, from: NodePortAlias, to: NodePortAlias) -> RcRes<()> {
             let (fr_nid, fr_dir, fr_prt) = from;
             let (to_nid, to_dir, to_prt) = to;
             let fr_node = expect!(self.nodes.get(&fr_nid));
             let to_node = expect!(self.nodes.get(&to_nid));
-            let out_ty = fr_node.outputs[fr_prt].port_type;
-            let in_ty = to_node.inputs[to_prt].port_type;
             // sanity checks
             if !self.port_succ.contains_key(&from) || !self.port_pred.contains_key(&to) || fr_dir == to_dir {
                 return Err(RcErr::InvalidPort);
@@ -150,9 +147,6 @@ pub mod flows {
             }
             if expect!(self.port_pred.get(&to)).is_some() {
                 return Err(RcErr::InputAlreadyConnected);
-            }
-            if out_ty != in_ty {
-                return Err(RcErr::PortTypesMismatch);
             }
             // connect
             expect!(self.port_succ.get_mut(&from)).push(to);
@@ -198,7 +192,7 @@ pub mod flows {
         }
         /// Returns the the input values of a node, in the order of the inputs.
         pub fn input_values_of(&self, node_id: NodeId) -> RcRes<Vec<Option<Rc<T>>>> {
-            let node = expect!(self.nodes.get(&node_id));
+            let node = self.nodes.get(&node_id).ok_or(RcErr::NodeNotFound)?;
             Ok(node.inputs.iter().enumerate().map(
                 |(i, _)| self.input_val_of(node_id, i).unwrap()
             ).collect())
@@ -210,13 +204,17 @@ pub mod flows {
         }
         /// Returns the ids of the direct predecessor nodes of a given node.
         pub fn succ_nodes(&self, node_id: NodeId) -> RcRes<Vec<NodeId>> {
-            let succs = self.node_succ.get(&node_id).ok_or(RcErr::NodeNotFound)?;
-            Ok(succs.values().flatten().cloned().collect())
+            Ok(self.node_succ.get(&node_id)
+                .ok_or(RcErr::NodeNotFound)?
+                .clone()
+            )
         }
         /// Returns the ids of the direct predecessor nodes of a given node.
         pub fn pred_nodes(&self, node_id: NodeId) -> RcRes<Vec<NodeId>> {
-            let preds = self.node_pred.get(&node_id).ok_or(RcErr::NodeNotFound)?;
-            Ok(preds.values().flatten().cloned().collect())
+            Ok(self.node_pred.get(&node_id)
+                .ok_or(RcErr::NodeNotFound)?
+                .clone()
+            )
         }
         /// Returns the ids of the direct successor nodes of a given output port.
         /// Returns an error if the port doesn't exist or isn't an output port.
@@ -241,6 +239,19 @@ pub mod flows {
             }
             Ok(res)
         }
+        /// Masks the inputs of a node. Deactivated inputs won't trigger node updates
+        /// on data arrivals during execution.
+        /// Files if the node doesn't exist or the mask doesn't match the number of inputs.
+        pub fn mask_inputs(&mut self, node_id: NodeId, mask: Vec<InputState>) -> RcRes<()> {
+            let node = self.nodes.get_mut(&node_id).ok_or(RcErr::NodeNotFound)?;
+            if mask.len() != node.inputs.len() {
+                return Err(RcErr::PortsMissmatch);
+            }
+            for (i, m) in mask.iter().enumerate() {
+                node.inputs[i].1 = *m;
+            }
+            Ok(())
+        }
     }
 
     #[derive(Clone, Copy, PartialEq, Eq, Hash)]
@@ -251,10 +262,17 @@ pub mod flows {
 
     pub type NodePortAlias = (NodeId, Direction, usize);
 
+    // type InputActive = bool;
+    #[derive(Clone, Copy, PartialEq, Eq)]
+    pub enum InputState {
+        Active,
+        Inactive,
+    }
+
     struct NodeInternal<T> {
         id: NodeId,
         node: Box<dyn Node<T>>,
-        inputs: Vec<NodeInput>,
+        inputs: Vec<(NodeInput, InputState)>,
         outputs: Vec<NodeOutput<T>>,
     }
 
@@ -328,7 +346,28 @@ pub mod flows {
                 let mut res = Set::new();
                 for (i, _) in env.get_updates() {
                     let succs = flow.succ_nodes_of_port((*n, Direction::Out, *i))?;
-                    res.extend(succs);
+                    
+                    // consider only successors to which we have a connection
+                    // to an input that is active
+                    // TODO: this is insane; make efficient and simple
+
+                    for s in &succs {
+                        // the indices of inputs of node s that are connected to output i of node n
+                        let connected_inputs = (0..flow.nodes[&s].inputs.len())
+                            .filter(|j| 
+                                // check if output i of node n is connected to input j of node s
+                                flow.port_pred[&(*s, Direction::In, *j)] == Some((*n, Direction::Out, *i))
+                            ).collect::<Vec<_>>();
+                        // filter the inputs that are active
+                        let active_inputs = connected_inputs.iter()
+                            .filter(|j| flow.nodes[&s].inputs[**j].1 == InputState::Active)
+                            .collect::<Vec<_>>();
+                        // if there are active connected inputs, add the node to the result
+                        if !active_inputs.is_empty() {
+                            res.insert(*s);
+                        }
+                    }
+
                 }
                 Ok(res)
             }
@@ -411,6 +450,8 @@ pub mod flows {
 }
 
 pub mod nodes {
+    use self::flows::InputState;
+
     use super::*;
 
     #[derive(Clone, Copy, PartialEq, Eq, Hash)]
