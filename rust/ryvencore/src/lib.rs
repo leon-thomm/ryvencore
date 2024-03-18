@@ -29,7 +29,7 @@ pub enum RcErr {
     Err,
     InputAlreadyConnected,
     InvalidPort,
-    PortTypesMismatch,
+    PortLevelMismatch,
     NodeNotFound,
 }
 
@@ -50,14 +50,16 @@ pub mod flows {
     use super::*;
     use super::nodes::*;
 
+    pub type Level = u32;
+
     /// The flow keeps nodes and their connections, and is responsible for executing the flow.
     /// by invoking a node.
     #[allow(dead_code)]
     pub struct Flow<T> {
         title: String,
         nodes: Map<NodeId, NodeInternal<T>>,
-        node_succ: Map<NodeId, Vec<NodeId>>,
-        node_pred: Map<NodeId, Vec<NodeId>>,
+        node_succ: Map<NodeId, Map<Level, Vec<NodeId>>>,
+        node_pred: Map<NodeId, Map<Level, Vec<NodeId>>>,
         port_succ: Map<NodePortAlias, Vec<NodePortAlias>>,
         port_pred: Map<NodePortAlias, Option<NodePortAlias>>,
     }
@@ -86,8 +88,22 @@ pub mod flows {
                 outputs: node.init_outputs(),
                 node,
             };
-            self.node_succ.insert(id, Vec::new());
-            self.node_pred.insert(id, Vec::new());
+            let succs_per_level: Map<u32, Vec<NodeId>> = node_internal
+                .outputs.iter()
+                .map(|o| o.level)
+                .collect::<Set<_>>()
+                .iter()
+                .map(|l| (*l, Vec::new()))
+                .collect::<Map<_, _>>();
+            let preds_per_level: Map<u32, Vec<NodeId>> = node_internal
+                .inputs.iter()
+                .map(|i| i.level)
+                .collect::<Set<_>>()
+                .iter()
+                .map(|l| (*l, Vec::new()))
+                .collect::<Map<_, _>>();
+            self.node_succ.insert(id.clone(), succs_per_level);
+            self.node_pred.insert(id.clone(), preds_per_level);
             node_internal.iter_out().for_each(|o| {
                 self.port_succ.insert(o, Vec::new());
             });
@@ -133,16 +149,17 @@ pub mod flows {
         /// * the `from` port is not a valid node output
         /// * the `to` port is not a valid node input
         /// * the `to` port is already connected
-        /// - the types of the two ports do not match
+        /// * the levels of the two ports do not match
         pub fn connect(&mut self, from: NodePortAlias, to: NodePortAlias) -> RcRes<()> {
             let (fr_nid, fr_dir, fr_prt) = from;
             let (to_nid, to_dir, to_prt) = to;
             let fr_node = expect!(self.nodes.get(&fr_nid));
             let to_node = expect!(self.nodes.get(&to_nid));
-            let out_ty = fr_node.outputs[fr_prt].port_type;
-            let in_ty = to_node.inputs[to_prt].port_type;
+            let out_lvl = fr_node.outputs[fr_prt].level;
+            let in_lvl = to_node.inputs[to_prt].level;
             // sanity checks
-            if !self.port_succ.contains_key(&from) || !self.port_pred.contains_key(&to) || fr_dir == to_dir {
+            if !self.port_succ.contains_key(&from) || !self.port_pred.contains_key(&to) 
+               || fr_dir == to_dir {
                 return Err(RcErr::InvalidPort);
             }
             if fr_prt >= fr_node.outputs.len() || to_prt >= to_node.inputs.len() {
@@ -151,8 +168,8 @@ pub mod flows {
             if expect!(self.port_pred.get(&to)).is_some() {
                 return Err(RcErr::InputAlreadyConnected);
             }
-            if out_ty != in_ty {
-                return Err(RcErr::PortTypesMismatch);
+            if out_lvl != in_lvl {
+                return Err(RcErr::PortLevelMismatch);
             }
             // connect
             expect!(self.port_succ.get_mut(&from)).push(to);
@@ -270,7 +287,7 @@ pub mod flows {
     }
 
     pub trait Executor<T> {
-        fn invoke(&mut self, flow: &mut Flow<T>, n: NodeId) -> RcRes<()>;
+        fn invoke(&mut self, flow: &mut Flow<T>, n: NodeId, levels: Option<Set<Level>>) -> RcRes<()>;
     }
 
     pub mod executors {
@@ -324,15 +341,32 @@ pub mod flows {
             }
             /// Returns successor nodes of n who received data from one of n's outputs
             /// during the last invocation of n, according to env.
-            fn successor_nodes<T>(&self, flow: &Flow<T>, n: &NodeId, env: &NodeInvocationEnv<T>) -> RcRes<Set<NodeId>> {
+            fn successor_nodes<T>(
+                &self, 
+                flow: &Flow<T>, 
+                n: &NodeId, 
+                env: &NodeInvocationEnv<T>, 
+                levels: &Option<Set<Level>>
+            ) -> RcRes<Set<NodeId>> {
                 let mut res = Set::new();
                 for (i, _) in env.get_updates() {
+                    // ignore output updates of unwatched levels
+                    if let Some(levels) = levels {
+                        let output_level = expect!(flow.nodes.get(n)).outputs[*i].level;
+                        if !levels.contains(&output_level) {
+                            continue;
+                        }
+                    }
                     let succs = flow.succ_nodes_of_port((*n, Direction::Out, *i))?;
                     res.extend(succs);
                 }
                 Ok(res)
             }
         }
+
+        // TODO: I can now update only a certain level, but that doesn't really help me yet.
+        //       In an exec invocation, data proagations still need to happen, they should
+        //       only not caue updates in exec nodes.
 
         impl<T> Executor<T> for TopoWithLoops {
             /// * Starts an execution by updating nodes, beginning with n.
@@ -345,7 +379,7 @@ pub mod flows {
             /// with minimal node update redundancy.
             /// * It is up to the user to ensure that an invocation in a cyclic graph will 
             /// terminate.
-            fn invoke(&mut self, flow: &mut Flow<T>, n: NodeId) -> RcRes<()> {
+            fn invoke(&mut self, flow: &mut Flow<T>, n: NodeId, levels: Option<Set<Level>>) -> RcRes<()> {
                 let mut q = OrderedMaskedQueue::new();
                 q.enqueue(n);
                 while !q.is_empty() {
@@ -355,7 +389,7 @@ pub mod flows {
                         let mut env = NodeInvocationEnv::new(flow.input_values_of(n)?);
                         flow.update_node(n, &mut env)?;
                         // udpate queue
-                        self.successor_nodes(&flow, &n, &env)?
+                        self.successor_nodes(&flow, &n, &env, &levels)?
                             .iter().for_each(|x| q.enqueue(*x));
                         // store updated output values
                         for (i, val) in env.get_updates() {
@@ -412,6 +446,7 @@ pub mod flows {
 
 pub mod nodes {
     use super::*;
+    use super::flows::Level;
 
     #[derive(Clone, Copy, PartialEq, Eq, Hash)]
     pub struct NodeId(pub usize);
@@ -423,7 +458,8 @@ pub mod nodes {
 
     pub struct NodeOutput<T> {
         pub label: String,
-        pub port_type: NodePortType,
+        pub level: Level,
+        // pub port_type: NodePortType,
         pub val: Option<Rc<T>>,
     }
 
@@ -438,7 +474,8 @@ pub mod nodes {
 
     pub struct NodeInput {
         pub label: String,
-        pub port_type: NodePortType,
+        pub level: Level,
+        // pub port_type: NodePortType,
     }
 
     pub struct NodeInvocationEnv<T> {
