@@ -56,10 +56,12 @@ pub mod flows {
     pub struct Flow<T> {
         title: String,
         nodes: Map<NodeId, NodeInternal<T>>,
-        node_succ: Map<NodeId, Vec<NodeId>>,
-        node_pred: Map<NodeId, Vec<NodeId>>,
-        port_succ: Map<NodePortAlias, Vec<NodePortAlias>>,
+        port_succ: Map<NodePortAlias, Set<NodePortAlias>>,
         port_pred: Map<NodePortAlias, Option<NodePortAlias>>,
+        // redundant data for faster access
+        port_succ_masked: Map<NodePortAlias, Set<NodePortAlias>>,
+        node_succ: Map<NodeId, Set<NodeId>>,
+        node_pred: Map<NodeId, Set<NodeId>>,
     }
 
     impl<T> Default for Flow<T> {
@@ -67,10 +69,11 @@ pub mod flows {
             Self {
                 title: String::new(),
                 nodes: Map::new(),
-                node_succ: Map::new(),
-                node_pred: Map::new(),
                 port_succ: Map::new(),
                 port_pred: Map::new(),
+                port_succ_masked: Map::new(),
+                node_succ: Map::new(),
+                node_pred: Map::new(),
             }
         }
     }
@@ -86,10 +89,11 @@ pub mod flows {
                 outputs: node.init_outputs(),
                 node,
             };
-            self.node_succ.insert(id, Vec::new());
-            self.node_pred.insert(id, Vec::new());
+            self.node_succ.insert(id, Set::new());
+            self.node_pred.insert(id, Set::new());
             node_internal.iter_out().for_each(|o| {
-                self.port_succ.insert(o, Vec::new());
+                self.port_succ.insert(o, Set::new());
+                self.port_succ_masked.insert(o, Set::new());
             });
             node_internal.iter_inp().for_each(|i| {
                 self.port_pred.insert(i, None);
@@ -149,8 +153,13 @@ pub mod flows {
                 return Err(RcErr::InputAlreadyConnected);
             }
             // connect
-            expect!(self.port_succ.get_mut(&from)).push(to);
+            expect!(self.port_succ.get_mut(&from)).insert(to);
+            if self.nodes[&to_nid].inputs[to_prt].1 == InputState::Active {
+                expect!(self.port_succ_masked.get_mut(&from)).insert(to);
+            }
             self.port_pred.insert(to, Some(from));
+            expect!(self.node_succ.get_mut(&fr_nid)).insert(to_nid);
+            expect!(self.node_pred.get_mut(&to_nid)).insert(fr_nid);
             Ok(())
         }
         /// Disconnects two ports. This function fails if
@@ -162,8 +171,14 @@ pub mod flows {
                 return Err(RcErr::InvalidPort);
             }
             expect!(self.port_succ.get_mut(&from))
-                .retain(|x| x != &to);
+                .remove(&to);
+            expect!(self.port_succ_masked.get_mut(&from))
+                .remove(&to);
             self.port_pred.insert(to, None);
+            let (fr_nid, _, _) = from;
+            let (to_nid, _, _) = to;
+            expect!(self.node_succ.get_mut(&fr_nid)).remove(&to_nid);
+            expect!(self.node_pred.get_mut(&to_nid)).remove(&fr_nid);
             Ok(())
         }
         pub fn output_val_of(&self, node_id: NodeId, port: usize) -> RcRes<Option<Rc<T>>> {
@@ -203,14 +218,14 @@ pub mod flows {
             node.node.on_update(env)
         }
         /// Returns the ids of the direct predecessor nodes of a given node.
-        pub fn succ_nodes(&self, node_id: NodeId) -> RcRes<Vec<NodeId>> {
+        pub fn succ_nodes(&self, node_id: NodeId) -> RcRes<Set<NodeId>> {
             Ok(self.node_succ.get(&node_id)
                 .ok_or(RcErr::NodeNotFound)?
                 .clone()
             )
         }
         /// Returns the ids of the direct predecessor nodes of a given node.
-        pub fn pred_nodes(&self, node_id: NodeId) -> RcRes<Vec<NodeId>> {
+        pub fn pred_nodes(&self, node_id: NodeId) -> RcRes<Set<NodeId>> {
             Ok(self.node_pred.get(&node_id)
                 .ok_or(RcErr::NodeNotFound)?
                 .clone()
@@ -218,13 +233,12 @@ pub mod flows {
         }
         /// Returns the ids of the direct successor nodes of a given output port.
         /// Returns an error if the port doesn't exist or isn't an output port.
-        pub fn succ_nodes_of_port(&self, port: NodePortAlias) -> RcRes<Vec<NodeId>> {
+        pub fn succ_nodes_of_port(&self, port: NodePortAlias, consider_masking: bool) -> RcRes<Vec<NodeId>> {
             let (_, dir, _) = &port;
             if dir == &Direction::In {
                 return Err(RcErr::InvalidPort);
             }
-            Ok(self
-                .port_succ
+            Ok( {if consider_masking { &self.port_succ_masked } else { &self.port_succ } }
                 .get(&port).ok_or(RcErr::InvalidPort)?
                 .iter().map(|(n, _, _)| n.clone())
                 .collect()
@@ -232,10 +246,10 @@ pub mod flows {
         }
         /// Returns the ids of the direct successor nodes of a given set of output ports.
         /// Returns an error if any of the ports doesn't exist or isn't an output port.
-        pub fn succ_nodes_of_ports(&self, ports: Set<NodePortAlias>) -> RcRes<Vec<NodeId>> {
+        pub fn succ_nodes_of_ports(&self, ports: Set<NodePortAlias>, consider_masking: bool) -> RcRes<Vec<NodeId>> {
             let mut res = Vec::new();
             for p in ports {
-                res.extend(self.succ_nodes_of_port(p)?);
+                res.extend(self.succ_nodes_of_port(p, consider_masking)?);
             }
             Ok(res)
         }
@@ -249,6 +263,21 @@ pub mod flows {
             }
             for (i, m) in mask.iter().enumerate() {
                 node.inputs[i].1 = *m;
+                // update masked connections
+                let inp_alias = (node_id, Direction::In, i);
+                if let Some(out) = expect!(self.port_pred.get(&inp_alias)) {
+                    let (out_nid, _, out_prt) = out;
+                    if m == &InputState::Inactive {
+                        self.port_succ_masked.get_mut(&(*out_nid, Direction::Out, *out_prt))
+                            .ok_or(RcErr::InvalidPort)?
+                            .remove(&inp_alias);
+                    } else {
+                        let (out_nid, _, out_prt) = out;
+                        self.port_succ_masked.get_mut(&(*out_nid, Direction::Out, *out_prt))
+                            .ok_or(RcErr::InvalidPort)?
+                            .insert(inp_alias);
+                    }
+                }
             }
             Ok(())
         }
@@ -345,29 +374,9 @@ pub mod flows {
             fn successor_nodes<T>(&self, flow: &Flow<T>, n: &NodeId, env: &NodeInvocationEnv<T>) -> RcRes<Set<NodeId>> {
                 let mut res = Set::new();
                 for (i, _) in env.get_updates() {
-                    let succs = flow.succ_nodes_of_port((*n, Direction::Out, *i))?;
-                    
-                    // consider only successors to which we have a connection
-                    // to an input that is active
-                    // TODO: this is insane; make efficient and simple
-
-                    for s in &succs {
-                        // the indices of inputs of node s that are connected to output i of node n
-                        let connected_inputs = (0..flow.nodes[&s].inputs.len())
-                            .filter(|j| 
-                                // check if output i of node n is connected to input j of node s
-                                flow.port_pred[&(*s, Direction::In, *j)] == Some((*n, Direction::Out, *i))
-                            ).collect::<Vec<_>>();
-                        // filter the inputs that are active
-                        let active_inputs = connected_inputs.iter()
-                            .filter(|j| flow.nodes[&s].inputs[**j].1 == InputState::Active)
-                            .collect::<Vec<_>>();
-                        // if there are active connected inputs, add the node to the result
-                        if !active_inputs.is_empty() {
-                            res.insert(*s);
-                        }
-                    }
-
+                    res.extend(
+                        flow.succ_nodes_of_port((*n, Direction::Out, *i), true)?
+                    );
                 }
                 Ok(res)
             }
@@ -429,7 +438,7 @@ pub mod flows {
             fn enqueue(&mut self, n: T) {
                 self.queued.insert(n);
             }
-            /// Return the first element in `allowed` that is also in
+            /// Return the first element in `mask` that is also in
             /// `queued`, and remove it from `queued`.
             /// If no such element exists, return None.
             fn dequeue(&mut self) -> Option<T> {
@@ -450,11 +459,9 @@ pub mod flows {
 }
 
 pub mod nodes {
-    use self::flows::InputState;
-
     use super::*;
 
-    #[derive(Clone, Copy, PartialEq, Eq, Hash)]
+    #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
     pub struct NodeId(pub usize);
 
     #[derive(Clone, Copy, PartialEq, Eq, Hash)]

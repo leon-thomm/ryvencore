@@ -46,6 +46,7 @@ mod simple_echo {
         fn on_removed(&mut self) {}
         fn on_rebuilt(&mut self) {}
         fn on_update(&mut self, env: &mut NodeInvocationEnv<i32>) -> RcRes<()> {
+            println!("SimpleEcho::on_update");
             if let Some(inp) = env.get_inp(0)? {
                 env.set_out(0, inp);
             } else {
@@ -106,6 +107,7 @@ mod min_max {
         fn on_removed(&mut self) {}
         fn on_rebuilt(&mut self) {}
         fn on_update(&mut self, env: &mut NodeInvocationEnv<i32>) -> RcRes<()> {
+            println!("MinMax::on_update");
             let a = env.get_inp(0)?;
             let b = env.get_inp(1)?;
             if a.is_some() || b.is_some() {
@@ -166,6 +168,7 @@ mod ctr {
         fn on_removed(&mut self) {}
         fn on_rebuilt(&mut self) {}
         fn on_update(&mut self, env: &mut NodeInvocationEnv<i32>) -> RcRes<()> {
+            println!("Ctr::on_update");
             if let Some(inp) = env.get_inp(0)? {
                 if *inp < THRESHOLD {
                     env.set_out(0, Rc::new(*inp + 1));
@@ -177,6 +180,7 @@ mod ctr {
 }
 
 #[cfg(test)]
+#[allow(non_snake_case)]
 mod tests {
     use super::*;
 
@@ -283,5 +287,33 @@ mod tests {
         check_output(&flow, node_MinMax_1, 0, 42);
         check_output(&flow, node_MinMax_1, 1, THRESHOLD);
         check_output(&flow, node_Ctr_0, 0, THRESHOLD);
+    }
+
+    #[test]
+    fn basic_masking() {
+        use flows::InputState::*;
+
+        generate_graph_tests!("
+            SimpleEcho.0.0 -> Ctr.0.0
+            SimpleEcho.0.0 -> MinMax.0.0
+            Ctr.0.0 -> MinMax.0.1
+        ");
+
+        let mut exc = TopoWithLoops::new();
+
+        flow.mask_inputs(node_MinMax_0, vec![Inactive, Inactive]).unwrap();
+        exc.invoke(&mut flow, node_SimpleEcho_0).unwrap();
+        assert!(flow.output_val_of(node_MinMax_0, 0).unwrap().is_none());
+        assert!(flow.output_val_of(node_MinMax_0, 1).unwrap().is_none());
+
+        flow.mask_inputs(node_MinMax_0, vec![Active, Inactive]).unwrap();
+        exc.invoke(&mut flow, node_Ctr_0).unwrap();
+        assert!(flow.output_val_of(node_MinMax_0, 0).unwrap().is_none());
+        assert!(flow.output_val_of(node_MinMax_0, 1).unwrap().is_none());
+
+        flow.mask_inputs(node_MinMax_0, vec![Active, Active]).unwrap();
+        exc.invoke(&mut flow, node_Ctr_0).unwrap();
+        check_output(&flow, node_MinMax_0, 0, 42);
+        check_output(&flow, node_MinMax_0, 1, 43);
     }
 }
