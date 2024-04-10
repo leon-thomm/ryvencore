@@ -3,8 +3,8 @@ This module defines the :code:`Base` class for most internal components,
 implementing features such as a unique ID, a system for save and load,
 and a very minimal event system.
 """
-from typing import Dict
-
+from typing import Dict, Set
+from bisect import insort
 
 class IDCtr:
     """
@@ -40,7 +40,8 @@ class Event:
 
     def __init__(self, *args):
         self.args = args
-        self._slots = {i: set() for i in range(-5, 11)}
+        self._slots: Dict[int, Set] = {}
+        self._ordered_slot_pos = []
         self._slot_priorities = {}
 
     def sub(self, callback, nice=0):
@@ -54,7 +55,12 @@ class Event:
         assert -5 <= nice <= 10
         assert self._slot_priorities.get(callback) is None
 
-        self._slots[nice].add(callback)
+        cb_set = self._slots.get(nice)
+        if cb_set is None:
+            cb_set = self._slots[nice] = set()
+            insort(self._ordered_slot_pos, nice)
+            
+        cb_set.add(callback)
         self._slot_priorities[callback] = nice
 
     def unsub(self, callback):
@@ -62,8 +68,13 @@ class Event:
         De-registers a callback function. The function must have been added previously.
         """
         nice = self._slot_priorities[callback]
-        self._slots[nice].remove(callback)
+        cb_set = self._slots[nice]
+        cb_set.remove(callback)
         del self._slot_priorities[callback]
+
+        if len(cb_set) == 0:
+            del self._slots[nice]
+            self._ordered_slot_pos.remove(nice)
 
     def emit(self, *args):
         """
@@ -71,9 +82,9 @@ class Event:
         given by :code:`args`.
         """
 
-        # notice that dicts are insertion ordered since python 3.6
-        for nice, cb_set in self._slots.items():
-            for cb in cb_set:
+        # notice we're using the ordered list to run through the events
+        for nice in self._ordered_slot_pos:
+            for cb in self._slots[nice]:
                 cb(*args)
 
 
