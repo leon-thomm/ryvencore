@@ -192,7 +192,7 @@ class Flow(Base):
     def _set_output_values_from_data(self, nodes: List[Node], data: List):
         for d in data:
             indices = d['dependent node outputs']
-            indices_paired = zip(indices[0::2], indices[1::2])
+            indices_paired: zip[tuple[int, int]] = zip(indices[0::2], indices[1::2])
             for node_index, output_index in indices_paired:
 
                 # find Data class
@@ -208,8 +208,7 @@ class Flow(Base):
                                   f'Please register data types before using them.')
                         continue
 
-                nodes[node_index].outputs[output_index].val = \
-                    data_type(load_from=d['data'])
+                nodes[node_index]._outputs[output_index].val = data_type(load_from=d['data'])
 
 
     def create_node(self, node_class: Type[Node], data=None):
