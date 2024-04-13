@@ -223,7 +223,7 @@ class DtypesAddon(AddOn):
                 self.dtype_inputs[inp] = dtype
 
     def extend_node_data(self, node, data: dict):
-        for i, inp in enumerate(node.inputs):
+        for i, inp in enumerate(node._inputs):
             if inp in self.dtype_inputs:
                 data['inputs'][i]['dtype'] = {
                     'type': str(self.dtype_inputs[inp]),
