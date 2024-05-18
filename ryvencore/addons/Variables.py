@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, Any
 from packaging.version import parse as parse_version
 
 from ryvencore import Node, Data, AddOn, Flow
@@ -17,7 +17,7 @@ class Variable:
     Storing other data will break save&load.
     """
 
-    def __init__(self, addon, flow, name='', val=None, data=None):
+    def __init__(self, addon: Any, flow: Flow, name='', val=None, data=None):
         self.addon = addon
         self.flow = flow
         self.name = name
@@ -207,6 +207,8 @@ class VarsAddon(AddOn):
             }
             self.var_created.emit(flow, name, v)
             return v
+
+        return None
 
     def delete_var(self, flow, name: str):
         """

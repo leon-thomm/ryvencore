@@ -9,11 +9,17 @@ optionally in the future.
 This list may grow significantly over time.
 """
 
-from typing import Dict as t_Dict, List as t_List
+from typing import (
+    TypeVar,
+    Optional,
+    Dict as t_Dict, 
+    List as t_List, 
+    Tuple as t_Tuple,
+)
 
 
 class DType:
-    def __init__(self, default, bounds: tuple = None, doc: str = "", _load_state=None):
+    def __init__(self, default, bounds: Optional[t_Tuple] = None, doc: str = "", _load_state=None):
 
         self.default = default
         self.val = self.default
@@ -62,12 +68,12 @@ class Data(DType):
 
 
 class Integer(DType):
-    def __init__(self, default: int = 0, bounds: tuple = None, doc: str = "", _load_state=None):
+    def __init__(self, default: int = 0, bounds: Optional[tuple] = None, doc: str = "", _load_state=None):
         super().__init__(default=default, bounds=bounds, doc=doc, _load_state=_load_state)
 
 
 class Float(DType):
-    def __init__(self, default: float = 0.0, bounds: tuple = None, decimals: int = 10, doc: str = "", _load_state=None):
+    def __init__(self, default: float = 0.0, bounds: Optional[tuple] = None, decimals: int = 10, doc: str = "", _load_state=None):
         self.decimals = decimals
         super().__init__(default=default, bounds=bounds, doc=doc, _load_state=_load_state)
         self.add_data('decimals')
@@ -79,7 +85,7 @@ class Boolean(DType):
 
 
 class Char(DType):
-    def __init__(self, default: chr = '', doc: str = "", _load_state=None):
+    def __init__(self, default: str = '0', doc: str = "", _load_state=None):
         super().__init__(default=default, doc=doc, _load_state=_load_state)
 
 
@@ -183,11 +189,11 @@ class DtypesAddon(AddOn):
     Choice = Choice
     List = List
 
-    class NodeInputType(NodeInputType):
-        def __init__(self, dtype=None, *args, **kwargs):
-            super().__init__(**kwargs)
+    # class NodeInputType(NodeInputType):
+    #     def __init__(self, dtype=None, *args, **kwargs):
+    #         super().__init__(**kwargs)
 
-            self.dtype = dtype
+    #         self.dtype = dtype
 
     def __init__(self):
         super().__init__()

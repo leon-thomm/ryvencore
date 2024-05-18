@@ -3,7 +3,7 @@ This module defines the :code:`Base` class for most internal components,
 implementing features such as a unique ID, a system for save and load,
 and a very minimal event system.
 """
-from typing import Dict
+from typing import Dict, Optional
 
 
 class IDCtr:
@@ -103,7 +103,7 @@ class Base:
     # TODO: this produces a memory leak, because the objects are never removed
     #  from the dict. It shouldn't be a problem as long as PREF_GLOBAL_ID is
     #  only used for loading, but I'd be happy to avoid this if possible
-    _prev_id_objs = {}
+    _prev_id_objs: Dict[int, "Base"] = {}
 
     @classmethod
     def obj_from_prev_id(cls, prev_id: int):
@@ -124,7 +124,7 @@ class Base:
 
 
     # optional version which, if set, will be stored in :code:`data()`
-    version: str = None
+    version: Optional[str] = None
 
     # non-static
 

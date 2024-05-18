@@ -127,12 +127,12 @@ class Flow(Base):
         # general attributes
         self.session = session
         self.title = title
-        self.nodes: [Node] = []
-        self.load_data = None
+        self.nodes: List[Node] = []
+        self.load_data: Optional[Dict] = None
 
-        self.node_successors = {}   # additional data structure for executors
-        self.graph_adj = {}         # directed adjacency list relating node ports
-        self.graph_adj_rev = {}     # reverse adjacency; reverse of graph_adj
+        self.node_successors: Dict[Node, List[Node]] = {}   # additional data structure for executors
+        self.graph_adj: Dict[NodeOutput, List[NodeInput]] = {}         # directed adjacency list relating node ports
+        self.graph_adj_rev: Dict[NodeInput, Optional[NodeOutput]] = {}     # reverse adjacency; reverse of graph_adj
 
         self.alg_mode = FlowAlg.DATA
         self.executor: FlowExecutor = executor_from_flow_alg(self.alg_mode)(self)
@@ -527,7 +527,7 @@ class Flow(Base):
     def _gen_output_data(self, nodes: List[Node]) -> List[Dict]:
         """Serializes output data of the nodes"""
 
-        outputs_data = {}
+        outputs_data: Dict[Data, Dict] = {}
 
         for i_n, n in enumerate(nodes):
             for i_o, out in enumerate(n.outputs):
