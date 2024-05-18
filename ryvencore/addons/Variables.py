@@ -159,8 +159,8 @@ class VarsAddon(AddOn):
 
         # if node had subscriptions previously (so it was removed)
         if node in self.removed_subscriptions:
-            for name, cb_name in self.removed_subscriptions[node].items():
-                self.subscribe(node, name, getattr(node, cb_name))
+            for name, cb in self.removed_subscriptions[node].items():
+                self.subscribe(node, name, cb)
             del self.removed_subscriptions[node]
 
         # otherwise, check if it has load data and reconstruct subscriptions
