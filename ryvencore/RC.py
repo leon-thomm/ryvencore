@@ -18,10 +18,8 @@ class FlowAlg(IntEnum):
             return 'data'
         elif mode == FlowAlg.EXEC:
             return 'exec'
-        elif mode == FlowAlg.DATA_OPT:
+        else:  # FlowAlg.DATA_OPT
             return 'data opt'
-
-        return None
 
     @staticmethod
     def from_str(mode):
@@ -31,8 +29,8 @@ class FlowAlg(IntEnum):
             return FlowAlg.EXEC
         elif mode == 'data opt':
             return FlowAlg.DATA_OPT
-
-        return None
+        else:
+            raise ValueError(f'Invalid mode: {mode}')
 
 
 class PortObjPos(IntEnum):

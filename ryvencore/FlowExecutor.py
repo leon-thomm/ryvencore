@@ -9,6 +9,8 @@ if TYPE_CHECKING:
     from .Flow import Flow
     from .Node import Node
 
+from typing import Optional
+
 from .Data import Data
 from .NodePort import NodeOutput, NodeInput
 from .RC import FlowAlg
@@ -38,22 +40,22 @@ class FlowExecutor:
         pass
 
     # Node.input() =>
-    def input(self, node: Node, index: int):
-        pass
+    def input(self, node: Node, index: int) -> Optional[Data]:
+        raise NotImplementedError
 
     # Node.set_output_val() =>
-    def set_output_val(self, node: Node, index: int, val):
-        pass
+    def set_output_val(self, node: Node, index: int, val) -> None:
+        raise NotImplementedError
 
     # Node.exec_output() =>
-    def exec_output(self, node: Node, index: int):
-        pass
+    def exec_output(self, node: Node, index: int) -> None:
+        raise NotImplementedError
 
-    def conn_added(self, out: NodeOutput, inp: NodeInput, silent=False):
-        pass
+    def conn_added(self, out: NodeOutput, inp: NodeInput, silent=False) -> None:
+        raise NotImplementedError
 
-    def conn_removed(self, out: NodeOutput, inp: NodeInput, silent=False):
-        pass
+    def conn_removed(self, out: NodeOutput, inp: NodeInput, silent=False) -> None:
+        raise NotImplementedError
 
 
 class DataFlowNaive(FlowExecutor):
