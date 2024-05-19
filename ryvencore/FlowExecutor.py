@@ -41,21 +41,21 @@ class FlowExecutor:
 
     # Node.input() =>
     def input(self, node: Node, index: int) -> Optional[Data]:
-        raise NotImplementedError
+        pass
 
     # Node.set_output_val() =>
     def set_output_val(self, node: Node, index: int, val) -> None:
-        raise NotImplementedError
+        pass
 
     # Node.exec_output() =>
     def exec_output(self, node: Node, index: int) -> None:
-        raise NotImplementedError
+        pass
 
     def conn_added(self, out: NodeOutput, inp: NodeInput, silent=False) -> None:
-        raise NotImplementedError
+        pass
 
     def conn_removed(self, out: NodeOutput, inp: NodeInput, silent=False) -> None:
-        raise NotImplementedError
+        pass
 
 
 class DataFlowNaive(FlowExecutor):
