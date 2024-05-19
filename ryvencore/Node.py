@@ -39,7 +39,7 @@ class Node(Base):
     init_outputs: List[NodeOutputType] = []
     """initial outputs list, see ``init_inputs``"""
 
-    identifier: Optional[str] = None
+    identifier: str
     """unique node identifier string. if not given it will set it to the class name when registering in the session"""
 
     legacy_identifiers: List[str] = []
@@ -64,7 +64,7 @@ class Node(Base):
         if cls.identifier_prefix is not None:
             prefix = cls.identifier_prefix + '.'
 
-        if cls.identifier is None:
+        if not hasattr(cls, 'identifier') or cls.identifier is None:
             cls.identifier = cls.__name__
 
         cls.identifier = prefix + cls.identifier
