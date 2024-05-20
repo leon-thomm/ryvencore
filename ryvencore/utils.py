@@ -18,7 +18,7 @@ def pkg_version() -> str:
     return importlib_metadata.version('ryvencore')
 
 
-def pkg_path(subpath: str = None):
+def pkg_path(subpath: Optional[str] = None):
     """
     Returns the path to the installed package root directory, optionally with a relative sub-path appended.
     Notice that this returns the path to the ryvencore package (ryvencore/ryvencore/) not the repository (ryvencore/).
@@ -73,6 +73,11 @@ def load_from_file(file: str, comps: List[str]) -> Tuple:
 
     name = basename(file).split('.')[0]
     spec = importlib.util.spec_from_file_location(name, file)
+
+    assert name is not None
+    assert spec is not None
+    assert spec.loader is not None
+    
     importlib.util.module_from_spec(spec)
 
     # TODO

@@ -1,7 +1,7 @@
 import importlib
 import glob
 import os.path
-from typing import List, Dict, Type, Optional
+from typing import List, Dict, Type, Optional, Any
 
 from .Data import Data
 from .Base import Base, Event
@@ -32,13 +32,13 @@ class Session(Base):
         self.flow_deleted = Event(Flow)
 
         # ATTRIBUTES
-        self.addons = {}
-        self.flows: [Flow] = []
-        self.nodes = set()      # list of node CLASSES
-        self.invisible_nodes = set()
-        self.data_types = {}
+        self.addons: Dict[str, Any] = {}
+        self.flows: List[Flow] = []
+        self.nodes: set[type[Node]] = set()      # list of node CLASSES
+        self.invisible_nodes: set[type[Node]] = set()
+        self.data_types: Dict[str, type[Data]] = {}
         self.gui: bool = gui
-        self.init_data = None
+        self.init_data: Optional[Dict] = None
 
         # self.register_addons(pkg_path('addons/legacy/'))
         # self.register_addons(pkg_path('addons/'))
@@ -147,7 +147,7 @@ class Session(Base):
             self.register_data_type(d)
 
 
-    def create_flow(self, title: str = None, data: Dict = None) -> Flow:
+    def create_flow(self, title: str, data: Optional[Dict] = None) -> Flow:
         """
         Creates and returns a new flow.
         If data is provided the title parameter will be ignored.
@@ -158,7 +158,7 @@ class Session(Base):
 
         self.flow_created.emit(flow)
 
-        if data:
+        if data is not None:
             flow.load(data)
 
         return flow

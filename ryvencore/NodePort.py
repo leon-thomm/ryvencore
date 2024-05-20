@@ -1,6 +1,11 @@
+# prevent cyclic imports
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .Node import Node
+
 from typing import Optional, Dict
 
-from . import Node
 from .Data import Data
 from .Base import Base
 from .utils import serialize, deserialize
@@ -18,7 +23,7 @@ class NodePort(Base):
         self.io_pos = io_pos
         self.type_ = type_
         self.label_str = label_str
-        self.load_data = None
+        self.load_data: Optional[Dict] = None
 
     def load(self, data: Dict):
         self.load_data = data

@@ -1,6 +1,6 @@
 import unittest
 import ryvencore as rc
-from utils import check_addon_available
+from .utils import check_addon_available
 
 check_addon_available('Logging', __file__)
 

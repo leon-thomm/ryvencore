@@ -2,7 +2,15 @@
 The flow executors are responsible for executing the flow. They have access to
 the flow as well as the nodes' internals and are able to perform optimizations.
 """
-from . import Flow, Node
+# prevent cyclic imports
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .Flow import Flow
+    from .Node import Node
+
+from typing import Optional
+
 from .Data import Data
 from .NodePort import NodeOutput, NodeInput
 from .RC import FlowAlg
@@ -32,21 +40,21 @@ class FlowExecutor:
         pass
 
     # Node.input() =>
-    def input(self, node: Node, index: int):
+    def input(self, node: Node, index: int) -> Optional[Data]:
         pass
 
     # Node.set_output_val() =>
-    def set_output_val(self, node: Node, index: int, val):
+    def set_output_val(self, node: Node, index: int, val) -> None:
         pass
 
     # Node.exec_output() =>
-    def exec_output(self, node: Node, index: int):
+    def exec_output(self, node: Node, index: int) -> None:
         pass
 
-    def conn_added(self, out: NodeOutput, inp: NodeInput, silent=False):
+    def conn_added(self, out: NodeOutput, inp: NodeInput, silent=False) -> None:
         pass
 
-    def conn_removed(self, out: NodeOutput, inp: NodeInput, silent=False):
+    def conn_removed(self, out: NodeOutput, inp: NodeInput, silent=False) -> None:
         pass
 
 

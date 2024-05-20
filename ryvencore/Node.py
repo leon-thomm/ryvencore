@@ -1,5 +1,12 @@
+# prevent cyclic imports
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .Flow import Flow
+    from .Session import Session
+
 import traceback
-from typing import List, Optional, Dict
+from typing import Optional, List, Tuple, Dict
 
 from .Base import Base, Event
 
@@ -23,7 +30,7 @@ class Node(Base):
     tags: List[str] = []
     """a list of tag strings, often useful for searching etc."""
 
-    version: str = None
+    version: Optional[str] = None
     """version tag, use it!"""
 
     init_inputs: List[NodeInputType] = []
@@ -32,14 +39,14 @@ class Node(Base):
     init_outputs: List[NodeOutputType] = []
     """initial outputs list, see ``init_inputs``"""
 
-    identifier: str = None
+    identifier: str
     """unique node identifier string. if not given it will set it to the class name when registering in the session"""
 
     legacy_identifiers: List[str] = []
     """a list of compatible identifiers, useful when you change the class name (and hence the identifier) to provide 
     backward compatibility to load old projects that rely on the old identifier"""
 
-    identifier_prefix: str = None
+    identifier_prefix: Optional[str] = None
     """becomes part of the identifier if set; can be useful for grouping nodes"""
 
     #
@@ -57,14 +64,14 @@ class Node(Base):
         if cls.identifier_prefix is not None:
             prefix = cls.identifier_prefix + '.'
 
-        if cls.identifier is None:
+        if not hasattr(cls, 'identifier') or cls.identifier is None:
             cls.identifier = cls.__name__
 
         cls.identifier = prefix + cls.identifier
 
         # notice that we do not touch the legacy identifier fields
 
-    def __init__(self, params):
+    def __init__(self, params: Tuple[Flow, Session]):
         Base.__init__(self)
 
         self.flow, self.session = params
@@ -292,7 +299,7 @@ class Node(Base):
 
     #   PORTS
 
-    def create_input(self, label: str = '', type_: str = 'data', default: Optional[Data] = None, load_from = None, insert: int = None):
+    def create_input(self, label: str = '', type_: str = 'data', default: Optional[Data] = None, load_from = None, insert: Optional[int] = None):
         """
         Creates and adds a new input at the end or index ``insert`` if specified.
         """
@@ -333,7 +340,7 @@ class Node(Base):
 
         self.input_removed.emit(self, index, inp)
 
-    def create_output(self, label: str = '', type_: str = 'data', load_from=None, insert: int = None):
+    def create_output(self, label: str = '', type_: str = 'data', load_from=None, insert: Optional[int] = None):
         """
         Creates and adds a new output at the end or index ``insert`` if specified.
         """
