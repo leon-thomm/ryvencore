@@ -1,4 +1,4 @@
-from typing import Optional, Union, Any
+from typing import Optional, Union, Any, Dict, List, Tuple
 from packaging.version import parse as parse_version
 
 from ryvencore import Node, Data, AddOn, Flow
@@ -94,7 +94,7 @@ class VarsAddon(AddOn):
     name = 'Variables'
     version = ADDON_VERSION
 
-    def __init__(self):
+    def __init__(self) -> None:
         AddOn.__init__(self)
 
         # layout:
@@ -105,7 +105,14 @@ class VarsAddon(AddOn):
         #               'subscriptions': [(node, method)]
         #           },
         #   }
-        self.flow_variables = {}
+        self.flow_variables: Dict[
+            Flow, Dict[
+                str, Dict[
+                    str,
+                    Union[Variable, List[Tuple[Node, Any]]]
+                 ]
+             ]
+         ] = {}
 
         # nodes can be removed and re-added, so we need to keep track of the broken
         # subscriptions when nodes get removed, because they might get re-added
@@ -116,11 +123,11 @@ class VarsAddon(AddOn):
         #          'variable name': 'callback name'
         #       }
         #   }
-        self.removed_subscriptions = {}
+        self.removed_subscriptions: Dict[Node, Dict[str, str]] = {}
 
         # state data of variables that need to be recreated once their flow is
         # available, see :code:`on_flow_created()`
-        self.flow_vars__pending = {}
+        self.flow_vars__pending: Dict = {}
 
         # events
         self.var_created = Event(Flow, str, Variable)
@@ -177,8 +184,8 @@ class VarsAddon(AddOn):
         # because the node might get re-added later
         self.removed_subscriptions[node] = {}
 
-        for name, varname in self.flow_variables[node.flow].items():
-            for (n, cb) in varname['subscriptions']:
+        for name, var_info in self.flow_variables[node.flow].items():
+            for (n, cb) in var_info['subscriptions']:
                 if n == node:
                     self.removed_subscriptions[node][name] = cb.__name__
                     self.unsubscribe(node, name, cb)
@@ -232,7 +239,7 @@ class VarsAddon(AddOn):
             # print_err(f'Variable {name} does not exist.')
             return None
 
-        return self.flow_variables[flow][name]['var']
+        return self.flow_variables[flow][name]['var']  # type: ignore
 
     def update_subscribers(self, flow, name: str):
         """
@@ -241,7 +248,7 @@ class VarsAddon(AddOn):
 
         v = self.flow_variables[flow][name]['var']
 
-        for (node, cb) in self.flow_variables[flow][name]['subscriptions']:
+        for (node, cb) in self.flow_variables[flow][name]['subscriptions']:  # type: ignore
             cb(v)
 
     def subscribe(self, node: Node, name: str, callback):
@@ -252,7 +259,7 @@ class VarsAddon(AddOn):
             # print_err(f'Variable {name} does not exist.')
             return
 
-        self.flow_variables[node.flow][name]['subscriptions'].append((node, callback))
+        self.flow_variables[node.flow][name]['subscriptions'].append((node, callback))  # type: ignore
 
     def unsubscribe(self, node, name: str, callback):
         """
@@ -262,7 +269,7 @@ class VarsAddon(AddOn):
             # print_err(f'Variable {name} does not exist.')
             return
 
-        self.flow_variables[node.flow][name]['subscriptions'].remove((node, callback))
+        self.flow_variables[node.flow][name]['subscriptions'].remove((node, callback))  # type: ignore
 
     """
     serialization
@@ -280,7 +287,7 @@ class VarsAddon(AddOn):
             'subscriptions': {
                 name: cb.__name__
                 for name, var in self.flow_variables[node.flow].items()
-                for (n, cb) in var['subscriptions']
+                for (n, cb) in var['subscriptions']  # type: ignore
                 if node == n
             }
         }
@@ -290,7 +297,7 @@ class VarsAddon(AddOn):
         
         return {
             f.global_id: {
-                name: var['var'].serialize()
+                name: var['var'].serialize()  # type: ignore
                 for name, var in self.flow_variables[f].items()
             }
             for f in self.flow_variables.keys()
