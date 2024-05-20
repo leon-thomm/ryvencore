@@ -13,12 +13,12 @@
   <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>ryvencore.Data &#8212; ryvencore v0.4.0 documentation</title>
+    <title>ryvencore.Data &#8212; ryvencore v0.5.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8e8a900e" />
     <link rel="stylesheet" type="text/css" href="../../_static/maisie.css?v=e05a0192" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=342dd957" />
-    <script src="../../_static/documentation_options.js?v=97b6c874"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/documentation_options.js?v=e663822d"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.5.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">ryvencore.Data</a></li> 
       </ul>
@@ -84,7 +84,7 @@
 <span class="sd">and deserialization must be implemented for each respective type. Types that are</span>
 <span class="sd">pickle serializable by default can be used directly with :code`Data(my_data)`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">from</span> <span class="nn">ryvencore.Base</span> <span class="kn">import</span> <span class="n">Base</span>
 <span class="kn">from</span> <span class="nn">ryvencore.utils</span> <span class="kn">import</span> <span class="n">serialize</span><span class="p">,</span> <span class="n">deserialize</span><span class="p">,</span> <span class="n">print_err</span>
@@ -164,11 +164,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># will be &#39;Data&#39; by default, see :code:`_build_identifier()`</span>
-    <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;unique Data identifier; you can set this manually in subclasses, if</span>
 <span class="sd">    you don&#39;t the class name will be used&quot;&quot;&quot;</span>
 
-    <span class="n">legacy_identifiers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">legacy_identifiers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;a list of compatible identifiers in case you change the identifier&quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
@@ -263,7 +263,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.5.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">ryvencore.Data</a></li> 
       </ul>

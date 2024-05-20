@@ -13,12 +13,12 @@
   <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>ryvencore.Flow &#8212; ryvencore v0.4.0 documentation</title>
+    <title>ryvencore.Flow &#8212; ryvencore v0.5.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8e8a900e" />
     <link rel="stylesheet" type="text/css" href="../../_static/maisie.css?v=e05a0192" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=342dd957" />
-    <script src="../../_static/documentation_options.js?v=97b6c874"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/documentation_options.js?v=e663822d"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.5.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">ryvencore.Flow</a></li> 
       </ul>
@@ -209,12 +209,12 @@
         <span class="c1"># general attributes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span> <span class="p">[</span><span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">node_successors</span> <span class="o">=</span> <span class="p">{}</span>   <span class="c1"># additional data structure for executors</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">graph_adj</span> <span class="o">=</span> <span class="p">{}</span>         <span class="c1"># directed adjacency list relating node ports</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">graph_adj_rev</span> <span class="o">=</span> <span class="p">{}</span>     <span class="c1"># reverse adjacency; reverse of graph_adj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_successors</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Node</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>   <span class="c1"># additional data structure for executors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph_adj</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">NodeOutput</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeInput</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>         <span class="c1"># directed adjacency list relating node ports</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph_adj_rev</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">NodeInput</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NodeOutput</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>     <span class="c1"># reverse adjacency; reverse of graph_adj</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">alg_mode</span> <span class="o">=</span> <span class="n">FlowAlg</span><span class="o">.</span><span class="n">DATA</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="p">:</span> <span class="n">FlowExecutor</span> <span class="o">=</span> <span class="n">executor_from_flow_alg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alg_mode</span><span class="p">)(</span><span class="bp">self</span><span class="p">)</span>
@@ -666,7 +666,7 @@
     <span class="k">def</span> <span class="nf">_gen_output_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Node</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Serializes output data of the nodes&quot;&quot;&quot;</span>
 
-        <span class="n">outputs_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">outputs_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Data</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">for</span> <span class="n">i_n</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nodes</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">i_o</span><span class="p">,</span> <span class="n">out</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">outputs</span><span class="p">):</span>
@@ -697,7 +697,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.4.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ryvencore v0.5.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">ryvencore.Flow</a></li> 
       </ul>
